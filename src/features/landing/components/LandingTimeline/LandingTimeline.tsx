@@ -42,20 +42,18 @@ function joinClassNames(...classes: (string | false | undefined)[]) {
 
 export function LandingTimeline() {
   const timelineRef = useRef<HTMLOListElement>(null);
-  const [lineProgress, setLineProgress] = useState(0);
+  const [reduceMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+  const [observerProgress, setObserverProgress] = useState(0);
+  const lineProgress = reduceMotion ? 1 : observerProgress;
 
   useEffect(() => {
+    if (reduceMotion) return;
+
     const timeline = timelineRef.current;
     if (!timeline) return;
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    if (prefersReducedMotion) {
-      setLineProgress(1);
-      return;
-    }
 
     const stepNodes = Array.from(
       timeline.querySelectorAll<HTMLElement>("[data-timeline-step]"),
@@ -85,7 +83,7 @@ export function LandingTimeline() {
           }
         });
 
-        setLineProgress(
+        setObserverProgress(
           highestVisible >= 0 ? (highestVisible + 1) / STEPS.length : 0,
         );
       },
@@ -100,7 +98,7 @@ export function LandingTimeline() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [reduceMotion]);
 
   const timelineStyle = {
     "--timeline-progress": String(lineProgress),

@@ -49,10 +49,15 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLElement>(null);
   const hasEnteredRef = useRef(immediate);
-  const [revealState, setRevealState] = useState<RevealState>(
+  const [reduceMotion, setReduceMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+  const [animatedState, setAnimatedState] = useState<RevealState>(
     immediate ? "visible" : "hidden-down",
   );
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const revealState: RevealState =
+    immediate || reduceMotion ? "visible" : animatedState;
 
   useEffect(() => {
     initScrollDirection();
@@ -62,7 +67,6 @@ export function ScrollReveal({
       setReduceMotion(media.matches);
     };
 
-    updateMotionPreference();
     media.addEventListener("change", updateMotionPreference);
 
     return () => {
@@ -72,7 +76,6 @@ export function ScrollReveal({
 
   useEffect(() => {
     if (reduceMotion || immediate) {
-      setRevealState("visible");
       return;
     }
 
@@ -88,9 +91,9 @@ export function ScrollReveal({
           const enterFrom: RevealState =
             getScrollDirection() === "down" ? "hidden-down" : "hidden-up";
 
-          setRevealState(enterFrom);
+          setAnimatedState(enterFrom);
           scheduleReveal(() => {
-            setRevealState("visible");
+            setAnimatedState("visible");
           });
 
           if (once) {
@@ -102,7 +105,7 @@ export function ScrollReveal({
 
         if (once) return;
 
-        setRevealState(
+        setAnimatedState(
           getScrollDirection() === "down" ? "hidden-down" : "hidden-up",
         );
       },
