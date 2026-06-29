@@ -28,8 +28,8 @@
   --item-accent: var(--color-vino-dark);
 }
 
-.item[data-accent="blanco"] {
-  --item-accent: var(--color-vino-dark);
+.item[data-accent="vino"] {
+  --item-accent: var(--color-vino);
 }
 
 .item[open] {
@@ -118,11 +118,19 @@
 @media (max-width: 640px) {
   .list {
     gap: var(--space-3);
+    max-width: 100%;
   }
 
   .question {
+    gap: var(--space-3);
     padding: var(--space-4);
     font-size: var(--font-size-sm);
+    line-height: 1.4;
+  }
+
+  .questionText {
+    flex: 1;
+    min-width: 0;
   }
 
   .answer {
@@ -130,7 +138,8 @@
   }
 
   .answer p {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
   }
 }
 

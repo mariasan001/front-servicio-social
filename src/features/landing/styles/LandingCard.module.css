@@ -174,8 +174,8 @@
   }
 
   .description {
-    font-size: var(--font-size-xs);
-    line-height: 1.55;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
   }
 }
 

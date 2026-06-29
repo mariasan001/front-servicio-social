@@ -25,25 +25,28 @@ export function LandingTestimonials() {
       <div
         className={`${sectionStyles.container} ${sectionStyles.containerFlushMobile}`}
       >
-        <LandingSectionHeader
-          align="center"
-          className={sectionStyles.headerPad}
-          eyebrow="Experiencias reales"
-          title={
-            <>
-              Lo que dicen nuestros{" "}
-              <span className={headerStyles.titleAccent}>estudiantes</span>
-            </>
-          }
-          intro="Conoce la experiencia de estudiantes mexiquenses que ya realizaron su servicio social, prácticas o residencia en dependencias del Gobierno del Estado de México."
-        />
+        <div className={styles.introBlock}>
+          <LandingSectionHeader
+            align="center"
+            className={`${sectionStyles.headerPad} ${styles.testimonialsHeader}`}
+            copyClassName={styles.testimonialsCopy}
+            eyebrow="Experiencias reales"
+            title={
+              <>
+                Lo que dicen nuestros{" "}
+                <span className={headerStyles.titleAccent}>estudiantes</span>
+              </>
+            }
+            intro="Conoce la experiencia de estudiantes mexiquenses que ya realizaron su servicio social, prácticas o residencia en dependencias del Gobierno del Estado de México."
+          />
 
-        <p
-          id="testimonials-scroll-hint"
-          className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible}`}
-        >
-          Desliza horizontalmente para ver más testimonios
-        </p>
+          <p
+            id="testimonials-scroll-hint"
+            className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible} ${styles.scrollHint}`}
+          >
+            Desliza horizontalmente para ver más testimonios
+          </p>
+        </div>
 
         <ul
           className={`${styles.grid} ${scrollStyles.scrollRegion}`}

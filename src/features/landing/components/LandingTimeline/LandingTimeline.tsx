@@ -111,19 +111,23 @@ export function LandingTimeline() {
       id="proceso"
       className={`${sectionStyles.section} ${sectionStyles.surfaceDark}`}
     >
-      <div className={sectionStyles.container}>
+      <div className={`${sectionStyles.container} ${styles.timelineContainer}`}>
         <ScrollReveal delay={0}>
-          <LandingSectionHeader
-            align="center"
-            tone="dark"
-            eyebrow="Proceso de participación"
-            title={
-              <>
-                ¿Cómo <span className={headerStyles.titleAccent}>funciona</span>?
-              </>
-            }
-            intro="Sigue estos pasos para participar en el servicio social o residencia profesional. La plataforma te acompaña desde la búsqueda de vacante hasta la obtención de tus constancias."
-          />
+          <div className={styles.introBlock}>
+            <LandingSectionHeader
+              align="center"
+              tone="dark"
+              className={styles.timelineHeader}
+              copyClassName={styles.timelineCopy}
+              eyebrow="Proceso de participación"
+              title={
+                <>
+                  ¿Cómo <span className={headerStyles.titleAccent}>funciona</span>?
+                </>
+              }
+              intro="Sigue estos pasos para participar en el servicio social o residencia profesional. La plataforma te acompaña desde la búsqueda de vacante hasta la obtención de tus constancias."
+            />
+          </div>
         </ScrollReveal>
 
         <ol

@@ -1,4 +1,5 @@
 import { ChevronDown } from "@/shared/icons";
+import { getLandingAccent } from "../../constants/accents";
 import { FAQ_ITEMS } from "../../constants/faq";
 import { JsonLd } from "@/shared/components/JsonLd";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
@@ -45,13 +46,7 @@ export function LandingFaq() {
             <details
               key={item.id}
               className={styles.item}
-              data-accent={
-                index % 3 === 0
-                  ? "dorado"
-                  : index % 3 === 1
-                    ? "vino-dark"
-                    : "blanco"
-              }
+              data-accent={getLandingAccent(index)}
             >
               <summary className={styles.question}>
                 <span className={styles.questionText}>{item.question}</span>

@@ -9,6 +9,8 @@ type LandingSectionHeaderProps = {
   tone?: "light" | "dark";
   align?: "left" | "center";
   className?: string;
+  copyClassName?: string;
+  actionClassName?: string;
 };
 
 function joinClassNames(...classes: (string | undefined)[]) {
@@ -23,6 +25,8 @@ export function LandingSectionHeader({
   tone = "light",
   align = "left",
   className,
+  copyClassName,
+  actionClassName,
 }: LandingSectionHeaderProps) {
   const hasAction = Boolean(action);
 
@@ -36,13 +40,15 @@ export function LandingSectionHeader({
         className,
       )}
     >
-      <div className={styles.copy}>
+      <div className={joinClassNames(styles.copy, copyClassName)}>
         <span className={styles.eyebrow}>{eyebrow}</span>
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.intro}>{intro}</p>
       </div>
 
-      {action ? <div className={styles.action}>{action}</div> : null}
+      {action ? (
+        <div className={joinClassNames(styles.action, actionClassName)}>{action}</div>
+      ) : null}
     </header>
   );
 }

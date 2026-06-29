@@ -36,25 +36,28 @@ export function LandingAbout() {
       <div
         className={`${sectionStyles.container} ${sectionStyles.containerFlushMobile}`}
       >
-        <LandingSectionHeader
-          align="center"
-          className={sectionStyles.headerPad}
-          eyebrow="Sobre la plataforma"
-          title={
-            <>
-              Acerca de la{" "}
-              <span className={headerStyles.titleAccent}>plataforma</span>
-            </>
-          }
-          intro="Este espacio permite a estudiantes del Estado de México consultar oportunidades en el sector público estatal, conocer el proceso de participación y dar seguimiento a su servicio social o residencia profesional."
-        />
+        <div className={styles.introBlock}>
+          <LandingSectionHeader
+            align="center"
+            className={`${sectionStyles.headerPad} ${styles.aboutHeader}`}
+            copyClassName={styles.aboutCopy}
+            eyebrow="Sobre la plataforma"
+            title={
+              <>
+                Acerca de la{" "}
+                <span className={headerStyles.titleAccent}>plataforma</span>
+              </>
+            }
+            intro="Este espacio permite a estudiantes del Estado de México consultar oportunidades en el sector público estatal, conocer el proceso de participación y dar seguimiento a su servicio social o residencia profesional."
+          />
 
-        <p
-          id="about-scroll-hint"
-          className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible}`}
-        >
-          Desliza horizontalmente para ver más beneficios
-        </p>
+          <p
+            id="about-scroll-hint"
+            className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible} ${styles.scrollHint}`}
+          >
+            Desliza horizontalmente para ver más beneficios
+          </p>
+        </div>
 
         <ul
           className={`${styles.grid} ${scrollStyles.scrollRegion}`}

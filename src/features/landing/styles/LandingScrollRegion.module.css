@@ -1,12 +1,13 @@
 .scrollHint {
   display: none;
   width: 100%;
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-3);
+  padding-inline: var(--mobile-gutter, var(--space-4));
   font-size: var(--font-size-xs);
   font-weight: 500;
   line-height: var(--line-height-normal);
   color: var(--color-text-muted);
-  text-align: center;
+  text-align: left;
 }
 
 .scrollHintAlways {
@@ -24,17 +25,50 @@
 }
 
 @media (max-width: 960px) {
+  .scrollRegion {
+    --mobile-gutter: var(--space-4);
+    --scroll-peek: 2.75rem;
+    --scroll-card-width: calc(100vw - var(--mobile-gutter) * 2 - var(--scroll-peek));
+
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    width: calc(100% + var(--mobile-gutter) * 2);
+    max-width: none;
+    margin-inline: calc(var(--mobile-gutter) * -1);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--mobile-gutter);
+    padding: 0 var(--mobile-gutter) var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .scrollRegion::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollRegion > li {
+    flex: 0 0 var(--scroll-card-width);
+    scroll-snap-align: start;
+    min-width: 0;
+  }
+
   .scrollHintVisible {
     display: block;
-    padding-inline: var(--space-4);
-    margin-bottom: var(--space-3);
   }
 }
 
 @media (max-width: 640px) {
+  .scrollRegion {
+    --scroll-peek: 2.25rem;
+    --scroll-card-width: calc(100vw - var(--mobile-gutter) * 2 - var(--scroll-peek));
+    gap: var(--space-3);
+  }
+
   .scrollHintVisible,
   .scrollHintAlways {
-    padding-inline: var(--space-4);
     margin-bottom: var(--space-2);
     font-size: 0.6875rem;
     line-height: 1.4;

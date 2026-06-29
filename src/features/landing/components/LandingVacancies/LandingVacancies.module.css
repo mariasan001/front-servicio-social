@@ -6,6 +6,36 @@
   flex-shrink: 0;
 }
 
+.introBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.vacanciesSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.vacanciesHeader {
+  margin-bottom: 0;
+  gap: var(--space-6);
+}
+
+.vacanciesCopy {
+  gap: var(--space-5);
+}
+
+.vacanciesAction {
+  padding-top: var(--space-2);
+}
+
+.scrollHint {
+  margin: 0;
+  padding-inline: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -18,6 +48,10 @@
   height: 100%;
 }
 
+.vacancyHeader {
+  gap: var(--space-4);
+}
+
 .headerTop {
   display: flex;
   align-items: flex-start;
@@ -27,7 +61,7 @@
 .titleBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -125,7 +159,7 @@
 .metaChipContent {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--space-1);
   min-width: 0;
 }
 
@@ -162,104 +196,171 @@
 }
 
 @media (max-width: 960px) {
+  .vacanciesSection {
+    padding-block: var(--space-12);
+    gap: var(--space-5);
+  }
+
+  .introBlock {
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+  }
+
+  .vacanciesCopy {
+    gap: var(--space-5);
+  }
+
+  .vacanciesHeader {
+    gap: var(--space-6);
+  }
+
+  .vacanciesAction {
+    padding-top: var(--space-3);
+  }
+
+  .scrollHint {
+    margin-top: var(--space-1);
+  }
+
   .grid {
+    --mobile-gutter: var(--space-4);
+    --scroll-peek: 4.5rem;
+    --scroll-card-width: calc(100vw - var(--mobile-gutter) * 2 - var(--scroll-peek));
+
     display: flex;
-    flex-direction: row;
-    gap: var(--space-3);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--space-4);
-    padding: 0 var(--space-4) var(--space-2);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    flex-flow: row nowrap;
+    grid-template-columns: unset;
+    gap: var(--space-4);
+    max-width: none;
+    margin-inline: 0;
+    padding-block: var(--space-4) var(--space-8);
   }
 
-  .grid::-webkit-scrollbar {
-    display: none;
-  }
-
-  .grid > li {
-    flex: 0 0 min(16.75rem, 78vw);
+  .vacancyCard {
+    flex: 0 0 var(--scroll-card-width);
     scroll-snap-align: start;
+    height: auto;
   }
 
   .vacancyCard:hover .cardActionIcon {
     transform: none;
   }
 
+  .vacancyHeader {
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .headerMeta {
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
   .cardBody {
-    gap: var(--space-4);
-    padding: var(--space-4);
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-5);
   }
 
   .cardFooter {
-    padding: 0 var(--space-4) var(--space-4);
+    padding: var(--space-2) var(--space-5) var(--space-6);
+  }
+
+  .metaGrid {
+    gap: var(--space-4);
   }
 }
 
 @media (max-width: 640px) {
-  .viewAll {
-    width: 100%;
-    padding-block: var(--space-2);
+  .vacanciesSection {
+    padding-block: var(--space-10);
+    gap: var(--space-4);
+  }
+
+  .introBlock {
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  .vacanciesHeader {
+    gap: var(--space-5);
+  }
+
+  .vacanciesCopy {
+    gap: var(--space-4);
+  }
+
+  .scrollHint {
     font-size: var(--font-size-xs);
+    line-height: 1.45;
+    margin-top: var(--space-2);
   }
 
   .grid {
-    gap: var(--space-2);
-    scroll-padding-inline: var(--space-4);
-    padding-inline: var(--space-4);
+    --scroll-peek: 3.75rem;
+    --scroll-card-width: calc(100vw - var(--mobile-gutter) * 2 - var(--scroll-peek));
+    gap: var(--space-4);
+    padding-block: var(--space-3) var(--space-6);
   }
 
-  .grid > li {
-    flex-basis: min(15.5rem, 76vw);
+  .viewAll {
+    width: 100%;
+    padding-block: var(--space-3);
+    font-size: var(--font-size-sm);
   }
 
   .slots {
-    font-size: 0.6875rem;
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
   }
 
   .slots strong {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+  }
+
+  .vacancyHeader {
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-5) var(--space-6);
   }
 
   .headerMeta {
-    gap: var(--space-1);
+    gap: var(--space-3);
+    margin-top: var(--space-2);
   }
 
   .modalityBadge,
   .location {
-    font-size: 0.6875rem;
+    font-size: var(--font-size-xs);
   }
 
   .metaChip {
-    gap: var(--space-2);
-    padding: var(--space-2);
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 
   .metaChipIcon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .metaValue {
-    font-size: var(--font-size-xs);
-    line-height: 1.45;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
   }
 
   .cardBody {
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4) var(--space-3);
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-5) var(--space-6);
   }
 
   .cardFooter {
-    padding-inline: var(--space-4);
-    padding-bottom: var(--space-3);
+    padding-inline: var(--space-5);
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-5);
   }
 
   .cardAction {
-    padding-block: var(--space-2);
-    font-size: var(--font-size-xs);
+    padding-block: var(--space-3);
+    font-size: var(--font-size-sm);
   }
 }
 

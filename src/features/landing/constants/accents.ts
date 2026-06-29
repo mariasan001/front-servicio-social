@@ -1,4 +1,4 @@
-export const LANDING_ACCENTS = ["dorado", "vino-dark", "blanco"] as const;
+export const LANDING_ACCENTS = ["dorado", "vino-dark", "vino"] as const;
 
 export type LandingAccent = (typeof LANDING_ACCENTS)[number];
 

@@ -32,7 +32,16 @@
 }
 
 @media (max-width: 960px) {
+  .container {
+    padding-block: var(--space-10);
+    padding-inline: var(--space-4);
+  }
+
   .containerFlushMobile {
+    padding-inline: var(--space-4);
+  }
+
+  .headerPad {
     padding-inline: 0;
   }
 }
@@ -40,10 +49,6 @@
 @media (max-width: 640px) {
   .container {
     padding-block: var(--space-8);
-  }
-
-  .headerPad {
     padding-inline: var(--space-4);
-    margin-bottom: 0;
   }
 }

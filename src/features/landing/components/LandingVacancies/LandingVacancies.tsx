@@ -28,32 +28,36 @@ export function LandingVacancies() {
       className={`${sectionStyles.section} ${sectionStyles.surfaceLight}`}
     >
       <div
-        className={`${sectionStyles.container} ${sectionStyles.containerFlushMobile}`}
+        className={`${sectionStyles.container} ${sectionStyles.containerFlushMobile} ${styles.vacanciesSection}`}
       >
-        <LandingSectionHeader
-          className={sectionStyles.headerPad}
-          eyebrow="Oportunidades activas"
-          title={
-            <>
-              Vacantes que podrían{" "}
-              <span className={headerStyles.titleAccent}>interesarte</span>
-            </>
-          }
-          intro="Explora oportunidades en dependencias del Gobierno del Estado de México. Consulta el detalle de cada vacante y postúlate cuando encuentres la opción ideal para ti."
-          action={
-            <Button href="#vacantes-todas" variant="outline" className={styles.viewAll}>
-              Ver todas las vacantes
-              <ArrowRight className={styles.viewAllIcon} size={18} strokeWidth={2} />
-            </Button>
-          }
-        />
+        <div className={styles.introBlock}>
+          <LandingSectionHeader
+            className={`${sectionStyles.headerPad} ${styles.vacanciesHeader}`}
+            copyClassName={styles.vacanciesCopy}
+            eyebrow="Oportunidades activas"
+            title={
+              <>
+                Vacantes que podrían{" "}
+                <span className={headerStyles.titleAccent}>interesarte</span>
+              </>
+            }
+            intro="Explora oportunidades en dependencias del Gobierno del Estado de México. Consulta el detalle de cada vacante y postúlate cuando encuentres la opción ideal para ti."
+            actionClassName={styles.vacanciesAction}
+            action={
+              <Button href="#vacantes-todas" variant="outline" className={styles.viewAll}>
+                Ver todas las vacantes
+                <ArrowRight className={styles.viewAllIcon} size={18} strokeWidth={2} />
+              </Button>
+            }
+          />
 
-        <p
-          id="vacancies-scroll-hint"
-          className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible}`}
-        >
-          Desliza horizontalmente para ver más vacantes
-        </p>
+          <p
+            id="vacancies-scroll-hint"
+            className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintVisible} ${styles.scrollHint}`}
+          >
+            Desliza horizontalmente para ver más vacantes
+          </p>
+        </div>
 
         <ul
           className={`${styles.grid} ${scrollStyles.scrollRegion}`}
@@ -67,7 +71,7 @@ export function LandingVacancies() {
               className={`${cardStyles.shell} ${styles.vacancyCard}`}
               data-accent={ACCENT_BY_TYPE[vacancy.tipo]}
             >
-              <div className={cardStyles.header}>
+              <div className={`${cardStyles.header} ${styles.vacancyHeader}`}>
                 <div className={styles.headerTop}>
                   <span className={cardStyles.badge}>
                     {VACANCY_TYPE_LABELS[vacancy.tipo]}
