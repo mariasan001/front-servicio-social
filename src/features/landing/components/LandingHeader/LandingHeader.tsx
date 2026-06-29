@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { Button } from "@/shared/components/Button";
 import { LogIn, Menu, Minus, UserPlus } from "@/shared/icons";
 import { LANDING_NAV_LINKS } from "../../constants/nav";
@@ -9,6 +11,28 @@ import styles from "./LandingHeader.module.css";
 
 function joinClassNames(...classes: (string | false | undefined)[]) {
   return classes.filter(Boolean).join(" ");
+}
+
+function BrandLogo({ priority = false }: { priority?: boolean }) {
+  return (
+    <Image
+      className={styles.logoImage}
+      src="/images/logo.webp"
+      alt=""
+      width={180}
+      height={48}
+      sizes="180px"
+      priority={priority}
+    />
+  );
+}
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hasAttribute("disabled"));
 }
 
 export function LandingHeader() {
@@ -20,6 +44,55 @@ export function LandingHeader() {
     toggleMenu,
     handleNavClick,
   } = useLandingNav();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const wasMenuOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    const focusable = getFocusableElements(menu);
+    focusable[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    menu.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      menu.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      wasMenuOpenRef.current = true;
+      return;
+    }
+
+    if (!wasMenuOpenRef.current) return;
+
+    menuToggleRef.current?.focus();
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -32,7 +105,7 @@ export function LandingHeader() {
       >
         <div className={styles.container}>
           <Link href="/" className={styles.logo} aria-label="Ir al inicio">
-            <span className={styles.logoPlaceholder} aria-hidden="true" />
+            <BrandLogo priority />
           </Link>
 
           <nav className={styles.navDesktop} aria-label="Navegación principal">
@@ -71,9 +144,10 @@ export function LandingHeader() {
           </div>
 
           <button
+            ref={menuToggleRef}
             type="button"
             className={styles.menuToggle}
-            aria-label="Abrir menú"
+            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={isMenuOpen}
             aria-controls="landing-mobile-menu"
             onClick={toggleMenu}
@@ -84,6 +158,7 @@ export function LandingHeader() {
       </header>
 
       <div
+        ref={menuRef}
         id="landing-mobile-menu"
         className={joinClassNames(
           styles.mobileMenu,
@@ -102,7 +177,7 @@ export function LandingHeader() {
             tabIndex={isMenuOpen ? 0 : -1}
             onClick={closeMenu}
           >
-            <span className={styles.logoPlaceholder} aria-hidden="true" />
+            <BrandLogo />
           </Link>
 
           <button

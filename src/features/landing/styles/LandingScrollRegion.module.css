@@ -1,0 +1,42 @@
+.scrollHint {
+  display: none;
+  width: 100%;
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  line-height: var(--line-height-normal);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.scrollHintAlways {
+  display: block;
+}
+
+.scrollRegion {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gris-300) transparent;
+}
+
+.scrollRegion:focus-visible {
+  outline: 3px solid var(--color-dorado);
+  outline-offset: 4px;
+}
+
+@media (max-width: 960px) {
+  .scrollHintVisible {
+    display: block;
+    padding-inline: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+}
+
+@media (max-width: 640px) {
+  .scrollHintVisible,
+  .scrollHintAlways {
+    padding-inline: var(--space-4);
+    margin-bottom: var(--space-2);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+}

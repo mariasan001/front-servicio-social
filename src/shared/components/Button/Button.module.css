@@ -20,6 +20,12 @@
   transform: scale(0.98);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .button:active {
+    transform: none;
+  }
+}
+
 .primary {
   background-color: var(--color-vino);
   color: var(--color-white);

@@ -13,28 +13,14 @@ function resolveHash(hash: string) {
     : DEFAULT_HASH;
 }
 
-function getInitialHash() {
-  if (typeof window === "undefined") {
-    return DEFAULT_HASH;
-  }
-
-  return resolveHash(window.location.hash || DEFAULT_HASH);
-}
-
-function getInitialScrolled() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return window.scrollY > 8;
-}
-
 export function useLandingNav() {
-  const [activeHash, setActiveHash] = useState(getInitialHash);
+  const [activeHash, setActiveHash] = useState(DEFAULT_HASH);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(getInitialScrolled);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    setActiveHash(resolveHash(window.location.hash || DEFAULT_HASH));
+
     const onHashChange = () => {
       setActiveHash(resolveHash(window.location.hash || DEFAULT_HASH));
     };
@@ -76,22 +62,42 @@ export function useLandingNav() {
   }, []);
 
   useEffect(() => {
+    let ticking = false;
+
     const onScroll = () => {
-      setIsScrolled(window.scrollY > 8);
+      if (ticking) return;
+
+      ticking = true;
+      requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 8);
+        ticking = false;
+      });
     };
 
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    document.documentElement.classList.toggle("menu-open", isMenuOpen);
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+
+      setIsMenuOpen(false);
+      document.documentElement.classList.remove("menu-open");
+    };
+
+    window.addEventListener("pageshow", onPageShow);
 
     return () => {
-      document.body.style.overflow = "";
+      window.removeEventListener("pageshow", onPageShow);
     };
-  }, [isMenuOpen]);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

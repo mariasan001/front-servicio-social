@@ -3,7 +3,10 @@
   --color-vino: #6b2340;
   --color-vino-dark: #4a1829;
   --color-dorado: #b8956a;
-  --color-dorado-dark: #9a7a52;
+  --color-dorado-dark: #7a5e38;
+  --color-dorado-on-dark: #e4cfa8;
+  --color-text-on-vino: rgb(255 255 255 / 88%);
+  --color-text-on-vino-muted: rgb(255 255 255 / 80%);
 
   /* Grises */
   --color-gris-900: #2d2d2d;
@@ -53,8 +56,12 @@
   --space-24: 6rem;
 
   /* Layout */
-  --container-max: 72rem;
+  --container-max: 80rem;
   --header-height: 4.5rem;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 
   /* Bordes */
   --radius-sm: 0.25rem;

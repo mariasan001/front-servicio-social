@@ -1,2 +1,8 @@
 @import "../styles/variables.css";
 @import "../styles/reset.css";
+@import "../styles/accessibility.css";
+
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}

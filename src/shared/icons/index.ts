@@ -1,1 +1,20 @@
-export { Menu, Minus, LogIn, UserPlus } from "lucide-react";
+export {
+  Menu,
+  Minus,
+  LogIn,
+  UserPlus,
+  Briefcase,
+  ClipboardList,
+  Layers,
+  FileCheck,
+  ArrowRight,
+  MapPin,
+  Clock,
+  Users,
+  UserRound,
+  Quote,
+  Building2,
+  ChevronDown,
+  Code2,
+  ArrowUp,
+} from "lucide-react";
