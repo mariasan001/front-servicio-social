@@ -2,6 +2,8 @@
   /* Marca */
   --color-vino: #6b2340;
   --color-vino-dark: #4a1829;
+  --color-vino-login: var(--color-vino);
+  --color-vino-login-hover: var(--color-vino-dark);
   --color-dorado: #b8956a;
   --color-dorado-dark: #9a7a52;
 
@@ -12,17 +14,22 @@
   --color-gris-300: #d4d4d4;
   --color-gris-100: #f3f3f3;
   --color-gris-50: #fafafa;
+  --color-gris: var(--color-surface);
 
   /* Superficies */
   --color-white: #ffffff;
+  --color-blanco: var(--color-white);
   --color-background: #ffffff;
+  --color-fondo-principal: #f6f3ee;
   --color-surface: #f8f8f8;
   --color-border: #ececec;
+  --color-borde-claro: #e8e3da;
 
   /* Texto */
   --color-text-primary: var(--color-gris-900);
   --color-text-secondary: var(--color-gris-700);
   --color-text-muted: var(--color-gris-500);
+  --color-negro: #111111;
 
   /* Tipografía */
   --font-family: var(--font-gotham), system-ui, sans-serif;
@@ -37,6 +44,9 @@
   --line-height-tight: 1.2;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
+  --peso-regular: 400;
+  --peso-medio: 500;
+  --peso-negrita: 700;
 
   /* Espaciado */
   --space-1: 0.25rem;
@@ -60,6 +70,9 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+
+  /* Sombras */
+  --sombra-md: 0 10px 30px rgb(17 17 17 / 8%);
 
   /* Transiciones */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
