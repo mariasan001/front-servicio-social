@@ -1,0 +1,10 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+.scrollAnchor {
+  scroll-margin-top: var(--header-height);
+}
