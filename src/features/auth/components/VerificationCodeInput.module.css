@@ -17,7 +17,7 @@
   background: var(--color-input-surface);
   color: var(--color-negro);
   font-size: 1.5rem;
-  font-weight: var(--peso-negrita);
+  font-weight: var(--font-weight-bold);
   text-align: center;
   transition:
     border-color var(--transition-fast),

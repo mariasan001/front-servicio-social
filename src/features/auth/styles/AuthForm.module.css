@@ -27,7 +27,7 @@
   color: var(--color-negro);
   font-size: 40px;
   line-height: 1.05;
-  font-weight: var(--peso-negrita);
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0;
 }
 
@@ -37,7 +37,7 @@
   color: var(--color-gris-500);
   font-size: 15px;
   line-height: 1.5;
-  font-weight: var(--peso-regular);
+  font-weight: var(--font-weight-regular);
 }
 
 .form {
@@ -56,7 +56,7 @@
   color: var(--color-negro);
   font-size: 14px;
   line-height: 1.3;
-  font-weight: var(--peso-medio);
+  font-weight: var(--font-weight-medium);
 }
 
 .inputWrap {
@@ -102,7 +102,7 @@
   background: transparent;
   color: var(--color-negro);
   font-size: 1rem;
-  font-weight: var(--peso-regular);
+  font-weight: var(--font-weight-regular);
 }
 
 .input::placeholder {
@@ -116,7 +116,7 @@
   background: var(--color-vino-login);
   color: var(--color-blanco);
   font-size: 1.15rem;
-  font-weight: var(--peso-negrita);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition:
     background-color var(--transition-fast),
