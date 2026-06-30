@@ -1,10 +1,8 @@
 
-import AuthShell from "@/features/auth/components/AuthShell";
+import { AuthShell } from "@/features/auth/components/AuthShell";
+import { RegisterAside } from "./RegisterAside";
 
-import RegisterAside from './RegisterAside'
-
-
-export default function RegisterPage() {
+export function RegisterPage() {
     return (
         <AuthShell>
 

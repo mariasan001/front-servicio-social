@@ -5,7 +5,7 @@ import IconRegister from '@/../public/img/resetPassword/IconPassword.svg'
 import IconFlor from '@/../public/img/resetPassword/IconFlor.svg'
 
 
-export default function ResetAside() {
+export function ResetAside() {
 
     return (
         <aside className={styles.aside}>

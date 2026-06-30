@@ -1,6 +1,5 @@
-
-import ResetPasswordPage from "@/features/auth/resetpassword/ResetPasswordPage";
+import { ResetPasswordPage } from "@/features/auth";
 
 export default function Page() {
-    return <ResetPasswordPage />
+  return <ResetPasswordPage />;
 }

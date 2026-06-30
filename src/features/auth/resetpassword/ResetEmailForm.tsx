@@ -9,7 +9,7 @@ type Props = {
   onSubmit?: (email: string) => void;
 };
 
-export default function ResetEmailForm({ onSubmit }: Props) {
+export function ResetEmailForm({ onSubmit }: Props) {
   
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -6,7 +6,7 @@ import plantaLogin from "@/../public/img/login/PlantaLogin.svg";
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 import styles from "./LoginForm.module.css";
 
-export default function LoginForm() {
+export function LoginForm() {
   return (
     <section className={authFormStyles.formSide}>
       <div className={authFormStyles.formCard}>

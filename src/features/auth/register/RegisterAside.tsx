@@ -6,7 +6,7 @@ import IconFlor from '@/../public/img/register/IconFlor.svg'
 
 
 
-export default function RegisterAside() {
+export function RegisterAside() {
   return (
     <aside className={styles.aside}>
       <div className={styles.asideShape} aria-hidden="true" />

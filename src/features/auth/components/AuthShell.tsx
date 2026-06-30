@@ -7,7 +7,7 @@ type Props = {
     children: ReactNode;
 }
 
-export default function AuthShell({ children }: Props) {
+export function AuthShell({ children }: Props) {
     return (
         <main className={styles.page}>
             <section className={styles.shell}>

@@ -3,7 +3,7 @@ import styles from './LoginAside.module.css'
 import fondoLogin from '@/../public/img/login/FondoLogin.svg'
 
 
-export default function LoginAside() {
+export function LoginAside() {
     return (
         <aside className={styles.aside}>
             <div className={styles.asideShape} aria-hidden="true" />

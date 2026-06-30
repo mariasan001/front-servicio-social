@@ -1,9 +1,8 @@
-﻿import AuthShell from "@/features/auth/components/AuthShell";
+﻿import { AuthShell } from "@/features/auth/components/AuthShell";
+import { LoginAside } from "./LoginAside";
+import { LoginForm } from "./LoginForm";
 
-import LoginAside from "./LoginAside";
-import LoginForm from "./LoginForm";
-
-export default function LoginPage() {
+export function LoginPage() {
     return (
         <AuthShell>
             <LoginAside />

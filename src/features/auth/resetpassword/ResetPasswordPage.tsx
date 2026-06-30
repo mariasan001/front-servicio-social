@@ -1,9 +1,8 @@
-import AuthShell from "@/features/auth/components/AuthShell";
+import { AuthShell } from "@/features/auth/components/AuthShell";
+import { ResetAside } from "./ResetAside";
+import { ResetPasswordFlow } from "./ResetPasswordFlow";
 
-import ResetAside from "./ResetAside";
-import ResetPasswordFlow from "./ResetPasswordFlow";
-
-export default function ResetPasswordPage() {
+export function ResetPasswordPage() {
   return (
     <AuthShell>
       <ResetAside />

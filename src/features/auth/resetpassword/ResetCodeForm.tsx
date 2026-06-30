@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import styles from "./ResetCodeForm.module.css";
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 
-import VerificationCodeInput from "@/features/auth/components/VerificationCodeInput";
+import { VerificationCodeInput } from "@/features/auth/components/VerificationCodeInput";
 
 import iconPassword from "@/../public/img/resetPassword/IconPassword2.svg";
 
@@ -13,7 +13,7 @@ type Props = {
   onBack: () => void;
 };
 
-export default function ResetCodeForm({ email, onBack }: Props) {
+export function ResetCodeForm({ email, onBack }: Props) {
   return (
     <section className={authFormStyles.formSide} aria-labelledby="reset-code-title">
       <div className={`${authFormStyles.formCard} ${styles.formCard}`}>

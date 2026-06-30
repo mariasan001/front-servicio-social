@@ -7,7 +7,7 @@ type Props = {
   label?: string;
 };
 
-export default function VerificationCodeInput({
+export function VerificationCodeInput({
   length = 6,
   label = "Código de verificación",
 }: Props) {

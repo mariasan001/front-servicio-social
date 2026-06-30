@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 
-import ResetEmailForm from "./ResetEmailForm";
-import ResetCodeForm from "./ResetCodeForm";
+import { ResetEmailForm } from "./ResetEmailForm";
+import { ResetCodeForm } from "./ResetCodeForm";
 
 type ResetStep = "email" | "code";
 
-export default function ResetPasswordFlow() {
+export function ResetPasswordFlow() {
   const [step, setStep] = useState<ResetStep>("email");
   const [email, setEmail] = useState("");
 
