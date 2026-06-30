@@ -14,19 +14,19 @@ function resolveHash(hash: string) {
 }
 
 export function useLandingNav() {
-  const [activeHash, setActiveHash] = useState(() => {
-    if (typeof window === "undefined") return DEFAULT_HASH;
-    return resolveHash(window.location.hash || DEFAULT_HASH);
-  });
+  const [activeHash, setActiveHash] = useState(DEFAULT_HASH);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.scrollY > 8;
-  });
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onHashChange = () => {
+    const syncHash = () => {
       setActiveHash(resolveHash(window.location.hash || DEFAULT_HASH));
+    };
+
+    requestAnimationFrame(syncHash);
+
+    const onHashChange = () => {
+      syncHash();
     };
 
     window.addEventListener("hashchange", onHashChange);
@@ -78,6 +78,7 @@ export function useLandingNav() {
       });
     };
 
+    requestAnimationFrame(onScroll);
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", onScroll);

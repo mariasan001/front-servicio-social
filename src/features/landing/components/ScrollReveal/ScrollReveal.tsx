@@ -49,10 +49,7 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLElement>(null);
   const hasEnteredRef = useRef(immediate);
-  const [reduceMotion, setReduceMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
+  const [reduceMotion, setReduceMotion] = useState(false);
   const [animatedState, setAnimatedState] = useState<RevealState>(
     immediate ? "visible" : "hidden-down",
   );
@@ -67,6 +64,7 @@ export function ScrollReveal({
       setReduceMotion(media.matches);
     };
 
+    requestAnimationFrame(updateMotionPreference);
     media.addEventListener("change", updateMotionPreference);
 
     return () => {

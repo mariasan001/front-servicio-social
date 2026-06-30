@@ -42,12 +42,23 @@ function joinClassNames(...classes: (string | false | undefined)[]) {
 
 export function LandingTimeline() {
   const timelineRef = useRef<HTMLOListElement>(null);
-  const [reduceMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
+  const [reduceMotion, setReduceMotion] = useState(false);
   const [observerProgress, setObserverProgress] = useState(0);
   const lineProgress = reduceMotion ? 1 : observerProgress;
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotionPreference = () => {
+      setReduceMotion(media.matches);
+    };
+
+    requestAnimationFrame(syncMotionPreference);
+    media.addEventListener("change", syncMotionPreference);
+
+    return () => {
+      media.removeEventListener("change", syncMotionPreference);
+    };
+  }, []);
 
   useEffect(() => {
     if (reduceMotion) return;
