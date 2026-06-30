@@ -4,6 +4,8 @@
   --color-vino-dark: #4a1829;
   --color-vino-login: var(--color-vino);
   --color-vino-login-hover: var(--color-vino-dark);
+  --color-vino-soft: rgb(107 35 64 / 10%);
+  --color-vino-ring: rgb(107 35 64 / 12%);
   --color-dorado: #b8956a;
   --color-dorado-dark: #9a7a52;
 
@@ -12,6 +14,7 @@
   --color-gris-700: #5c5c5c;
   --color-gris-500: #8a8a8a;
   --color-gris-300: #d4d4d4;
+  --color-gris-200: #d8d4d4;
   --color-gris-100: #f3f3f3;
   --color-gris-50: #fafafa;
   --color-gris: var(--color-surface);
@@ -24,11 +27,15 @@
   --color-surface: #f8f8f8;
   --color-border: #ececec;
   --color-borde-claro: #e8e3da;
+  --color-input-border: var(--color-gris-200);
+  --color-input-surface: #f3f0f0;
 
   /* Texto */
   --color-text-primary: var(--color-gris-900);
   --color-text-secondary: var(--color-gris-700);
   --color-text-muted: var(--color-gris-500);
+  --color-text-placeholder: rgb(33 33 33 / 35%);
+  --color-icon-muted: rgb(33 33 33 / 40%);
   --color-negro: #111111;
 
   /* Tipografía */

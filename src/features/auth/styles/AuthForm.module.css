@@ -1,0 +1,284 @@
+.formSide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  background: var(--color-blanco);
+}
+
+.formCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 25px 46px;
+  border: 1px solid var(--color-borde-claro);
+  border-radius: 28px;
+  background: var(--color-gris);
+}
+
+.formHeader {
+  margin-bottom: 28px;
+}
+
+
+.title {
+  margin: 0 0 10px;
+  color: var(--color-negro);
+  font-size: 40px;
+  line-height: 1.05;
+  font-weight: var(--peso-negrita);
+  letter-spacing: 0;
+}
+
+.subtitle {
+  max-width: 420px;
+  margin: 0;
+  color: var(--color-gris-500);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: var(--peso-regular);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  color: var(--color-negro);
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: var(--peso-medio);
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 16px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 14px;
+  background: var(--color-input-surface);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.inputWrap:focus-within {
+  border-color: var(--color-vino-login);
+  background: var(--color-blanco);
+  box-shadow: 0 0 0 3px var(--color-vino-ring);
+}
+
+.inputIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--color-icon-muted);
+}
+
+.inputIconSvg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-negro);
+  font-size: 1rem;
+  font-weight: var(--peso-regular);
+}
+
+.input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.submitButton {
+  min-height: 55px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--color-vino-login);
+  color: var(--color-blanco);
+  font-size: 1.15rem;
+  font-weight: var(--peso-negrita);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.submitButton:hover {
+  background: var(--color-vino-login-hover);
+}
+
+.submitButton:active {
+  transform: scale(0.99);
+}
+
+.submitButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1080px) {
+  .formCard {
+    padding: 15px 46px;
+  }
+
+  .formHeader {
+    margin-bottom: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .formSide {
+    padding: 18px;
+  }
+
+  .formCard {
+    padding: 22px 20px;
+    border-radius: 24px;
+  }
+
+  .formHeader {
+    margin-bottom: 24px;
+  }
+
+
+  .title {
+    font-size: 34px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .form {
+    gap: 20px;
+  }
+
+  .inputWrap {
+    min-height: 54px;
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .formSide {
+    padding: 14px;
+  }
+
+  .formCard {
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .formHeader {
+    margin-bottom: 22px;
+  }
+
+
+  .title {
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .form {
+    gap: 18px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
+
+  .inputWrap {
+    min-height: 50px;
+    padding: 0 14px;
+  }
+
+  .input {
+    font-size: 0.95rem;
+  }
+
+  .submitButton {
+    min-height: 50px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 376px) {
+  .formSide {
+    padding: 12px;
+  }
+
+  .formCard {
+    padding: 18px 14px;
+    border-radius: 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .submitButton {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 320px) {
+  .formCard {
+    padding: 16px 12px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle,
+  .label {
+    font-size: 12px;
+  }
+
+  .inputWrap {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+
+  .inputIconSvg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .input {
+    font-size: 0.9rem;
+  }
+
+  .submitButton {
+    font-size: 0.95rem;
+  }
+}

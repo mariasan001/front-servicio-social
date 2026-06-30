@@ -42,11 +42,11 @@ export default function ResetAside() {
                         className={`${styles.flower} ${styles.flowerRight}`}
                     />
 
-                    <h1 className={styles.asideTitle}>Restaurar Contraseña</h1>
+                    <h1 className={styles.asideTitle}>Recupera tu acceso</h1>
 
 
                     <p className={styles.asideText}>
-                        &quot;Recupera el acceso a tu cuenta de forma segura.&quot;
+                        &quot;Restablece tu contraseña de forma segura.&quot;
                     </p>
                 </div>
             </div>
