@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import { UserCircle2Icon, LockKeyhole } from 'lucide-react'
 import plantaLogin from '@/../public/img/login/PlantaLogin.svg'
@@ -68,7 +69,7 @@ export default function LoginForm() {
               <span className={styles.checkText}>Mostrar contraseña</span>
             </label>
 
-            <span className={styles.forgotText}>¿Olvidaste tu contraseña?</span>
+            <Link href="/resetPassword" className={styles.forgotText}>¿Olvidaste tu contraseña?</Link>
           </div>
 
           <button

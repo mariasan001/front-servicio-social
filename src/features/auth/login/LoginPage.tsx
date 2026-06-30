@@ -1,17 +1,13 @@
-﻿import LoginAside from "./LoginAside";
-import LoginForm from "./LoginForm";
+﻿import AuthShell from "@/features/auth/components/AuthShell";
 
-import styles from "./LoginPage.module.css";
+import LoginAside from "./LoginAside";
+import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
     return (
-        <div className={styles.page}>
-            <section className={styles.shell}>
-                <div className={styles.panel}>
-                    <LoginAside/>
-                    <LoginForm />
-                </div>
-            </section>
-        </div>
+        <AuthShell>
+            <LoginAside />
+            <LoginForm />
+        </AuthShell>
     );
 }

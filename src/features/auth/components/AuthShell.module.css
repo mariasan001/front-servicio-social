@@ -14,7 +14,6 @@
 }
 
 .panel {
-
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(420px, 0.92fr);
   height: min(720px, calc(100vh - 80px));

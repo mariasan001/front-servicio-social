@@ -1,21 +1,19 @@
 
-import styles from '../login/LoginPage.module.css'
+import AuthShell from "@/features/auth/components/AuthShell";
 
 import RegisterAside from './RegisterAside'
 
 
 export default function RegisterPage() {
     return (
-        <div className={styles.page}>
-            <section className={styles.shell}>
-                <div className={styles.panel}>
-                    <RegisterAside />
-                    {/* 
+        <AuthShell>
 
-                <LoginForm /> */}
-                </div>
-            </section>
+            <RegisterAside />
+            {/* 
 
-        </div>
+            <LoginForm /> */}
+
+
+        </AuthShell>
     )
 }

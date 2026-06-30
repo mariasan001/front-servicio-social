@@ -1,4 +1,4 @@
-﻿.formSide {
+.formSide {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,6 +130,11 @@
   color: var(--color-vino-login);
   font-size: 14px;
   font-weight: var(--peso-medio);
+  text-decoration: none;
+}
+
+.forgotText:hover {
+  text-decoration: underline;
 }
 
 .errorText {

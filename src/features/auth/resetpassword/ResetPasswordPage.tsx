@@ -1,21 +1,13 @@
-import styles from '../login/LoginPage.module.css'
+import AuthShell from "@/features/auth/components/AuthShell";
 
-import ResetAside from './ResetAside'
+import ResetAside from "./ResetAside";
+import ResetEmailForm from "./ResetEmailForm";
 
 export default function ResetPasswordPage() {
-    return (
-        <div className={styles.page}>
-            <section className={styles.shell}>
-                <div className={styles.panel}>
-
-                    <ResetAside/>
-                    
-                    {/* <ResetAside/> */}
-
-
-                </div>
-            </section>
-
-        </div>
-    )
+  return (
+    <AuthShell>
+      <ResetAside />
+      <ResetEmailForm />
+    </AuthShell>
+  );
 }

@@ -18,9 +18,11 @@ export default function RegisterAside() {
             <Image
               src={IconRegister}
               alt="Ilustración decorativa de registro"
-              width={559}
-              height={557}
+              width={560}
+              height={441}
               className={styles.asideIllustrationImage}
+              loading="eager"
+              style={{ maxWidth: "100%", height: "auto" }}
             />
           </div>
         </div>

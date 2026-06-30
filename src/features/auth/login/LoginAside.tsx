@@ -6,7 +6,7 @@ import fondoLogin from '@/../public/img/login/FondoLogin.svg'
 export default function LoginAside() {
     return (
         <aside className={styles.aside}>
-            {/* <div className={styles.asideShape} aria-hidden="true" /> */}
+            <div className={styles.asideShape} aria-hidden="true" />
 
             <div className={styles.asideInner}>
                 <div className={styles.asideIllustration}>

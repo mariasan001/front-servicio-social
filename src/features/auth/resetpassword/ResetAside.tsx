@@ -19,8 +19,10 @@ export default function ResetAside() {
                             src={IconRegister}
                             alt="Ilustración decorativa de registro"
                             width={400}
-                            height={557}
+                            height={438}
                             className={styles.asideIllustrationImage}
+                            loading="eager"
+                            style={{ maxWidth: "100%", height: "auto" }}
                         />
                     </div>
                 </div>
