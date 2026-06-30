@@ -1,0 +1,56 @@
+/* src/features/auth/components/VerificationCodeInput.module.css */
+
+.codeGroup {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+  width: 100%;
+  max-width: 430px;
+}
+
+.codeInput {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--color-input-border);
+  border-radius: 12px;
+  outline: 0;
+  background: var(--color-input-surface);
+  color: var(--color-negro);
+  font-size: 1.5rem;
+  font-weight: var(--peso-negrita);
+  text-align: center;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.codeInput:focus {
+  border-color: var(--color-vino-login);
+  background: var(--color-blanco);
+  box-shadow: 0 0 0 3px var(--color-vino-ring);
+}
+
+@media (max-width: 640px) {
+  .codeGroup {
+    gap: 12px;
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 480px) {
+  .codeGroup {
+    gap: 8px;
+  }
+
+  .codeInput {
+    border-radius: 10px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 376px) {
+  .codeGroup {
+    gap: 6px;
+  }
+}

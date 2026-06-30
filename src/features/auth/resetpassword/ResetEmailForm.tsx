@@ -1,10 +1,25 @@
+import type { FormEvent } from "react";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 import styles from "./ResetEmailForm.module.css";
 
-export default function ResetEmailForm() {
+type Props = {
+  onSubmit?: (email: string) => void;
+};
+
+export default function ResetEmailForm({ onSubmit }: Props) {
+  
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim();
+
+    onSubmit?.(email);
+  };
+
   return (
     <section className={authFormStyles.formSide} aria-labelledby="reset-email-title">
       <div className={`${authFormStyles.formCard} ${styles.formCard}`}>
@@ -19,7 +34,7 @@ export default function ResetEmailForm() {
           </p>
         </div>
 
-        <form className={authFormStyles.form} noValidate>
+        <form className={authFormStyles.form} onSubmit={handleSubmit} noValidate>
           <div className={authFormStyles.fieldGroup}>
             <label htmlFor="email" className={authFormStyles.label}>
               Correo electrónico

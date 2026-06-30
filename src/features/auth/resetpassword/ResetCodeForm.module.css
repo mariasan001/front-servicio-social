@@ -1,0 +1,221 @@
+.formCard {
+  position: relative;
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding-block: 28px;
+  font-family: var(--font-family);
+}
+
+.backButton {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 999px;
+  background: var(--color-blanco);
+  color: var(--color-vino-login);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.backButton:hover {
+  border-color: var(--color-vino-login);
+  background: var(--color-vino-soft);
+}
+
+.backIcon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.headerBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.title {
+  max-width: 500px;
+  margin: 0;
+  color: var(--color-negro);
+  font-family: var(--font-family);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--peso-negrita);
+  letter-spacing: 0;
+}
+
+.emailText {
+  margin: 0;
+  color: var(--color-vino-login);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  font-weight: var(--peso-medio);
+  overflow-wrap: anywhere;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.helperText {
+  max-width: 380px;
+  margin: 0;
+  color: var(--color-gris-500);
+  font-family: var(--font-family);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+  font-weight: var(--peso-negrita);
+  text-align: center;
+}
+
+.resendButton {
+  width: min(100%, 380px);
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--color-input-border);
+  color: var(--color-gris-500);
+  font-family: var(--font-family);
+  font-size: var(--font-size-lg);
+  font-weight: var(--peso-negrita);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.resendButton:hover {
+  background: var(--color-vino-login);
+  color: var(--color-blanco);
+}
+
+.timerText {
+  margin: 0;
+  color: var(--color-gris-500);
+  font-family: var(--font-family);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+  font-weight: var(--peso-regular);
+  text-align: center;
+}
+
+.timerText strong {
+  color: var(--color-gris-500);
+  font-weight: var(--peso-negrita);
+}
+
+.illustration {
+  display: block;
+  width: min(210px, 36%);
+  height: auto;
+}
+
+@media (max-width: 1080px) {
+  .formCard {
+    padding: 56px 28px 24px;
+  }
+
+  .headerBlock {
+    margin-bottom: var(--space-6);
+    padding-inline: 42px;
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .form {
+    gap: var(--space-5);
+  }
+
+  .illustration {
+    width: min(150px, 48%);
+  }
+    .illustration {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .formCard {
+    padding: 54px 20px 22px;
+  }
+
+  .headerBlock {
+    margin-bottom: var(--space-5);
+    padding-inline: 34px;
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .helperText,
+  .resendButton,
+  .timerText {
+    font-size: var(--font-size-sm);
+  }
+
+  .illustration {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .backButton {
+    top: 16px;
+    left: 16px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .headerBlock {
+    padding-inline: 30px;
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+    line-height: 1.15;
+  }
+
+  .form {
+    gap: var(--space-4);
+  }
+
+  .helperText {
+    max-width: 300px;
+  }
+
+  .resendButton {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 376px) {
+  .title {
+    font-size: var(--font-size-base);
+  }
+
+  .helperText,
+  .resendButton,
+  .timerText {
+    font-size: var(--font-size-sm);
+  }
+}
