@@ -1,3 +1,5 @@
+import type { AlumnoBase, ProcesoBase } from "@/lib/domain";
+
 export type DashboardResumenResponse = {
   totalAlumnos?: number;
   procesosActivos?: number;
@@ -9,9 +11,7 @@ export type DashboardResumenResponse = {
   bajasCancelaciones?: number;
 };
 
-export type AlumnoResponse = {
-  idAlumno: number;
-  nombreCompleto?: string;
+export type AlumnoResponse = AlumnoBase & {
   correo?: string;
   escuelaId?: number;
   nombreEscuela?: string;
@@ -34,10 +34,7 @@ export type AlumnoDetalleResponse = AlumnoResponse & {
   procesoActual?: unknown;
 };
 
-export type ProcesoDetalleResponse = {
-  idProceso: number;
-  folio?: string;
-  estatus?: string;
+export type ProcesoDetalleResponse = ProcesoBase & {
   idAlumno?: number;
   alumnoNombre?: string;
   nombreEscuela?: string;

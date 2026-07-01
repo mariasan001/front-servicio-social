@@ -1,10 +1,14 @@
-export type VacanteResponse = {
-  idVacante: number;
-  folio?: string;
-  nombre?: string;
+import type {
+  IncidenciaBase,
+  NotificacionBase,
+  PostulacionBase,
+  ProcesoBase,
+  VacanteBase,
+} from "@/lib/domain";
+
+export type VacanteResponse = VacanteBase & {
   areaNombre?: string;
   dependenciaNombre?: string;
-  estatus?: string;
   modalidadTrabajo?: string;
   cupoDisponible?: number;
   requiereExamen?: boolean;
@@ -18,13 +22,9 @@ export type VacanteDetalleResponse = VacanteResponse & {
   beneficios?: string[];
 };
 
-export type PostulacionResponse = {
-  idPostulacion: number;
-  folio?: string;
-  estatus?: string;
+export type PostulacionResponse = PostulacionBase & {
   vacanteFolio?: string;
   vacanteNombre?: string;
-  activa?: boolean;
   fechaPostulacion?: string;
 };
 
@@ -36,10 +36,7 @@ export type PostulacionDetalleResponse = PostulacionResponse & {
   examenEstado?: string;
 };
 
-export type ProcesoResponse = {
-  idProceso: number;
-  folio?: string;
-  estatus?: string;
+export type ProcesoResponse = ProcesoBase & {
   vacanteNombre?: string;
   horasRequeridas?: number;
   horasAcumuladas?: number;
@@ -84,11 +81,7 @@ export type CartaMetadataResponse = {
   fechaEmision?: string;
 };
 
-export type IncidenciaResponse = {
-  idIncidencia: number;
-  tipo?: string;
-  estatus?: string;
-  severidad?: string;
+export type IncidenciaResponse = IncidenciaBase & {
   descripcion?: string;
 };
 
@@ -104,12 +97,7 @@ export type CvResponse = {
   camposFaltantes?: string[];
 };
 
-export type NotificacionResponse = {
-  id: number;
-  titulo?: string;
-  mensaje?: string;
-  tipo?: string;
-  leida?: boolean;
+export type NotificacionResponse = NotificacionBase & {
   fechaCreacion?: string;
 };
 

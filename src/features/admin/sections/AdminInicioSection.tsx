@@ -1,7 +1,7 @@
 import { getServerSession } from "@/lib/auth/session.server";
 import { ADMIN_SECTION_ENDPOINTS } from "../constants/endpoints";
 import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { getHealth } from "../services/health.service";
+import { getHealth } from "@/lib/api/health";
 
 export async function AdminInicioSection() {
   const session = await getServerSession();

@@ -17,15 +17,28 @@ async function getCookieHeader() {
     .join("; ");
 }
 
+function isFormDataBody(body: unknown): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
+function serializeRequestBody(body: unknown) {
+  if (isFormDataBody(body)) {
+    return body;
+  }
+
+  return JSON.stringify(body);
+}
+
 export async function serverApiRequest<T>(
   path: string,
   options: ServerApiRequestOptions = {},
 ): Promise<ApiResponse<T>> {
   const { body, headers, auth = true, ...rest } = options;
+  const hasJsonBody = body !== undefined && !isFormDataBody(body);
 
   const requestHeaders: HeadersInit = {
     Accept: "application/json",
-    ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+    ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
     ...headers,
   };
 
@@ -40,7 +53,7 @@ export async function serverApiRequest<T>(
   const response = await fetch(resolveBackendUrl(path), {
     ...rest,
     headers: requestHeaders,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? serializeRequestBody(body) : undefined,
     cache: "no-store",
   });
 

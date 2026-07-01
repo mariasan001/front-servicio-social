@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Servicio Social Edomex — Frontend
 
-## Getting Started
+Aplicación Next.js para el programa de servicio social y residencia del Estado de México.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20+
+- Backend en `http://localhost:8080` (o la URL configurada en `.env`)
+
+## Configuración
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Descripción |
+|----------|-------------|
+| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor |
+| `NEXT_PUBLIC_API_URL` | Base URL para `apiRequest` en el cliente (`/api/backend`) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Arquitectura
 
-## Learn More
+```
+src/app/              Rutas delgadas (App Router)
+src/features/{rol}/   Lógica por rol: servicios, secciones, acciones
+src/shared/           UI reutilizable (Form, DataTable, Modal, …)
+src/lib/              API, auth, domain, server actions helpers
+```
 
-To learn more about Next.js, take a look at the following resources:
+Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consume su propio prefijo de API (`/api/delegacion/*`, `/api/alumno/*`, etc.).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Panel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Rutas: `/panel/{rol}/[[...section]]`
+- Fase actual: secciones con `ApiSection` validan el backend con probes JSON
+- Siguiente fase: sustituir probes por UI real usando `DataTable`, `FilterBar`, `Modal`, etc.
 
-## Deploy on Vercel
+## Mutaciones (Server Actions)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Patrón recomendado para formularios del panel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```ts
+"use server";
+
+import { runServerAction } from "@/lib/actions";
+import { miServicio } from "../services/mi-servicio.service";
+
+export async function miAccionAction(input: MiInput) {
+  return runServerAction(() => miServicio(input), "Mensaje de error por defecto.");
+}
+```
+
+Ejemplo de referencia: `src/features/alumno/actions/cv.actions.ts`.
+
+## Scripts
+
+```bash
+npm run dev      # desarrollo
+npm run build    # producción
+npm run lint     # ESLint
+```

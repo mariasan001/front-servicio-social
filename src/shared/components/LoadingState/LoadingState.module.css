@@ -1,0 +1,51 @@
+.loadingState {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.block {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 14rem;
+  padding: var(--space-8);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-vino);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-gris-900);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

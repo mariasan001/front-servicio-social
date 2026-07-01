@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { PANEL_PATHS, USER_ROLES, type UserRole } from "@/lib/auth/constants";
+import { normalizeRoles } from "@/lib/auth/roles";
 
 export type PanelNavItem = {
   id: string;
@@ -116,6 +117,12 @@ export const PANEL_NAVIGATION: PanelNavGroup[] = [
 
 export function getNavigationForRole(role: UserRole) {
   return PANEL_NAVIGATION.find((group) => group.role === role) ?? null;
+}
+
+export function getAccessibleNavigations(roles: string[] | undefined | null) {
+  const normalized = normalizeRoles(roles);
+
+  return PANEL_NAVIGATION.filter((group) => normalized.includes(group.role));
 }
 
 export function resolvePanelNavItem(role: UserRole, section?: string) {

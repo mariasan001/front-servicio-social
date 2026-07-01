@@ -27,6 +27,37 @@
   text-decoration: none;
 }
 
+.roleSwitcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.roleSwitcherLink {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: rgb(255 255 255 / 78%);
+  text-decoration: none;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 999px;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.roleSwitcherLink:hover {
+  color: var(--color-white);
+  background-color: rgb(255 255 255 / 8%);
+}
+
+.roleSwitcherLinkActive {
+  color: var(--color-gris-900);
+  background-color: var(--color-dorado);
+  border-color: var(--color-dorado);
+}
+
 .nav {
   display: flex;
   flex: 1;

@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/lib/api/types";
 import type { UserRole } from "@/lib/auth/constants";
-import { getNavigationForRole } from "../../constants/navigation";
+import { getAccessibleNavigations, getNavigationForRole } from "../../constants/navigation";
 import { PanelSidebar } from "../PanelSidebar/PanelSidebar";
 import styles from "./PanelLayout.module.css";
 
@@ -16,6 +16,7 @@ type PanelLayoutProps = {
 
 export function PanelLayout({ user, role, children }: PanelLayoutProps) {
   const navigation = getNavigationForRole(role);
+  const accessibleNavigations = getAccessibleNavigations(user.roles);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export function PanelLayout({ user, role, children }: PanelLayoutProps) {
           <PanelSidebar
             user={user}
             navigation={navigation}
+            accessibleNavigations={accessibleNavigations}
             onNavigate={() => setIsSidebarOpen(false)}
           />
         </div>

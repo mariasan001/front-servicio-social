@@ -10,6 +10,7 @@ import styles from "./PanelSidebar.module.css";
 type PanelSidebarProps = {
   user: AuthUser;
   navigation: PanelNavGroup;
+  accessibleNavigations: PanelNavGroup[];
   onNavigate?: () => void;
 };
 
@@ -25,7 +26,12 @@ function matchNavItem(pathname: string, href: string, basePath: string) {
   return pathname.startsWith(`${href}/`);
 }
 
-export function PanelSidebar({ user, navigation, onNavigate }: PanelSidebarProps) {
+export function PanelSidebar({
+  user,
+  navigation,
+  accessibleNavigations,
+  onNavigate,
+}: PanelSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -36,6 +42,31 @@ export function PanelSidebar({ user, navigation, onNavigate }: PanelSidebarProps
           Servicio Social Edomex
         </Link>
       </div>
+
+      {accessibleNavigations.length > 1 ? (
+        <div className={styles.roleSwitcher} aria-label="Cambiar panel por rol">
+          {accessibleNavigations.map((group) => {
+            const isActive = group.role === navigation.role;
+
+            return (
+              <Link
+                key={group.role}
+                href={group.basePath}
+                className={[
+                  styles.roleSwitcherLink,
+                  isActive && styles.roleSwitcherLinkActive,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-current={isActive ? "page" : undefined}
+                onClick={onNavigate}
+              >
+                {group.label}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
 
       <nav className={styles.nav}>
         {navigation.items.map((item) => {

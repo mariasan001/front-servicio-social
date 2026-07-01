@@ -1,14 +1,16 @@
-export type VacanteResponse = {
-  idVacante: number;
-  folio?: string;
-  nombre?: string;
-  estatus?: string;
+import type {
+  IncidenciaBase,
+  PostulacionBase,
+  ProcesoBase,
+  VacanteBase,
+} from "@/lib/domain";
+
+export type VacanteResponse = VacanteBase & {
   areaId?: number;
   areaNombre?: string;
   modalidadId?: number;
   cupoTotal?: number;
   cupoDisponible?: number;
-  activa?: boolean;
 };
 
 export type VacanteDetalleResponse = VacanteResponse & {
@@ -17,13 +19,9 @@ export type VacanteDetalleResponse = VacanteResponse & {
   requiereExamen?: boolean;
 };
 
-export type PostulacionResponse = {
-  idPostulacion: number;
-  folio?: string;
-  estatus?: string;
+export type PostulacionResponse = PostulacionBase & {
   alumnoNombre?: string;
   vacanteFolio?: string;
-  activa?: boolean;
 };
 
 export type PostulacionDetalleResponse = PostulacionResponse & {
@@ -32,10 +30,7 @@ export type PostulacionDetalleResponse = PostulacionResponse & {
   comentarioTitular?: string;
 };
 
-export type ProcesoResponse = {
-  idProceso: number;
-  folio?: string;
-  estatus?: string;
+export type ProcesoResponse = ProcesoBase & {
   alumnoNombre?: string;
   vacanteNombre?: string;
   horasRequeridas?: number;
@@ -56,13 +51,9 @@ export type HoraResponse = {
   horasRegistradas?: number;
 };
 
-export type IncidenciaResponse = {
-  idIncidencia: number;
+export type IncidenciaResponse = IncidenciaBase & {
   procesoId?: number;
   folioProceso?: string;
-  estatus?: string;
-  severidad?: string;
-  tipo?: string;
 };
 
 export type IncidenciaDetalleResponse = IncidenciaResponse & {

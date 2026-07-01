@@ -1,4 +1,1 @@
-export type HealthResponse = {
-  status?: string;
-  service?: string;
-};
+export { getHealth, type HealthResponse } from "@/lib/api/health";

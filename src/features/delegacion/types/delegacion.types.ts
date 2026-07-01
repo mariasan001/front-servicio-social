@@ -1,3 +1,10 @@
+import type {
+  IncidenciaBase,
+  PostulacionBase,
+  ProcesoBase,
+  VacanteBase,
+} from "@/lib/domain";
+
 export type DashboardResponse = {
   totalAlumnos: number;
   procesosActivos: number;
@@ -13,25 +20,11 @@ export type DashboardResponse = {
   postulacionesPendientes: number;
 };
 
-export type VacanteResponse = {
-  idVacante: number;
-  folio?: string;
-  nombre?: string;
-  estatus?: string;
-  activa?: boolean;
-};
+export type VacanteResponse = VacanteBase;
 
-export type PostulacionResponse = {
-  idPostulacion: number;
-  folio?: string;
-  estatus?: string;
-  activa?: boolean;
-};
+export type PostulacionResponse = PostulacionBase;
 
-export type ProcesoResponse = {
-  idProceso: number;
-  folio?: string;
-  estatus?: string;
+export type ProcesoResponse = ProcesoBase & {
   alumnoNombre?: string;
 };
 
@@ -50,12 +43,8 @@ export type HoraPendienteResponse = {
   alumnoNombre?: string;
 };
 
-export type IncidenciaResponse = {
-  idIncidencia: number;
+export type IncidenciaResponse = IncidenciaBase & {
   folioProceso?: string;
-  estatus?: string;
-  severidad?: string;
-  tipo?: string;
 };
 
 export type AlumnoPorNormalizarResponse = {

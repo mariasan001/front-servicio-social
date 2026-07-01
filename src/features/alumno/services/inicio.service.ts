@@ -4,19 +4,7 @@ import type {
   ProcesoDetalleResponse,
 } from "../types/alumno.types";
 
-type HealthResponse = {
-  status?: string;
-  service?: string;
-};
-
-export async function getHealth() {
-  const response = await serverApiRequest<HealthResponse>("/api/health", {
-    method: "GET",
-    auth: false,
-  });
-
-  return response.data;
-}
+export { getHealth } from "@/lib/api/health";
 
 export async function getProcesoActual() {
   const response = await serverApiRequest<ProcesoDetalleResponse>(
