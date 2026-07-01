@@ -1,29 +1,35 @@
-import { ADMIN_SECTION_ENDPOINTS } from "../constants/endpoints";
-import type { DependenciaResponse } from "../types/dependencia.types";
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import {
-  getDependencia,
-  listDependencias,
-} from "../services/dependencias.service";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AdminDependenciasView } from "../components/dependencias/AdminDependenciasView";
+import { listDependencias } from "../services/dependencias.service";
+
+async function loadDependenciasPageData() {
+  const dependencias = await listDependencias();
+  return { dependencias };
+}
 
 export async function AdminDependenciasSection() {
-  const probes = await probeListAndDetail<DependenciaResponse>({
-    listLabel: "Listado de dependencias",
-    listPath: "GET /api/dependencias",
-    detailLabelPrefix: "Detalle dependencia",
-    detailPath: (id) => `GET /api/dependencias/${id}`,
-    listRequest: () => listDependencias(),
-    detailRequest: (id) => getDependencia(id),
-    idKey: "idDependencia",
-  });
+  const result = await loadDependenciasPageData().catch((error: unknown) => ({
+    error: getApiErrorMessage(
+      error,
+      "No pudimos cargar el listado de dependencias. Verifica tu conexión e intenta recargar la página.",
+    ),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="admin-dependencias"
-      title="Dependencias"
-      description="Catálogo de dependencias receptoras."
-      endpoints={ADMIN_SECTION_ENDPOINTS.dependencias}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="admin-dependencias-error-title">
+        <PageHeader
+          titleId="admin-dependencias-error-title"
+          eyebrow="Administración"
+          title="Dependencias"
+          description="Consulta las dependencias receptoras que participan en el programa de servicio social y residencia."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <AdminDependenciasView dependencias={result.dependencias} />;
 }

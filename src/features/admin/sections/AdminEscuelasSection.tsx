@@ -1,37 +1,35 @@
-import { ADMIN_SECTION_ENDPOINTS } from "../constants/endpoints";
-import type { EscuelaResponse } from "../types/escuela.types";
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import {
-  getEscuela,
-  listEscuelaTokens,
-  listEscuelas,
-} from "../services/escuelas.service";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AdminEscuelasView } from "../components/escuelas/AdminEscuelasView";
+import { listEscuelas } from "../services/escuelas.service";
+
+async function loadEscuelasPageData() {
+  const escuelas = await listEscuelas();
+  return { escuelas };
+}
 
 export async function AdminEscuelasSection() {
-  const probes = await probeListAndDetail<EscuelaResponse>({
-    listLabel: "Listado de escuelas",
-    listPath: "GET /api/escuelas",
-    detailLabelPrefix: "Detalle escuela",
-    detailPath: (id) => `GET /api/escuelas/${id}`,
-    listRequest: () => listEscuelas(),
-    detailRequest: (id) => getEscuela(id),
-    idKey: "idEscuela",
-    extraProbes: (id) => [
-      {
-        label: `Tokens escuela #${id}`,
-        path: `GET /api/escuelas/${id}/tokens`,
-        request: () => listEscuelaTokens(id),
-      },
-    ],
-  });
+  const result = await loadEscuelasPageData().catch((error: unknown) => ({
+    error: getApiErrorMessage(
+      error,
+      "No pudimos cargar el listado de escuelas. Verifica tu conexión e intenta recargar la página.",
+    ),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="admin-escuelas"
-      title="Escuelas"
-      description="Instituciones educativas y tokens de registro."
-      endpoints={ADMIN_SECTION_ENDPOINTS.escuelas}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="admin-escuelas-error-title">
+        <PageHeader
+          titleId="admin-escuelas-error-title"
+          eyebrow="Administración"
+          title="Escuelas"
+          description="Consulta las instituciones educativas participantes y sus invitaciones de registro para alumnos."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <AdminEscuelasView escuelas={result.escuelas} />;
 }

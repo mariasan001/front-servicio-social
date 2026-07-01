@@ -1,0 +1,212 @@
+"use client";
+
+import { useDeferredValue, useMemo, useState } from "react";
+import { Plus, Search } from "lucide-react";
+import type { DependenciaResponse } from "../../types/dependencia.types";
+import { DependenciaDetailModal } from "./DependenciaDetailModal";
+import { DependenciaFormModal } from "./DependenciaFormModal";
+import { areaStatusLabel, areaStatusTone } from "../areas/area-labels";
+import { Button } from "@/shared/components/Button";
+import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
+import { FilterBar } from "@/shared/components/FilterBar";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import styles from "../areas/AdminAreasView.module.css";
+
+type AdminDependenciasViewProps = {
+  dependencias: DependenciaResponse[];
+};
+
+type StatusFilter = "todas" | "activas" | "inactivas";
+
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+export function AdminDependenciasView({ dependencias }: AdminDependenciasViewProps) {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
+  const [selectedDependencia, setSelectedDependencia] =
+    useState<DependenciaResponse | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const deferredSearch = useDeferredValue(search);
+
+  const filteredDependencias = useMemo(() => {
+    const query = normalizeText(deferredSearch);
+
+    return dependencias.filter((dependencia) => {
+      if (statusFilter === "activas" && dependencia.activa === false) {
+        return false;
+      }
+
+      if (statusFilter === "inactivas" && dependencia.activa !== false) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      const haystack = [
+        dependencia.nombre,
+        dependencia.siglas,
+        dependencia.clave,
+        dependencia.descripcion,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return normalizeText(haystack).includes(query);
+    });
+  }, [dependencias, deferredSearch, statusFilter]);
+
+  const activasCount = dependencias.filter(
+    (dependencia) => dependencia.activa !== false,
+  ).length;
+
+  const columns: DataTableColumn<DependenciaResponse>[] = [
+    {
+      id: "nombre",
+      header: "Dependencia",
+      cell: (dependencia) => (
+        <div className={styles.nameCell}>
+          <strong>{dependencia.nombre}</strong>
+          {dependencia.descripcion ? (
+            <span className={styles.nameHint}>{dependencia.descripcion}</span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      id: "siglas",
+      header: "Siglas",
+      cell: (dependencia) => dependencia.siglas?.trim() || "Sin siglas",
+    },
+    {
+      id: "clave",
+      header: "Clave",
+      cell: (dependencia) => dependencia.clave?.trim() || "Sin clave",
+    },
+    {
+      id: "estado",
+      header: "Estatus",
+      cell: (dependencia) => (
+        <StatusBadge tone={areaStatusTone(dependencia.activa)}>
+          {areaStatusLabel(dependencia.activa)}
+        </StatusBadge>
+      ),
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      align: "right",
+      cell: (dependencia) => (
+        <Button
+          type="button"
+          variant="outline"
+          className={styles.actionButton}
+          onClick={() => setSelectedDependencia(dependencia)}
+        >
+          Ver información
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <section className={styles.page} aria-labelledby="admin-dependencias-title">
+      <PageHeader
+        titleId="admin-dependencias-title"
+        eyebrow="Administración"
+        title="Dependencias"
+        description="Administra y consulta las dependencias receptoras que participan en el programa de servicio social y residencia."
+      />
+
+      <div className={styles.summaryRow} aria-live="polite">
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{dependencias.length}</span>
+          <span className={styles.summaryLabel}>Dependencias registradas</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{activasCount}</span>
+          <span className={styles.summaryLabel}>Dependencias activas</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{filteredDependencias.length}</span>
+          <span className={styles.summaryLabel}>Coinciden con tu búsqueda</span>
+        </div>
+      </div>
+
+      <FilterBar
+        actions={
+          <Button type="button" onClick={() => setCreateOpen(true)}>
+            <Plus size={18} aria-hidden="true" />
+            Dar de alta dependencia
+          </Button>
+        }
+      >
+        <label className={styles.searchField}>
+          <span className={styles.searchLabel}>Buscar dependencia</span>
+          <span className={styles.searchControl}>
+            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+            <input
+              type="search"
+              value={search}
+              placeholder="Nombre, siglas, clave o descripción"
+              className={styles.searchInput}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </span>
+        </label>
+
+        <label className={styles.filterField}>
+          <span className={styles.filterLabel}>Estatus</span>
+          <select
+            className={styles.filterSelect}
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+          >
+            <option value="todas">Todas</option>
+            <option value="activas">Solo activas</option>
+            <option value="inactivas">Solo inactivas</option>
+          </select>
+        </label>
+      </FilterBar>
+
+      <DataTable
+        columns={columns}
+        rows={filteredDependencias}
+        rowKey={(dependencia) => dependencia.idDependencia}
+        caption="Listado de dependencias receptoras"
+        emptyTitle={
+          dependencias.length === 0
+            ? "Aún no hay dependencias registradas"
+            : "No encontramos dependencias con esos criterios"
+        }
+        emptyDescription={
+          dependencias.length === 0
+            ? "Aún no hay dependencias registradas. Puedes dar de alta la primera desde el botón superior."
+            : "Prueba con otro nombre, siglas o cambia el filtro de estatus."
+        }
+      />
+
+      <DependenciaFormModal
+        open={createOpen}
+        mode="create"
+        onClose={() => setCreateOpen(false)}
+      />
+
+      <DependenciaDetailModal
+        open={selectedDependencia !== null}
+        dependenciaId={selectedDependencia?.idDependencia ?? null}
+        dependenciaName={selectedDependencia?.nombre}
+        onClose={() => setSelectedDependencia(null)}
+      />
+    </section>
+  );
+}
