@@ -1,13 +1,36 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { resolveBackendUrl } from "@/lib/api/client";
 import type { AuthUser } from "@/lib/api/types";
-import { resolveApiUrl } from "@/lib/api/client";
-import { resolveHomePath } from "./roles";
+import { normalizeAuthUser, resolveHomePath } from "./roles";
 
 type AuthMeResponse = {
   success: boolean;
   data: AuthUser | null;
 };
+
+async function fetchSession(cookieHeader: string) {
+  const response = await fetch(resolveBackendUrl("/auth/me"), {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Cookie: cookieHeader,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = (await response.json()) as AuthMeResponse;
+
+  if (!payload.data) {
+    return null;
+  }
+
+  return normalizeAuthUser(payload.data);
+}
 
 export async function getServerSession() {
   const cookieStore = await cookies();
@@ -21,21 +44,7 @@ export async function getServerSession() {
   }
 
   try {
-    const response = await fetch(resolveApiUrl("/auth/me"), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Cookie: cookieHeader,
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const payload = (await response.json()) as AuthMeResponse;
-    return payload.data;
+    return await fetchSession(cookieHeader);
   } catch {
     return null;
   }

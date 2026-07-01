@@ -4,6 +4,11 @@ import type { ApiResponse } from "./types";
 export const API_PROXY_PATH = "/api/backend";
 
 const DEFAULT_API_BASE_URL = API_PROXY_PATH;
+const DEFAULT_BACKEND_ORIGIN = "http://localhost:8080";
+
+export function getBackendOrigin() {
+  return process.env.API_PROXY_TARGET ?? DEFAULT_BACKEND_ORIGIN;
+}
 
 export function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_BASE_URL;
@@ -22,6 +27,11 @@ export function resolveApiUrl(path: string, origin?: string) {
   }
 
   return `${baseUrl.replace(/\/$/, "")}${normalizedPath}`;
+}
+
+export function resolveBackendUrl(path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${getBackendOrigin().replace(/\/$/, "")}${normalizedPath}`;
 }
 
 type ApiRequestOptions = Omit<RequestInit, "body"> & {

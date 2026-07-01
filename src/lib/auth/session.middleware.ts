@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
+import { resolveBackendUrl } from "@/lib/api/client";
 import type { AuthUser } from "@/lib/api/types";
-import { resolveApiUrl } from "@/lib/api/client";
+import { normalizeAuthUser } from "./roles";
 
 type AuthMeResponse = {
   success: boolean;
@@ -15,24 +16,26 @@ export async function getSessionFromRequest(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(
-      resolveApiUrl("/auth/me", request.nextUrl.origin),
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Cookie: cookie,
-        },
-        cache: "no-store",
+    const response = await fetch(resolveBackendUrl("/auth/me"), {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Cookie: cookie,
       },
-    );
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       return null;
     }
 
     const payload = (await response.json()) as AuthMeResponse;
-    return payload.data;
+
+    if (!payload.data) {
+      return null;
+    }
+
+    return normalizeAuthUser(payload.data);
   } catch {
     return null;
   }

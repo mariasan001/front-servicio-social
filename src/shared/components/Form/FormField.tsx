@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
-import formStyles from "./AuthForm.module.css";
+import styles from "./Form.module.css";
 
 type FormFieldProps = {
   id: string;
@@ -23,13 +23,13 @@ export function FormField({
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={formStyles.field}>
-      <label htmlFor={id} className={formStyles.label}>
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
         {label}
         {required ? (
           <>
             {" "}
-            <span className={formStyles.required} aria-hidden="true">
+            <span className={styles.required} aria-hidden="true">
               *
             </span>
           </>
@@ -39,13 +39,13 @@ export function FormField({
       <div aria-describedby={describedBy}>{children}</div>
 
       {hint ? (
-        <p id={hintId} className={formStyles.hint}>
+        <p id={hintId} className={styles.hint}>
           {hint}
         </p>
       ) : null}
 
       {error ? (
-        <p id={errorId} className={formStyles.error} role="alert">
+        <p id={errorId} className={styles.error} role="alert">
           {error}
         </p>
       ) : null}
@@ -74,7 +74,7 @@ export function TextInput({
     <FormField id={id} label={label} error={error} hint={hint} required={required}>
       <input
         id={id}
-        className={[formStyles.input, className].filter(Boolean).join(" ")}
+        className={[styles.input, className].filter(Boolean).join(" ")}
         aria-invalid={Boolean(error)}
         required={required}
         {...props}
@@ -108,7 +108,7 @@ export function SelectInput({
     <FormField id={id} label={label} error={error} hint={hint} required={required}>
       <select
         id={id}
-        className={formStyles.select}
+        className={styles.select}
         aria-invalid={Boolean(error)}
         required={required}
         value={value}
@@ -143,24 +143,24 @@ export function CheckboxField({
   const errorId = error ? `${id}-error` : undefined;
 
   return (
-    <div className={formStyles.field}>
-      <div className={formStyles.checkboxRow}>
+    <div className={styles.field}>
+      <div className={styles.checkboxRow}>
         <input
           id={id}
           type="checkbox"
-          className={formStyles.checkbox}
+          className={styles.checkbox}
           checked={checked}
           aria-invalid={Boolean(error)}
           aria-describedby={errorId}
           onChange={(event) => onChange(event.target.checked)}
         />
-        <label htmlFor={id} className={formStyles.checkboxLabel}>
+        <label htmlFor={id} className={styles.checkboxLabel}>
           {label}
         </label>
       </div>
 
       {error ? (
-        <p id={errorId} className={formStyles.error} role="alert">
+        <p id={errorId} className={styles.error} role="alert">
           {error}
         </p>
       ) : null}

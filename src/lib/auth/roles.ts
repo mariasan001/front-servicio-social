@@ -5,11 +5,37 @@ import {
   PANEL_ROLE_ACCESS,
   ROLE_HOME_PATHS,
   ROLE_PRIORITY,
+  USER_ROLES,
   type UserRole,
 } from "./constants";
 
+export function normalizeRole(role: string): UserRole | null {
+  const trimmed = role.trim();
+
+  if (Object.values(USER_ROLES).includes(trimmed as UserRole)) {
+    return trimmed as UserRole;
+  }
+
+  const withPrefix = trimmed.startsWith("ROLE_") ? trimmed : `ROLE_${trimmed}`;
+
+  if (Object.values(USER_ROLES).includes(withPrefix as UserRole)) {
+    return withPrefix as UserRole;
+  }
+
+  return null;
+}
+
 export function normalizeRoles(roles: string[] | undefined | null) {
-  return roles?.filter(Boolean) ?? [];
+  return (roles ?? [])
+    .map(normalizeRole)
+    .filter((role): role is UserRole => role !== null);
+}
+
+export function normalizeAuthUser(user: AuthUser): AuthUser {
+  return {
+    ...user,
+    roles: normalizeRoles(user.roles),
+  };
 }
 
 export function hasAnyRole(

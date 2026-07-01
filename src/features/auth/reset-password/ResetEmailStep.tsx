@@ -10,10 +10,10 @@ import {
   type ResetEmailFormValues,
 } from "../validation/password-reset.validation";
 import { hasFormErrors } from "../validation/auth.validation";
-import { AuthAlert } from "../components/AuthAlert/AuthAlert";
+import { Alert } from "@/shared/components/Alert";
+import { TextInput } from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
-import { TextInput } from "../components/AuthForm/FormField";
 
 type ResetEmailStepProps = {
   onSuccess: (correo: string) => void;
@@ -65,7 +65,7 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
       subtitle={AUTH_COPY.resetEmailSubtitle}
     >
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <AuthAlert tone="error">{formError}</AuthAlert> : null}
+        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <TextInput
           id="reset-email"

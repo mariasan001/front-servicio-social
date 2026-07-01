@@ -12,11 +12,13 @@ import {
   validateLoginForm,
   type LoginFormValues,
 } from "../validation/auth.validation";
-import { AuthAlert } from "../components/AuthAlert/AuthAlert";
+import { Alert } from "@/shared/components/Alert";
+import {
+  PasswordInput,
+  TextInput,
+} from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
-import { PasswordInput } from "../components/AuthForm/PasswordInput";
-import { TextInput } from "../components/AuthForm/FormField";
 
 const INITIAL_VALUES: LoginFormValues = {
   username: "",
@@ -88,7 +90,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
       subtitle={AUTH_COPY.loginSubtitle}
     >
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <AuthAlert tone="error">{formError}</AuthAlert> : null}
+        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <TextInput
           id="login-username"

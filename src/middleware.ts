@@ -9,17 +9,30 @@ import {
 } from "@/lib/auth";
 import { getSessionFromRequest } from "@/lib/auth/session.middleware";
 
+function redirectTo(request: NextRequest, destination: string) {
+  const { pathname } = request.nextUrl;
+
+  if (destination === pathname) {
+    return NextResponse.next();
+  }
+
+  return NextResponse.redirect(new URL(destination, request.url));
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = await getSessionFromRequest(request);
 
   if (isGuestOnlyPath(pathname) && session) {
     const nextParam = request.nextUrl.searchParams.get("next");
-    const destination = isSafeInternalPath(nextParam)
-      ? nextParam
-      : resolveHomePath(session.roles);
+    const homePath = resolveHomePath(session.roles);
 
-    return NextResponse.redirect(new URL(destination!, request.url));
+    const destination =
+      isSafeInternalPath(nextParam) && canAccessPath(session, nextParam!)
+        ? nextParam!
+        : homePath;
+
+    return redirectTo(request, destination);
   }
 
   if (isProtectedPath(pathname)) {
@@ -30,9 +43,11 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!canAccessPath(session, pathname)) {
-      return NextResponse.redirect(
-        new URL(resolveHomePath(session.roles), request.url),
-      );
+      const fallback = resolveHomePath(session.roles);
+      const destination =
+        fallback !== pathname ? fallback : AUTH_PATHS.home;
+
+      return redirectTo(request, destination);
     }
   }
 

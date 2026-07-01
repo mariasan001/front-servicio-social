@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.eyebrow {
+  width: fit-content;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-vino);
+  background-color: var(--color-gris-50);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
+  font-weight: 900;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.03em;
+  color: var(--color-gris-900);
+}
+
+.description,
+.note {
+  margin: 0;
+  max-width: 42rem;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.note {
+  color: var(--color-text-muted);
+}

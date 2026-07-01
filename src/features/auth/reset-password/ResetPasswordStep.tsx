@@ -15,11 +15,13 @@ import {
   type ResetPasswordFormValues,
 } from "../validation/password-reset.validation";
 import { hasFormErrors } from "../validation/auth.validation";
-import { AuthAlert } from "../components/AuthAlert/AuthAlert";
+import { Alert } from "@/shared/components/Alert";
+import {
+  FormField,
+  PasswordInput,
+} from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
-import { FormField } from "../components/AuthForm/FormField";
-import { PasswordInput } from "../components/AuthForm/PasswordInput";
 import { VerificationCodeInput } from "../components/VerificationCodeInput/VerificationCodeInput";
 
 type ResetPasswordStepProps = {
@@ -114,7 +116,7 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
         title="Contraseña actualizada"
         subtitle="Tu acceso quedó restablecido correctamente."
       >
-        <AuthAlert tone="success">{successMessage}</AuthAlert>
+        <Alert tone="success">{successMessage}</Alert>
 
         <button
           type="button"
@@ -138,7 +140,7 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
       </p>
 
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <AuthAlert tone="error">{formError}</AuthAlert> : null}
+        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <FormField
           id="reset-code"

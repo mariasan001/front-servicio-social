@@ -1,0 +1,112 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.endpointList,
+.probeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.endpointItem,
+.probeCard {
+  padding: var(--space-4);
+  background-color: var(--color-gris-50);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.endpointItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.method {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-vino);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.path,
+.probePath {
+  font-size: var(--font-size-xs);
+  color: var(--color-gris-900);
+  word-break: break-all;
+}
+
+.meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.probeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.probeTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.error {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  color: #991b1b;
+}
+
+.payload {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-4);
+  overflow: auto;
+  max-height: 24rem;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-gris-900);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.4fr);
+    align-items: start;
+  }
+}

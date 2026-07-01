@@ -5,7 +5,7 @@ import { useState } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { AUTH_ROUTES } from "../../constants/routes";
 import { logout } from "../../services/auth.service";
-import formStyles from "../AuthForm/AuthForm.module.css";
+import formStyles from "@/shared/components/Form/Form.module.css";
 
 type LogoutButtonProps = {
   className?: string;

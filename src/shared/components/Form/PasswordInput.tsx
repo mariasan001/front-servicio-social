@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { Eye, EyeOff } from "@/shared/icons";
 import { FormField } from "./FormField";
-import formStyles from "./AuthForm.module.css";
+import styles from "./Form.module.css";
 
 type PasswordInputProps = {
   id?: string;
@@ -42,12 +42,12 @@ export function PasswordInput({
       hint={hint}
       required={required}
     >
-      <div className={formStyles.passwordWrap}>
+      <div className={styles.passwordWrap}>
         <input
           id={inputId}
           name={name}
           type={visible ? "text" : "password"}
-          className={[formStyles.input, formStyles.passwordInput].join(" ")}
+          className={[styles.input, styles.passwordInput].join(" ")}
           value={value}
           autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
@@ -58,7 +58,7 @@ export function PasswordInput({
 
         <button
           type="button"
-          className={formStyles.toggleButton}
+          className={styles.toggleButton}
           aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
           aria-pressed={visible}
           disabled={disabled}

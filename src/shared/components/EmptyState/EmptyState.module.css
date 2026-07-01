@@ -1,0 +1,29 @@
+.emptyState {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 18rem;
+  padding: var(--space-8);
+  text-align: center;
+  background-color: var(--color-white);
+  border: 1px dashed var(--color-border);
+  border-radius: 1.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.description {
+  margin: 0;
+  max-width: 28rem;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}

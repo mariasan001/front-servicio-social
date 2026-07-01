@@ -18,15 +18,15 @@ import {
   validateRegisterForm,
   type RegisterFormValues,
 } from "../validation/auth.validation";
-import { AuthAlert } from "../components/AuthAlert/AuthAlert";
-import { AuthCard } from "../components/AuthCard/AuthCard";
-import formStyles from "../components/AuthForm/AuthForm.module.css";
+import { Alert } from "@/shared/components/Alert";
 import {
   CheckboxField,
+  PasswordInput,
   SelectInput,
   TextInput,
-} from "../components/AuthForm/FormField";
-import { PasswordInput } from "../components/AuthForm/PasswordInput";
+} from "@/shared/components/Form";
+import { AuthCard } from "../components/AuthCard/AuthCard";
+import formStyles from "../components/AuthForm/AuthForm.module.css";
 
 const INITIAL_VALUES: RegisterFormValues = {
   username: "",
@@ -192,18 +192,18 @@ export function RegisterForm({ token }: RegisterFormProps) {
       }
     >
       {withToken && tokenStatus === "loading" ? (
-        <AuthAlert tone="info">Validando enlace de registro…</AuthAlert>
+        <Alert tone="info">Validando enlace de registro…</Alert>
       ) : null}
 
       {withToken && tokenStatus === "valid" && tokenSchoolName ? (
-        <AuthAlert tone="info">
+        <Alert tone="info">
           Institución vinculada: <strong>{tokenSchoolName}</strong>
-        </AuthAlert>
+        </Alert>
       ) : null}
 
-      {formError ? <AuthAlert tone="error">{formError}</AuthAlert> : null}
+      {formError ? <Alert tone="error">{formError}</Alert> : null}
       {successMessage ? (
-        <AuthAlert tone="success">{successMessage}</AuthAlert>
+        <Alert tone="success">{successMessage}</Alert>
       ) : null}
 
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>

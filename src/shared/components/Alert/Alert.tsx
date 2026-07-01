@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
-import styles from "./AuthAlert.module.css";
+import styles from "./Alert.module.css";
 
-type AuthAlertProps = {
-  tone?: "error" | "success" | "info";
+type AlertTone = "error" | "success" | "info";
+
+type AlertProps = {
+  tone?: AlertTone;
   children: ReactNode;
   role?: "alert" | "status";
 };
@@ -11,11 +13,11 @@ function joinClassNames(...classes: (string | false | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export function AuthAlert({
+export function Alert({
   tone = "info",
   children,
   role = tone === "error" ? "alert" : "status",
-}: AuthAlertProps) {
+}: AlertProps) {
   return (
     <div
       className={joinClassNames(styles.alert, styles[tone])}
