@@ -1,9 +1,20 @@
 import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
 import type {
+  CancelarHoraRequest,
+  CancelarProcesoRequest,
+  CrearIncidenciaProcesoRequest,
   ListProcesosFilters,
+  ObservarHoraRequest,
+  ProcesoDocumentoResponse,
+  ProcesoHoraResponse,
   ProcesoResponse,
+  RechazarHoraRequest,
+  RegistrarHoraInternaRequest,
+  ValidarDocumentoRequest,
+  ValidarHoraRequest,
 } from "../types/delegacion.types";
+import type { IncidenciaResponse } from "../types/delegacion.types";
 
 export async function listProcesos(filters?: ListProcesosFilters) {
   const response = await serverApiRequest<ProcesoResponse[]>(
@@ -29,7 +40,7 @@ export async function getProceso(idProceso: number) {
 
 export async function cancelProceso(
   idProceso: number,
-  request: { motivoCancelacion: string },
+  request: CancelarProcesoRequest,
 ) {
   const response = await serverApiRequest<ProcesoResponse>(
     `/api/delegacion/procesos/${idProceso}/cancelar`,
@@ -44,7 +55,7 @@ export async function cancelProceso(
 }
 
 export async function listProcesoDocumentos(idProceso: number) {
-  const response = await serverApiRequest<unknown[]>(
+  const response = await serverApiRequest<ProcesoDocumentoResponse[]>(
     `/api/delegacion/procesos/${idProceso}/documentos`,
     { method: "GET" },
   );
@@ -52,8 +63,58 @@ export async function listProcesoDocumentos(idProceso: number) {
   return response.data ?? [];
 }
 
+export async function approveProcesoDocumento(
+  idProceso: number,
+  idProcesoDocumento: number,
+) {
+  const response = await serverApiRequest<ProcesoDocumentoResponse>(
+    `/api/delegacion/procesos/${idProceso}/documentos/${idProcesoDocumento}/aprobar`,
+    { method: "PATCH" },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de aprobación del documento.");
+  }
+
+  return response.data;
+}
+
+export async function observeProcesoDocumento(
+  idProceso: number,
+  idProcesoDocumento: number,
+  request: ValidarDocumentoRequest,
+) {
+  const response = await serverApiRequest<ProcesoDocumentoResponse>(
+    `/api/delegacion/procesos/${idProceso}/documentos/${idProcesoDocumento}/observar`,
+    { method: "PATCH", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de observación del documento.");
+  }
+
+  return response.data;
+}
+
+export async function rejectProcesoDocumento(
+  idProceso: number,
+  idProcesoDocumento: number,
+  request: ValidarDocumentoRequest,
+) {
+  const response = await serverApiRequest<ProcesoDocumentoResponse>(
+    `/api/delegacion/procesos/${idProceso}/documentos/${idProcesoDocumento}/rechazar`,
+    { method: "PATCH", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de rechazo del documento.");
+  }
+
+  return response.data;
+}
+
 export async function listProcesoHoras(idProceso: number) {
-  const response = await serverApiRequest<unknown[]>(
+  const response = await serverApiRequest<ProcesoHoraResponse[]>(
     `/api/delegacion/procesos/${idProceso}/horas`,
     { method: "GET" },
   );
@@ -61,13 +122,113 @@ export async function listProcesoHoras(idProceso: number) {
   return response.data ?? [];
 }
 
+export async function registerProcesoHora(
+  idProceso: number,
+  request: RegistrarHoraInternaRequest,
+) {
+  const response = await serverApiRequest<ProcesoHoraResponse>(
+    `/api/delegacion/procesos/${idProceso}/horas`,
+    { method: "POST", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de registro de hora.");
+  }
+
+  return response.data;
+}
+
+export async function validateProcesoHora(
+  idProceso: number,
+  idAsistencia: number,
+  request?: ValidarHoraRequest,
+) {
+  const response = await serverApiRequest<ProcesoHoraResponse>(
+    `/api/delegacion/procesos/${idProceso}/horas/${idAsistencia}/validar`,
+    { method: "PATCH", body: request ?? {} },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de validación de hora.");
+  }
+
+  return response.data;
+}
+
+export async function rejectProcesoHora(
+  idProceso: number,
+  idAsistencia: number,
+  request: RechazarHoraRequest,
+) {
+  const response = await serverApiRequest<ProcesoHoraResponse>(
+    `/api/delegacion/procesos/${idProceso}/horas/${idAsistencia}/rechazar`,
+    { method: "PATCH", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de rechazo de hora.");
+  }
+
+  return response.data;
+}
+
+export async function observeProcesoHora(
+  idProceso: number,
+  idAsistencia: number,
+  request: ObservarHoraRequest,
+) {
+  const response = await serverApiRequest<ProcesoHoraResponse>(
+    `/api/delegacion/procesos/${idProceso}/horas/${idAsistencia}/observar`,
+    { method: "PATCH", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de observación de hora.");
+  }
+
+  return response.data;
+}
+
+export async function cancelProcesoHora(
+  idProceso: number,
+  idAsistencia: number,
+  request: CancelarHoraRequest,
+) {
+  const response = await serverApiRequest<ProcesoHoraResponse>(
+    `/api/delegacion/procesos/${idProceso}/horas/${idAsistencia}/cancelar`,
+    { method: "PATCH", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de cancelación de hora.");
+  }
+
+  return response.data;
+}
+
 export async function listProcesoIncidencias(idProceso: number) {
-  const response = await serverApiRequest<unknown[]>(
+  const response = await serverApiRequest<IncidenciaResponse[]>(
     `/api/delegacion/procesos/${idProceso}/incidencias`,
     { method: "GET" },
   );
 
   return response.data ?? [];
+}
+
+export async function registerProcesoIncidencia(
+  idProceso: number,
+  request: CrearIncidenciaProcesoRequest,
+) {
+  const response = await serverApiRequest<IncidenciaResponse>(
+    `/api/delegacion/procesos/${idProceso}/incidencias`,
+    { method: "POST", body: request },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de registro de incidencia.");
+  }
+
+  return response.data;
 }
 
 export async function getProcesoLiberacionTecnica(idProceso: number) {

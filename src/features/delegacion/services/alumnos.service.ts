@@ -2,6 +2,8 @@ import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   AlumnoCvResponse,
   AlumnoPorNormalizarResponse,
+  CrearEscuelaYNormalizarRequest,
+  NormalizarEscuelaRequest,
 } from "../types/delegacion.types";
 
 export async function listAlumnosPorNormalizar() {
@@ -28,7 +30,7 @@ export async function getAlumnoCv(idAlumno: number) {
 
 export async function normalizeAlumnoEscuela(
   idAlumno: number,
-  request: { escuelaId: number },
+  request: NormalizarEscuelaRequest,
 ) {
   const response = await serverApiRequest<AlumnoPorNormalizarResponse>(
     `/api/delegacion/alumnos/${idAlumno}/normalizar-escuela`,
@@ -44,12 +46,7 @@ export async function normalizeAlumnoEscuela(
 
 export async function createEscuelaAndNormalizeAlumno(
   idAlumno: number,
-  request: {
-    nombre: string;
-    clave?: string;
-    municipio?: string;
-    observacion?: string;
-  },
+  request: CrearEscuelaYNormalizarRequest,
 ) {
   const response = await serverApiRequest<AlumnoPorNormalizarResponse>(
     `/api/delegacion/alumnos/${idAlumno}/crear-escuela-y-normalizar`,

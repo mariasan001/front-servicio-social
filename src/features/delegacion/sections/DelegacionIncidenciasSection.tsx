@@ -1,26 +1,22 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { DELEGACION_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getIncidencia, listIncidencias } from "../services/incidencias.service";
-import type { IncidenciaResponse } from "../types/delegacion.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { DelegacionIncidenciasView } from "../components/incidencias/DelegacionIncidenciasView";
+import { listIncidencias } from "../services/incidencias.service";
 
 export async function DelegacionIncidenciasSection() {
-  const probes = await probeListAndDetail<IncidenciaResponse>({
-    listLabel: "Listado global de incidencias",
-    listPath: "GET /api/delegacion/incidencias",
-    detailLabelPrefix: "Detalle incidencia",
-    detailPath: (id) => `GET /api/delegacion/incidencias/${id}`,
-    listRequest: () => listIncidencias(),
-    detailRequest: (id) => getIncidencia(id),
-    idKey: "idIncidencia",
-  });
+  const result = await listIncidencias()
+    .then((incidencias) => ({ incidencias }))
+    .catch((error: unknown) => ({ error: getApiErrorMessage(error, "No pudimos cargar las incidencias.") }));
 
-  return (
-    <ApiSection
-      sectionId="delegacion-incidencias"
-      title="Incidencias"
-      description="Gestión de incidencias reportadas en procesos activos."
-      endpoints={DELEGACION_SECTION_ENDPOINTS.incidencias}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section>
+        <PageHeader titleId="delegacion-inc-error" eyebrow="Delegación" title="Incidencias" description="Gestión de incidencias." />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <DelegacionIncidenciasView incidencias={result.incidencias} />;
 }

@@ -1,26 +1,22 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { DELEGACION_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getProceso, listProcesos } from "../services/procesos.service";
-import type { ProcesoResponse } from "../types/delegacion.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { DelegacionProcesosView } from "../components/procesos/DelegacionProcesosView";
+import { listProcesos } from "../services/procesos.service";
 
 export async function DelegacionProcesosSection() {
-  const probes = await probeListAndDetail<ProcesoResponse>({
-    listLabel: "Listado de procesos",
-    listPath: "GET /api/delegacion/procesos",
-    detailLabelPrefix: "Detalle proceso",
-    detailPath: (id) => `GET /api/delegacion/procesos/${id}`,
-    listRequest: () => listProcesos(),
-    detailRequest: (id) => getProceso(id),
-    idKey: "idProceso",
-  });
+  const result = await listProcesos()
+    .then((procesos) => ({ procesos }))
+    .catch((error: unknown) => ({ error: getApiErrorMessage(error, "No pudimos cargar los procesos.") }));
 
-  return (
-    <ApiSection
-      sectionId="delegacion-procesos"
-      title="Procesos"
-      description="Procesos activos de alumnos en servicio social o residencia."
-      endpoints={DELEGACION_SECTION_ENDPOINTS.procesos}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section>
+        <PageHeader titleId="delegacion-proc-error" eyebrow="Delegación" title="Procesos" description="Procesos activos de alumnos." />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <DelegacionProcesosView procesos={result.procesos} />;
 }

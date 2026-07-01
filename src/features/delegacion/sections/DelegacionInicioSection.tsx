@@ -1,41 +1,50 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { getServerSession } from "@/lib/auth/session.server";
-import { DELEGACION_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { requireServerSession } from "@/lib/auth/session.server";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { DelegacionInicioView } from "../components/inicio/DelegacionInicioView";
 import {
   getDashboard,
-  getHealth,
   listLiberacionesPendientesCarta,
-  listNotificacionesCorreos,
 } from "../services/inicio.service";
 
-export async function DelegacionInicioSection() {
-  const session = await getServerSession();
-
-  const probes = await Promise.all([
-    runApiProbe("Salud del backend", "GET /api/health", () => getHealth()),
-    runApiProbe("Sesión autenticada", "GET /auth/me", async () => session),
-    runApiProbe("Dashboard operativo", "GET /api/delegacion/reportes/dashboard", () =>
-      getDashboard(),
-    ),
-    runApiProbe(
-      "Liberaciones pendientes de carta",
-      "GET /api/delegacion/liberaciones-tecnicas/pendientes-carta",
-      () => listLiberacionesPendientesCarta(),
-    ),
-    runApiProbe(
-      "Notificaciones por correo",
-      "GET /api/delegacion/notificaciones/correos",
-      () => listNotificacionesCorreos({ page: 0, size: 5 }),
-    ),
+async function loadDelegacionInicioPageData() {
+  const session = await requireServerSession();
+  const [dashboard, liberacionesPendientes] = await Promise.all([
+    getDashboard(),
+    listLiberacionesPendientesCarta(),
   ]);
 
+  return { session, dashboard, liberacionesPendientes };
+}
+
+export async function DelegacionInicioSection() {
+  const result = await loadDelegacionInicioPageData().catch((error: unknown) => ({
+    error: getApiErrorMessage(
+      error,
+      "No pudimos cargar el resumen operativo. Verifica tu conexión e intenta recargar la página.",
+    ),
+  }));
+
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="delegacion-inicio-error-title">
+        <PageHeader
+          titleId="delegacion-inicio-error-title"
+          eyebrow="Delegación"
+          title="Inicio"
+          description="Resumen operativo del programa."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
   return (
-    <ApiSection
-      sectionId="delegacion-inicio"
-      title="Inicio"
-      description="Resumen operativo del programa y estado de la sesión de delegación."
-      endpoints={DELEGACION_SECTION_ENDPOINTS.inicio}
-      probes={probes}
+    <DelegacionInicioView
+      session={result.session}
+      dashboard={result.dashboard}
+      liberacionesPendientes={result.liberacionesPendientes}
     />
   );
 }

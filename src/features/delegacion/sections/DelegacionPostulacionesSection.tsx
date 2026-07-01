@@ -1,26 +1,22 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { DELEGACION_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getPostulacion, listPostulaciones } from "../services/postulaciones.service";
-import type { PostulacionResponse } from "../types/delegacion.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { DelegacionPostulacionesView } from "../components/postulaciones/DelegacionPostulacionesView";
+import { listPostulaciones } from "../services/postulaciones.service";
 
 export async function DelegacionPostulacionesSection() {
-  const probes = await probeListAndDetail<PostulacionResponse>({
-    listLabel: "Listado de postulaciones",
-    listPath: "GET /api/delegacion/postulaciones",
-    detailLabelPrefix: "Detalle postulación",
-    detailPath: (id) => `GET /api/delegacion/postulaciones/${id}`,
-    listRequest: () => listPostulaciones(),
-    detailRequest: (id) => getPostulacion(id),
-    idKey: "idPostulacion",
-  });
+  const result = await listPostulaciones()
+    .then((postulaciones) => ({ postulaciones }))
+    .catch((error: unknown) => ({ error: getApiErrorMessage(error, "No pudimos cargar las postulaciones.") }));
 
-  return (
-    <ApiSection
-      sectionId="delegacion-postulaciones"
-      title="Postulaciones"
-      description="Seguimiento de postulaciones recibidas en el programa."
-      endpoints={DELEGACION_SECTION_ENDPOINTS.postulaciones}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section>
+        <PageHeader titleId="delegacion-post-error" eyebrow="Delegación" title="Postulaciones" description="Seguimiento de postulaciones." />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <DelegacionPostulacionesView postulaciones={result.postulaciones} />;
 }

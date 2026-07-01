@@ -1,5 +1,7 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { DELEGACION_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { DelegacionReportesView } from "../components/reportes/DelegacionReportesView";
 import {
   getReporteDocumentos,
   getReporteHoras,
@@ -11,45 +13,38 @@ import {
 } from "../services/reportes.service";
 
 export async function DelegacionReportesSection() {
-  const probes = await Promise.all([
-    runApiProbe("Reporte de vacantes", "GET /api/delegacion/reportes/vacantes", () =>
-      getReporteVacantes({ page: 0, size: 5 }),
-    ),
-    runApiProbe(
-      "Reporte de postulaciones",
-      "GET /api/delegacion/reportes/postulaciones",
-      () => getReportePostulaciones({ page: 0, size: 5 }),
-    ),
-    runApiProbe("Reporte de procesos", "GET /api/delegacion/reportes/procesos", () =>
-      getReporteProcesos({ page: 0, size: 5 }),
-    ),
-    runApiProbe(
-      "Reporte de liberaciones",
-      "GET /api/delegacion/reportes/liberaciones",
-      () => getReporteLiberaciones({ page: 0, size: 5 }),
-    ),
-    runApiProbe(
-      "Reporte de incidencias",
-      "GET /api/delegacion/reportes/incidencias",
-      () => getReporteIncidencias({ page: 0, size: 5 }),
-    ),
-    runApiProbe("Reporte de horas", "GET /api/delegacion/reportes/horas", () =>
-      getReporteHoras({ page: 0, size: 5 }),
-    ),
-    runApiProbe(
-      "Reporte de documentos",
-      "GET /api/delegacion/reportes/documentos",
-      () => getReporteDocumentos({ page: 0, size: 5 }),
-    ),
-  ]);
+  const result = await Promise.all([
+    getReporteVacantes({ page: 0, size: 20 }),
+    getReportePostulaciones({ page: 0, size: 20 }),
+    getReporteProcesos({ page: 0, size: 20 }),
+    getReporteLiberaciones({ page: 0, size: 20 }),
+    getReporteIncidencias({ page: 0, size: 20 }),
+    getReporteHoras({ page: 0, size: 20 }),
+    getReporteDocumentos({ page: 0, size: 20 }),
+  ])
+    .then(([vacantes, postulaciones, procesos, liberaciones, incidencias, horas, documentos]) => ({
+      initialReports: {
+        vacantes,
+        postulaciones,
+        procesos,
+        liberaciones,
+        incidencias,
+        horas,
+        documentos,
+      },
+    }))
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar los reportes."),
+    }));
 
-  return (
-    <ApiSection
-      sectionId="delegacion-reportes"
-      title="Reportes"
-      description="Indicadores paginados y exportaciones del panel de delegación."
-      endpoints={DELEGACION_SECTION_ENDPOINTS.reportes}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section>
+        <PageHeader titleId="delegacion-rep-error" eyebrow="Delegación" title="Reportes" description="Indicadores y exportaciones." />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <DelegacionReportesView initialReports={result.initialReports} />;
 }

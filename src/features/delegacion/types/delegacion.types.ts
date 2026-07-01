@@ -157,3 +157,84 @@ export type ReportQueryFilters = {
   page?: number;
   size?: number;
 };
+
+export type ProcesoDocumentoResponse = {
+  idProcesoDocumento: number;
+  procesoId?: number;
+  tipoDocumento?: string;
+  nombreDocumento?: string;
+  estatus?: string;
+  observacionActual?: string;
+};
+
+export type ProcesoHoraResponse = {
+  idAsistencia: number;
+  idProceso?: number;
+  fecha?: string;
+  estatus?: string;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
+};
+
+export type RechazarVacanteRequest = {
+  motivoRechazo: string;
+};
+
+export type CancelarProcesoRequest = {
+  motivoCancelacion: string;
+};
+
+export type ValidarDocumentoRequest = {
+  observacion?: string;
+};
+
+export type ValidarHoraRequest = {
+  comentarioDelegacion?: string;
+};
+
+export type RechazarHoraRequest = {
+  comentarioDelegacion: string;
+};
+
+export type ObservarHoraRequest = {
+  comentarioDelegacion: string;
+};
+
+export type CancelarHoraRequest = {
+  motivoCancelacion: string;
+};
+
+export type RegistrarHoraInternaRequest = {
+  fecha: string;
+  horaEntrada: string;
+  horaSalida: string;
+  descripcionActividades?: string;
+  evidenciaUrl?: string;
+};
+
+export type CrearIncidenciaProcesoRequest = {
+  tipo: string;
+  severidad: string;
+  descripcion: string;
+  fechaIncidencia: string;
+};
+
+export type ResolverIncidenciaRequest = {
+  resoluciones: string[];
+};
+
+export type CancelarIncidenciaRequest = {
+  motivoCancelacion: string;
+};
+
+export type NormalizarEscuelaRequest = {
+  escuelaId: number;
+};
+
+export type CrearEscuelaYNormalizarRequest = {
+  nombre: string;
+  clave?: string;
+  municipio?: string;
+  observacion?: string;
+};
