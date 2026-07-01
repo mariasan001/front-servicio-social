@@ -1,55 +1,76 @@
 .page {
-  min-height: 100vh;
-  background: var(--color-fondo-principal);
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   padding: 40px 24px;
+  background: var(--color-white);
 }
 
 .shell {
   width: 100%;
   max-width: 1222px;
-  min-height: 0;
 }
 
 .panel {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(420px, 0.92fr);
   height: min(720px, calc(100vh - 80px));
+  overflow: hidden;
   background: var(--color-blanco);
   border: 1px solid var(--color-borde-claro);
   border-radius: 40px;
-  overflow: hidden;
   box-shadow: var(--sombra-md);
+}
+
+.panel > * {
+  min-width: 0;
+  min-height: 0;
 }
 
 @media (max-width: 1080px) {
   .page {
+    align-items: center;
+    min-height: 100dvh;
     padding: 24px 16px;
   }
 
   .shell {
     max-width: 650px;
-    min-height: 0;
   }
 
   .panel {
     grid-template-columns: 1fr;
-    grid-template-rows: 185px minmax(0, 1fr);
-    height: min(750px, calc(100vh - 48px));
+    grid-template-rows: auto auto;
+    height: auto;
     min-height: 0;
   }
-  .panel > * {
-    min-height: 0;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 12px;
+  }
+
+  .panel {
+    border-radius: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 10px;
+  }
+
+  .panel {
+    border-radius: 28px;
   }
 }
 
 @media (orientation: landscape) and (max-height: 680px) {
   .page {
-    min-height: auto;
     align-items: flex-start;
-    justify-content: center;
+    min-height: auto;
     padding: 12px;
   }
 
@@ -59,32 +80,9 @@
 
   .panel {
     grid-template-columns: 1fr;
-    grid-template-rows: 185px auto;
+    grid-template-rows: auto auto;
     height: auto;
     overflow: visible;
     border-radius: 24px;
-  }
-
-  .panel > * {
-    min-height: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .panel {
-    border-radius: 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .page {
-    min-height: 100dvh;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 12px;
-  }
-
-  .panel {
-    grid-template-rows: 130px minmax(0, 1fr);
   }
 }

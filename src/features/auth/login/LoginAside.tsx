@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import styles from './LoginAside.module.css'
-import fondoLogin from '@/../public/img/login/FondoLogin.svg'
 
 
 export function LoginAside() {
@@ -12,7 +11,7 @@ export function LoginAside() {
                 <div className={styles.asideIllustration}>
                     <div className={styles.asideIllustrationBox}>
                         <Image
-                            src={fondoLogin}
+                            src="/img/login/FondoLogin.svg"
                             alt="Ilustración decorativa del inicio de sesión"
                             width={559}
                             height={557}
@@ -23,7 +22,7 @@ export function LoginAside() {
                 </div>
 
                 <div className={styles.asideCopy}>
-                    <h1 className={styles.asideTitle}>¡Bienvenido!</h1>
+                    <h1 className={styles.asideTitle}>¡Bienvenido a tu plataforma!</h1>
 
                     <p className={styles.asideText}>
                         &quot;El servicio social es una oportunidad para transformar

@@ -1,25 +1,24 @@
 .aside {
   position: relative;
   width: 100%;
-  justify-self: stretch;
   min-height: 100%;
   overflow: hidden;
   background:
-    linear-gradient(20deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 50%),
+    linear-gradient(20deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 20%) 50%),
     var(--color-vino-login);
 }
 
 .asideShape {
   position: absolute;
-  left: 0;
   top: 0;
+  left: 0;
+  z-index: 2;
   width: 85%;
   height: 100%;
-  background:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-    var(--color-vino-login);
-  z-index: 2;
   pointer-events: none;
+  background:
+    linear-gradient(0deg, rgb(0 0 0 / 20%), rgb(0 0 0 / 20%)),
+    var(--color-vino-login);
   clip-path: path(
     "M 70 0 C 115 0 175 68 245 185 C 315 302 395 455 485 640 C 565 805 635 960 690 1117 L 36 1117 C 16 1117 0 1101 0 1081 L 0 36 C 0 16 16 0 40 0 Z"
   );
@@ -32,14 +31,14 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 100%;
-  padding: 40px 40px 48px 48px;
+  padding: var(--space-10) var(--space-10) var(--space-12) var(--space-12);
 }
 
 .asideIllustration {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-5);
 }
 
 .asideIllustrationBox {
@@ -48,15 +47,15 @@
   justify-content: center;
   width: min(100%, 460px);
   min-height: 260px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 1rem;
+  color: rgb(255 255 255 / 78%);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
 }
 
 .asideIllustrationImage {
-  width: min(100%, 560px);
-  height: auto;
   display: block;
+  width: min(100%, 420px);
+  height: auto;
 }
 
 .asideCopy,
@@ -66,150 +65,84 @@
 }
 
 .asideTitle {
-  margin: 0 0 15px;
-  font-size: 50px;
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
-  letter-spacing: -2px;
-  line-height: 66px;
+  line-height: 1.15;
+  letter-spacing: 0;
 }
 
 .asideText {
   margin: 0;
   font-size: 18px;
-  line-height: 40px;
+  line-height: 2.2;
   font-weight: var(--font-weight-regular);
-}
-
-@media (max-width: 1211px) {
-  .asideText {
-    font-size: 17px;
-  }
-}
-@media (max-width: 1156px) {
-  .asideText {
-    font-size: 15px;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 680px) {
-  .aside {
-    min-height: auto;
-  }
-  .asideInner {
-    padding: 30px 40px 30px 48px;
-    align-items: center;
-  }
-  .asideText {
-    text-align: center;
-  }
-
-  .asideIllustration {
-    display: none;
-  }
-
-  .asideTitle {
-    margin-bottom: 5px;
-    font-size: 42px;
-    line-height: 1.08;
-    letter-spacing: -0.5px;
-    text-align: center;
-  }
 }
 
 @media (max-width: 1080px) {
   .aside {
     min-height: auto;
   }
-  .asideInner {
-    padding: 30px 40px 30px 48px;
-    align-items: center;
-  }
-  .asideText {
-    text-align: center;
-  }
 
+  .asideShape,
   .asideIllustration {
     display: none;
   }
 
-  .asideTitle {
-    margin-bottom: 5px;
-    font-size: 42px;
-    line-height: 1.08;
-    letter-spacing: -0.5px;
+  .asideInner {
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) var(--space-8);
+  }
+
+  .asideCopy {
     text-align: center;
   }
-}
 
-@media (max-width: 632px) {
   .asideTitle {
-    font-size: 38px;
+    margin-bottom: var(--space-3);
+    font-size: var(--font-size-4xl);
+    line-height: 1.1;
   }
+
   .asideText {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
+    line-height: 1.65;
   }
 }
 
-@media (max-width: 540px) {
-  .asideText {
-    font-size: 13px;
-    line-height: 30px;
+@media (max-width: 640px) {
+  .asideInner {
+    padding: var(--space-7) var(--space-5);
+  }
+
+  .asideTitle {
+    font-size: var(--font-size-3xl);
   }
 }
 
 @media (max-width: 480px) {
-  .aside {
-    min-height: auto;
-  }
-  .asideShape {
-    display: none;
-  }
-
   .asideInner {
-    padding: 20px 16px 24px;
-    justify-content: flex-start;
-  }
-
-  .asideIllustration {
-    display: none;
+    padding: var(--space-6) var(--space-4);
   }
 
   .asideTitle {
-    margin-bottom: 10px;
-    font-size: 24px;
-    line-height: 1.05;
-    letter-spacing: -0.5px;
-    text-align: center;
+    margin-bottom: 0;
+    font-size: var(--font-size-2xl);
+    line-height: 1.15;
   }
 
   .asideText {
-    font-size: 13px;
-    line-height: 22px;
-    text-align: center;
-  }
-}
-
-@media (max-width: 376px) {
-  .asideInner {
-    padding: 20px 16px 24px;
-    justify-content: flex-start;
-  }
-
-  .asideTitle {
-    font-size: 22px;
-    text-align: center;
-    letter-spacing: -0.1px;
-  }
-
-  .asideText {
-    font-size: 12px;
-    line-height: 22px;
-    text-align: center;
+    display: none;
   }
 }
 
 @media (max-width: 320px) {
-  .aside {
-    width: 100%;
+  .asideInner {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .asideTitle {
+    font-size: var(--font-size-xl);
   }
 }

@@ -25,8 +25,8 @@
 .title {
   margin: 0 0 10px;
   color: var(--color-negro);
-  font-size: 40px;
-  line-height: 1.05;
+  font-size: 34px;
+  line-height: 1;
   font-weight: var(--font-weight-bold);
   letter-spacing: 0;
 }
@@ -35,7 +35,7 @@
   max-width: 420px;
   margin: 0;
   color: var(--color-gris-500);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   font-weight: var(--font-weight-regular);
 }
@@ -67,7 +67,7 @@
   padding: 0 16px;
   border: 1px solid var(--color-input-border);
   border-radius: 14px;
-  background: var(--color-input-surface);
+  background: var(--color-white);
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast),
