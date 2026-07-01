@@ -1,0 +1,25 @@
+.alert {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+}
+
+.error {
+  color: #7f1d1d;
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.success {
+  color: #14532d;
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.info {
+  color: var(--color-vino-dark);
+  background-color: rgb(107 35 64 / 6%);
+  border-color: rgb(107 35 64 / 14%);
+}

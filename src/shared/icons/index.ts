@@ -17,4 +17,6 @@ export {
   ChevronDown,
   Code2,
   ArrowUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";

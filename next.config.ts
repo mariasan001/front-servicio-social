@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  async rewrites() {
+    const apiOrigin = process.env.API_PROXY_TARGET ?? "http://localhost:8080";
+
+    return [
+      {
+        source: "/api/backend/:path*",
+        destination: `${apiOrigin}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

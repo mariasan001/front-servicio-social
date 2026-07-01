@@ -133,11 +133,11 @@ export function LandingHeader() {
           </nav>
 
           <div className={styles.actionsDesktop}>
-            <Button href="#acceder" variant="outline">
+            <Button href="/login" variant="outline">
               <LogIn className={styles.actionIcon} size={18} strokeWidth={2} />
               Acceder
             </Button>
-            <Button href="#registrarme" variant="primary">
+            <Button href="/registro" variant="primary">
               <UserPlus className={styles.actionIcon} size={18} strokeWidth={2} />
               Registrarme
             </Button>
@@ -221,7 +221,7 @@ export function LandingHeader() {
         <div className={styles.mobileMenuFooter}>
           <div className={styles.mobileActions}>
             <Button
-              href="#acceder"
+              href="/login"
               variant="outline"
               className={styles.mobileActionButton}
               tabIndex={isMenuOpen ? 0 : -1}
@@ -231,7 +231,7 @@ export function LandingHeader() {
               Acceder
             </Button>
             <Button
-              href="#registrarme"
+              href="/registro"
               variant="primary"
               className={styles.mobileActionButton}
               tabIndex={isMenuOpen ? 0 : -1}
