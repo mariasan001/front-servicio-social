@@ -1,8 +1,6 @@
 // src/features/auth/register/RegisterAside.tsx
 import Image from 'next/image'
 import styles from './RegisterAside.module.css'
-import IconRegister from '@/../public/img/register/IconoRegister.svg'
-import IconFlor from '@/../public/img/register/IconFlor.svg'
 
 
 
@@ -16,10 +14,10 @@ export function RegisterAside() {
           
           <div className={styles.asideIllustrationBox}>
             <Image
-              src={IconRegister}
+              src="/img/register/IconoRegister.svg"
               alt="Ilustración decorativa de registro"
-              width={560}
-              height={441}
+              width={574}
+              height={452}
               className={styles.asideIllustrationImage}
               loading="eager"
               style={{ maxWidth: "100%", height: "auto" }}
@@ -29,16 +27,20 @@ export function RegisterAside() {
 
         <div className={styles.asideCopy}>
           <Image
-            src={IconFlor}
+            src="/img/register/IconFlor.svg"
             alt=""
             aria-hidden="true"
+            width={119}
+            height={200}
             className={`${styles.flower} ${styles.flowerLeft}`}
           />
 
           <Image
-            src={IconFlor}
+            src="/img/register/IconFlor.svg"
             alt=""
             aria-hidden="true"
+            width={119}
+            height={200}
             className={`${styles.flower} ${styles.flowerRight}`}
           />
           

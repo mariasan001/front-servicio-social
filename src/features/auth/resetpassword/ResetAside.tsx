@@ -1,8 +1,6 @@
 
 import Image from 'next/image'
 import styles from './ResetAside.module.css'
-import IconRegister from '@/../public/img/resetPassword/IconPassword.svg'
-import IconFlor from '@/../public/img/resetPassword/IconFlor.svg'
 
 
 export function ResetAside() {
@@ -16,10 +14,10 @@ export function ResetAside() {
 
                     <div className={styles.asideIllustrationBox}>
                         <Image
-                            src={IconRegister}
+                            src="/img/resetPassword/IconPassword.svg"
                             alt="Ilustración decorativa de registro"
-                            width={400}
-                            height={438}
+                            width={731}
+                            height={800}
                             className={styles.asideIllustrationImage}
                             loading="eager"
                             style={{ maxWidth: "100%", height: "auto" }}
@@ -29,16 +27,20 @@ export function ResetAside() {
 
                 <div className={styles.asideCopy}>
                     <Image
-                        src={IconFlor}
+                        src="/img/resetPassword/IconFlor.svg"
                         alt=""
                         aria-hidden="true"
+                        width={119}
+                        height={200}
                         className={`${styles.flower} ${styles.flowerLeft}`}
                     />
 
                     <Image
-                        src={IconFlor}
+                        src="/img/resetPassword/IconFlor.svg"
                         alt=""
                         aria-hidden="true"
+                        width={119}
+                        height={200}
                         className={`${styles.flower} ${styles.flowerRight}`}
                     />
 

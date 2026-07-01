@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Mail } from "@/shared/icons";
 
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 import styles from "./ResetEmailForm.module.css";

@@ -113,11 +113,14 @@
 
 @media (max-width: 640px) {
   .asideInner {
-    padding: var(--space-7) var(--space-5);
+    padding: var(--space-6) var(--space-4);
   }
 
   .asideTitle {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
+  }
+  .asideText {
+    display: none;
   }
 }
 
@@ -144,5 +147,9 @@
 
   .asideTitle {
     font-size: var(--font-size-xl);
+  }
+
+  .asideText {
+    display: none;
   }
 }

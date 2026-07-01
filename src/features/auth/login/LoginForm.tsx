@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { UserCircle2Icon, LockKeyhole } from "lucide-react";
+import { UserCircle2Icon, LockKeyhole } from "@/shared/icons";
 
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 import { useLoginFormUi } from "./hooks/useLoginFormUi";

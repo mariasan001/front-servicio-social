@@ -1,12 +1,11 @@
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/shared/icons";
 
 import styles from "./ResetCodeForm.module.css";
 import authFormStyles from "@/features/auth/styles/AuthForm.module.css";
 
 import { VerificationCodeInput } from "@/features/auth/components/VerificationCodeInput";
 
-import iconPassword from "@/../public/img/resetPassword/IconPassword2.svg";
 
 type Props = {
   email: string;
@@ -44,7 +43,7 @@ export function ResetCodeForm({ email, onBack }: Props) {
           </p>
 
           <Image
-            src={iconPassword}
+            src="/img/resetPassword/IconPassword2.svg"
             alt="Ilustración de verificación de código"
             width={261}
             height={343}
