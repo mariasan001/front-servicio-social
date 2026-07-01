@@ -1,9 +1,6 @@
 import { ADMIN_SECTION_ENDPOINTS } from "../constants/endpoints";
 import type { AreaResponse } from "../types/area.types";
-import {
-  AdminApiSection,
-  runAdminProbe,
-} from "../components/AdminApiSection/AdminApiSection";
+import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
 import {
   getArea,
   listAreaTitulares,
@@ -11,32 +8,26 @@ import {
 } from "../services/areas.service";
 
 export async function AdminAreasSection() {
-  const listProbe = await runAdminProbe("Listado de áreas", "GET /api/areas", () =>
-    listAreas(),
-  );
-
-  const probes = [listProbe];
-  const firstId = listProbe.ok
-    ? (listProbe.data as AreaResponse[] | undefined)?.[0]?.idArea
-    : undefined;
-
-  if (firstId) {
-    probes.push(
-      await runAdminProbe(
-        `Detalle área #${firstId}`,
-        `GET /api/areas/${firstId}`,
-        () => getArea(firstId),
-      ),
-      await runAdminProbe(
-        `Titulares área #${firstId}`,
-        `GET /api/areas/${firstId}/titulares`,
-        () => listAreaTitulares(firstId),
-      ),
-    );
-  }
+  const probes = await probeListAndDetail<AreaResponse>({
+    listLabel: "Listado de áreas",
+    listPath: "GET /api/areas",
+    detailLabelPrefix: "Detalle área",
+    detailPath: (id) => `GET /api/areas/${id}`,
+    listRequest: () => listAreas(),
+    detailRequest: (id) => getArea(id),
+    idKey: "idArea",
+    extraProbes: (id) => [
+      {
+        label: `Titulares área #${id}`,
+        path: `GET /api/areas/${id}/titulares`,
+        request: () => listAreaTitulares(id),
+      },
+    ],
+  });
 
   return (
-    <AdminApiSection
+    <ApiSection
+      sectionId="admin-areas"
       title="Áreas"
       description="Áreas receptoras y titulares asignados."
       endpoints={ADMIN_SECTION_ENDPOINTS.areas}

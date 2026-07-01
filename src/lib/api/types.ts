@@ -84,3 +84,13 @@ export type ConfirmarRecuperacionContrasenaRequest = {
 export type ConfirmarRecuperacionContrasenaResponse = {
   mensaje: string;
 };
+
+export type ReportPageResponse<T> = {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+};

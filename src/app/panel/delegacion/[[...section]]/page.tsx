@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { RolePanelSectionPage } from "@/features/panel";
-import { USER_ROLES } from "@/lib/auth/constants";
+import { DelegacionSectionPage } from "@/features/delegacion";
 
 export const metadata: Metadata = {
   title: "Panel de delegación",
@@ -14,7 +13,5 @@ type PageProps = {
 export default async function Page({ params }: PageProps) {
   const { section } = await params;
 
-  return (
-    <RolePanelSectionPage role={USER_ROLES.DELEGACION} section={section} />
-  );
+  return <DelegacionSectionPage section={section} />;
 }

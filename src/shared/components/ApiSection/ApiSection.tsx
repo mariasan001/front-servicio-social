@@ -1,10 +1,16 @@
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import type { AdminEndpointDefinition } from "../../constants/endpoints";
-import styles from "./AdminApiSection.module.css";
+import styles from "./ApiSection.module.css";
 
-export type AdminApiProbe = {
+export type ApiEndpointDefinition = {
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  path: string;
+  operationId: string;
+  serviceFunction: string;
+};
+
+export type ApiProbe = {
   label: string;
   path: string;
   ok: boolean;
@@ -12,31 +18,37 @@ export type AdminApiProbe = {
   error?: string;
 };
 
-type AdminApiSectionProps = {
+type ApiSectionProps = {
   title: string;
   description?: string;
-  endpoints: AdminEndpointDefinition[];
-  probes: AdminApiProbe[];
+  note?: string;
+  sectionId?: string;
+  endpoints: ApiEndpointDefinition[];
+  probes: ApiProbe[];
 };
 
-export function AdminApiSection({
+export function ApiSection({
   title,
   description,
+  note = "Consumo real del backend. Sin datos de prueba ni mocks.",
+  sectionId = "api-section",
   endpoints,
   probes,
-}: AdminApiSectionProps) {
+}: ApiSectionProps) {
+  const titleId = `${sectionId}-title`;
+
   return (
-    <section className={styles.section} aria-labelledby="admin-api-section-title">
+    <section className={styles.section} aria-labelledby={titleId}>
       <PageHeader
         title={title}
         description={description}
-        note="Consumo real del backend. Sin datos de prueba ni mocks."
-        titleId="admin-api-section-title"
+        note={note}
+        titleId={titleId}
       />
 
       <div className={styles.grid}>
-        <section className={styles.block} aria-labelledby="admin-endpoints-title">
-          <h2 id="admin-endpoints-title" className={styles.blockTitle}>
+        <section className={styles.block} aria-labelledby={`${sectionId}-endpoints`}>
+          <h2 id={`${sectionId}-endpoints`} className={styles.blockTitle}>
             Endpoints integrados ({endpoints.length})
           </h2>
           <ul className={styles.endpointList}>
@@ -52,8 +64,8 @@ export function AdminApiSection({
           </ul>
         </section>
 
-        <section className={styles.block} aria-labelledby="admin-probes-title">
-          <h2 id="admin-probes-title" className={styles.blockTitle}>
+        <section className={styles.block} aria-labelledby={`${sectionId}-probes`}>
+          <h2 id={`${sectionId}-probes`} className={styles.blockTitle}>
             Lecturas ejecutadas ({probes.length})
           </h2>
           <div className={styles.probeList}>
@@ -84,11 +96,11 @@ export function AdminApiSection({
   );
 }
 
-export async function runAdminProbe(
+export async function runApiProbe(
   label: string,
   path: string,
   request: () => Promise<unknown>,
-): Promise<AdminApiProbe> {
+): Promise<ApiProbe> {
   try {
     const data = await request();
     return { label, path, ok: true, data };
