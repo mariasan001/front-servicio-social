@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
   observeProcesoDocumentoAction,
@@ -15,7 +15,8 @@ import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 export function DocumentoPendienteModal({
   documento,
@@ -27,21 +28,39 @@ export function DocumentoPendienteModal({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const documentoRef = useRef(documento);
+  documentoRef.current = documento;
   const [comentario, setComentario] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
+  const { detail, error, setError } = useDetailModalLoader(
+    open,
+    documento?.idProcesoDocumento ?? null,
+    async (id) => {
+      const current = documentoRef.current;
+      if (!current || current.idProcesoDocumento !== id) {
+        return { success: false as const, error: "No se encontró el documento." };
+      }
+      return { success: true as const, data: current };
+    },
+    {
+      onBeforeLoad: () => {
+        setComentario("");
+        setError(null);
+      },
+    },
+  );
 
   const run = async (action: "approve" | "observe" | "reject") => {
-    if (!documento) return;
+    if (!detail) return;
     setIsMutating(true);
     setError(null);
     const body = comentario.trim() ? { observacion: comentario.trim() } : {};
     const result =
       action === "approve"
-        ? await approveProcesoDocumentoAction(documento.idProceso, documento.idProcesoDocumento)
+        ? await approveProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento)
         : action === "observe"
-          ? await observeProcesoDocumentoAction(documento.idProceso, documento.idProcesoDocumento, body)
-          : await rejectProcesoDocumentoAction(documento.idProceso, documento.idProcesoDocumento, body);
+          ? await observeProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento, body)
+          : await rejectProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento, body);
     setIsMutating(false);
     if (!result.success) {
       setError(result.error);
@@ -53,11 +72,11 @@ export function DocumentoPendienteModal({
 
   return (
     <Modal open={open} title="Revisar documento" onClose={onClose} size="lg">
-      {documento ? (
+      {detail ? (
         <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(documento.estatus)}>{formatEtiqueta(documento.estatus)}</StatusBadge>
+          <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
           <p className={styles.detailLead}>
-            <strong>{documento.alumnoNombre ?? "Alumno"}</strong> · {documento.tipoDocumento ?? "Documento"}
+            <strong>{detail.alumnoNombre ?? "Alumno"}</strong> · {detail.tipoDocumento ?? "Documento"}
           </p>
           {error ? <Alert tone="error">{error}</Alert> : null}
           <FormField id="doc-comentario" label="Comentario u observación">

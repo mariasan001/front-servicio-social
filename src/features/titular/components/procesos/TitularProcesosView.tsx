@@ -9,6 +9,7 @@ import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, typ
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] }) {
   const [search, setSearch] = useState("");
@@ -16,14 +17,14 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
-    const query = deferredSearch.trim().toLowerCase();
+    const query = normalizeText(deferredSearch);
     if (!query) return procesos;
     return procesos.filter((proceso) =>
-      [proceso.folio, proceso.estatus, proceso.alumnoNombre, proceso.vacanteNombre]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(query),
+      normalizeText(
+        [proceso.folio, proceso.estatus, proceso.alumnoNombre, proceso.vacanteNombre]
+          .filter(Boolean)
+          .join(" "),
+      ).includes(query),
     );
   }, [deferredSearch, procesos]);
 

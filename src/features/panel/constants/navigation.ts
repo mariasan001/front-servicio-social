@@ -96,10 +96,10 @@ export const PANEL_NAVIGATION: PanelNavGroup[] = [
     basePath: PANEL_PATHS.admin,
     items: [
       item(PANEL_PATHS.admin, "inicio", "Inicio", Home, "Resumen del sistema."),
-      item(PANEL_PATHS.admin, "usuarios", "Usuarios internos", Users, "Alta y administración de cuentas."),
-      item(PANEL_PATHS.admin, "escuelas", "Escuelas", School, "Catálogo de instituciones educativas."),
       item(PANEL_PATHS.admin, "dependencias", "Dependencias", Building2, "Dependencias receptoras."),
+      item(PANEL_PATHS.admin, "escuelas", "Escuelas", School, "Catálogo de instituciones educativas."),
       item(PANEL_PATHS.admin, "areas", "Áreas", Layers, "Áreas y titulares asignados."),
+      item(PANEL_PATHS.admin, "usuarios", "Usuarios internos", Users, "Alta y administración de cuentas."),
     ],
   },
   {
@@ -123,29 +123,4 @@ export function getAccessibleNavigations(roles: string[] | undefined | null) {
   const normalized = normalizeRoles(roles);
 
   return PANEL_NAVIGATION.filter((group) => normalized.includes(group.role));
-}
-
-export function resolvePanelNavItem(role: UserRole, section?: string) {
-  const navigation = getNavigationForRole(role);
-
-  if (!navigation) {
-    return null;
-  }
-
-  const sectionId = section ?? "inicio";
-  return (
-    navigation.items.find((item) => item.id === sectionId) ??
-    navigation.items[0]
-  );
-}
-
-export function isValidPanelSection(role: UserRole, section?: string) {
-  const navigation = getNavigationForRole(role);
-
-  if (!navigation) {
-    return false;
-  }
-
-  const sectionId = section ?? "inicio";
-  return navigation.items.some((item) => item.id === sectionId);
 }

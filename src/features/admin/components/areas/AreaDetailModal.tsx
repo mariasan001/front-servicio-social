@@ -2,7 +2,7 @@
 
 import { LayoutGrid } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   activateAreaAction,
   assignAreaTitularAction,
@@ -11,7 +11,7 @@ import {
   getAreaDetailAction,
   setPrincipalAreaTitularAction,
 } from "../../actions/areas.actions";
-import type { AreaDetalleResponse, AreaResponse } from "../../types/area.types";
+import type { AreaResponse } from "../../types/area.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { AreaFormModal } from "./AreaFormModal";
 import areaStyles from "./AreaDetailModal.module.css";
@@ -21,6 +21,7 @@ import { CheckboxField, SelectInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
 import {
   areaStatusLabel,
@@ -49,53 +50,25 @@ export function AreaDetailModal({
   onClose,
 }: AreaDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<AreaDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [selectedTitularId, setSelectedTitularId] = useState("");
   const [esPrincipal, setEsPrincipal] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open || areaId === null) {
-      return;
-    }
-
-    const selectedAreaId = areaId;
-    let cancelled = false;
-
-    async function loadDetail() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setAssignError(null);
-      setSelectedTitularId("");
-      setEsPrincipal(false);
-
-      const result = await getAreaDetailAction(selectedAreaId);
-
-      if (cancelled) {
-        return;
-      }
-
-      if (result.success) {
-        setDetail(result.data);
-      } else {
-        setError(result.error);
-      }
-
-      setIsLoading(false);
-    }
-
-    void loadDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [areaId, open, reloadKey]);
+  const { detail, error, setError, isLoading } = useDetailModalLoader(
+    open,
+    areaId,
+    getAreaDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setAssignError(null);
+        setSelectedTitularId("");
+        setEsPrincipal(false);
+      },
+    },
+  );
 
   const handleMutationSuccess = () => {
     router.refresh();
@@ -218,7 +191,7 @@ export function AreaDetailModal({
               <Button
                 type="button"
                 variant={isActive ? "outline" : "primary"}
-                className={isActive ? areaStyles.dangerOutline : undefined}
+                className={isActive ? styles.dangerButton : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
@@ -380,7 +353,7 @@ export function AreaDetailModal({
                         <Button
                           type="button"
                           variant="outline"
-                          className={areaStyles.dangerOutline}
+                          className={styles.dangerButton}
                           disabled={isMutating}
                           onClick={() => void handleDeactivateTitular(titular.idAsignacion)}
                         >

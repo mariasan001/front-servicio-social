@@ -17,6 +17,7 @@ import dataTableStyles from "@/shared/components/DataTable/DataTable.module.css"
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 
 export function AlumnoNotificacionesView({
   notificaciones,
@@ -97,26 +98,26 @@ export function AlumnoNotificacionesView({
         }
       >
         {filtered.length === 0 ? (
-          <p className={styles.detailLead}>No hay notificaciones para mostrar.</p>
+          <p className={detailStyles.detailLead}>No hay notificaciones para mostrar.</p>
         ) : (
-          <ul className={styles.panelList}>
+          <ul className={detailStyles.panelList}>
             {filtered.map((notificacion) => (
-              <li key={notificacion.id} className={styles.panelCard}>
-                <div className={styles.detailSectionHeader}>
+              <li key={notificacion.id} className={detailStyles.panelCard}>
+                <div className={detailStyles.detailSectionHeader}>
                   <strong>{notificacion.titulo?.trim() || "Sin título"}</strong>
                   <StatusBadge tone={notificacion.leida ? "neutral" : "info"}>
                     {notificacion.leida ? "Leída" : "Sin leer"}
                   </StatusBadge>
                 </div>
-                <span className={styles.panelMeta}>
+                <span className={detailStyles.panelMeta}>
                   {formatEtiqueta(notificacion.tipo, "Aviso")} ·{" "}
                   {formatFecha(notificacion.fechaCreacion)}
                 </span>
                 {notificacion.mensaje ? (
-                  <p className={styles.emptyInline}>{notificacion.mensaje}</p>
+                  <p className={detailStyles.emptyInline}>{notificacion.mensaje}</p>
                 ) : null}
                 {!notificacion.leida ? (
-                  <div className={styles.detailActions}>
+                  <div className={detailStyles.detailActions}>
                     <Button
                       type="button"
                       variant="outline"
@@ -134,7 +135,7 @@ export function AlumnoNotificacionesView({
         )}
       </DataTableShell>
 
-      <p className={styles.detailLead}>
+      <p className={detailStyles.detailLead}>
         Mostrando {filtered.length} de {totalElements} notificaciones.
       </p>
     </section>

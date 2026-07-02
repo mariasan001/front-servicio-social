@@ -16,7 +16,7 @@ import { SelectInput, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 function AlumnoNormalizarModalContent({
   alumno,

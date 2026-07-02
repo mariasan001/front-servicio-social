@@ -9,6 +9,7 @@ import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, typ
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 export function DelegacionPostulacionesView({
   postulaciones,
@@ -20,10 +21,12 @@ export function DelegacionPostulacionesView({
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
-    const query = deferredSearch.trim().toLowerCase();
+    const query = normalizeText(deferredSearch);
     if (!query) return postulaciones;
     return postulaciones.filter((p) =>
-      [p.folio, p.estatus, String(p.idPostulacion)].join(" ").toLowerCase().includes(query),
+      normalizeText([p.folio, p.estatus, String(p.idPostulacion)].filter(Boolean).join(" ")).includes(
+        query,
+      ),
     );
   }, [deferredSearch, postulaciones]);
 

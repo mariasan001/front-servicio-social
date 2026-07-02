@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
   cancelProcesoAction,
@@ -18,7 +18,6 @@ import {
   rejectProcesoHoraAction,
   setProcesoHorasRequeridasAction,
   validateProcesoHoraAction,
-  type ProcesoDetailPayload,
 } from "../../actions/procesos.actions";
 import {
   cartaTipoIncludes,
@@ -36,7 +35,8 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DelegacionProcesoDetailModalProps = {
   procesoId: number | null;
@@ -46,10 +46,7 @@ type DelegacionProcesoDetailModalProps = {
 
 export function DelegacionProcesoDetailModal({ procesoId, open, onClose }: DelegacionProcesoDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<ProcesoDetailPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
@@ -63,27 +60,17 @@ export function DelegacionProcesoDetailModal({ procesoId, open, onClose }: Deleg
   });
   const cartaAceptacionInput = useRef<HTMLInputElement | null>(null);
   const cartaLiberacionInput = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (!open || procesoId === null) return;
-    const id = procesoId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setActionError(null);
-      const result = await getProcesoDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, procesoId, reloadKey]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    procesoId,
+    getProcesoDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setActionError(null);
+      },
+    },
+  );
 
   const refresh = () => {
     router.refresh();

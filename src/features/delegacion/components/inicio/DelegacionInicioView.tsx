@@ -23,6 +23,7 @@ import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
 type DelegacionInicioViewProps = {
@@ -139,21 +140,21 @@ export function DelegacionInicioView({
       </StatCards>
 
       {liberacionesPendientes.length > 0 ? (
-        <section className={styles.detailSection} aria-labelledby="liberaciones-pendientes-title">
-          <div className={styles.detailSectionHeader}>
-            <h2 id="liberaciones-pendientes-title" className={styles.detailSectionTitle}>
+        <section className={detailStyles.detailSection} aria-labelledby="liberaciones-pendientes-title">
+          <div className={detailStyles.detailSectionHeader}>
+            <h2 id="liberaciones-pendientes-title" className={detailStyles.detailSectionTitle}>
               Liberaciones pendientes de carta
             </h2>
-            <p className={styles.detailSectionDescription}>
+            <p className={detailStyles.detailSectionDescription}>
               Procesos que requieren emisión de carta de liberación.{" "}
               <Link href={`${PANEL_PATHS.delegacion}/procesos`}>Ir a procesos</Link>
             </p>
           </div>
-          <ul className={styles.panelList}>
+          <ul className={detailStyles.panelList}>
             {liberacionesPendientes.slice(0, 5).map((item) => (
-              <li key={item.idProceso} className={styles.panelCard}>
+              <li key={item.idProceso} className={detailStyles.panelCard}>
                 <strong>{item.alumnoNombre ?? "Alumno sin nombre"}</strong>
-                <p className={styles.panelMeta}>
+                <p className={detailStyles.panelMeta}>
                   Proceso {item.folio?.trim() || `#${item.idProceso}`}
                 </p>
               </li>
@@ -163,28 +164,28 @@ export function DelegacionInicioView({
       ) : null}
 
       {notificacionesRecientes.length > 0 ? (
-        <section className={styles.detailSection} aria-labelledby="notificaciones-correo-title">
-          <div className={styles.detailSectionHeader}>
-            <h2 id="notificaciones-correo-title" className={styles.detailSectionTitle}>
+        <section className={detailStyles.detailSection} aria-labelledby="notificaciones-correo-title">
+          <div className={detailStyles.detailSectionHeader}>
+            <h2 id="notificaciones-correo-title" className={detailStyles.detailSectionTitle}>
               Notificaciones por correo
             </h2>
-            <p className={styles.detailSectionDescription}>
+            <p className={detailStyles.detailSectionDescription}>
               Últimos envíos registrados en el sistema.
             </p>
           </div>
-          <ul className={styles.panelList}>
+          <ul className={detailStyles.panelList}>
             {notificacionesRecientes.map((notificacion, index) => (
               <li
                 key={notificacion.id ?? `${notificacion.destino ?? "correo"}-${index}`}
-                className={styles.panelCard}
+                className={detailStyles.panelCard}
               >
-                <div className={styles.panelHeader}>
+                <div className={detailStyles.panelHeader}>
                   <strong>{notificacion.asunto?.trim() || "Sin asunto"}</strong>
                   <StatusBadge tone={estatusTone(notificacion.estatus)}>
                     {formatEtiqueta(notificacion.estatus, "Sin estatus")}
                   </StatusBadge>
                 </div>
-                <p className={styles.panelMeta}>
+                <p className={detailStyles.panelMeta}>
                   {notificacion.destino?.trim() || "Destino no registrado"}
                 </p>
               </li>

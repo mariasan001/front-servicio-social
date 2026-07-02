@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getIncidenciaDetailAction } from "../../actions/incidencias.actions";
-import type { IncidenciaDetalleResponse } from "../../types/titular.types";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 export function TitularIncidenciaDetailModal({
   incidenciaId,
@@ -19,29 +18,11 @@ export function TitularIncidenciaDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<IncidenciaDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open || incidenciaId === null) return;
-    const id = incidenciaId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      const result = await getIncidenciaDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [incidenciaId, open]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    incidenciaId,
+    getIncidenciaDetailAction,
+  );
 
   return (
     <Modal open={open} title={`Incidencia #${incidenciaId ?? ""}`} onClose={onClose} size="lg">

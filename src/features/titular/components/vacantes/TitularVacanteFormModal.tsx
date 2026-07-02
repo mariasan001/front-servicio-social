@@ -9,9 +9,10 @@ import type { VacanteDetalleResponse, VacanteResponse } from "../../types/titula
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, TextInput } from "@/shared/components/Form";
-import formStyles from "@/shared/components/Form/Form.module.css";
+import inputStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import formStyles from "@/shared/styles/PanelFormModal.module.css";
+import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 
 type FormValues = {
   nombre: string;
@@ -135,7 +136,7 @@ function VacanteFormModalContent({
   };
 
   return (
-    <form className={styles.formLayout} onSubmit={(event) => void handleSubmit(event)}>
+    <form className={formStyles.formLayout} onSubmit={(event) => void handleSubmit(event)}>
       {formError ? <Alert tone="error">{formError}</Alert> : null}
       {mode === "create" && !areaContext ? (
         <Alert tone="info">
@@ -144,36 +145,36 @@ function VacanteFormModalContent({
         </Alert>
       ) : null}
       {areaContext ? (
-        <p className={styles.detailLead}>
+        <p className={detailStyles.detailLead}>
           Área: <strong>{areaContext.areaNombre ?? `#${areaContext.areaId}`}</strong>
         </p>
       ) : null}
 
-      <section className={styles.formSection} aria-label="Datos de la vacante">
-        <p className={styles.formSectionTitle}>Información de la vacante</p>
-        <div className={styles.formGrid}>
+      <section className={formStyles.formSection} aria-label="Datos de la vacante">
+        <p className={formStyles.formSectionTitle}>Información de la vacante</p>
+        <div className={formStyles.formGrid}>
         <TextInput
           id="vacante-nombre"
           label="Nombre de la vacante"
           value={values.nombre}
           error={fieldErrors.nombre}
-          className={styles.formGridFull}
+          className={formStyles.formGridFull}
           onChange={(event) => updateField("nombre", event.target.value)}
         />
-        <div className={styles.formGridFull}>
-          <label className={formStyles.label} htmlFor="vacante-descripcion">
+        <div className={formStyles.formGridFull}>
+          <label className={inputStyles.label} htmlFor="vacante-descripcion">
             Descripción
           </label>
           <textarea
             id="vacante-descripcion"
-            className={formStyles.textarea}
+            className={inputStyles.textarea}
             rows={3}
             value={values.descripcion}
             onChange={(event) => updateField("descripcion", event.target.value)}
             aria-invalid={Boolean(fieldErrors.descripcion)}
           />
           {fieldErrors.descripcion ? (
-            <p className={formStyles.error}>{fieldErrors.descripcion}</p>
+            <p className={inputStyles.error}>{fieldErrors.descripcion}</p>
           ) : null}
         </div>
         <TextInput
@@ -207,7 +208,7 @@ function VacanteFormModalContent({
         </div>
       </section>
 
-      <div className={styles.formActions}>
+      <div className={formStyles.formActions}>
         <Button type="button" variant="outline" onClick={onClose}>
           Cancelar
         </Button>

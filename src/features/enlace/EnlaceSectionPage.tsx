@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { EnlaceSectionSlug } from "./constants/sections";
+import { isEnlaceSectionSlug, type EnlaceSectionSlug } from "./constants/sections";
 import { EnlaceAlumnosSection } from "./sections/EnlaceAlumnosSection";
 import { EnlaceInicioSection } from "./sections/EnlaceInicioSection";
 import { EnlaceProcesosSection } from "./sections/EnlaceProcesosSection";
 import { EnlaceReportesSection } from "./sections/EnlaceReportesSection";
 
-const ENLACE_SECTIONS: Record<
+const ENLACE_SECTION_COMPONENTS: Record<
   EnlaceSectionSlug,
   () => Promise<ReactElement>
 > = {
@@ -15,10 +15,6 @@ const ENLACE_SECTIONS: Record<
   procesos: EnlaceProcesosSection,
   reportes: EnlaceReportesSection,
 };
-
-function isEnlaceSectionSlug(value: string): value is EnlaceSectionSlug {
-  return value in ENLACE_SECTIONS;
-}
 
 type EnlaceSectionPageProps = {
   section?: string[];
@@ -31,6 +27,6 @@ export async function EnlaceSectionPage({ section }: EnlaceSectionPageProps) {
     notFound();
   }
 
-  const SectionComponent = ENLACE_SECTIONS[slug];
+  const SectionComponent = ENLACE_SECTION_COMPONENTS[slug];
   return SectionComponent();
 }

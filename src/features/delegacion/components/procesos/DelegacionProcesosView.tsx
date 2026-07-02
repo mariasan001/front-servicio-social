@@ -9,6 +9,7 @@ import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, typ
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse[] }) {
   const [search, setSearch] = useState("");
@@ -16,10 +17,12 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
-    const q = deferredSearch.trim().toLowerCase();
-    if (!q) return procesos;
+    const query = normalizeText(deferredSearch);
+    if (!query) return procesos;
     return procesos.filter((p) =>
-      [p.folio, p.estatus, p.alumnoNombre, String(p.idProceso)].join(" ").toLowerCase().includes(q),
+      normalizeText([p.folio, p.estatus, p.alumnoNombre, String(p.idProceso)].filter(Boolean).join(" ")).includes(
+        query,
+      ),
     );
   }, [deferredSearch, procesos]);
 

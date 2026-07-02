@@ -1,19 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   cancelPostulacionAction,
   getPostulacionDetailAction,
 } from "../../actions/postulaciones.actions";
-import type { PostulacionDetalleResponse } from "../../types/alumno.types";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 function canCancel(estatus?: string) {
   const value = estatus?.trim().toUpperCase() ?? "";
@@ -35,33 +35,20 @@ export function AlumnoPostulacionDetailModal({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [detail, setDetail] = useState<PostulacionDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    if (!open || postulacionId === null) return;
-    const id = postulacionId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setActionError(null);
-      const result = await getPostulacionDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, postulacionId, reloadKey]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    postulacionId,
+    getPostulacionDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setActionError(null);
+      },
+    },
+  );
 
   const refresh = () => {
     router.refresh();

@@ -9,6 +9,7 @@ import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, typ
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 export function TitularIncidenciasView({
   incidencias,
@@ -20,14 +21,14 @@ export function TitularIncidenciasView({
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
-    const query = deferredSearch.trim().toLowerCase();
+    const query = normalizeText(deferredSearch);
     if (!query) return incidencias;
     return incidencias.filter((incidencia) =>
-      [incidencia.folioProceso, incidencia.tipo, incidencia.estatus, incidencia.severidad]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(query),
+      normalizeText(
+        [incidencia.folioProceso, incidencia.tipo, incidencia.estatus, incidencia.severidad]
+          .filter(Boolean)
+          .join(" "),
+      ).includes(query),
     );
   }, [deferredSearch, incidencias]);
 

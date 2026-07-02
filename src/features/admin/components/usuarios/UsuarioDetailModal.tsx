@@ -2,7 +2,7 @@
 
 import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   activateUsuarioInternoAction,
   deactivateUsuarioInternoAction,
@@ -18,13 +18,15 @@ import {
   usuarioActivoLabel,
   usuarioActivoTone,
 } from "./usuario-labels";
-import styles from "./UsuarioDetailModal.module.css";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import usuarioStyles from "./UsuarioDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { PasswordInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type UsuarioDetailModalProps = {
   usuarioId: number | null;
@@ -42,53 +44,25 @@ export function UsuarioDetailModal({
   onClose,
 }: UsuarioDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<UsuarioInternoResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open || usuarioId === null) {
-      return;
-    }
-
-    const selectedUsuarioId = usuarioId;
-    let cancelled = false;
-
-    async function loadDetail() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setPasswordError(null);
-      setPasswordSuccess(null);
-      setNewPassword("");
-
-      const result = await getUsuarioDetailAction(selectedUsuarioId);
-
-      if (cancelled) {
-        return;
-      }
-
-      if (result.success) {
-        setDetail(result.data);
-      } else {
-        setError(result.error);
-      }
-
-      setIsLoading(false);
-    }
-
-    void loadDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, reloadKey, usuarioId]);
+  const { detail, error, setError, isLoading } = useDetailModalLoader(
+    open,
+    usuarioId,
+    getUsuarioDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setPasswordError(null);
+        setPasswordSuccess(null);
+        setNewPassword("");
+      },
+    },
+  );
 
   const handleMutationSuccess = () => {
     router.refresh();
@@ -191,14 +165,14 @@ export function UsuarioDetailModal({
 
         {!isLoading && detail ? (
           <div className={styles.layout}>
-            <div className={styles.profileBar}>
+            <div className={styles.summaryBar}>
               <div className={styles.avatar} aria-hidden="true">
                 <User size={18} strokeWidth={1.75} />
               </div>
 
-              <div className={styles.profileMeta}>
-                <p className={styles.profileUsername}>@{detail.username}</p>
-                <p className={styles.profileCargo}>
+              <div className={styles.summaryMeta}>
+                <p className={styles.summaryPrimary}>@{detail.username}</p>
+                <p className={styles.summarySecondary}>
                   {detail.cargo?.trim() || "Usuario interno"}
                 </p>
               </div>
@@ -226,7 +200,7 @@ export function UsuarioDetailModal({
                   <dt>Puede descargar cartas</dt>
                   <dd>{formatSiNo(detail.puedeDescargarCartas)}</dd>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={`${styles.infoItem} ${styles.infoItemFull}`}>
                   <dt>Última actualización</dt>
                   <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
                 </div>
@@ -244,13 +218,13 @@ export function UsuarioDetailModal({
               </div>
 
               {detail.roles.length === 0 ? (
-                <p className={styles.emptyRoles}>
+                <p className={usuarioStyles.emptyRoles}>
                   Esta cuenta no tiene perfiles asignados por el momento.
                 </p>
               ) : (
-                <div className={styles.roleList}>
+                <div className={usuarioStyles.roleList}>
                   {detail.roles.map((rol) => (
-                    <span key={rol} className={styles.roleChip}>
+                    <span key={rol} className={usuarioStyles.roleChip}>
                       {formatRol(rol)}
                     </span>
                   ))}
@@ -271,8 +245,8 @@ export function UsuarioDetailModal({
               {passwordError ? <Alert tone="error">{passwordError}</Alert> : null}
               {passwordSuccess ? <Alert tone="success">{passwordSuccess}</Alert> : null}
 
-              <div className={styles.passwordRow}>
-                <div className={styles.passwordField}>
+              <div className={usuarioStyles.passwordRow}>
+                <div className={usuarioStyles.passwordField}>
                   <PasswordInput
                     id="usuario-new-password"
                     name="newPassword"
@@ -287,7 +261,7 @@ export function UsuarioDetailModal({
                   />
                 </div>
 
-                <div className={styles.passwordActions}>
+                <div className={usuarioStyles.passwordActions}>
                   <Button
                     type="button"
                     variant="primary"

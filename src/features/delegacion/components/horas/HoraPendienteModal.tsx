@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   cancelProcesoHoraAction,
   observeProcesoHoraAction,
@@ -16,7 +16,8 @@ import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 export function HoraPendienteModal({
   hora,
@@ -28,22 +29,40 @@ export function HoraPendienteModal({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const horaRef = useRef(hora);
+  horaRef.current = hora;
   const [comentario, setComentario] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
+  const { detail, error, setError } = useDetailModalLoader(
+    open,
+    hora?.idAsistencia ?? null,
+    async (id) => {
+      const current = horaRef.current;
+      if (!current || current.idAsistencia !== id) {
+        return { success: false as const, error: "No se encontró el registro de horas." };
+      }
+      return { success: true as const, data: current };
+    },
+    {
+      onBeforeLoad: () => {
+        setComentario("");
+        setError(null);
+      },
+    },
+  );
 
   const run = async (action: "validate" | "observe" | "reject" | "cancel") => {
-    if (!hora) return;
+    if (!detail) return;
     setIsMutating(true);
     setError(null);
     const result =
       action === "validate"
-        ? await validateProcesoHoraAction(hora.idProceso, hora.idAsistencia, comentario.trim() ? { comentarioDelegacion: comentario.trim() } : {})
+        ? await validateProcesoHoraAction(detail.idProceso, detail.idAsistencia, comentario.trim() ? { comentarioDelegacion: comentario.trim() } : {})
         : action === "observe"
-          ? await observeProcesoHoraAction(hora.idProceso, hora.idAsistencia, { comentarioDelegacion: comentario.trim() || "Observación registrada." })
+          ? await observeProcesoHoraAction(detail.idProceso, detail.idAsistencia, { comentarioDelegacion: comentario.trim() || "Observación registrada." })
           : action === "reject"
-            ? await rejectProcesoHoraAction(hora.idProceso, hora.idAsistencia, { comentarioDelegacion: comentario.trim() || "Registro rechazado." })
-            : await cancelProcesoHoraAction(hora.idProceso, hora.idAsistencia, { motivoCancelacion: comentario.trim() || "Cancelado por delegación." });
+            ? await rejectProcesoHoraAction(detail.idProceso, detail.idAsistencia, { comentarioDelegacion: comentario.trim() || "Registro rechazado." })
+            : await cancelProcesoHoraAction(detail.idProceso, detail.idAsistencia, { motivoCancelacion: comentario.trim() || "Cancelado por delegación." });
     setIsMutating(false);
     if (!result.success) {
       setError(result.error);
@@ -55,10 +74,10 @@ export function HoraPendienteModal({
 
   return (
     <Modal open={open} title="Revisar horas" onClose={onClose} size="lg">
-      {hora ? (
+      {detail ? (
         <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(hora.estatus)}>{formatEtiqueta(hora.estatus)}</StatusBadge>
-          <p className={styles.detailLead}>{hora.alumnoNombre ?? "Alumno"}</p>
+          <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
+          <p className={styles.detailLead}>{detail.alumnoNombre ?? "Alumno"}</p>
           {error ? <Alert tone="error">{error}</Alert> : null}
           <FormField id="hora-comentario" label="Comentario">
             <textarea id="hora-comentario" className={formStyles.textarea} rows={3} value={comentario} onChange={(e) => setComentario(e.target.value)} />

@@ -2,7 +2,7 @@
 
 import { Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   activateDependenciaAction,
   deactivateDependenciaAction,
@@ -18,6 +18,7 @@ import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DependenciaDetailModalProps = {
   dependenciaId: number | null;
@@ -33,47 +34,15 @@ export function DependenciaDetailModal({
   onClose,
 }: DependenciaDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<DependenciaResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    if (!open || dependenciaId === null) {
-      return;
-    }
-
-    const selectedDependenciaId = dependenciaId;
-    let cancelled = false;
-
-    async function loadDetail() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-
-      const result = await getDependenciaDetailAction(selectedDependenciaId);
-
-      if (cancelled) {
-        return;
-      }
-
-      if (result.success) {
-        setDetail(result.data);
-      } else {
-        setError(result.error);
-      }
-
-      setIsLoading(false);
-    }
-
-    void loadDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [dependenciaId, open, reloadKey]);
+  const { detail, setDetail, error, setError, isLoading } = useDetailModalLoader(
+    open,
+    dependenciaId,
+    getDependenciaDetailAction,
+    { reloadKey },
+  );
 
   const handleToggleStatus = async () => {
     if (!detail) {

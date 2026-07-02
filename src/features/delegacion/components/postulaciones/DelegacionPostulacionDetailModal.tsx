@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getPostulacionDetailAction } from "../../actions/postulaciones.actions";
-import type { PostulacionResponse } from "../../types/delegacion.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DelegacionPostulacionDetailModalProps = {
   postulacionId: number | null;
@@ -21,29 +20,11 @@ export function DelegacionPostulacionDetailModal({
   open,
   onClose,
 }: DelegacionPostulacionDetailModalProps) {
-  const [detail, setDetail] = useState<PostulacionResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open || postulacionId === null) return;
-    const id = postulacionId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      const result = await getPostulacionDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, postulacionId]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    postulacionId,
+    getPostulacionDetailAction,
+  );
 
   return (
     <Modal open={open} title={detail?.folio ? `Postulación ${detail.folio}` : "Postulación"} onClose={onClose} size="lg">

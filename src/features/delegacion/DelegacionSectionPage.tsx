@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { DelegacionSectionSlug } from "./constants/sections";
+import { isDelegacionSectionSlug, type DelegacionSectionSlug } from "./constants/sections";
 import { DelegacionAlumnosSection } from "./sections/DelegacionAlumnosSection";
 import { DelegacionDocumentosSection } from "./sections/DelegacionDocumentosSection";
 import { DelegacionHorasSection } from "./sections/DelegacionHorasSection";
@@ -11,7 +11,7 @@ import { DelegacionProcesosSection } from "./sections/DelegacionProcesosSection"
 import { DelegacionReportesSection } from "./sections/DelegacionReportesSection";
 import { DelegacionVacantesSection } from "./sections/DelegacionVacantesSection";
 
-const DELEGACION_SECTIONS: Record<
+const DELEGACION_SECTION_COMPONENTS: Record<
   DelegacionSectionSlug,
   () => Promise<ReactElement>
 > = {
@@ -26,10 +26,6 @@ const DELEGACION_SECTIONS: Record<
   reportes: DelegacionReportesSection,
 };
 
-function isDelegacionSectionSlug(value: string): value is DelegacionSectionSlug {
-  return value in DELEGACION_SECTIONS;
-}
-
 type DelegacionSectionPageProps = {
   section?: string[];
 };
@@ -43,6 +39,6 @@ export async function DelegacionSectionPage({
     notFound();
   }
 
-  const SectionComponent = DELEGACION_SECTIONS[slug];
+  const SectionComponent = DELEGACION_SECTION_COMPONENTS[slug];
   return SectionComponent();
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   getProcesoDetailAction,
   type EnlaceProcesoDetailPayload,
@@ -10,7 +9,8 @@ import { Alert } from "@/shared/components/Alert";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 export function EnlaceProcesoDetailModal({
   procesoId,
@@ -21,29 +21,11 @@ export function EnlaceProcesoDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<EnlaceProcesoDetailPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open || procesoId === null) return;
-    const id = procesoId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      const result = await getProcesoDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, procesoId]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    procesoId,
+    getProcesoDetailAction,
+  );
 
   const proceso = detail?.proceso;
 

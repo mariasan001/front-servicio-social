@@ -1,14 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   closeVacanteAction,
   getVacanteDetailAction,
   publishVacanteAction,
   rejectVacanteAction,
 } from "../../actions/vacantes.actions";
-import type { VacanteResponse } from "../../types/delegacion.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -17,7 +16,8 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DelegacionVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -37,50 +37,22 @@ export function DelegacionVacanteDetailModal({
   onClose,
 }: DelegacionVacanteDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<VacanteResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open || vacanteId === null) {
-      return;
-    }
-
-    const selectedId = vacanteId;
-    let cancelled = false;
-
-    async function loadDetail() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setActionError(null);
-      setMotivoRechazo("");
-
-      const result = await getVacanteDetailAction(selectedId);
-
-      if (cancelled) {
-        return;
-      }
-
-      if (result.success) {
-        setDetail(result.data);
-      } else {
-        setError(result.error);
-      }
-
-      setIsLoading(false);
-    }
-
-    void loadDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, reloadKey, vacanteId]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    vacanteId,
+    getVacanteDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setActionError(null);
+        setMotivoRechazo("");
+      },
+    },
+  );
 
   const handleMutationSuccess = () => {
     router.refresh();

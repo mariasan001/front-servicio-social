@@ -1,14 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   acceptPostulacionAction,
   getPostulacionDetailAction,
   markPostulacionExamFinishedAction,
   rejectPostulacionAction,
 } from "../../actions/postulaciones.actions";
-import type { PostulacionDetalleResponse } from "../../types/titular.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -17,7 +16,8 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelDetailView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 export function TitularPostulacionDetailModal({
   postulacionId,
@@ -29,36 +29,23 @@ export function TitularPostulacionDetailModal({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [detail, setDetail] = useState<PostulacionDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [comentario, setComentario] = useState("");
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [resultadoExamen, setResultadoExamen] = useState("");
-
-  useEffect(() => {
-    if (!open || postulacionId === null) return;
-    const id = postulacionId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setActionError(null);
-      const result = await getPostulacionDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, postulacionId, reloadKey]);
+  const { detail, error, isLoading } = useDetailModalLoader(
+    open,
+    postulacionId,
+    getPostulacionDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setActionError(null);
+      },
+    },
+  );
 
   const refresh = () => {
     router.refresh();

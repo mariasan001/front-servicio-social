@@ -36,7 +36,7 @@ Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consum
 ## Panel
 
 - Rutas: `/panel/{rol}/[[...section]]`
-- Cada rol expone secciones desde `constants/sections.ts` y las renderiza con vistas cliente (`*View`) sobre componentes compartidos (`DataTable`, `FilterBar`, `Modal`, etc.)
+- Cada rol expone secciones desde `constants/sections.ts` y las renderiza con vistas cliente (`*View`) sobre componentes compartidos (`DataTable`, `Modal`, `PageHeader`, etc.)
 - Patrón por sección: `Section` (server) → `*View` (client) → modales con prefijo de rol → `actions/*.ts` → `services` → `revalidate-{rol}.ts`
 
 ## Mutaciones (Server Actions)

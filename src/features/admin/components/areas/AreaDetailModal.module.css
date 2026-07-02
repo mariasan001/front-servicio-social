@@ -125,16 +125,6 @@
   font-size: 0.6875rem;
 }
 
-.dangerOutline {
-  color: var(--color-badge-error) !important;
-  border-color: rgb(107 35 64 / 28%) !important;
-}
-
-.dangerOutline:hover {
-  background-color: rgb(107 35 64 / 5%) !important;
-  border-color: var(--color-badge-error) !important;
-}
-
 @media (max-width: 520px) {
   .assignRow {
     grid-template-columns: 1fr;

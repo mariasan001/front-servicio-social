@@ -2,14 +2,13 @@
 
 import { GraduationCap, Link2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   generateEscuelaTokenAction,
   getEscuelaDetailAction,
   reactivateEscuelaTokenAction,
   revokeEscuelaTokenAction,
   suspendEscuelaTokenAction,
-  type EscuelaDetailPayload,
 } from "../../actions/escuelas.actions";
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
 import { EscuelaFormModal } from "./EscuelaFormModal";
@@ -25,6 +24,7 @@ import { CheckboxField, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 type EscuelaDetailModalProps = {
@@ -45,9 +45,6 @@ export function EscuelaDetailModal({
   onClose,
 }: EscuelaDetailModalProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState<EscuelaDetailPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -58,43 +55,18 @@ export function EscuelaDetailModal({
   const [invitacionGenerada, setInvitacionGenerada] = useState<TokenGeneradoResponse | null>(
     null,
   );
-
-  useEffect(() => {
-    if (!open || escuelaId === null) {
-      return;
-    }
-
-    const selectedEscuelaId = escuelaId;
-    let cancelled = false;
-
-    async function loadDetail() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      setInvitacionError(null);
-      setInvitacionGenerada(null);
-
-      const result = await getEscuelaDetailAction(selectedEscuelaId);
-
-      if (cancelled) {
-        return;
-      }
-
-      if (result.success) {
-        setDetail(result.data);
-      } else {
-        setError(result.error);
-      }
-
-      setIsLoading(false);
-    }
-
-    void loadDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [escuelaId, open, reloadKey]);
+  const { detail, error, setError, isLoading } = useDetailModalLoader(
+    open,
+    escuelaId,
+    getEscuelaDetailAction,
+    {
+      reloadKey,
+      onBeforeLoad: () => {
+        setInvitacionError(null);
+        setInvitacionGenerada(null);
+      },
+    },
+  );
 
   const handleMutationSuccess = () => {
     router.refresh();
@@ -263,15 +235,15 @@ export function EscuelaDetailModal({
               {invitacionError ? <Alert tone="error">{invitacionError}</Alert> : null}
 
               {invitacionGenerada ? (
-                <div className={escuelaStyles.successBox}>
+                <div className={styles.successBox}>
                   <strong>Invitación generada correctamente</strong>
                   {invitacionGenerada.urlRegistro ? (
-                    <span className={escuelaStyles.successValue}>
+                    <span className={styles.successValue}>
                       Enlace: {invitacionGenerada.urlRegistro}
                     </span>
                   ) : null}
                   {invitacionGenerada.token ? (
-                    <span className={escuelaStyles.successValue}>
+                    <span className={styles.successValue}>
                       Código: {invitacionGenerada.token}
                     </span>
                   ) : null}
@@ -379,7 +351,7 @@ export function EscuelaDetailModal({
                               <Button
                                 type="button"
                                 variant="outline"
-                                className={escuelaStyles.dangerOutline}
+                                className={styles.dangerButton}
                                 disabled={isMutating}
                                 onClick={() => void handleTokenAction("revoke", invitacion.idToken)}
                               >

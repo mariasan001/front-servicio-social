@@ -46,30 +46,6 @@
   font-size: 0.75rem;
 }
 
-.successBox {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.625rem 0.75rem;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: var(--color-badge-success);
-  background-color: var(--color-badge-success-bg);
-  border: 1px solid var(--color-badge-success-border);
-  border-radius: 0.5rem;
-}
-
-.successBox strong {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-gris-800);
-}
-
-.successValue {
-  overflow-wrap: anywhere;
-  color: var(--color-gris-700);
-}
-
 .history {
   display: flex;
   flex-direction: column;
@@ -194,16 +170,6 @@
   min-height: 1.75rem;
   padding: 0.1875rem 0.5rem;
   font-size: 0.6875rem;
-}
-
-.dangerOutline {
-  color: var(--color-badge-error) !important;
-  border-color: rgb(107 35 64 / 28%) !important;
-}
-
-.dangerOutline:hover {
-  background-color: rgb(107 35 64 / 5%) !important;
-  border-color: var(--color-badge-error) !important;
 }
 
 @media (max-width: 520px) {

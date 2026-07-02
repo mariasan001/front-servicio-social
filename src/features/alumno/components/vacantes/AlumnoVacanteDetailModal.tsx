@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
-import type { VacanteDetalleResponse } from "../../types/alumno.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -13,7 +12,8 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 function canPostular(estatus?: string, activa?: boolean) {
   const normalized = estatus?.trim().toUpperCase() ?? "";
@@ -33,34 +33,15 @@ export function AlumnoVacanteDetailModal({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [detail, setDetail] = useState<VacanteDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [comentario, setComentario] = useState("");
-
-  useEffect(() => {
-    if (!open || vacanteId === null) return;
-    const id = vacanteId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
+  const { detail, error, isLoading } = useDetailModalLoader(open, vacanteId, getVacanteDetailAction, {
+    onBeforeLoad: () => {
       setActionError(null);
       setComentario("");
-      const result = await getVacanteDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [open, vacanteId]);
+    },
+  });
 
   const postularVisible = detail ? canPostular(detail.estatus, detail.activa) : false;
 

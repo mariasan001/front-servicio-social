@@ -11,7 +11,7 @@ import { Button } from "@/shared/components/Button";
 import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/PanelFormModal.module.css";
 
 type AreaFormModalProps = {
   open: boolean;

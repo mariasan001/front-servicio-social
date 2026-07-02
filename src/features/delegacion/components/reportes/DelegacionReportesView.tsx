@@ -11,6 +11,7 @@ import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 
 type ReportRow = Record<string, unknown>;
 
@@ -41,7 +42,7 @@ export function DelegacionReportesView({
         description="Consulta indicadores operativos y descarga reportes del programa."
       />
 
-      <div className={styles.detailActions}>
+      <div className={detailStyles.detailActions}>
         {DELEGACION_REPORTS.map((type) => (
           <Button
             key={type.id}
@@ -55,7 +56,7 @@ export function DelegacionReportesView({
       </div>
 
       {activeReport ? (
-        <p className={styles.detailLead}>
+        <p className={detailStyles.detailLead}>
           <a href={buildDelegacionReportExportUrl(active)} className={styles.actionButton}>
             Descargar reporte de {activeReport.label.toLowerCase()}
           </a>
@@ -72,7 +73,7 @@ export function DelegacionReportesView({
       />
 
       {report ? (
-        <p className={styles.detailLead}>
+        <p className={detailStyles.detailLead}>
           Mostrando {rows.length} de {report.totalElements ?? rows.length} registros.
         </p>
       ) : null}

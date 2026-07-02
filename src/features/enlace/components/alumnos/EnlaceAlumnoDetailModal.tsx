@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getAlumnoDetailAction } from "../../actions/alumnos.actions";
-import type { AlumnoDetalleResponse } from "../../types/enlace.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/PanelDetailView.module.css";
 
 export function EnlaceAlumnoDetailModal({
   alumnoId,
@@ -19,29 +18,7 @@ export function EnlaceAlumnoDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<AlumnoDetalleResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open || alumnoId === null) return;
-    const id = alumnoId;
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      setError(null);
-      setDetail(null);
-      const result = await getAlumnoDetailAction(id);
-      if (cancelled) return;
-      if (result.success) setDetail(result.data);
-      else setError(result.error);
-      setIsLoading(false);
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [alumnoId, open]);
+  const { detail, error, isLoading } = useDetailModalLoader(open, alumnoId, getAlumnoDetailAction);
 
   return (
     <Modal
