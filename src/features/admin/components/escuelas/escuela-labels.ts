@@ -1,50 +1,15 @@
-import type { StatusBadgeTone } from "@/shared/components/StatusBadge";
+import { estatusTone, formatEtiqueta as formatEtiquetaBase } from "@/lib/domain/labels";
 
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVA: "Activa",
-  INACTIVA: "Inactiva",
+const ESCUELA_LABEL_OVERRIDES: Record<string, string> = {
   ACTIVO: "Disponible",
-  SUSPENDIDO: "Suspendido",
-  REVOCADO: "Cancelado",
-  VIGENTE: "Vigente",
-  PENDIENTE: "Pendiente",
-  VENCIDO: "Vencido",
 };
 
 export function formatEtiqueta(value?: string, fallback = "Sin información") {
-  if (!value?.trim()) {
-    return fallback;
-  }
-
-  const normalized = value.trim().toUpperCase();
-
-  if (STATUS_LABELS[normalized]) {
-    return STATUS_LABELS[normalized];
-  }
-
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/^\w/, (char) => char.toUpperCase());
+  return formatEtiquetaBase(value, fallback, ESCUELA_LABEL_OVERRIDES);
 }
 
-export function escuelaEstatusTone(estatus?: string): StatusBadgeTone {
-  const value = estatus?.trim().toUpperCase();
-
-  if (value === "ACTIVA" || value === "ACTIVO" || value === "VIGENTE") {
-    return "success";
-  }
-
-  if (value === "INACTIVA" || value === "REVOCADO" || value === "VENCIDO") {
-    return "neutral";
-  }
-
-  if (value === "SUSPENDIDO" || value === "PENDIENTE") {
-    return "warning";
-  }
-
-  return "info";
+export function escuelaEstatusTone(estatus?: string) {
+  return estatusTone(estatus);
 }
 
-export { formatFecha } from "../areas/area-labels";
+export { formatFecha } from "@/lib/domain/labels";

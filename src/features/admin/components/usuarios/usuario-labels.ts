@@ -1,10 +1,7 @@
 import { USER_ROLES } from "@/lib/auth/constants";
 import type { StatusBadgeTone } from "@/shared/components/StatusBadge";
-import {
-  areaStatusLabel,
-  areaStatusTone,
-  formatFecha,
-} from "../areas/area-labels";
+import { areaStatusLabel, areaStatusTone } from "../areas/area-labels";
+import { formatFecha, formatSiNo } from "@/lib/domain/labels";
 
 const ROLE_LABELS: Record<string, string> = {
   [USER_ROLES.ADMINISTRADOR]: "Administración",
@@ -50,16 +47,4 @@ export function usuarioActivoTone(activo?: boolean): StatusBadgeTone {
   return areaStatusTone(activo);
 }
 
-export function formatSiNo(value?: boolean, fallback = "No especificado") {
-  if (value === true) {
-    return "Sí";
-  }
-
-  if (value === false) {
-    return "No";
-  }
-
-  return fallback;
-}
-
-export { formatFecha };
+export { formatFecha, formatSiNo };

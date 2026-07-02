@@ -8,14 +8,14 @@ import {
   rejectProcesoDocumentoAction,
 } from "../../actions/procesos.actions";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
-import { estatusTone, formatEtiqueta } from "../shared/delegacion-labels";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function DocumentoPendienteModal({
   documento,

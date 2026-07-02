@@ -327,7 +327,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/documentos/export",
       operationId: "exportarDocumentos",
-      serviceFunction: "exportReporteDocumentos()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -339,7 +339,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/horas/export",
       operationId: "exportarHoras",
-      serviceFunction: "exportReporteHoras()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -351,7 +351,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/incidencias/export",
       operationId: "exportarIncidencias",
-      serviceFunction: "exportReporteIncidencias()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -363,7 +363,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/liberaciones/export",
       operationId: "exportarLiberaciones",
-      serviceFunction: "exportReporteLiberaciones()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -375,7 +375,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/postulaciones/export",
       operationId: "exportarPostulaciones",
-      serviceFunction: "exportReportePostulaciones()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -387,7 +387,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/procesos/export",
       operationId: "exportarProcesos",
-      serviceFunction: "exportReporteProcesos()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",
@@ -399,7 +399,7 @@ export const DELEGACION_SECTION_ENDPOINTS = {
       method: "GET",
       path: "/api/delegacion/reportes/vacantes/export",
       operationId: "exportarVacantes",
-      serviceFunction: "exportReporteVacantes()",
+      serviceFunction: "buildDelegacionReportExportUrl()",
     },
     {
       method: "GET",

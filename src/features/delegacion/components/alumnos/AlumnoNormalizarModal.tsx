@@ -9,14 +9,14 @@ import {
 } from "../../actions/alumnos.actions";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
-import { estatusTone, formatEtiqueta } from "../shared/delegacion-labels";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { SelectInput, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 function AlumnoNormalizarModalContent({
   alumno,

@@ -1,116 +1,65 @@
 import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
 import type { ReportPageResponse } from "@/lib/api/types";
+import {
+  DELEGACION_REPORTS,
+  getDelegacionReportDefinition,
+  type DelegacionReportId,
+} from "../lib/reportes.config";
 import type { ReportQueryFilters } from "../types/delegacion.types";
 
-export async function getReporteVacantes(filters?: ReportQueryFilters) {
+async function fetchReportPage(path: string, filters?: ReportQueryFilters) {
   const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/vacantes${buildQuery(filters)}`,
+    `${path}${buildQuery(filters)}`,
     { method: "GET" },
   );
 
   return response.data;
+}
+
+export async function getReporte(id: DelegacionReportId, filters?: ReportQueryFilters) {
+  const { listPath } = getDelegacionReportDefinition(id);
+  return fetchReportPage(listPath, filters);
+}
+
+export async function getAllReportesPreview(filters?: ReportQueryFilters) {
+  const entries = await Promise.all(
+    DELEGACION_REPORTS.map(async (report) => [
+      report.id,
+      await fetchReportPage(report.listPath, filters),
+    ] as const),
+  );
+
+  return Object.fromEntries(entries) as Record<
+    DelegacionReportId,
+    ReportPageResponse<unknown> | undefined
+  >;
+}
+
+export async function getReporteVacantes(filters?: ReportQueryFilters) {
+  return getReporte("vacantes", filters);
 }
 
 export async function getReportePostulaciones(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/postulaciones${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
+  return getReporte("postulaciones", filters);
 }
 
 export async function getReporteProcesos(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/procesos${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
+  return getReporte("procesos", filters);
 }
 
 export async function getReporteLiberaciones(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/liberaciones${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
+  return getReporte("liberaciones", filters);
 }
 
 export async function getReporteIncidencias(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/incidencias${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
+  return getReporte("incidencias", filters);
 }
 
 export async function getReporteHoras(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/horas${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
+  return getReporte("horas", filters);
 }
 
 export async function getReporteDocumentos(filters?: ReportQueryFilters) {
-  const response = await serverApiRequest<ReportPageResponse<unknown>>(
-    `/api/delegacion/reportes/documentos${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}
-
-export async function exportReporteVacantes(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/vacantes/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReportePostulaciones(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/postulaciones/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReporteProcesos(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/procesos/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReporteLiberaciones(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/liberaciones/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReporteIncidencias(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/incidencias/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReporteHoras(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/horas/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-}
-
-export async function exportReporteDocumentos(filters?: ReportQueryFilters) {
-  return serverApiRequest<unknown>(
-    `/api/delegacion/reportes/documentos/export${buildQuery(filters)}`,
-    { method: "GET" },
-  );
+  return getReporte("documentos", filters);
 }

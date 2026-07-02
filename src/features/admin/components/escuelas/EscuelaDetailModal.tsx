@@ -23,7 +23,7 @@ import { CheckboxField, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "../areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type EscuelaDetailModalProps = {
   escuelaId: number | null;

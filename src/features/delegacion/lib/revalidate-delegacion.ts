@@ -1,11 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePanelSection } from "@/lib/cache/revalidate-panel";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { DelegacionSectionSlug } from "../constants/endpoints";
 
 export function revalidateDelegacionSection(section?: DelegacionSectionSlug) {
-  revalidatePath(PANEL_PATHS.delegacion);
-
-  if (section && section !== "inicio") {
-    revalidatePath(`${PANEL_PATHS.delegacion}/${section}`);
-  }
+  revalidatePanelSection(PANEL_PATHS.delegacion, section);
 }

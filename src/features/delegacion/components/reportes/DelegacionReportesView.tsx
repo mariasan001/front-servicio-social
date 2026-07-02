@@ -2,49 +2,48 @@
 
 import { useState } from "react";
 import type { ReportPageResponse } from "@/lib/api/types";
+import {
+  buildDelegacionReportExportUrl,
+  DELEGACION_REPORTS,
+  type DelegacionReportId,
+} from "../../lib/reportes.config";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
-
-const REPORT_TYPES = [
-  { id: "vacantes", label: "Vacantes", exportPath: "/api/delegacion/reportes/vacantes/export" },
-  { id: "postulaciones", label: "Postulaciones", exportPath: "/api/delegacion/reportes/postulaciones/export" },
-  { id: "procesos", label: "Procesos", exportPath: "/api/delegacion/reportes/procesos/export" },
-  { id: "liberaciones", label: "Liberaciones", exportPath: "/api/delegacion/reportes/liberaciones/export" },
-  { id: "incidencias", label: "Incidencias", exportPath: "/api/delegacion/reportes/incidencias/export" },
-  { id: "horas", label: "Horas", exportPath: "/api/delegacion/reportes/horas/export" },
-  { id: "documentos", label: "Documentos", exportPath: "/api/delegacion/reportes/documentos/export" },
-] as const;
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type ReportRow = Record<string, unknown>;
 
 export function DelegacionReportesView({
   initialReports,
 }: {
-  initialReports: Record<string, ReportPageResponse<unknown> | null | undefined>;
+  initialReports: Partial<Record<DelegacionReportId, ReportPageResponse<unknown> | null | undefined>>;
 }) {
-  const [active, setActive] = useState<(typeof REPORT_TYPES)[number]["id"]>("vacantes");
+  const [active, setActive] = useState<DelegacionReportId>("vacantes");
+  const activeReport = DELEGACION_REPORTS.find((report) => report.id === active);
   const report = initialReports[active];
-  const rows = ((report?.content ?? []) as ReportRow[]);
+  const rows = (report?.content ?? []) as ReportRow[];
 
   const columns: DataTableColumn<ReportRow>[] =
     rows[0]
       ? Object.keys(rows[0]).slice(0, 6).map((key) => ({
           id: key,
-          header: key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()),
+          header: key.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase()),
           cell: (row) => String(row[key] ?? "—"),
         }))
       : [];
 
-  const exportPath = REPORT_TYPES.find((r) => r.id === active)?.exportPath;
-
   return (
     <section className={styles.page} aria-labelledby="delegacion-reportes-title">
-      <PageHeader titleId="delegacion-reportes-title" eyebrow="Delegación" title="Reportes" description="Consulta indicadores operativos y descarga reportes del programa." />
+      <PageHeader
+        titleId="delegacion-reportes-title"
+        eyebrow="Delegación"
+        title="Reportes"
+        description="Consulta indicadores operativos y descarga reportes del programa."
+      />
 
       <div className={styles.detailActions}>
-        {REPORT_TYPES.map((type) => (
+        {DELEGACION_REPORTS.map((type) => (
           <Button
             key={type.id}
             type="button"
@@ -56,10 +55,10 @@ export function DelegacionReportesView({
         ))}
       </div>
 
-      {exportPath ? (
+      {activeReport ? (
         <p className={styles.detailLead}>
-          <a href={`/api/backend${exportPath}`} className={styles.actionButton}>
-            Descargar reporte de {REPORT_TYPES.find((r) => r.id === active)?.label.toLowerCase()}
+          <a href={buildDelegacionReportExportUrl(active)} className={styles.actionButton}>
+            Descargar reporte de {activeReport.label.toLowerCase()}
           </a>
         </p>
       ) : null}
@@ -68,7 +67,7 @@ export function DelegacionReportesView({
         columns={columns}
         rows={rows}
         rowKey={(row) => String((row.id as string | number | undefined) ?? JSON.stringify(row))}
-        caption={`Reporte de ${active}`}
+        caption={`Reporte de ${activeReport?.label ?? active}`}
         emptyTitle="Sin datos en este reporte"
         emptyDescription="Prueba otro tipo de reporte o ajusta los filtros en una siguiente versión."
       />

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createAreaAction, updateAreaAction } from "../../actions/areas.actions";
-import { mapActionFieldErrors } from "../../lib/form-errors";
+import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { AreaResponse } from "../../types/area.types";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { Alert } from "@/shared/components/Alert";
@@ -11,7 +11,7 @@ import { Button } from "@/shared/components/Button";
 import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
-import styles from "./AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type AreaFormModalProps = {
   open: boolean;

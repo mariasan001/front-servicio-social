@@ -6,3 +6,4 @@ export type {
   ProcesoBase,
   VacanteBase,
 } from "./types";
+export { estatusTone, formatEtiqueta, formatFecha, formatSiNo } from "./labels";

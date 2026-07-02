@@ -27,7 +27,7 @@ import {
   titularStatusLabel,
   titularStatusTone,
 } from "./area-labels";
-import styles from "./AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type AreaDetailModalProps = {
   areaId: number | null;

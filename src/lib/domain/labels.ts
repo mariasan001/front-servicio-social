@@ -1,14 +1,17 @@
 import type { StatusBadgeTone } from "@/shared/components/StatusBadge";
-import { formatFecha } from "@/features/admin/components/areas/area-labels";
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVA: "Activa",
-  ACTIVO: "Activo",
   INACTIVA: "Inactiva",
+  ACTIVO: "Activo",
+  SUSPENDIDO: "Suspendido",
+  REVOCADO: "Cancelado",
+  VIGENTE: "Vigente",
+  PENDIENTE: "Pendiente",
+  VENCIDO: "Vencido",
   PUBLICADA: "Publicada",
   CERRADA: "Cerrada",
   RECHAZADA: "Rechazada",
-  PENDIENTE: "Pendiente",
   APROBADO: "Aprobado",
   APROBADA: "Aprobada",
   OBSERVADO: "Observado",
@@ -26,12 +29,36 @@ const STATUS_LABELS: Record<string, string> = {
   BAJA: "Baja",
 };
 
-export function formatEtiqueta(value?: string, fallback = "Sin información") {
+export function formatFecha(value?: string) {
+  if (!value) {
+    return "No registrada";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("es-MX", {
+    dateStyle: "long",
+  }).format(date);
+}
+
+export function formatEtiqueta(
+  value?: string,
+  fallback = "Sin información",
+  overrides?: Record<string, string>,
+) {
   if (!value?.trim()) {
     return fallback;
   }
 
   const normalized = value.trim().toUpperCase();
+
+  if (overrides?.[normalized]) {
+    return overrides[normalized];
+  }
 
   if (STATUS_LABELS[normalized]) {
     return STATUS_LABELS[normalized];
@@ -50,6 +77,7 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
   if (
     value === "ACTIVA" ||
     value === "ACTIVO" ||
+    value === "VIGENTE" ||
     value === "PUBLICADA" ||
     value === "APROBADO" ||
     value === "APROBADA" ||
@@ -66,7 +94,8 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "PENDIENTE" ||
     value === "EN_REVISION" ||
     value === "OBSERVADO" ||
-    value === "OBSERVADA"
+    value === "OBSERVADA" ||
+    value === "SUSPENDIDO"
   ) {
     return "warning";
   }
@@ -78,7 +107,9 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "CANCELADO" ||
     value === "BAJA" ||
     value === "CERRADA" ||
-    value === "INACTIVA"
+    value === "INACTIVA" ||
+    value === "REVOCADO" ||
+    value === "VENCIDO"
   ) {
     return "neutral";
   }
@@ -86,4 +117,14 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
   return "info";
 }
 
-export { formatFecha };
+export function formatSiNo(value?: boolean, fallback = "No especificado") {
+  if (value === true) {
+    return "Sí";
+  }
+
+  if (value === false) {
+    return "No";
+  }
+
+  return fallback;
+}

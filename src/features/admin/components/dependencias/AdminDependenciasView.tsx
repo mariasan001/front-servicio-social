@@ -11,21 +11,14 @@ import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "../areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 type AdminDependenciasViewProps = {
   dependencias: DependenciaResponse[];
 };
 
 type StatusFilter = "todas" | "activas" | "inactivas";
-
-function normalizeText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .trim();
-}
 
 export function AdminDependenciasView({ dependencias }: AdminDependenciasViewProps) {
   const [search, setSearch] = useState("");

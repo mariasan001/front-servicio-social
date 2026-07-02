@@ -4,12 +4,12 @@ import { useState } from "react";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
 import { AlumnoNormalizarModal } from "./AlumnoNormalizarModal";
-import { estatusTone, formatEtiqueta } from "../shared/delegacion-labels";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function DelegacionAlumnosView({
   alumnos,

@@ -40,18 +40,4 @@ export function formatContacto(correo?: string, telefono?: string) {
   return correo ?? telefono ?? "Sin datos de contacto";
 }
 
-export function formatFecha(value?: string) {
-  if (!value) {
-    return "No registrada";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("es-MX", {
-    dateStyle: "long",
-  }).format(date);
-}
+export { formatFecha } from "@/lib/domain/labels";

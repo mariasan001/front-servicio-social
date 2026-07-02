@@ -4,25 +4,18 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/delegacion.types";
 import { VacanteDetailModal } from "./VacanteDetailModal";
-import { estatusTone, formatEtiqueta } from "../shared/delegacion-labels";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 type DelegacionVacantesViewProps = {
   vacantes: VacanteResponse[];
 };
-
-function normalizeText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .trim();
-}
 
 export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps) {
   const [search, setSearch] = useState("");

@@ -15,15 +15,19 @@ import type { AuthUser } from "@/lib/api/types";
 import type {
   DashboardResponse,
   LiberacionPendienteCartaResponse,
+  NotificacionCorreoResponse,
 } from "../../types/delegacion.types";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { PageHeader } from "@/shared/components/PageHeader";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "./DelegacionInicioView.module.css";
 
 type DelegacionInicioViewProps = {
   session: AuthUser;
   dashboard: DashboardResponse;
   liberacionesPendientes: LiberacionPendienteCartaResponse[];
+  notificacionesRecientes: NotificacionCorreoResponse[];
 };
 
 const QUICK_ACCESS = [
@@ -97,6 +101,7 @@ export function DelegacionInicioView({
   session,
   dashboard,
   liberacionesPendientes,
+  notificacionesRecientes,
 }: DelegacionInicioViewProps) {
   const firstName = session.nombreCompleto.trim().split(/\s+/)[0] ?? session.nombreCompleto;
 
@@ -147,6 +152,37 @@ export function DelegacionInicioView({
                 <strong>{item.alumnoNombre ?? "Alumno sin nombre"}</strong>
                 <p className={styles.titularMeta}>
                   Proceso {item.folio?.trim() || `#${item.idProceso}`}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {notificacionesRecientes.length > 0 ? (
+        <section className={styles.detailSection} aria-labelledby="notificaciones-correo-title">
+          <div className={styles.detailSectionHeader}>
+            <h2 id="notificaciones-correo-title" className={styles.detailSectionTitle}>
+              Notificaciones por correo
+            </h2>
+            <p className={styles.detailSectionDescription}>
+              Últimos envíos registrados en el sistema.
+            </p>
+          </div>
+          <ul className={styles.titularList}>
+            {notificacionesRecientes.map((notificacion, index) => (
+              <li
+                key={notificacion.id ?? `${notificacion.destino ?? "correo"}-${index}`}
+                className={styles.titularCard}
+              >
+                <div className={styles.titularHeader}>
+                  <strong>{notificacion.asunto?.trim() || "Sin asunto"}</strong>
+                  <StatusBadge tone={estatusTone(notificacion.estatus)}>
+                    {formatEtiqueta(notificacion.estatus, "Sin estatus")}
+                  </StatusBadge>
+                </div>
+                <p className={styles.titularMeta}>
+                  {notificacion.destino?.trim() || "Destino no registrado"}
                 </p>
               </li>
             ))}

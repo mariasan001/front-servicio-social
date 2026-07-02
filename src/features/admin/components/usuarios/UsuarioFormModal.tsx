@@ -7,7 +7,7 @@ import {
   createUsuarioInternoAction,
   updateUsuarioInternoAction,
 } from "../../actions/usuarios.actions";
-import { mapActionFieldErrors } from "../../lib/form-errors";
+import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { formatRol } from "./usuario-labels";
@@ -21,7 +21,7 @@ import {
   TextInput,
 } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
-import styles from "../areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 const INTERNAL_ROLES: UserRole[] = [
   USER_ROLES.ADMINISTRADOR,

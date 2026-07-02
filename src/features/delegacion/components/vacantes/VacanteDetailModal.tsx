@@ -9,7 +9,7 @@ import {
   rejectVacanteAction,
 } from "../../actions/vacantes.actions";
 import type { VacanteResponse } from "../../types/delegacion.types";
-import { estatusTone, formatEtiqueta } from "../shared/delegacion-labels";
+import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
@@ -17,7 +17,7 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/features/admin/components/areas/AdminAreasView.module.css";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type VacanteDetailModalProps = {
   vacanteId: number | null;
