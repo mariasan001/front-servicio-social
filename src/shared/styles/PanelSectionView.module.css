@@ -1,7 +1,12 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
+}
+
+.page:has([data-table-expand="true"]) {
+  flex: 1;
+  min-height: 0;
 }
 
 .searchField,
@@ -19,9 +24,10 @@
 
 .searchLabel,
 .filterLabel {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-gris-900);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--color-gris-500);
 }
 
 .searchControl {
@@ -33,43 +39,110 @@
 .searchIcon {
   position: absolute;
   left: var(--space-3);
-  color: var(--color-text-muted);
+  color: var(--color-gris-500);
   pointer-events: none;
+  opacity: 0.75;
 }
 
 .searchInput,
 .filterSelect {
   width: 100%;
-  min-height: 2.75rem;
-  padding: var(--space-3) var(--space-4);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  color: var(--color-gris-900);
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-family);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--color-gris-700);
   background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-stat-card-border);
+  border-radius: 0.4375rem;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.searchInput::placeholder {
+  color: var(--color-gris-500);
+  font-weight: 300;
+}
+
+.filterSelect {
+  font-weight: 400;
+  color: var(--color-gris-800);
 }
 
 .searchInput {
-  padding-left: calc(var(--space-3) + 1.5rem);
+  padding-left: calc(var(--space-3) + 1.375rem);
 }
 
 .searchInput:focus,
 .filterSelect:focus {
-  outline: 2px solid rgb(107 35 64 / 18%);
-  border-color: var(--color-vino);
+  outline: none;
+  border-color: rgb(184 149 106 / 45%);
+  box-shadow: 0 0 0 3px rgb(184 149 106 / 12%);
 }
 
 .nameCell {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.nameCell strong {
+  display: block;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-gris-900);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nameHint {
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-relaxed);
+  overflow: hidden;
+  font-size: 0.75rem;
+  line-height: 1.35;
   color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nameMeta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.metaTag {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 0.0625rem 0.4375rem;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--color-gris-600);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: rgb(248 248 248 / 98%);
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 0.3125rem;
+}
+
+.cellTruncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellEmpty {
+  color: var(--color-gris-500);
 }
 
 .actionButton {
@@ -204,24 +277,55 @@
 .formLayout {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 0.625rem;
 }
 
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: 0.5rem 0.75rem;
 }
 
 .formGridFull {
   grid-column: 1 / -1;
 }
 
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0 0.625rem;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid rgb(236 236 236 / 90%);
+  border-radius: 0;
+}
+
+.formSection:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.formSectionTitle {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.checkboxGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
 .modalFooter,
 .formActions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: 0.375rem;
   justify-content: flex-end;
 }
 

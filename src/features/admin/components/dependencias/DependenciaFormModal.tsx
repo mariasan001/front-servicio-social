@@ -132,7 +132,9 @@ function DependenciaFormModalContent({
       <form id="dependencia-form" className={styles.formLayout} onSubmit={handleSubmit}>
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-        <div className={styles.formGrid}>
+        <section className={styles.formSection} aria-label="Información de la dependencia">
+          <p className={styles.formSectionTitle}>Información general</p>
+          <div className={styles.formGrid}>
           <div className={styles.formGridFull}>
             <TextInput
               id="dependencia-nombre"
@@ -176,7 +178,8 @@ function DependenciaFormModalContent({
               />
             </FormField>
           </div>
-        </div>
+          </div>
+        </section>
       </form>
     </Modal>
   );

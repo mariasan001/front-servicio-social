@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/titular.types";
 import { TitularIncidenciaDetailModal } from "./TitularIncidenciaDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -47,8 +45,9 @@ export function TitularIncidenciasView({
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (incidencia) => (
-        <StatusBadge tone={estatusTone(incidencia.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(incidencia.estatus)}>
           {formatEtiqueta(incidencia.estatus)}
         </StatusBadge>
       ),
@@ -58,14 +57,9 @@ export function TitularIncidenciasView({
       header: "Acciones",
       align: "right",
       cell: (incidencia) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(incidencia)}
-        >
-          Ver detalle
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(incidencia)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -77,22 +71,24 @@ export function TitularIncidenciasView({
         title="Incidencias"
         description="Consulta las incidencias reportadas en los procesos de tu área."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Proceso, tipo o estatus"
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Proceso, tipo o estatus"
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(incidencia) => incidencia.idIncidencia}

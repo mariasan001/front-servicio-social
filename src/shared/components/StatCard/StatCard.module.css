@@ -5,44 +5,64 @@
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
   min-height: 0;
   padding: var(--space-4);
+  overflow: hidden;
   background-color: var(--color-stat-card-bg);
-  border: none;
+  border: 1px solid var(--color-stat-card-border);
   border-radius: var(--radius-stat-card);
   box-shadow:
-    0 1px 2px rgb(45 45 45 / 3%),
-    0 4px 16px rgb(45 45 45 / 5%);
-  transition: box-shadow var(--transition-fast);
+    0 1px 2px var(--color-stat-card-shadow),
+    0 3px 12px rgb(45 45 45 / 3%);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background-color: var(--stat-accent);
 }
 
 .card:hover {
+  border-color: rgb(212 212 212 / 90%);
   box-shadow:
-    0 2px 4px rgb(45 45 45 / 4%),
-    0 8px 22px rgb(45 45 45 / 7%);
+    0 2px 4px var(--color-stat-card-shadow),
+    0 6px 18px var(--color-stat-card-shadow-hover);
 }
 
 .card[data-tone="neutral"] {
   --stat-icon-color: var(--color-gris-700);
+  --stat-accent: var(--color-vino);
 }
 
 .card[data-tone="success"] {
   --stat-icon-color: var(--color-stat-success);
+  --stat-accent: var(--color-badge-success);
 }
 
 .card[data-tone="warning"] {
   --stat-icon-color: var(--color-stat-warning);
+  --stat-accent: var(--color-dorado);
 }
 
 .card[data-tone="danger"] {
   --stat-icon-color: var(--color-stat-danger);
+  --stat-accent: var(--color-badge-error);
 }
 
 .card[data-tone="info"] {
   --stat-icon-color: var(--color-stat-info);
+  --stat-accent: var(--color-dorado);
 }
 
 .cardHead {
@@ -71,7 +91,8 @@
   width: 2rem;
   height: 2rem;
   color: var(--stat-icon-color);
-  background-color: var(--color-gris-100);
+  background-color: var(--color-white);
+  border: 1px solid rgb(236 236 236 / 80%);
   border-radius: 0.5rem;
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutGrid } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -13,12 +14,14 @@ import {
 import type { AreaDetalleResponse, AreaResponse } from "../../types/area.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { AreaFormModal } from "./AreaFormModal";
+import areaStyles from "./AreaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, SelectInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
 import {
   areaStatusLabel,
   areaStatusTone,
@@ -27,7 +30,6 @@ import {
   titularStatusLabel,
   titularStatusTone,
 } from "./area-labels";
-import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type AreaDetailModalProps = {
   areaId: number | null;
@@ -70,6 +72,8 @@ export function AreaDetailModal({
       setError(null);
       setDetail(null);
       setAssignError(null);
+      setSelectedTitularId("");
+      setEsPrincipal(false);
 
       const result = await getAreaDetailAction(selectedAreaId);
 
@@ -188,6 +192,10 @@ export function AreaDetailModal({
   const titulares = detail?.titulares ?? [];
   const titularesActivos = titulares.filter((titular) => titular.vigente !== false);
   const areaForEdit: AreaResponse | null = detail;
+  const isActive = detail?.activa !== false;
+  const dependenciaNombre = detail?.dependenciaNombre?.trim();
+  const ubicacion = detail?.ubicacion?.trim();
+  const descripcion = detail?.descripcion?.trim();
 
   return (
     <>
@@ -198,7 +206,7 @@ export function AreaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={styles.modalFooter}>
+            <div className={styles.footer}>
               <Button
                 type="button"
                 variant="outline"
@@ -209,15 +217,16 @@ export function AreaDetailModal({
               </Button>
               <Button
                 type="button"
-                variant={detail.activa === false ? "primary" : "secondary"}
+                variant={isActive ? "outline" : "primary"}
+                className={isActive ? areaStyles.dangerOutline : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
                 {isMutating
                   ? "Procesando…"
-                  : detail.activa === false
-                    ? "Activar área"
-                    : "Desactivar área"}
+                  : isActive
+                    ? "Desactivar área"
+                    : "Activar área"}
               </Button>
             </div>
           ) : undefined
@@ -228,52 +237,83 @@ export function AreaDetailModal({
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
 
         {!isLoading && detail ? (
-          <div className={styles.detailLayout}>
-            <div className={styles.detailSummary}>
+          <div className={styles.layout}>
+            <div className={styles.summaryBar}>
+              <div className={styles.avatar} aria-hidden="true">
+                <LayoutGrid size={18} strokeWidth={1.75} />
+              </div>
+
+              <div className={styles.summaryMeta}>
+                <p className={styles.summaryPrimary}>
+                  {dependenciaNombre || "Sin dependencia asignada"}
+                </p>
+                <p className={styles.summarySecondary}>
+                  {ubicacion || "Sin ubicación registrada"}
+                </p>
+              </div>
+
               <StatusBadge tone={areaStatusTone(detail.activa)}>
                 {areaStatusLabel(detail.activa)}
               </StatusBadge>
-              <p className={styles.detailLead}>
-                {detail.descripcion?.trim() ||
-                  "Esta área aún no tiene una descripción registrada."}
-              </p>
             </div>
 
-            <dl className={styles.detailGrid}>
-              <div className={styles.detailItem}>
-                <dt>Dependencia</dt>
-                <dd>{detail.dependenciaNombre ?? "Sin dependencia asignada"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Ubicación</dt>
-                <dd>{detail.ubicacion?.trim() || "Sin ubicación registrada"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Contacto</dt>
-                <dd>{formatContacto(detail.correoContacto, detail.telefonoContacto)}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Última actualización</dt>
-                <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
-              </div>
-            </dl>
+            <div className={styles.infoPanel}>
+              <dl className={styles.infoGrid}>
+                <div className={styles.infoItem}>
+                  <dt>Dependencia</dt>
+                  <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Ubicación</dt>
+                  <dd>{ubicacion || "Sin ubicación registrada"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Contacto</dt>
+                  <dd>{formatContacto(detail.correoContacto, detail.telefonoContacto)}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Última actualización</dt>
+                  <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
+                </div>
+              </dl>
+            </div>
 
-            <section className={styles.detailSection} aria-labelledby="area-titulares-title">
-              <div className={styles.detailSectionHeader}>
-                <h3 id="area-titulares-title" className={styles.detailSectionTitle}>
-                  Personas titulares
+            <section className={styles.section} aria-labelledby="area-descripcion-title">
+              <div className={styles.sectionHeader}>
+                <h3 id="area-descripcion-title" className={styles.sectionTitle}>
+                  Descripción
                 </h3>
-                <p className={styles.detailSectionDescription}>
-                  Responsables asignados a esta área dentro de la dependencia.
+                <p className={styles.sectionDescription}>
+                  Funciones y alcance de esta área dentro de la dependencia.
+                </p>
+              </div>
+              <p className={styles.sectionBody}>
+                {descripcion || "Esta área aún no tiene una descripción registrada."}
+              </p>
+            </section>
+
+            <section
+              className={areaStyles.titularesBlock}
+              aria-labelledby="area-titulares-title"
+            >
+              <div className={styles.sectionHeader}>
+                <div className={areaStyles.titleRow}>
+                  <h3 id="area-titulares-title" className={styles.sectionTitle}>
+                    Personas titulares
+                  </h3>
+                  <span className={areaStyles.countBadge}>{titularesActivos.length}</span>
+                </div>
+                <p className={styles.sectionDescription}>
+                  Responsables asignados a esta área.
                 </p>
               </div>
 
               {assignError ? <Alert tone="error">{assignError}</Alert> : null}
 
-              <div className={styles.inlineForm}>
+              <div className={areaStyles.assignRow}>
                 <SelectInput
                   id="area-titular-select"
-                  label="Asignar titular"
+                  label="Persona titular"
                   placeholder="Selecciona una persona"
                   value={selectedTitularId}
                   onChange={(event) => setSelectedTitularId(event.target.value)}
@@ -285,66 +325,66 @@ export function AreaDetailModal({
                   ))}
                 </SelectInput>
 
-                <CheckboxField
-                  id="area-titular-principal"
-                  label="Marcar como responsable principal"
-                  checked={esPrincipal}
-                  onChange={setEsPrincipal}
-                />
-
-                <div className={styles.formActions}>
-                  <Button
-                    type="button"
-                    onClick={() => void handleAssignTitular()}
-                    disabled={isMutating || titularesDisponibles.length === 0}
-                  >
-                    Asignar titular
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  onClick={() => void handleAssignTitular()}
+                  disabled={isMutating || titularesDisponibles.length === 0}
+                >
+                  Asignar
+                </Button>
               </div>
 
+              <CheckboxField
+                id="area-titular-principal"
+                label="Marcar como responsable principal"
+                checked={esPrincipal}
+                onChange={setEsPrincipal}
+              />
+
               {titularesActivos.length === 0 ? (
-                <p className={styles.emptyInline}>
-                  Por el momento no hay titulares activos asignados a esta área.
+                <p className={areaStyles.emptyTitulares}>
+                  No hay titulares activos en esta área.
                 </p>
               ) : (
-                <ul className={styles.panelList}>
+                <ul className={areaStyles.titularList}>
                   {titularesActivos.map((titular) => (
-                    <li key={titular.idAsignacion} className={styles.panelCard}>
-                      <div className={styles.panelHeader}>
-                        <strong>{titular.nombreCompleto ?? "Sin nombre registrado"}</strong>
-                        <div className={styles.panelBadges}>
+                    <li key={titular.idAsignacion} className={areaStyles.titularRow}>
+                      <div className={areaStyles.titularMain}>
+                        <div className={areaStyles.titularTop}>
+                          <span className={areaStyles.titularName}>
+                            {titular.nombreCompleto ?? "Sin nombre registrado"}
+                          </span>
                           {titular.esPrincipal ? (
-                            <StatusBadge tone="info">Responsable principal</StatusBadge>
+                            <StatusBadge tone="info">Principal</StatusBadge>
                           ) : null}
                           <StatusBadge tone={titularStatusTone(titular.vigente)}>
                             {titularStatusLabel(titular.vigente)}
                           </StatusBadge>
                         </div>
+                        <p className={areaStyles.titularMeta}>
+                          {titular.correo ?? "Sin correo registrado"}
+                        </p>
                       </div>
-                      <p className={styles.panelMeta}>
-                        {titular.correo ?? "Sin correo registrado"}
-                      </p>
-                      <div className={styles.detailActions}>
+
+                      <div className={areaStyles.titularActions}>
                         {!titular.esPrincipal ? (
                           <Button
                             type="button"
                             variant="outline"
-                            className={styles.actionButton}
                             disabled={isMutating}
                             onClick={() => void handleSetPrincipal(titular.idAsignacion)}
                           >
-                            Marcar como principal
+                            Hacer principal
                           </Button>
                         ) : null}
                         <Button
                           type="button"
-                          variant="secondary"
-                          className={styles.actionButton}
+                          variant="outline"
+                          className={areaStyles.dangerOutline}
                           disabled={isMutating}
                           onClick={() => void handleDeactivateTitular(titular.idAsignacion)}
                         >
-                          Quitar asignación
+                          Quitar
                         </Button>
                       </div>
                     </li>

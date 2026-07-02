@@ -157,7 +157,9 @@ function AreaFormModalContent({
       <form id="area-form" className={styles.formLayout} onSubmit={handleSubmit}>
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-        <div className={styles.formGrid}>
+        <section className={styles.formSection} aria-label="Información del área">
+          <p className={styles.formSectionTitle}>Información general</p>
+          <div className={styles.formGrid}>
           <div className={styles.formGridFull}>
             <SelectInput
               id="area-dependencia"
@@ -223,7 +225,8 @@ function AreaFormModalContent({
             error={fieldErrors.telefonoContacto}
             onChange={(event) => updateField("telefonoContacto", event.target.value)}
           />
-        </div>
+          </div>
+        </section>
       </form>
     </Modal>
   );

@@ -8,6 +8,7 @@ import {
 } from "../../actions/escuelas.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { EscuelaDetalleResponse, EscuelaResponse } from "../../types/escuela.types";
+import { formatEtiqueta, CONVENIO_ESTATUS_OPTIONS, normalizeConvenioEstatus } from "./escuela-labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
@@ -44,7 +45,7 @@ const EMPTY_VALUES: FormValues = {
   municipio: "",
   domicilio: "",
   estatus: "ACTIVA",
-  convenioEstatus: "",
+  convenioEstatus: "SIN_CONVENIO",
 };
 
 function buildInitialValues(
@@ -61,7 +62,7 @@ function buildInitialValues(
       municipio: escuela.municipio ?? "",
       domicilio: "domicilio" in escuela ? (escuela.domicilio ?? "") : "",
       estatus: escuela.estatus ?? "ACTIVA",
-      convenioEstatus: escuela.convenioEstatus ?? "",
+      convenioEstatus: normalizeConvenioEstatus(escuela.convenioEstatus),
     };
   }
 
@@ -154,7 +155,9 @@ function EscuelaFormModalContent({
       <form id="escuela-form" className={styles.formLayout} onSubmit={handleSubmit}>
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-        <div className={styles.formGrid}>
+        <section className={styles.formSection} aria-label="Información de la escuela">
+          <p className={styles.formSectionTitle}>Información general</p>
+          <div className={styles.formGrid}>
           <div className={styles.formGridFull}>
             <TextInput
               id="escuela-nombre"
@@ -230,15 +233,22 @@ function EscuelaFormModalContent({
             <option value="INACTIVA">Inactiva</option>
           </SelectInput>
 
-          <TextInput
+          <SelectInput
             id="escuela-convenio"
             label="Estatus del convenio"
-            hint="Por ejemplo: vigente, pendiente o vencido."
+            hint="Al dar de alta una escuela, el convenio inicia como sin convenio."
             value={values.convenioEstatus}
             error={fieldErrors.convenioEstatus}
             onChange={(event) => updateField("convenioEstatus", event.target.value)}
-          />
-        </div>
+          >
+            {CONVENIO_ESTATUS_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {formatEtiqueta(option)}
+              </option>
+            ))}
+          </SelectInput>
+          </div>
+        </section>
       </form>
     </Modal>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { GraduationCap, Link2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -17,13 +18,14 @@ import {
   formatEtiqueta,
   formatFecha,
 } from "./escuela-labels";
+import escuelaStyles from "./EscuelaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 type EscuelaDetailModalProps = {
   escuelaId: number | null;
@@ -159,6 +161,8 @@ export function EscuelaDetailModal({
 
   const escuela = detail?.escuela;
   const invitaciones = detail?.invitaciones ?? [];
+  const nombreCorto = escuela?.nombreCorto?.trim();
+  const clave = escuela?.clave?.trim();
 
   return (
     <>
@@ -169,7 +173,7 @@ export function EscuelaDetailModal({
         size="lg"
         footer={
           escuela ? (
-            <div className={styles.modalFooter}>
+            <div className={styles.footer}>
               <Button
                 type="button"
                 variant="outline"
@@ -189,105 +193,121 @@ export function EscuelaDetailModal({
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
 
         {!isLoading && escuela ? (
-          <div className={styles.detailLayout}>
-            <div className={styles.detailSummary}>
-              <div className={styles.panelBadges}>
+          <div className={styles.layout}>
+            <div className={styles.summaryBar}>
+              <div className={styles.avatar} aria-hidden="true">
+                <GraduationCap size={18} strokeWidth={1.75} />
+              </div>
+
+              <div className={styles.summaryMeta}>
+                <p className={styles.summaryPrimary}>
+                  {nombreCorto || clave || "Institución educativa"}
+                </p>
+                <p className={styles.summarySecondary}>
+                  {clave ? `Clave ${clave}` : escuela.municipio?.trim() || "Sin municipio registrado"}
+                </p>
+              </div>
+
+              <div className={styles.summaryBadges}>
                 <StatusBadge tone={escuelaEstatusTone(escuela.estatus)}>
                   {formatEtiqueta(escuela.estatus, "Sin estatus")}
                 </StatusBadge>
                 <StatusBadge tone={escuelaEstatusTone(escuela.convenioEstatus)}>
-                  Convenio: {formatEtiqueta(escuela.convenioEstatus, "Sin convenio")}
+                  {formatEtiqueta(escuela.convenioEstatus, "Sin convenio")}
                 </StatusBadge>
               </div>
-              {escuela.nombreCorto ? (
-                <p className={styles.detailLead}>Nombre corto: {escuela.nombreCorto}</p>
-              ) : null}
             </div>
 
-            <dl className={styles.detailGrid}>
-              <div className={styles.detailItem}>
-                <dt>Municipio</dt>
-                <dd>{escuela.municipio?.trim() || "Sin municipio registrado"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Correo de contacto</dt>
-                <dd>{escuela.correoContacto?.trim() || "Sin correo registrado"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Teléfono</dt>
-                <dd>{escuela.telefono?.trim() || "Sin teléfono registrado"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Clave de registro</dt>
-                <dd>{escuela.clave?.trim() || "Sin clave registrada"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Domicilio</dt>
-                <dd>{escuela.domicilio?.trim() || "Sin domicilio registrado"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Última actualización</dt>
-                <dd>{formatFecha(escuela.fechaActualizacion ?? escuela.fechaCreacion)}</dd>
-              </div>
-            </dl>
+            <div className={styles.infoPanel}>
+              <dl className={styles.infoGrid}>
+                <div className={styles.infoItem}>
+                  <dt>Municipio</dt>
+                  <dd>{escuela.municipio?.trim() || "Sin municipio registrado"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Correo de contacto</dt>
+                  <dd>{escuela.correoContacto?.trim() || "Sin correo registrado"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Teléfono</dt>
+                  <dd>{escuela.telefono?.trim() || "Sin teléfono registrado"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Clave de registro</dt>
+                  <dd>{clave || "Sin clave registrada"}</dd>
+                </div>
+                <div className={`${styles.infoItem} ${styles.infoItemFull}`}>
+                  <dt>Domicilio</dt>
+                  <dd>{escuela.domicilio?.trim() || "Sin domicilio registrado"}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Última actualización</dt>
+                  <dd>{formatFecha(escuela.fechaActualizacion ?? escuela.fechaCreacion)}</dd>
+                </div>
+              </dl>
+            </div>
 
             <section
-              className={styles.detailSection}
+              className={`${styles.section} ${escuelaStyles.inviteSection}`}
               aria-labelledby="escuela-invitaciones-title"
             >
-              <div className={styles.detailSectionHeader}>
-                <h3 id="escuela-invitaciones-title" className={styles.detailSectionTitle}>
+              <div className={styles.sectionHeader}>
+                <h3 id="escuela-invitaciones-title" className={styles.sectionTitle}>
                   Invitaciones de registro
                 </h3>
-                <p className={styles.detailSectionDescription}>
-                  Genera enlaces para que los alumnos se registren vinculados a esta institución.
+                <p className={styles.sectionDescription}>
+                  Enlaces para que los alumnos se registren vinculados a esta institución.
                 </p>
               </div>
 
               {invitacionError ? <Alert tone="error">{invitacionError}</Alert> : null}
 
               {invitacionGenerada ? (
-                <div className={styles.successBox}>
+                <div className={escuelaStyles.successBox}>
                   <strong>Invitación generada correctamente</strong>
                   {invitacionGenerada.urlRegistro ? (
-                    <span>
-                      Enlace de registro: <strong>{invitacionGenerada.urlRegistro}</strong>
+                    <span className={escuelaStyles.successValue}>
+                      Enlace: {invitacionGenerada.urlRegistro}
                     </span>
                   ) : null}
                   {invitacionGenerada.token ? (
-                    <span>
-                      Código de invitación: <strong>{invitacionGenerada.token}</strong>
+                    <span className={escuelaStyles.successValue}>
+                      Código: {invitacionGenerada.token}
                     </span>
                   ) : null}
                 </div>
               ) : null}
 
-              <div className={styles.inlineForm}>
-                <TextInput
-                  id="invitacion-nombre"
-                  label="Nombre de la invitación"
-                  hint="Opcional. Te ayuda a identificarla después."
-                  value={invitacionNombre}
-                  onChange={(event) => setInvitacionNombre(event.target.value)}
-                />
+              <div className={escuelaStyles.composer}>
+                <p className={escuelaStyles.composerTitle}>Generar nueva invitación</p>
 
-                <TextInput
-                  id="invitacion-expiracion"
-                  label="Fecha de vencimiento"
-                  type="date"
-                  hint="Opcional. Si no indicas fecha, se usará la vigencia predeterminada."
-                  value={invitacionExpiracion}
-                  onChange={(event) => setInvitacionExpiracion(event.target.value)}
-                />
+                <div className={escuelaStyles.composerFields}>
+                  <TextInput
+                    id="invitacion-nombre"
+                    label="Nombre"
+                    hint="Opcional"
+                    value={invitacionNombre}
+                    onChange={(event) => setInvitacionNombre(event.target.value)}
+                  />
 
-                <CheckboxField
-                  id="invitacion-revocar"
-                  label="Cancelar invitaciones activas antes de generar una nueva"
-                  checked={revocarActivas}
-                  onChange={setRevocarActivas}
-                />
+                  <TextInput
+                    id="invitacion-expiracion"
+                    label="Vence el"
+                    type="date"
+                    hint="Opcional"
+                    value={invitacionExpiracion}
+                    onChange={(event) => setInvitacionExpiracion(event.target.value)}
+                  />
+                </div>
 
-                <div className={styles.formActions}>
+                <div className={escuelaStyles.composerFooter}>
+                  <CheckboxField
+                    id="invitacion-revocar"
+                    label="Revocar invitaciones activas al generar"
+                    checked={revocarActivas}
+                    onChange={setRevocarActivas}
+                  />
+
                   <Button
                     type="button"
                     onClick={() => void handleGenerateInvitacion()}
@@ -298,70 +318,81 @@ export function EscuelaDetailModal({
                 </div>
               </div>
 
-              {invitaciones.length === 0 ? (
-                <p className={styles.emptyInline}>
-                  Esta escuela aún no tiene invitaciones de registro registradas.
-                </p>
-              ) : (
-                <ul className={styles.panelList}>
-                  {invitaciones.map((invitacion) => {
-                    const estatus = normalizeEstatus(invitacion.estatus);
+              <div className={escuelaStyles.history}>
+                <div className={escuelaStyles.historyHeader}>
+                  <p className={escuelaStyles.historyTitle}>Invitaciones registradas</p>
+                  <span className={escuelaStyles.historyCount}>{invitaciones.length}</span>
+                </div>
 
-                    return (
-                      <li key={invitacion.idToken} className={styles.panelCard}>
-                        <div className={styles.panelHeader}>
-                          <strong>
-                            {invitacion.nombre?.trim() || "Invitación sin nombre"}
-                          </strong>
-                          <StatusBadge tone={escuelaEstatusTone(invitacion.estatus)}>
-                            {formatEtiqueta(invitacion.estatus, "Sin estatus")}
-                          </StatusBadge>
-                        </div>
-                        <p className={styles.panelMeta}>
-                          Vence el {formatFecha(invitacion.fechaExpiracion)}
-                        </p>
-                        <div className={styles.detailActions}>
-                          {estatus === "ACTIVO" || estatus === "VIGENTE" ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className={styles.actionButton}
-                              disabled={isMutating}
-                              onClick={() => void handleTokenAction("suspend", invitacion.idToken)}
-                            >
-                              Suspender
-                            </Button>
-                          ) : null}
-                          {estatus === "SUSPENDIDO" ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className={styles.actionButton}
-                              disabled={isMutating}
-                              onClick={() =>
-                                void handleTokenAction("reactivate", invitacion.idToken)
-                              }
-                            >
-                              Reactivar
-                            </Button>
-                          ) : null}
-                          {estatus !== "REVOCADO" ? (
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              className={styles.actionButton}
-                              disabled={isMutating}
-                              onClick={() => void handleTokenAction("revoke", invitacion.idToken)}
-                            >
-                              Cancelar invitación
-                            </Button>
-                          ) : null}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+                {invitaciones.length === 0 ? (
+                  <p className={escuelaStyles.emptyInvites}>
+                    <span className={escuelaStyles.emptyIcon} aria-hidden="true">
+                      <Link2 size={14} strokeWidth={1.75} />
+                    </span>
+                    Aún no hay invitaciones para esta escuela.
+                  </p>
+                ) : (
+                  <ul className={escuelaStyles.inviteList}>
+                    {invitaciones.map((invitacion) => {
+                      const estatus = normalizeEstatus(invitacion.estatus);
+
+                      return (
+                        <li key={invitacion.idToken} className={escuelaStyles.inviteRow}>
+                          <div className={escuelaStyles.inviteMain}>
+                            <div className={escuelaStyles.inviteTop}>
+                              <span className={escuelaStyles.inviteName}>
+                                {invitacion.nombre?.trim() || "Sin nombre"}
+                              </span>
+                              <StatusBadge tone={escuelaEstatusTone(invitacion.estatus)}>
+                                {formatEtiqueta(invitacion.estatus, "Sin estatus")}
+                              </StatusBadge>
+                            </div>
+                            <p className={escuelaStyles.inviteMeta}>
+                              Vence el {formatFecha(invitacion.fechaExpiracion)}
+                            </p>
+                          </div>
+
+                          <div className={escuelaStyles.inviteActions}>
+                            {estatus === "ACTIVO" || estatus === "VIGENTE" ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isMutating}
+                                onClick={() => void handleTokenAction("suspend", invitacion.idToken)}
+                              >
+                                Suspender
+                              </Button>
+                            ) : null}
+                            {estatus === "SUSPENDIDO" ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isMutating}
+                                onClick={() =>
+                                  void handleTokenAction("reactivate", invitacion.idToken)
+                                }
+                              >
+                                Reactivar
+                              </Button>
+                            ) : null}
+                            {estatus !== "REVOCADO" ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className={escuelaStyles.dangerOutline}
+                                disabled={isMutating}
+                                onClick={() => void handleTokenAction("revoke", invitacion.idToken)}
+                              >
+                                Cancelar
+                              </Button>
+                            ) : null}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             </section>
           </div>
         ) : null}

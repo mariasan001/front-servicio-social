@@ -149,7 +149,9 @@ function VacanteFormModalContent({
         </p>
       ) : null}
 
-      <div className={styles.formGrid}>
+      <section className={styles.formSection} aria-label="Datos de la vacante">
+        <p className={styles.formSectionTitle}>Información de la vacante</p>
+        <div className={styles.formGrid}>
         <TextInput
           id="vacante-nombre"
           label="Nombre de la vacante"
@@ -202,7 +204,8 @@ function VacanteFormModalContent({
           checked={values.requiereExamen}
           onChange={(checked) => updateField("requiereExamen", checked)}
         />
-      </div>
+        </div>
+      </section>
 
       <div className={styles.formActions}>
         <Button type="button" variant="outline" onClick={onClose}>

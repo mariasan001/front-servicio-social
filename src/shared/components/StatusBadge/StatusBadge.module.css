@@ -1,34 +1,78 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  line-height: 1;
-  border-radius: 999px;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  border-radius: 0.3125rem;
 }
 
 .success {
-  color: #166534;
-  background-color: #dcfce7;
+  color: var(--color-badge-success);
+  background-color: var(--color-badge-success-bg);
+  border-color: var(--color-badge-success-border);
 }
 
 .error {
-  color: #991b1b;
-  background-color: #fee2e2;
+  color: var(--color-badge-error);
+  background-color: var(--color-badge-error-bg);
+  border-color: var(--color-badge-error-border);
 }
 
 .info {
-  color: var(--color-vino-dark);
-  background-color: rgb(107 35 64 / 8%);
+  color: var(--color-badge-info);
+  background-color: var(--color-badge-info-bg);
+  border-color: var(--color-badge-info-border);
 }
 
 .warning {
-  color: #92400e;
-  background-color: #fef3c7;
+  color: var(--color-badge-warning);
+  background-color: var(--color-badge-warning-bg);
+  border-color: var(--color-badge-warning-border);
 }
 
 .neutral {
-  color: var(--color-text-secondary);
-  background-color: var(--color-gris-50);
+  color: var(--color-badge-neutral);
+  background-color: var(--color-badge-neutral-bg);
+  border-color: var(--color-badge-neutral-border);
+}
+
+.dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.dotMark {
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 90%),
+    0 1px 2px rgb(45 45 45 / 12%);
+}
+
+.dot.success {
+  color: var(--color-badge-success);
+}
+
+.dot.error {
+  color: var(--color-badge-error);
+}
+
+.dot.info {
+  color: var(--color-badge-info);
+}
+
+.dot.warning {
+  color: var(--color-badge-warning);
+}
+
+.dot.neutral {
+  color: var(--color-gris-400, #b0b0b0);
 }

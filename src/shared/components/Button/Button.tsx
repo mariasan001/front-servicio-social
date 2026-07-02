@@ -1,7 +1,7 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 import styles from "./Button.module.css";
 
-type ButtonVariant = "primary" | "secondary" | "outline";
+type ButtonVariant = "primary" | "secondary" | "outline" | "accent";
 
 type SharedProps = {
   variant?: ButtonVariant;

@@ -6,7 +6,6 @@
 }
 
 .shell {
-  display: grid;
   height: 100dvh;
   overflow: hidden;
 }
@@ -96,14 +95,19 @@
 }
 
 .content {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
   padding: var(--space-3);
   overflow: hidden;
 }
 
 .contentInner {
-  height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
   padding: var(--space-5);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -135,15 +139,13 @@
 }
 
 @media (min-width: 1024px) {
-  .shell {
-    grid-template-columns: var(--panel-sidebar-width) minmax(0, 1fr);
+  .sidebar {
+    width: var(--panel-sidebar-width);
+    transform: none;
   }
 
-  .sidebar {
-    position: sticky;
-    top: 0;
-    height: 100dvh;
-    transform: none;
+  .mainColumn {
+    margin-left: var(--panel-sidebar-width);
   }
 
   .overlay,

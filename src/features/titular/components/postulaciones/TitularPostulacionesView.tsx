@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { ClipboardList, Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/titular.types";
 import { TitularPostulacionDetailModal } from "./TitularPostulacionDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -54,8 +52,9 @@ export function TitularPostulacionesView({
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (postulacion) => (
-        <StatusBadge tone={estatusTone(postulacion.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(postulacion.estatus)}>
           {formatEtiqueta(postulacion.estatus)}
         </StatusBadge>
       ),
@@ -65,14 +64,13 @@ export function TitularPostulacionesView({
       header: "Acciones",
       align: "right",
       cell: (postulacion) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(postulacion)}
-        >
-          Gestionar
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Gestionar"
+            icon={ClipboardList}
+            onClick={() => setSelected(postulacion)}
+          />
+        </DataTableActions>
       ),
     },
   ];
@@ -84,22 +82,24 @@ export function TitularPostulacionesView({
         title="Postulaciones"
         description="Revisa las postulaciones recibidas y resuélvelas según el proceso."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Alumno, folio o estatus"
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Alumno, folio o estatus"
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(postulacion) => postulacion.idPostulacion}

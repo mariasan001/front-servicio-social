@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { FolderOpen, Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
 import { EnlaceProcesoDetailModal } from "./EnlaceProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -63,8 +61,9 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (alumno) => (
-        <StatusBadge tone={estatusTone(alumno.estatusProceso)}>
+        <StatusBadge variant="dot" tone={estatusTone(alumno.estatusProceso)}>
           {formatEtiqueta(alumno.estatusProceso)}
         </StatusBadge>
       ),
@@ -74,15 +73,14 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       header: "Acciones",
       align: "right",
       cell: (alumno) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelectedProcesoId(alumno.procesoId ?? null)}
-          disabled={!alumno.procesoId}
-        >
-          Ver proceso
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Ver proceso"
+            icon={FolderOpen}
+            onClick={() => setSelectedProcesoId(alumno.procesoId ?? null)}
+            disabled={!alumno.procesoId}
+          />
+        </DataTableActions>
       ),
     },
   ];
@@ -94,22 +92,24 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
         title="Procesos"
         description="Consulta el avance de los procesos activos de los alumnos de tu escuela."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              placeholder="Alumno, folio o vacante"
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  placeholder="Alumno, folio o vacante"
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(alumno) => alumno.procesoId ?? alumno.idAlumno}

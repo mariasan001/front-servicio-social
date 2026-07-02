@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
 import { EnlaceAlumnoDetailModal } from "./EnlaceAlumnoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -62,8 +60,9 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (alumno) => (
-        <StatusBadge tone={estatusTone(alumno.estatusProceso)}>
+        <StatusBadge variant="dot" tone={estatusTone(alumno.estatusProceso)}>
           {formatEtiqueta(alumno.estatusProceso, "Sin estatus")}
         </StatusBadge>
       ),
@@ -73,14 +72,9 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       header: "Acciones",
       align: "right",
       cell: (alumno) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(alumno)}
-        >
-          Ver información
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(alumno)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -92,22 +86,24 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
         title="Alumnos"
         description="Consulta los alumnos registrados y vinculados a tu escuela."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar alumno</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              placeholder="Nombre, correo o proceso"
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar alumno</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  placeholder="Nombre, correo o proceso"
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(alumno) => alumno.idAlumno}

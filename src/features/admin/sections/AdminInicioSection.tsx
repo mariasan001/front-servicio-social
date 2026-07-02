@@ -3,28 +3,11 @@ import { requireServerSession } from "@/lib/auth/session.server";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { AdminInicioView } from "../components/inicio/AdminInicioView";
+import { buildAdminInicioDashboardData } from "../components/inicio/admin-inicio.utils";
 import { listAreas } from "../services/areas.service";
 import { listDependencias } from "../services/dependencias.service";
 import { listEscuelas } from "../services/escuelas.service";
 import { listUsuariosInternos } from "../services/usuarios.service";
-
-function countActivas<T extends { activa?: boolean }>(items: T[]) {
-  return items.filter((item) => item.activa !== false).length;
-}
-
-function countEscuelasActivas(
-  escuelas: { estatus?: string }[],
-) {
-  return escuelas.filter(
-    (escuela) => escuela.estatus?.trim().toUpperCase() === "ACTIVA",
-  ).length;
-}
-
-function countUsuariosActivos(
-  usuarios: { activo?: boolean }[],
-) {
-  return usuarios.filter((usuario) => usuario.activo !== false).length;
-}
 
 async function loadAdminInicioPageData() {
   const session = await requireServerSession();
@@ -37,24 +20,7 @@ async function loadAdminInicioPageData() {
 
   return {
     session,
-    stats: {
-      dependencias: {
-        total: dependencias.length,
-        activas: countActivas(dependencias),
-      },
-      areas: {
-        total: areas.length,
-        activas: countActivas(areas),
-      },
-      escuelas: {
-        total: escuelas.length,
-        activas: countEscuelasActivas(escuelas),
-      },
-      usuarios: {
-        total: usuarios.length,
-        activos: countUsuariosActivos(usuarios),
-      },
-    },
+    dashboard: buildAdminInicioDashboardData(dependencias, areas, escuelas, usuarios),
   };
 }
 
@@ -79,5 +45,5 @@ export async function AdminInicioSection() {
     );
   }
 
-  return <AdminInicioView session={result.session} stats={result.stats} />;
+  return <AdminInicioView session={result.session} dashboard={result.dashboard} />;
 }

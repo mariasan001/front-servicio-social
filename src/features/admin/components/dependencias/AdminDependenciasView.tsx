@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Building2, CheckCircle2, Plus, Search } from "lucide-react";
+import { Building2, CheckCircle2, Eye, Plus, Search } from "lucide-react";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaDetailModal } from "./DependenciaDetailModal";
 import { DependenciaFormModal } from "./DependenciaFormModal";
 import { areaStatusLabel, areaStatusTone } from "../areas/area-labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -67,30 +65,20 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
     {
       id: "nombre",
       header: "Dependencia",
+      variant: "primary",
       cell: (dependencia) => (
-        <div className={styles.nameCell}>
-          <strong>{dependencia.nombre}</strong>
-          {dependencia.descripcion ? (
-            <span className={styles.nameHint}>{dependencia.descripcion}</span>
-          ) : null}
-        </div>
+        <span className={styles.cellTruncate} title={dependencia.nombre}>
+          {dependencia.nombre}
+        </span>
       ),
-    },
-    {
-      id: "siglas",
-      header: "Siglas",
-      cell: (dependencia) => dependencia.siglas?.trim() || "Sin siglas",
-    },
-    {
-      id: "clave",
-      header: "Clave",
-      cell: (dependencia) => dependencia.clave?.trim() || "Sin clave",
     },
     {
       id: "estado",
       header: "Estatus",
+      variant: "status",
+      align: "center",
       cell: (dependencia) => (
-        <StatusBadge tone={areaStatusTone(dependencia.activa)}>
+        <StatusBadge variant="dot" tone={areaStatusTone(dependencia.activa)}>
           {areaStatusLabel(dependencia.activa)}
         </StatusBadge>
       ),
@@ -98,16 +86,16 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
+      align: "center",
       cell: (dependencia) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelectedDependencia(dependencia)}
-        >
-          Ver información
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Ver información"
+            icon={Eye}
+            onClick={() => setSelectedDependencia(dependencia)}
+          />
+        </DataTableActions>
       ),
     },
   ];
@@ -126,43 +114,44 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
         <StatCard tone="info" icon={Search} value={filteredDependencias.length} label="Coinciden con tu búsqueda" />
       </StatCards>
 
-      <FilterBar
-        actions={
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus size={18} aria-hidden="true" />
-            Dar de alta dependencia
-          </Button>
-        }
-      >
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar dependencia</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              value={search}
-              placeholder="Nombre, siglas, clave o descripción"
-              className={styles.searchInput}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Estatus</span>
-          <select
-            className={styles.filterSelect}
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-          >
-            <option value="todas">Todas</option>
-            <option value="activas">Solo activas</option>
-            <option value="inactivas">Solo inactivas</option>
-          </select>
-        </label>
-      </FilterBar>
-
       <DataTable
+        toolbar={
+          <DataTableToolbar
+            actions={
+              <DataTableToolbarAction type="button" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} aria-hidden="true" />
+                Dar de alta dependencia
+              </DataTableToolbarAction>
+            }
+          >
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar dependencia</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Nombre, siglas, clave o descripción"
+                  className={styles.searchInput}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Estatus</span>
+              <select
+                className={styles.filterSelect}
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              >
+                <option value="todas">Todas</option>
+                <option value="activas">Solo activas</option>
+                <option value="inactivas">Solo inactivas</option>
+              </select>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filteredDependencias}
         rowKey={(dependencia) => dependencia.idDependencia}

@@ -57,3 +57,20 @@
 .outline:hover {
   background-color: var(--color-gris-50);
 }
+
+.accent {
+  background: linear-gradient(
+    135deg,
+    var(--color-dorado-on-dark) 0%,
+    rgb(228 207 168 / 88%) 100%
+  );
+  color: var(--color-vino-dark);
+  border-color: rgb(184 149 106 / 32%);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(184 149 106 / 18%);
+}
+
+.accent:hover {
+  background: var(--color-dorado-on-dark);
+  border-color: var(--color-dorado);
+}

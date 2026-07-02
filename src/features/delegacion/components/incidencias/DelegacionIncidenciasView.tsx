@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ClipboardList } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/delegacion.types";
 import { DelegacionIncidenciaDetailModal } from "./DelegacionIncidenciaDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -23,16 +23,17 @@ export function DelegacionIncidenciasView({
     {
       id: "estatus",
       header: "Estatus",
-      cell: (i) => <StatusBadge tone={estatusTone(i.estatus)}>{formatEtiqueta(i.estatus)}</StatusBadge>,
+      align: "center",
+      cell: (i) => <StatusBadge variant="dot" tone={estatusTone(i.estatus)}>{formatEtiqueta(i.estatus)}</StatusBadge>,
     },
     {
       id: "acciones",
       header: "Acciones",
       align: "right",
       cell: (i) => (
-        <Button type="button" variant="outline" className={styles.actionButton} onClick={() => setSelected(i)}>
-          Gestionar
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Gestionar" icon={ClipboardList} onClick={() => setSelected(i)} />
+        </DataTableActions>
       ),
     },
   ];

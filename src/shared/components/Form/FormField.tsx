@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
+import { Check } from "lucide-react";
 import styles from "./Form.module.css";
 
 type FormFieldProps = {
@@ -131,7 +132,12 @@ type CheckboxFieldProps = {
   error?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  variant?: "default" | "tile";
 };
+
+function joinClasses(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export function CheckboxField({
   id,
@@ -139,8 +145,39 @@ export function CheckboxField({
   error,
   checked,
   onChange,
+  variant = "default",
 }: CheckboxFieldProps) {
   const errorId = error ? `${id}-error` : undefined;
+
+  if (variant === "tile") {
+    return (
+      <>
+        <label
+          htmlFor={id}
+          className={joinClasses(styles.optionTile, checked && styles.optionTileSelected)}
+        >
+          <input
+            id={id}
+            type="checkbox"
+            className={styles.optionInput}
+            checked={checked}
+            aria-invalid={Boolean(error)}
+            aria-describedby={errorId}
+            onChange={(event) => onChange(event.target.checked)}
+          />
+          <span className={styles.optionMark} aria-hidden="true">
+            {checked ? <Check size={11} strokeWidth={3} /> : null}
+          </span>
+          <span className={styles.optionLabel}>{label}</span>
+        </label>
+        {error ? (
+          <p id={errorId} className={styles.error} role="alert">
+            {error}
+          </p>
+        ) : null}
+      </>
+    );
+  }
 
   return (
     <div className={styles.field}>

@@ -1,16 +1,14 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { ClipboardList, Plus, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/titular.types";
 import type { TitularAreaContext } from "../../lib/area-context";
 import { TitularVacanteDetailModal } from "./TitularVacanteDetailModal";
 import { TitularVacanteFormModal } from "./TitularVacanteFormModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -66,8 +64,9 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (vacante) => (
-        <StatusBadge tone={estatusTone(vacante.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
           {formatEtiqueta(vacante.estatus, "Sin estatus")}
         </StatusBadge>
       ),
@@ -82,14 +81,9 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
       header: "Acciones",
       align: "right",
       cell: (vacante) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(vacante)}
-        >
-          Gestionar
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Gestionar" icon={ClipboardList} onClick={() => setSelected(vacante)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -109,45 +103,46 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         </p>
       ) : null}
 
-      <FilterBar
-        actions={
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus size={18} aria-hidden="true" />
-            Nueva vacante
-          </Button>
-        }
-      >
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar vacante</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              value={search}
-              placeholder="Nombre, folio o estatus"
-              className={styles.searchInput}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Estatus</span>
-          <select
-            className={styles.filterSelect}
-            value={estatusFilter}
-            onChange={(event) => setEstatusFilter(event.target.value)}
-          >
-            <option value="">Todos</option>
-            {estatusOptions.map((estatus) => (
-              <option key={estatus} value={estatus}>
-                {formatEtiqueta(estatus)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </FilterBar>
-
       <DataTable
+        toolbar={
+          <DataTableToolbar
+            actions={
+              <DataTableToolbarAction type="button" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} aria-hidden="true" />
+                Nueva vacante
+              </DataTableToolbarAction>
+            }
+          >
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar vacante</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Nombre, folio o estatus"
+                  className={styles.searchInput}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Estatus</span>
+              <select
+                className={styles.filterSelect}
+                value={estatusFilter}
+                onChange={(event) => setEstatusFilter(event.target.value)}
+              >
+                <option value="">Todos</option>
+                {estatusOptions.map((estatus) => (
+                  <option key={estatus} value={estatus}>
+                    {formatEtiqueta(estatus)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(vacante) => vacante.idVacante}

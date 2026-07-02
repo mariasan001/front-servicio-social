@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { CheckCircle2, GraduationCap, Plus, Search } from "lucide-react";
+import { CheckCircle2, Eye, GraduationCap, Plus, Search } from "lucide-react";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import { EscuelaDetailModal } from "./EscuelaDetailModal";
 import { EscuelaFormModal } from "./EscuelaFormModal";
 import { escuelaEstatusTone, formatEtiqueta } from "./escuela-labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -90,30 +88,27 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
     {
       id: "institucion",
       header: "Institución",
+      variant: "primary",
       cell: (escuela) => (
-        <div className={styles.nameCell}>
-          <strong>{escuela.nombreOficial}</strong>
-          {escuela.nombreCorto ? (
-            <span className={styles.nameHint}>{escuela.nombreCorto}</span>
-          ) : null}
-        </div>
+        <span className={styles.cellTruncate} title={escuela.nombreOficial}>
+          {escuela.nombreOficial}
+        </span>
       ),
     },
     {
       id: "municipio",
       header: "Municipio",
-      cell: (escuela) => escuela.municipio?.trim() || "Sin municipio",
-    },
-    {
-      id: "contacto",
-      header: "Contacto",
-      cell: (escuela) => escuela.correoContacto?.trim() || "Sin correo",
+      variant: "text",
+      width: "9rem",
+      cell: (escuela) => escuela.municipio?.trim() || "—",
     },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      align: "center",
       cell: (escuela) => (
-        <StatusBadge tone={escuelaEstatusTone(escuela.estatus)}>
+        <StatusBadge variant="dot" tone={escuelaEstatusTone(escuela.estatus)}>
           {formatEtiqueta(escuela.estatus, "Sin estatus")}
         </StatusBadge>
       ),
@@ -121,8 +116,10 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
     {
       id: "convenio",
       header: "Convenio",
+      variant: "status",
+      align: "center",
       cell: (escuela) => (
-        <StatusBadge tone={escuelaEstatusTone(escuela.convenioEstatus)}>
+        <StatusBadge variant="dot" tone={escuelaEstatusTone(escuela.convenioEstatus)}>
           {formatEtiqueta(escuela.convenioEstatus, "Sin convenio")}
         </StatusBadge>
       ),
@@ -130,16 +127,16 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
+      align: "center",
       cell: (escuela) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelectedEscuela(escuela)}
-        >
-          Ver información
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Ver información"
+            icon={Eye}
+            onClick={() => setSelectedEscuela(escuela)}
+          />
+        </DataTableActions>
       ),
     },
   ];
@@ -158,62 +155,63 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
         <StatCard tone="info" icon={Search} value={filteredEscuelas.length} label="Coinciden con tu búsqueda" />
       </StatCards>
 
-      <FilterBar
-        actions={
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus size={18} aria-hidden="true" />
-            Dar de alta escuela
-          </Button>
-        }
-      >
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar escuela</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              value={search}
-              placeholder="Nombre, municipio, correo o clave"
-              className={styles.searchInput}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Estatus de la escuela</span>
-          <select
-            className={styles.filterSelect}
-            value={estatusFilter}
-            onChange={(event) => setEstatusFilter(event.target.value)}
-          >
-            <option value="">Todos los estatus</option>
-            {estatusOptions.map((estatus) => (
-              <option key={estatus} value={estatus}>
-                {formatEtiqueta(estatus)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Convenio</span>
-          <select
-            className={styles.filterSelect}
-            value={convenioFilter}
-            onChange={(event) => setConvenioFilter(event.target.value)}
-          >
-            <option value="">Todos los convenios</option>
-            {convenioOptions.map((convenio) => (
-              <option key={convenio} value={convenio}>
-                {formatEtiqueta(convenio)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </FilterBar>
-
       <DataTable
+        toolbar={
+          <DataTableToolbar
+            actions={
+              <DataTableToolbarAction type="button" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} aria-hidden="true" />
+                Dar de alta escuela
+              </DataTableToolbarAction>
+            }
+          >
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar escuela</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Nombre, municipio, correo o clave"
+                  className={styles.searchInput}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Estatus de la escuela</span>
+              <select
+                className={styles.filterSelect}
+                value={estatusFilter}
+                onChange={(event) => setEstatusFilter(event.target.value)}
+              >
+                <option value="">Todos los estatus</option>
+                {estatusOptions.map((estatus) => (
+                  <option key={estatus} value={estatus}>
+                    {formatEtiqueta(estatus)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Convenio</span>
+              <select
+                className={styles.filterSelect}
+                value={convenioFilter}
+                onChange={(event) => setConvenioFilter(event.target.value)}
+              >
+                <option value="">Todos los convenios</option>
+                {convenioOptions.map((convenio) => (
+                  <option key={convenio} value={convenio}>
+                    {formatEtiqueta(convenio)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filteredEscuelas}
         rowKey={(escuela) => escuela.idEscuela}
@@ -225,9 +223,10 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
         }
         emptyDescription={
           escuelas.length === 0
-            ? "Aún no hay escuelas registradas. Puedes dar de alta la primera desde el botón superior."
+            ? "Registra la primera institución con el botón «Dar de alta escuela»."
             : "Prueba con otro nombre, municipio o cambia los filtros de estatus y convenio."
         }
+        emptyIcon={GraduationCap}
       />
 
       <EscuelaFormModal open={createOpen} mode="create" onClose={() => setCreateOpen(false)} />

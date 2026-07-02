@@ -91,9 +91,27 @@
   --color-stat-danger-bg: rgb(143 61 61 / 10%);
   --color-stat-info: #5a4a6a;
   --color-stat-info-bg: rgb(90 74 106 / 9%);
-  --color-stat-card-shadow: rgb(45 45 45 / 5%);
-  --color-stat-card-shadow-hover: rgb(45 45 45 / 9%);
+
+  /* Panel — badges de estatus (semáforo institucional) */
+  --color-badge-success: #3a5c47;
+  --color-badge-success-bg: rgb(58 92 71 / 11%);
+  --color-badge-success-border: rgb(58 92 71 / 24%);
+  --color-badge-warning: #8a6538;
+  --color-badge-warning-bg: rgb(184 149 106 / 14%);
+  --color-badge-warning-border: rgb(184 149 106 / 32%);
+  --color-badge-error: #6b2340;
+  --color-badge-error-bg: rgb(107 35 64 / 10%);
+  --color-badge-error-border: rgb(107 35 64 / 24%);
+  --color-badge-info: #5a4a6a;
+  --color-badge-info-bg: rgb(90 74 106 / 10%);
+  --color-badge-info-border: rgb(90 74 106 / 22%);
+  --color-badge-neutral: var(--color-gris-700);
+  --color-badge-neutral-bg: rgb(250 250 250 / 95%);
+  --color-badge-neutral-border: rgb(212 212 212 / 85%);
+  --color-stat-card-shadow: rgb(45 45 45 / 4%);
+  --color-stat-card-shadow-hover: rgb(45 45 45 / 7%);
   --color-stat-card-bg: var(--color-white);
+  --color-stat-card-border: rgb(236 236 236 / 95%);
 
   /* Panel — navegación lateral */
   --color-panel-nav-text: rgb(255 255 255 / 92%);

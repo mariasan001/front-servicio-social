@@ -20,6 +20,7 @@ import {
   SelectInput,
   TextInput,
 } from "@/shared/components/Form";
+import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
@@ -234,9 +235,10 @@ function UsuarioFormModalContent({
       <form id="usuario-form" className={styles.formLayout} onSubmit={handleSubmit}>
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-        <div className={styles.formGrid}>
-          {mode === "create" ? (
-            <>
+        {mode === "create" ? (
+          <section className={styles.formSection} aria-label="Acceso">
+            <p className={styles.formSectionTitle}>Acceso</p>
+            <div className={styles.formGrid}>
               <TextInput
                 id="usuario-username"
                 label="Nombre de usuario"
@@ -256,96 +258,110 @@ function UsuarioFormModalContent({
                 autoComplete="new-password"
                 onChange={(value) => updateField("password", value)}
               />
-            </>
-          ) : null}
+            </div>
+          </section>
+        ) : null}
 
-          <div className={styles.formGridFull}>
+        <section className={styles.formSection} aria-label="Datos de la cuenta">
+          <p className={styles.formSectionTitle}>Datos de la cuenta</p>
+          <div className={styles.formGrid}>
+            <div className={styles.formGridFull}>
+              <TextInput
+                id="usuario-nombre"
+                label="Nombre completo"
+                value={values.nombreCompleto}
+                required
+                error={fieldErrors.nombreCompleto}
+                onChange={(event) => updateField("nombreCompleto", event.target.value)}
+              />
+            </div>
+
             <TextInput
-              id="usuario-nombre"
-              label="Nombre completo"
-              value={values.nombreCompleto}
+              id="usuario-correo"
+              label="Correo electrónico"
+              type="email"
+              value={values.correo}
               required
-              error={fieldErrors.nombreCompleto}
-              onChange={(event) => updateField("nombreCompleto", event.target.value)}
+              error={fieldErrors.correo}
+              onChange={(event) => updateField("correo", event.target.value)}
             />
+
+            <TextInput
+              id="usuario-telefono"
+              label="Teléfono"
+              value={values.telefono}
+              error={fieldErrors.telefono}
+              onChange={(event) => updateField("telefono", event.target.value)}
+            />
+
+            <div className={styles.formGridFull}>
+              <TextInput
+                id="usuario-cargo"
+                label="Cargo"
+                value={values.cargo}
+                error={fieldErrors.cargo}
+                onChange={(event) => updateField("cargo", event.target.value)}
+              />
+            </div>
           </div>
+        </section>
 
-          <TextInput
-            id="usuario-correo"
-            label="Correo electrónico"
-            type="email"
-            value={values.correo}
+        <section className={styles.formSection} aria-label="Permisos">
+          <p className={styles.formSectionTitle}>Permisos</p>
+          <FormField
+            id="usuario-roles"
+            label="Perfiles del sistema"
+            error={fieldErrors.roles}
             required
-            error={fieldErrors.correo}
-            onChange={(event) => updateField("correo", event.target.value)}
-          />
-
-          <TextInput
-            id="usuario-telefono"
-            label="Teléfono"
-            value={values.telefono}
-            error={fieldErrors.telefono}
-            onChange={(event) => updateField("telefono", event.target.value)}
-          />
-
-          <TextInput
-            id="usuario-cargo"
-            label="Cargo"
-            value={values.cargo}
-            error={fieldErrors.cargo}
-            onChange={(event) => updateField("cargo", event.target.value)}
-          />
-
-          <div className={styles.formGridFull}>
-            <FormField
-              id="usuario-roles"
-              label="Perfiles del sistema"
-              error={fieldErrors.roles}
-              required
-            >
-              <div className={styles.detailActions}>
+          >
+            <div className={formStyles.optionPanel}>
+              <div className={formStyles.optionGrid} role="group" aria-label="Perfiles del sistema">
                 {INTERNAL_ROLES.map((role) => (
                   <CheckboxField
                     key={role}
                     id={`usuario-rol-${role}`}
+                    variant="tile"
                     label={formatRol(role)}
                     checked={values.roles.includes(role)}
                     onChange={(checked) => toggleRole(role, checked)}
                   />
                 ))}
               </div>
-            </FormField>
-          </div>
 
-          {requiresEscuela ? (
-            <div className={styles.formGridFull}>
-              <SelectInput
-                id="usuario-escuela"
-                label="Escuela vinculada"
-                required
-                placeholder="Selecciona una escuela"
-                value={values.escuelaId}
-                error={fieldErrors.escuelaId}
-                onChange={(event) => updateField("escuelaId", event.target.value)}
-              >
-                {escuelaOptions.map((escuela) => (
-                  <option key={escuela.idEscuela} value={escuela.idEscuela}>
-                    {escuela.nombreOficial}
-                  </option>
-                ))}
-              </SelectInput>
+              {requiresEscuela ? (
+                <>
+                  <div className={formStyles.optionPanelDivider} />
+                  <SelectInput
+                    id="usuario-escuela"
+                    label="Escuela vinculada"
+                    required
+                    placeholder="Selecciona una escuela"
+                    value={values.escuelaId}
+                    error={fieldErrors.escuelaId}
+                    onChange={(event) => updateField("escuelaId", event.target.value)}
+                  >
+                    {escuelaOptions.map((escuela) => (
+                      <option key={escuela.idEscuela} value={escuela.idEscuela}>
+                        {escuela.nombreOficial}
+                      </option>
+                    ))}
+                  </SelectInput>
+                </>
+              ) : null}
+
+              <div className={formStyles.optionPanelDivider} />
+              <div className={formStyles.optionFull}>
+                <CheckboxField
+                  id="usuario-cartas"
+                  variant="tile"
+                  label="Puede descargar cartas"
+                  checked={values.puedeDescargarCartas}
+                  onChange={(checked) => updateField("puedeDescargarCartas", checked)}
+                />
+              </div>
             </div>
-          ) : null}
-
-          <div className={styles.formGridFull}>
-            <CheckboxField
-              id="usuario-cartas"
-              label="Puede descargar cartas"
-              checked={values.puedeDescargarCartas}
-              onChange={(checked) => updateField("puedeDescargarCartas", checked)}
-            />
-          </div>
-        </div>
+          </FormField>
+        </section>
       </form>
     </Modal>
   );

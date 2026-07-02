@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/alumno.types";
 import { AlumnoVacanteDetailModal } from "./AlumnoVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -59,8 +57,9 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (vacante) => (
-        <StatusBadge tone={estatusTone(vacante.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
           {formatEtiqueta(vacante.estatus, "Sin estatus")}
         </StatusBadge>
       ),
@@ -70,14 +69,9 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
       header: "Acciones",
       align: "right",
       cell: (vacante) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(vacante)}
-        >
-          Ver detalle
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(vacante)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -89,22 +83,24 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
         title="Vacantes"
         description="Oportunidades de servicio social y residencia disponibles para postularte."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar vacante</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              placeholder="Nombre, folio o área"
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar vacante</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  placeholder="Nombre, folio o área"
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(vacante) => vacante.idVacante}

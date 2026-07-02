@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search, UserCheck, Users } from "lucide-react";
+import { Eye, Plus, Search, UserCheck, Users } from "lucide-react";
 import { USER_ROLES } from "@/lib/auth/constants";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
@@ -12,9 +12,7 @@ import {
   usuarioActivoLabel,
   usuarioActivoTone,
 } from "./usuario-labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -98,28 +96,41 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
     {
       id: "nombre",
       header: "Nombre",
+      variant: "primary",
       cell: (usuario) => (
-        <div className={styles.nameCell}>
-          <strong>{usuario.nombreCompleto}</strong>
-          {usuario.cargo ? <span className={styles.nameHint}>{usuario.cargo}</span> : null}
-        </div>
+        <span className={styles.cellTruncate} title={usuario.nombreCompleto}>
+          {usuario.nombreCompleto}
+        </span>
       ),
     },
     {
       id: "correo",
       header: "Correo",
-      cell: (usuario) => usuario.correo,
+      variant: "text",
+      cell: (usuario) => (
+        <span className={styles.cellTruncate} title={usuario.correo}>
+          {usuario.correo}
+        </span>
+      ),
     },
     {
       id: "perfiles",
       header: "Perfiles",
-      cell: (usuario) => formatRoles(usuario.roles),
+      variant: "text",
+      width: "11rem",
+      cell: (usuario) => (
+        <span className={styles.cellTruncate} title={formatRoles(usuario.roles)}>
+          {formatRoles(usuario.roles)}
+        </span>
+      ),
     },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      align: "center",
       cell: (usuario) => (
-        <StatusBadge tone={usuarioActivoTone(usuario.activo)}>
+        <StatusBadge variant="dot" tone={usuarioActivoTone(usuario.activo)}>
           {usuarioActivoLabel(usuario.activo)}
         </StatusBadge>
       ),
@@ -127,16 +138,16 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
+      align: "center",
       cell: (usuario) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelectedUsuario(usuario)}
-        >
-          Ver información
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Ver información"
+            icon={Eye}
+            onClick={() => setSelectedUsuario(usuario)}
+          />
+        </DataTableActions>
       ),
     },
   ];
@@ -155,59 +166,60 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
         <StatCard tone="info" icon={Search} value={filteredUsuarios.length} label="Coinciden con tu búsqueda" />
       </StatCards>
 
-      <FilterBar
-        actions={
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus size={18} aria-hidden="true" />
-            Dar de alta usuario
-          </Button>
-        }
-      >
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar usuario</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              value={search}
-              placeholder="Nombre, correo, cargo o escuela"
-              className={styles.searchInput}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Perfil</span>
-          <select
-            className={styles.filterSelect}
-            value={rolFilter}
-            onChange={(event) => setRolFilter(event.target.value)}
-          >
-            <option value="">Todos los perfiles</option>
-            {ROL_FILTER_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Estatus</span>
-          <select
-            className={styles.filterSelect}
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-          >
-            <option value="todos">Todas las cuentas</option>
-            <option value="activos">Solo activas</option>
-            <option value="inactivos">Solo inactivas</option>
-          </select>
-        </label>
-      </FilterBar>
-
       <DataTable
+        toolbar={
+          <DataTableToolbar
+            actions={
+              <DataTableToolbarAction type="button" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} aria-hidden="true" />
+                Dar de alta usuario
+              </DataTableToolbarAction>
+            }
+          >
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar usuario</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Nombre, correo, cargo o escuela"
+                  className={styles.searchInput}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Perfil</span>
+              <select
+                className={styles.filterSelect}
+                value={rolFilter}
+                onChange={(event) => setRolFilter(event.target.value)}
+              >
+                <option value="">Todos los perfiles</option>
+                {ROL_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Estatus</span>
+              <select
+                className={styles.filterSelect}
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              >
+                <option value="todos">Todas las cuentas</option>
+                <option value="activos">Solo activas</option>
+                <option value="inactivos">Solo inactivas</option>
+              </select>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filteredUsuarios}
         rowKey={(usuario) => usuario.idUsuario}

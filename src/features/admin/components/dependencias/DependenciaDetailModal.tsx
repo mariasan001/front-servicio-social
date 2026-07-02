@@ -1,5 +1,6 @@
 "use client";
 
+import { Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -9,13 +10,14 @@ import {
 } from "../../actions/dependencias.actions";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaFormModal } from "./DependenciaFormModal";
+import dependenciaStyles from "./DependenciaDetailModal.module.css";
 import { areaStatusLabel, areaStatusTone, formatFecha } from "../areas/area-labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 type DependenciaDetailModalProps = {
   dependenciaId: number | null;
@@ -103,6 +105,11 @@ export function DependenciaDetailModal({
     setReloadKey((current) => current + 1);
   };
 
+  const isActive = detail?.activa !== false;
+  const siglas = detail?.siglas?.trim();
+  const clave = detail?.clave?.trim();
+  const descripcion = detail?.descripcion?.trim();
+
   return (
     <>
       <Modal
@@ -112,7 +119,7 @@ export function DependenciaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={styles.modalFooter}>
+            <div className={styles.footer}>
               <Button
                 type="button"
                 variant="outline"
@@ -123,15 +130,16 @@ export function DependenciaDetailModal({
               </Button>
               <Button
                 type="button"
-                variant={detail.activa === false ? "primary" : "secondary"}
+                variant={isActive ? "outline" : "primary"}
+                className={isActive ? styles.dangerButton : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
                 {isMutating
                   ? "Procesando…"
-                  : detail.activa === false
-                    ? "Activar dependencia"
-                    : "Desactivar dependencia"}
+                  : isActive
+                    ? "Desactivar dependencia"
+                    : "Activar dependencia"}
               </Button>
             </div>
           ) : undefined
@@ -144,35 +152,57 @@ export function DependenciaDetailModal({
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
 
         {!isLoading && detail ? (
-          <div className={styles.detailLayout}>
-            <div className={styles.detailSummary}>
+          <div className={styles.layout}>
+            <div className={styles.summaryBar}>
+              <div className={styles.avatar} aria-hidden="true">
+                <Building2 size={18} strokeWidth={1.75} />
+              </div>
+
+              <div className={styles.summaryMeta}>
+                <p className={styles.summaryPrimary}>
+                  {siglas || clave || detail.nombre}
+                </p>
+                <p className={styles.summarySecondary}>
+                  {clave && siglas
+                    ? `Clave ${clave}`
+                    : clave
+                      ? "Dependencia receptora"
+                      : siglas
+                        ? "Dependencia receptora"
+                        : "Sin clave registrada"}
+                </p>
+              </div>
+
               <StatusBadge tone={areaStatusTone(detail.activa)}>
                 {areaStatusLabel(detail.activa)}
               </StatusBadge>
-              <p className={styles.detailLead}>
-                {detail.descripcion?.trim() ||
-                  "Esta dependencia aún no tiene una descripción registrada."}
-              </p>
             </div>
 
-            <dl className={styles.detailGrid}>
-              <div className={styles.detailItem}>
-                <dt>Siglas</dt>
-                <dd>{detail.siglas?.trim() || "Sin siglas registradas"}</dd>
+            <div className={styles.infoPanel}>
+              <dl className={styles.infoGrid}>
+                <div className={styles.infoItem}>
+                  <dt>Fecha de registro</dt>
+                  <dd>{formatFecha(detail.fechaCreacion)}</dd>
+                </div>
+                <div className={styles.infoItem}>
+                  <dt>Última actualización</dt>
+                  <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
+                </div>
+              </dl>
+
+              <div className={dependenciaStyles.descriptionBlock}>
+                <p className={dependenciaStyles.descriptionLabel}>Descripción</p>
+                <p
+                  className={
+                    descripcion
+                      ? dependenciaStyles.descriptionValue
+                      : dependenciaStyles.descriptionEmpty
+                  }
+                >
+                  {descripcion || "Sin descripción registrada."}
+                </p>
               </div>
-              <div className={styles.detailItem}>
-                <dt>Clave de registro</dt>
-                <dd>{detail.clave?.trim() || "Sin clave registrada"}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Fecha de registro</dt>
-                <dd>{formatFecha(detail.fechaCreacion)}</dd>
-              </div>
-              <div className={styles.detailItem}>
-                <dt>Última actualización</dt>
-                <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
-              </div>
-            </dl>
+            </div>
           </div>
         ) : null}
       </Modal>

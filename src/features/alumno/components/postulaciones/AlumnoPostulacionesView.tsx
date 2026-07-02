@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -59,8 +57,9 @@ export function AlumnoPostulacionesView({
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (postulacion) => (
-        <StatusBadge tone={estatusTone(postulacion.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(postulacion.estatus)}>
           {formatEtiqueta(postulacion.estatus)}
         </StatusBadge>
       ),
@@ -70,14 +69,9 @@ export function AlumnoPostulacionesView({
       header: "Acciones",
       align: "right",
       cell: (postulacion) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(postulacion)}
-        >
-          Ver detalle
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(postulacion)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -89,22 +83,24 @@ export function AlumnoPostulacionesView({
         title="Postulaciones"
         description="Consulta el estatus de tus postulaciones a vacantes."
       />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={search}
-              placeholder="Folio, vacante o estatus"
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-      </FilterBar>
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  placeholder="Folio, vacante o estatus"
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(postulacion) => postulacion.idPostulacion}

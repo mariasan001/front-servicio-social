@@ -1,0 +1,114 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: linear-gradient(180deg, rgb(252 252 252 / 98%) 0%, rgb(250 250 250 / 95%) 100%);
+  border-top: 1px solid rgb(236 236 236 / 95%);
+}
+
+.summary {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-gris-500);
+}
+
+.summary strong {
+  font-weight: 600;
+  color: var(--color-gris-800);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.navButton,
+.pageButton,
+.ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-gris-700);
+  background-color: var(--color-white);
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 0.4375rem;
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease,
+    box-shadow 0.14s ease;
+}
+
+.navButton {
+  color: var(--color-gris-600);
+}
+
+.navButton:hover:not(:disabled),
+.pageButton:hover:not(:disabled) {
+  color: var(--color-vino);
+  background-color: rgb(107 35 64 / 5%);
+  border-color: rgb(107 35 64 / 16%);
+}
+
+.pageButtonActive {
+  color: var(--color-white);
+  background: linear-gradient(180deg, var(--color-vino) 0%, var(--color-vino-dark) 100%);
+  border-color: var(--color-vino);
+  box-shadow: 0 1px 2px rgb(107 35 64 / 18%);
+}
+
+.pageButtonActive:hover:not(:disabled) {
+  color: var(--color-white);
+  background: linear-gradient(180deg, var(--color-vino-dark) 0%, #3d1222 100%);
+  border-color: var(--color-vino-dark);
+}
+
+.navButton:disabled,
+.pageButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ellipsis {
+  min-width: 1.75rem;
+  padding: 0;
+  color: var(--color-gris-500);
+  background: transparent;
+  border-color: transparent;
+}
+
+.pageList {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .pagination {
+    justify-content: center;
+  }
+
+  .summary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .controls {
+    justify-content: center;
+    width: 100%;
+  }
+}

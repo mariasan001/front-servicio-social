@@ -1,7 +1,8 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/lib/api/types";
 import type { UserRole } from "@/lib/auth/constants";
 import { getAccessibleNavigations, getNavigationForRole } from "../../constants/navigation";
@@ -15,9 +16,19 @@ type PanelLayoutProps = {
 };
 
 export function PanelLayout({ user, role, children }: PanelLayoutProps) {
+  const pathname = usePathname();
+  const contentRef = useRef<HTMLDivElement>(null);
   const navigation = getNavigationForRole(role);
   const accessibleNavigations = getAccessibleNavigations(user.roles);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.add("panel-shell");
+
+    return () => {
+      document.documentElement.classList.remove("panel-shell");
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isSidebarOpen ? "hidden" : "";
@@ -26,6 +37,10 @@ export function PanelLayout({ user, role, children }: PanelLayoutProps) {
       document.body.style.overflow = "";
     };
   }, [isSidebarOpen]);
+
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [pathname]);
 
   if (!navigation) {
     return null;
@@ -82,7 +97,9 @@ export function PanelLayout({ user, role, children }: PanelLayoutProps) {
           </header>
 
           <main className={styles.content} id="main">
-            <div className={styles.contentInner}>{children}</div>
+            <div ref={contentRef} className={styles.contentInner}>
+              {children}
+            </div>
           </main>
         </div>
       </div>

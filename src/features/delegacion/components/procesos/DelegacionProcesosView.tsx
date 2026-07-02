@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { ClipboardList, Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/delegacion.types";
 import { DelegacionProcesoDetailModal } from "./DelegacionProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -39,16 +37,17 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
     {
       id: "estatus",
       header: "Estatus",
-      cell: (p) => <StatusBadge tone={estatusTone(p.estatus)}>{formatEtiqueta(p.estatus)}</StatusBadge>,
+      align: "center",
+      cell: (p) => <StatusBadge variant="dot" tone={estatusTone(p.estatus)}>{formatEtiqueta(p.estatus)}</StatusBadge>,
     },
     {
       id: "acciones",
       header: "Acciones",
       align: "right",
       cell: (p) => (
-        <Button type="button" variant="outline" className={styles.actionButton} onClick={() => setSelected(p)}>
-          Gestionar
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Gestionar" icon={ClipboardList} onClick={() => setSelected(p)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -56,16 +55,30 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
   return (
     <section className={styles.page} aria-labelledby="delegacion-procesos-title">
       <PageHeader titleId="delegacion-procesos-title" title="Procesos" description="Supervisa procesos activos, documentos, horas y cancelaciones." />
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input type="search" className={styles.searchInput} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Alumno, folio o estatus" />
-          </span>
-        </label>
-      </FilterBar>
-      <DataTable columns={columns} rows={filtered} rowKey={(p) => p.idProceso} caption="Procesos" emptyTitle="No hay procesos" emptyDescription="Los procesos activos aparecerán aquí." />
+      <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Alumno, folio o estatus"
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
+        columns={columns}
+        rows={filtered}
+        rowKey={(p) => p.idProceso}
+        caption="Procesos"
+        emptyTitle="No hay procesos"
+        emptyDescription="Los procesos activos aparecerán aquí." />
       <DelegacionProcesoDetailModal open={selected !== null} procesoId={selected?.idProceso ?? null} onClose={() => setSelected(null)} />
     </section>
   );

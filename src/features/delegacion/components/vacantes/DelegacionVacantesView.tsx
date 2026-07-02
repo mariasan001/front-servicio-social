@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/delegacion.types";
 import { DelegacionVacanteDetailModal } from "./DelegacionVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
-import { FilterBar } from "@/shared/components/FilterBar";
+import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -61,8 +59,9 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (vacante) => (
-        <StatusBadge tone={estatusTone(vacante.estatus)}>
+        <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
           {formatEtiqueta(vacante.estatus, "Sin estatus")}
         </StatusBadge>
       ),
@@ -72,14 +71,9 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
       header: "Acciones",
       align: "right",
       cell: (vacante) => (
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.actionButton}
-          onClick={() => setSelected(vacante)}
-        >
-          Ver información
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(vacante)} />
+        </DataTableActions>
       ),
     },
   ];
@@ -92,38 +86,39 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
         description="Consulta las vacantes del programa y gestiona su publicación, cierre o rechazo."
       />
 
-      <FilterBar>
-        <label className={styles.searchField}>
-          <span className={styles.searchLabel}>Buscar vacante</span>
-          <span className={styles.searchControl}>
-            <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-            <input
-              type="search"
-              value={search}
-              placeholder="Nombre, folio o estatus"
-              className={styles.searchInput}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
-        <label className={styles.filterField}>
-          <span className={styles.filterLabel}>Estatus</span>
-          <select
-            className={styles.filterSelect}
-            value={estatusFilter}
-            onChange={(event) => setEstatusFilter(event.target.value)}
-          >
-            <option value="">Todos</option>
-            {estatusOptions.map((estatus) => (
-              <option key={estatus} value={estatus}>
-                {formatEtiqueta(estatus)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </FilterBar>
-
       <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar vacante</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Nombre, folio o estatus"
+                  className={styles.searchInput}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </span>
+            </label>
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Estatus</span>
+              <select
+                className={styles.filterSelect}
+                value={estatusFilter}
+                onChange={(event) => setEstatusFilter(event.target.value)}
+              >
+                <option value="">Todos</option>
+                {estatusOptions.map((estatus) => (
+                  <option key={estatus} value={estatus}>
+                    {formatEtiqueta(estatus)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </DataTableToolbar>
+        }
         columns={columns}
         rows={filtered}
         rowKey={(vacante) => vacante.idVacante}

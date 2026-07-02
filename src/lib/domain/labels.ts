@@ -9,6 +9,7 @@ const STATUS_LABELS: Record<string, string> = {
   VIGENTE: "Vigente",
   PENDIENTE: "Pendiente",
   VENCIDO: "Vencido",
+  SIN_CONVENIO: "Sin convenio",
   PUBLICADA: "Publicada",
   CERRADA: "Cerrada",
   RECHAZADA: "Rechazada",
@@ -109,7 +110,8 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "CERRADA" ||
     value === "INACTIVA" ||
     value === "REVOCADO" ||
-    value === "VENCIDO"
+    value === "VENCIDO" ||
+    value === "SIN_CONVENIO"
   ) {
     return "neutral";
   }

@@ -1,0 +1,230 @@
+.inviteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgb(107 35 64 / 4%) 0%, transparent 45%),
+    rgb(252 252 252 / 95%);
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 0.5625rem;
+}
+
+.composerTitle {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gris-600);
+}
+
+.composerFields {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 0.5rem 0.625rem;
+}
+
+.composerFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding-top: 0.125rem;
+}
+
+.composerFooter button {
+  min-height: 2rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+}
+
+.successBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-badge-success);
+  background-color: var(--color-badge-success-bg);
+  border: 1px solid var(--color-badge-success-border);
+  border-radius: 0.5rem;
+}
+
+.successBox strong {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gris-800);
+}
+
+.successValue {
+  overflow-wrap: anywhere;
+  color: var(--color-gris-700);
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.historyTitle {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gris-600);
+}
+
+.historyCount {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-gris-500);
+}
+
+.emptyInvites {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 1rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--color-gris-500);
+  text-align: center;
+  background-color: rgb(250 250 250 / 80%);
+  border: 1px dashed rgb(220 220 220 / 90%);
+  border-radius: 0.5625rem;
+}
+
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-gris-400);
+  background-color: var(--color-white);
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 50%;
+}
+
+.inviteList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 0.5625rem;
+}
+
+.inviteRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.375rem 0.75rem;
+  align-items: center;
+  padding: 0.5625rem 0.75rem;
+  background-color: var(--color-white);
+  border-bottom: 1px solid rgb(244 244 244 / 95%);
+}
+
+.inviteRow:last-child {
+  border-bottom: none;
+}
+
+.inviteMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.inviteTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.inviteName {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-gris-800);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inviteMeta {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 300;
+  color: var(--color-gris-500);
+}
+
+.inviteActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.inviteActions button {
+  min-height: 1.75rem;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+}
+
+.dangerOutline {
+  color: var(--color-badge-error) !important;
+  border-color: rgb(107 35 64 / 28%) !important;
+}
+
+.dangerOutline:hover {
+  background-color: rgb(107 35 64 / 5%) !important;
+  border-color: var(--color-badge-error) !important;
+}
+
+@media (max-width: 520px) {
+  .composerFields {
+    grid-template-columns: 1fr;
+  }
+
+  .composerFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .composerFooter button {
+    width: 100%;
+  }
+
+  .inviteRow {
+    grid-template-columns: 1fr;
+  }
+
+  .inviteActions {
+    justify-content: flex-start;
+  }
+}

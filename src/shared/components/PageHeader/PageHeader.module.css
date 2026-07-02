@@ -30,10 +30,10 @@
 }
 
 .description {
-  font-family: var(--font-family-accent);
+  font-family: var(--font-family);
   font-size: 0.8125rem;
-  font-style: italic;
-  font-weight: 400;
+  font-style: normal;
+  font-weight: 300;
   color: var(--color-gris-500);
 }
 

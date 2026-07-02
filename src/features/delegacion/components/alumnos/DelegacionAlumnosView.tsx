@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { GraduationCap } from "lucide-react";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
 import { AlumnoNormalizarModal } from "./AlumnoNormalizarModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -26,8 +26,9 @@ export function DelegacionAlumnosView({
     {
       id: "estatus",
       header: "Estatus",
+      align: "center",
       cell: (a) => (
-        <StatusBadge tone={estatusTone(a.estatusVinculacionEscuela)}>
+        <StatusBadge variant="dot" tone={estatusTone(a.estatusVinculacionEscuela)}>
           {formatEtiqueta(a.estatusVinculacionEscuela, "Pendiente")}
         </StatusBadge>
       ),
@@ -37,9 +38,13 @@ export function DelegacionAlumnosView({
       header: "Acciones",
       align: "right",
       cell: (a) => (
-        <Button type="button" variant="outline" className={styles.actionButton} onClick={() => setSelected(a)}>
-          Normalizar escuela
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction
+            label="Normalizar escuela"
+            icon={GraduationCap}
+            onClick={() => setSelected(a)}
+          />
+        </DataTableActions>
       ),
     },
   ];

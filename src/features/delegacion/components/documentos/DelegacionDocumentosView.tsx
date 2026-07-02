@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { FileSearch } from "lucide-react";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
 import { DocumentoPendienteModal } from "./DocumentoPendienteModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Button } from "@/shared/components/Button";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -31,16 +31,17 @@ export function DelegacionDocumentosView({
     {
       id: "estatus",
       header: "Estatus",
-      cell: (d) => <StatusBadge tone={estatusTone(d.estatus)}>{formatEtiqueta(d.estatus)}</StatusBadge>,
+      align: "center",
+      cell: (d) => <StatusBadge variant="dot" tone={estatusTone(d.estatus)}>{formatEtiqueta(d.estatus)}</StatusBadge>,
     },
     {
       id: "acciones",
       header: "Acciones",
       align: "right",
       cell: (d) => (
-        <Button type="button" variant="outline" className={styles.actionButton} onClick={() => setSelected(d)}>
-          Revisar
-        </Button>
+        <DataTableActions>
+          <DataTableIconAction label="Revisar" icon={FileSearch} onClick={() => setSelected(d)} />
+        </DataTableActions>
       ),
     },
   ];

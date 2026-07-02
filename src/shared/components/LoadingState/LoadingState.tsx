@@ -31,9 +31,9 @@ export function LoadingState({
   );
 }
 
-export function LoadingStateBlock(props: LoadingStateProps) {
+export function LoadingStateBlock({ className, ...props }: LoadingStateProps) {
   return (
-    <div className={styles.block}>
+    <div className={[styles.block, className].filter(Boolean).join(" ")}>
       <LoadingState {...props} />
     </div>
   );
