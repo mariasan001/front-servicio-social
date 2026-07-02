@@ -14,7 +14,6 @@ export async function EnlaceProcesosSection() {
       <section aria-labelledby="enlace-procesos-error-title">
         <PageHeader
           titleId="enlace-procesos-error-title"
-          eyebrow="Enlace escolar"
           title="Procesos"
           description="Seguimiento de procesos activos de los alumnos de tu escuela."
         />

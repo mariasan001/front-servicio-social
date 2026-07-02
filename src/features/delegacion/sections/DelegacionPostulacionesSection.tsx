@@ -12,7 +12,7 @@ export async function DelegacionPostulacionesSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-post-error" eyebrow="Delegación" title="Postulaciones" description="Seguimiento de postulaciones." />
+        <PageHeader titleId="delegacion-post-error" title="Postulaciones" description="Seguimiento de postulaciones." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

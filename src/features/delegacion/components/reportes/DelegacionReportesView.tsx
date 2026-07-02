@@ -37,7 +37,6 @@ export function DelegacionReportesView({
     <section className={styles.page} aria-labelledby="delegacion-reportes-title">
       <PageHeader
         titleId="delegacion-reportes-title"
-        eyebrow="Delegación"
         title="Reportes"
         description="Consulta indicadores operativos y descarga reportes del programa."
       />

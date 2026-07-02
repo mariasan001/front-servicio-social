@@ -60,7 +60,6 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
 
   return (
     <AuthCard
-      eyebrow="Recuperación"
       title={AUTH_COPY.resetTitle}
       subtitle={AUTH_COPY.resetEmailSubtitle}
     >

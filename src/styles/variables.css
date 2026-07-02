@@ -4,7 +4,10 @@
   --color-vino-dark: #4a1829;
   --color-dorado: #b8956a;
   --color-dorado-dark: #7a5e38;
+  --color-dorado-light: #d4bc94;
   --color-dorado-on-dark: #e4cfa8;
+  --color-crema: #f7f0e6;
+  --color-crema-soft: rgb(247 240 230 / 14%);
   --color-text-on-vino: rgb(255 255 255 / 88%);
   --color-text-on-vino-muted: rgb(255 255 255 / 80%);
 
@@ -29,6 +32,7 @@
 
   /* Tipografía */
   --font-family: var(--font-gotham), system-ui, sans-serif;
+  --font-family-accent: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -67,6 +71,45 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+  --radius-panel-nav: 0.875rem;
+  --radius-panel-content: 0.625rem;
+  --radius-stat-card: 0.875rem;
+
+  /* Panel — contenido principal */
+  --color-panel-scroll-thumb: rgb(107 35 64 / 20%);
+  --color-panel-scroll-thumb-hover: rgb(107 35 64 / 32%);
+  --color-panel-header-divider: rgb(212 212 212 / 85%);
+
+  /* Panel — tarjetas de contador */
+  --color-stat-neutral: var(--color-vino);
+  --color-stat-neutral-bg: rgb(107 35 64 / 8%);
+  --color-stat-success: #2f6b52;
+  --color-stat-success-bg: rgb(47 107 82 / 10%);
+  --color-stat-warning: #9a7340;
+  --color-stat-warning-bg: rgb(184 149 106 / 12%);
+  --color-stat-danger: #8f3d3d;
+  --color-stat-danger-bg: rgb(143 61 61 / 10%);
+  --color-stat-info: #5a4a6a;
+  --color-stat-info-bg: rgb(90 74 106 / 9%);
+  --color-stat-card-shadow: rgb(45 45 45 / 5%);
+  --color-stat-card-shadow-hover: rgb(45 45 45 / 9%);
+  --color-stat-card-bg: var(--color-white);
+
+  /* Panel — navegación lateral */
+  --color-panel-nav-text: rgb(255 255 255 / 92%);
+  --color-panel-nav-text-muted: rgb(255 255 255 / 64%);
+  --color-panel-nav-hover-bg: rgb(255 255 255 / 9%);
+  --color-panel-nav-active-bg: var(--color-crema-soft);
+  --color-panel-nav-active-border: var(--color-dorado-light);
+  --color-panel-nav-icon: rgb(255 255 255 / 70%);
+  --color-panel-nav-icon-bg: rgb(255 255 255 / 7%);
+  --color-panel-nav-icon-active-bg: var(--color-dorado-on-dark);
+  --color-panel-nav-icon-active: var(--color-vino-dark);
+  --color-panel-nav-divider: rgb(255 255 255 / 11%);
+  --color-panel-nav-user-bg: rgb(247 240 230 / 11%);
+  --color-panel-nav-user-shadow: rgb(0 0 0 / 22%);
+  --color-panel-nav-role-border: rgb(228 207 168 / 24%);
+  --color-panel-nav-link-border: rgb(228 207 168 / 16%);
 
   /* Transiciones */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);

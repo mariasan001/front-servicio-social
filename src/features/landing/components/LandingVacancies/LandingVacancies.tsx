@@ -34,7 +34,6 @@ export function LandingVacancies() {
           <LandingSectionHeader
             className={`${sectionStyles.headerPad} ${styles.vacanciesHeader}`}
             copyClassName={styles.vacanciesCopy}
-            eyebrow="Oportunidades activas"
             title={
               <>
                 Vacantes que podrían{" "}

@@ -38,7 +38,9 @@ export function LogoutButton({
   return (
     <button
       type="button"
-      className={[formStyles.textButton, className].filter(Boolean).join(" ")}
+      className={[className ? null : formStyles.textButton, className]
+        .filter(Boolean)
+        .join(" ")}
       disabled={isSubmitting}
       onClick={() => void handleLogout()}
     >

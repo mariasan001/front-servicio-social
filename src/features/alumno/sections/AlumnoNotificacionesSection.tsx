@@ -19,7 +19,6 @@ export async function AlumnoNotificacionesSection() {
       <section aria-labelledby="alumno-notificaciones-error-title">
         <PageHeader
           titleId="alumno-notificaciones-error-title"
-          eyebrow="Alumno"
           title="Notificaciones"
           description="Avisos y actualizaciones del sistema."
         />

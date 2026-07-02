@@ -16,7 +16,6 @@ export async function TitularIncidenciasSection() {
       <section aria-labelledby="titular-incidencias-error-title">
         <PageHeader
           titleId="titular-incidencias-error-title"
-          eyebrow="Titular de área"
           title="Incidencias"
           description="Consulta de incidencias."
         />

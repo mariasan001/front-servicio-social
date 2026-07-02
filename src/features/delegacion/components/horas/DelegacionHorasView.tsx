@@ -34,7 +34,7 @@ export function DelegacionHorasView({ horas }: { horas: HoraPendienteResponse[] 
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-horas-title">
-      <PageHeader titleId="delegacion-horas-title" eyebrow="Delegación" title="Horas" description="Revisa y valida los registros de horas pendientes." />
+      <PageHeader titleId="delegacion-horas-title" title="Horas" description="Revisa y valida los registros de horas pendientes." />
       <DataTable columns={columns} rows={horas} rowKey={(h) => h.idAsistencia} caption="Horas pendientes" emptyTitle="No hay horas pendientes" emptyDescription="Los registros por validar aparecerán aquí." />
       <HoraPendienteModal hora={selected} open={selected !== null} onClose={() => setSelected(null)} />
     </section>

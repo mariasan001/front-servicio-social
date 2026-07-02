@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, UserCheck, Users } from "lucide-react";
 import { USER_ROLES } from "@/lib/auth/constants";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
@@ -16,6 +16,7 @@ import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
@@ -144,25 +145,15 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
     <section className={styles.page} aria-labelledby="admin-usuarios-title">
       <PageHeader
         titleId="admin-usuarios-title"
-        eyebrow="Administración"
         title="Usuarios internos"
         description="Administra y consulta las cuentas del personal que opera el programa y los perfiles que tienen asignados."
       />
 
-      <div className={styles.summaryRow} aria-live="polite">
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{usuarios.length}</span>
-          <span className={styles.summaryLabel}>Cuentas registradas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{activosCount}</span>
-          <span className={styles.summaryLabel}>Cuentas activas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{filteredUsuarios.length}</span>
-          <span className={styles.summaryLabel}>Coinciden con tu búsqueda</span>
-        </div>
-      </div>
+      <StatCards aria-live="polite">
+        <StatCard tone="neutral" icon={Users} value={usuarios.length} label="Cuentas registradas" />
+        <StatCard tone="success" icon={UserCheck} value={activosCount} label="Cuentas activas" />
+        <StatCard tone="info" icon={Search} value={filteredUsuarios.length} label="Coinciden con tu búsqueda" />
+      </StatCards>
 
       <FilterBar
         actions={

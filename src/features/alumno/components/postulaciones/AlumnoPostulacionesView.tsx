@@ -86,7 +86,6 @@ export function AlumnoPostulacionesView({
     <section className={styles.page} aria-labelledby="alumno-postulaciones-title">
       <PageHeader
         titleId="alumno-postulaciones-title"
-        eyebrow="Alumno"
         title="Postulaciones"
         description="Consulta el estatus de tus postulaciones a vacantes."
       />

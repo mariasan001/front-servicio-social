@@ -41,7 +41,6 @@ export function LandingAbout() {
             align="center"
             className={`${sectionStyles.headerPad} ${styles.aboutHeader}`}
             copyClassName={styles.aboutCopy}
-            eyebrow="Sobre la plataforma"
             title={
               <>
                 Acerca de la{" "}

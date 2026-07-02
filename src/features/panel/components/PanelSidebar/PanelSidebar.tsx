@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AuthUser } from "@/lib/api/types";
@@ -13,6 +14,20 @@ type PanelSidebarProps = {
   accessibleNavigations: PanelNavGroup[];
   onNavigate?: () => void;
 };
+
+function getUserInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) {
+    return "?";
+  }
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
+}
 
 function matchNavItem(pathname: string, href: string, basePath: string) {
   if (pathname === href) {
@@ -37,10 +52,31 @@ export function PanelSidebar({
   return (
     <aside className={styles.sidebar} aria-label="Menú del panel">
       <div className={styles.brandBlock}>
-        <span className={styles.roleLabel}>{navigation.label}</span>
-        <Link href={navigation.basePath} className={styles.brand}>
-          Servicio Social Edomex
+        <Link
+          href={navigation.basePath}
+          className={styles.brandLink}
+          aria-label="Ir al inicio del panel"
+          onClick={onNavigate}
+        >
+          <span className={styles.brandLogoWrap}>
+            <Image
+              className={styles.brandLogo}
+              src="/images/Flor_3.png"
+              alt=""
+              width={120}
+              height={120}
+              sizes="44px"
+            />
+          </span>
+          <span className={styles.brandCopy}>
+            <span className={styles.brandEyebrow}>Servicio Social</span>
+            <span className={styles.brandTitle}>Edomex</span>
+          </span>
         </Link>
+        <p className={styles.roleCaption}>
+          <span className={styles.roleDot} aria-hidden="true" />
+          {navigation.label}
+        </p>
       </div>
 
       {accessibleNavigations.length > 1 ? (
@@ -83,17 +119,26 @@ export function PanelSidebar({
               aria-current={active ? "page" : undefined}
               onClick={onNavigate}
             >
-              <Icon className={styles.navIcon} size={18} strokeWidth={2} />
-              {item.label}
+              <span className={styles.navIconWrap} aria-hidden="true">
+                <Icon className={styles.navIcon} size={17} strokeWidth={2} />
+              </span>
+              <span className={styles.navLabel}>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
       <div className={styles.userBlock}>
-        <span className={styles.userName}>{user.nombreCompleto}</span>
-        <span className={styles.userMeta}>@{user.username}</span>
-        <LogoutButton className={styles.logout} />
+        <div className={styles.userRow}>
+          <span className={styles.userAvatar} aria-hidden="true">
+            {getUserInitials(user.nombreCompleto)}
+          </span>
+          <div className={styles.userInfo}>
+            <span className={styles.userName}>{user.nombreCompleto}</span>
+            <span className={styles.userMeta}>@{user.username}</span>
+          </div>
+        </div>
+        <LogoutButton className={styles.logoutButton} />
       </div>
     </aside>
   );

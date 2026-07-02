@@ -4,34 +4,6 @@
   gap: var(--space-6);
 }
 
-.summaryRow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-
-.summaryCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-4);
-  background: linear-gradient(180deg, var(--color-gris-50) 0%, var(--color-white) 100%);
-  border: 1px solid var(--color-border);
-  border-radius: 1rem;
-}
-
-.summaryValue {
-  font-size: var(--font-size-2xl);
-  font-weight: 800;
-  line-height: var(--line-height-tight);
-  color: var(--color-vino);
-}
-
-.summaryLabel {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
 .searchField,
 .filterField {
   display: flex;
@@ -287,7 +259,6 @@
 }
 
 @media (max-width: 768px) {
-  .summaryRow,
   .detailGrid,
   .formGrid {
     grid-template-columns: 1fr;

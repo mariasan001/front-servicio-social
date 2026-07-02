@@ -91,7 +91,6 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
     <section className={styles.page} aria-labelledby="enlace-procesos-title">
       <PageHeader
         titleId="enlace-procesos-title"
-        eyebrow="Enlace escolar"
         title="Procesos"
         description="Consulta el avance de los procesos activos de los alumnos de tu escuela."
       />

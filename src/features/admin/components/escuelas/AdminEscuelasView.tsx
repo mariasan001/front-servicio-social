@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { CheckCircle2, GraduationCap, Plus, Search } from "lucide-react";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import { EscuelaDetailModal } from "./EscuelaDetailModal";
 import { EscuelaFormModal } from "./EscuelaFormModal";
@@ -10,6 +10,7 @@ import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
@@ -147,25 +148,15 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
     <section className={styles.page} aria-labelledby="admin-escuelas-title">
       <PageHeader
         titleId="admin-escuelas-title"
-        eyebrow="Administración"
         title="Escuelas"
         description="Administra y consulta las instituciones educativas participantes y sus invitaciones de registro para alumnos."
       />
 
-      <div className={styles.summaryRow} aria-live="polite">
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{escuelas.length}</span>
-          <span className={styles.summaryLabel}>Escuelas registradas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{activasCount}</span>
-          <span className={styles.summaryLabel}>Escuelas activas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{filteredEscuelas.length}</span>
-          <span className={styles.summaryLabel}>Coinciden con tu búsqueda</span>
-        </div>
-      </div>
+      <StatCards aria-live="polite">
+        <StatCard tone="neutral" icon={GraduationCap} value={escuelas.length} label="Escuelas registradas" />
+        <StatCard tone="success" icon={CheckCircle2} value={activasCount} label="Escuelas activas" />
+        <StatCard tone="info" icon={Search} value={filteredEscuelas.length} label="Coinciden con tu búsqueda" />
+      </StatCards>
 
       <FilterBar
         actions={

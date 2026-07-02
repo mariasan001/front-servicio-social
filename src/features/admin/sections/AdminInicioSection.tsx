@@ -71,7 +71,6 @@ export async function AdminInicioSection() {
       <section aria-labelledby="admin-inicio-error-title">
         <PageHeader
           titleId="admin-inicio-error-title"
-          eyebrow="Administración"
           title="Inicio"
           description="Resumen del sistema y accesos rápidos a las secciones de administración."
         />

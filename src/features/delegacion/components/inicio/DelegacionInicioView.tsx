@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Activity,
   BarChart3,
   Briefcase,
   ClipboardList,
@@ -19,6 +20,7 @@ import type {
 } from "../../types/delegacion.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
@@ -109,7 +111,6 @@ export function DelegacionInicioView({
     <section className={styles.page} aria-labelledby="delegacion-inicio-title">
       <PageHeader
         titleId="delegacion-inicio-title"
-        eyebrow="Delegación"
         title={`Hola, ${firstName}`}
         description="Resumen operativo del programa de servicio social y residencia."
       />
@@ -121,20 +122,21 @@ export function DelegacionInicioView({
         </p>
       </div>
 
-      <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{dashboard.procesosActivos}</span>
-          <span className={styles.summaryLabel}>Procesos activos</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{dashboard.pendientesDocumentacion}</span>
-          <span className={styles.summaryLabel}>Documentos pendientes</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{dashboard.postulacionesPendientes}</span>
-          <span className={styles.summaryLabel}>Postulaciones pendientes</span>
-        </div>
-      </div>
+      <StatCards>
+        <StatCard tone="success" icon={Activity} value={dashboard.procesosActivos} label="Procesos activos" />
+        <StatCard
+          tone={dashboard.pendientesDocumentacion > 0 ? "warning" : "neutral"}
+          icon={FileText}
+          value={dashboard.pendientesDocumentacion}
+          label="Documentos pendientes"
+        />
+        <StatCard
+          tone={dashboard.postulacionesPendientes > 0 ? "warning" : "neutral"}
+          icon={ClipboardList}
+          value={dashboard.postulacionesPendientes}
+          label="Postulaciones pendientes"
+        />
+      </StatCards>
 
       {liberacionesPendientes.length > 0 ? (
         <section className={styles.detailSection} aria-labelledby="liberaciones-pendientes-title">

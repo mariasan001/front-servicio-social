@@ -13,7 +13,7 @@ export async function DelegacionAlumnosSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-alu-error" eyebrow="Delegación" title="Alumnos" description="Normalización de escuelas." />
+        <PageHeader titleId="delegacion-alu-error" title="Alumnos" description="Normalización de escuelas." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

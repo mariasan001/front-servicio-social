@@ -5,6 +5,7 @@ import { Briefcase, ClipboardList, FileText, Shield } from "lucide-react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
@@ -62,7 +63,6 @@ export function TitularInicioView({ session, stats }: TitularInicioViewProps) {
     <section className={styles.page} aria-labelledby="titular-inicio-title">
       <PageHeader
         titleId="titular-inicio-title"
-        eyebrow="Titular de área"
         title={`Hola, ${firstName}`}
         description="Gestiona las vacantes, postulaciones y procesos de servicio social en tu área."
       />
@@ -75,20 +75,11 @@ export function TitularInicioView({ session, stats }: TitularInicioViewProps) {
         </p>
       </div>
 
-      <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{stats.vacantes}</span>
-          <span className={styles.summaryLabel}>Vacantes</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{stats.postulaciones}</span>
-          <span className={styles.summaryLabel}>Postulaciones</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{stats.procesos}</span>
-          <span className={styles.summaryLabel}>Procesos</span>
-        </div>
-      </div>
+      <StatCards>
+        <StatCard tone="neutral" icon={Briefcase} value={stats.vacantes} label="Vacantes" />
+        <StatCard tone="info" icon={ClipboardList} value={stats.postulaciones} label="Postulaciones" />
+        <StatCard tone="success" icon={FileText} value={stats.procesos} label="Procesos" />
+      </StatCards>
 
       <div className={inicioStyles.sectionHeader}>
         <h2 className={inicioStyles.sectionTitle}>Accesos rápidos</h2>

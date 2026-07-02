@@ -39,7 +39,7 @@ export function DelegacionIncidenciasView({
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-incidencias-title">
-      <PageHeader titleId="delegacion-incidencias-title" eyebrow="Delegación" title="Incidencias" description="Consulta y resuelve incidencias reportadas en el programa." />
+      <PageHeader titleId="delegacion-incidencias-title" title="Incidencias" description="Consulta y resuelve incidencias reportadas en el programa." />
       <DataTable columns={columns} rows={incidencias} rowKey={(i) => i.idIncidencia} caption="Incidencias" emptyTitle="No hay incidencias" emptyDescription="Las incidencias reportadas aparecerán aquí." />
       <DelegacionIncidenciaDetailModal open={selected !== null} incidenciaId={selected?.idIncidencia ?? null} onClose={() => setSelected(null)} />
     </section>

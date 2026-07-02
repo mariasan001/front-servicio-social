@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Briefcase, ClipboardList, FileText, Layers, UserCircle } from "lucide-react";
+import { Bell, Briefcase, ClipboardList, FileText, Layers, UserCircle } from "lucide-react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
@@ -79,7 +80,6 @@ export function AlumnoInicioView({
     <section className={styles.page} aria-labelledby="alumno-inicio-title">
       <PageHeader
         titleId="alumno-inicio-title"
-        eyebrow="Alumno"
         title={`Hola, ${firstName}`}
         description="Resumen de tu participación en servicio social o residencia profesional."
       />
@@ -104,20 +104,16 @@ export function AlumnoInicioView({
         )}
       </div>
 
-      <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{stats.postulaciones}</span>
-          <span className={styles.summaryLabel}>Postulaciones</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{stats.vacantes}</span>
-          <span className={styles.summaryLabel}>Vacantes disponibles</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{notificacionesNoLeidas}</span>
-          <span className={styles.summaryLabel}>Notificaciones sin leer</span>
-        </div>
-      </div>
+      <StatCards>
+        <StatCard tone="neutral" icon={ClipboardList} value={stats.postulaciones} label="Postulaciones" />
+        <StatCard tone="success" icon={Briefcase} value={stats.vacantes} label="Vacantes disponibles" />
+        <StatCard
+          tone={notificacionesNoLeidas > 0 ? "warning" : "neutral"}
+          icon={Bell}
+          value={notificacionesNoLeidas}
+          label="Notificaciones sin leer"
+        />
+      </StatCards>
 
       <div className={inicioStyles.sectionHeader}>
         <h2 className={inicioStyles.sectionTitle}>Accesos rápidos</h2>

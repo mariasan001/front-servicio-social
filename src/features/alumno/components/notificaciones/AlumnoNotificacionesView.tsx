@@ -63,7 +63,6 @@ export function AlumnoNotificacionesView({
     <section className={styles.page} aria-labelledby="alumno-notificaciones-title">
       <PageHeader
         titleId="alumno-notificaciones-title"
-        eyebrow="Alumno"
         title="Notificaciones"
         description="Avisos y actualizaciones del sistema dirigidos a tu cuenta."
       />

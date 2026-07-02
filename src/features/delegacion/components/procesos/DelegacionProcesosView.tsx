@@ -55,7 +55,7 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-procesos-title">
-      <PageHeader titleId="delegacion-procesos-title" eyebrow="Delegación" title="Procesos" description="Supervisa procesos activos, documentos, horas y cancelaciones." />
+      <PageHeader titleId="delegacion-procesos-title" title="Procesos" description="Supervisa procesos activos, documentos, horas y cancelaciones." />
       <FilterBar>
         <label className={styles.searchField}>
           <span className={styles.searchLabel}>Buscar</span>

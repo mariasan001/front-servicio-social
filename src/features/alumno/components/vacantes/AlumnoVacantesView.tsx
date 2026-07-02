@@ -86,7 +86,6 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
     <section className={styles.page} aria-labelledby="alumno-vacantes-title">
       <PageHeader
         titleId="alumno-vacantes-title"
-        eyebrow="Alumno"
         title="Vacantes"
         description="Oportunidades de servicio social y residencia disponibles para postularte."
       />

@@ -75,7 +75,6 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
     <section className={styles.page} aria-labelledby="titular-procesos-title">
       <PageHeader
         titleId="titular-procesos-title"
-        eyebrow="Titular de área"
         title="Procesos"
         description="Supervisa horas, incidencias, liberación técnica y evaluación final."
       />

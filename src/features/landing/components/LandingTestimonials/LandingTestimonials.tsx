@@ -30,7 +30,6 @@ export function LandingTestimonials() {
             align="center"
             className={`${sectionStyles.headerPad} ${styles.testimonialsHeader}`}
             copyClassName={styles.testimonialsCopy}
-            eyebrow="Experiencias reales"
             title={
               <>
                 Lo que dicen nuestros{" "}

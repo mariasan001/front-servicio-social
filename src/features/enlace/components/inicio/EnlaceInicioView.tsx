@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, FileText, GraduationCap } from "lucide-react";
+import { Activity, BarChart3, FileText, GraduationCap } from "lucide-react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import type { DashboardResumenResponse } from "../../types/enlace.types";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
@@ -48,7 +49,6 @@ export function EnlaceInicioView({ session, resumen }: EnlaceInicioViewProps) {
     <section className={styles.page} aria-labelledby="enlace-inicio-title">
       <PageHeader
         titleId="enlace-inicio-title"
-        eyebrow="Enlace escolar"
         title={`Hola, ${firstName}`}
         description="Resumen de alumnos y procesos de servicio social en tu institución."
       />
@@ -60,20 +60,16 @@ export function EnlaceInicioView({ session, resumen }: EnlaceInicioViewProps) {
         </p>
       </div>
 
-      <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{resumen.totalAlumnos ?? 0}</span>
-          <span className={styles.summaryLabel}>Alumnos registrados</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{resumen.procesosActivos ?? 0}</span>
-          <span className={styles.summaryLabel}>Procesos activos</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{resumen.pendientesDocumentacion ?? 0}</span>
-          <span className={styles.summaryLabel}>Documentación pendiente</span>
-        </div>
-      </div>
+      <StatCards>
+        <StatCard tone="neutral" icon={GraduationCap} value={resumen.totalAlumnos ?? 0} label="Alumnos registrados" />
+        <StatCard tone="success" icon={Activity} value={resumen.procesosActivos ?? 0} label="Procesos activos" />
+        <StatCard
+          tone={(resumen.pendientesDocumentacion ?? 0) > 0 ? "warning" : "neutral"}
+          icon={FileText}
+          value={resumen.pendientesDocumentacion ?? 0}
+          label="Documentación pendiente"
+        />
+      </StatCards>
 
       <div className={inicioStyles.sectionHeader}>
         <h2 className={inicioStyles.sectionTitle}>Accesos rápidos</h2>

@@ -31,7 +31,6 @@ export function LandingFaq() {
       <div className={sectionStyles.container}>
         <LandingSectionHeader
           align="center"
-          eyebrow="Preguntas frecuentes"
           title={
             <>
               Preguntas y{" "}

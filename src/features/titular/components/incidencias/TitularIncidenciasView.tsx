@@ -74,7 +74,6 @@ export function TitularIncidenciasView({
     <section className={styles.page} aria-labelledby="titular-incidencias-title">
       <PageHeader
         titleId="titular-incidencias-title"
-        eyebrow="Titular de área"
         title="Incidencias"
         description="Consulta las incidencias reportadas en los procesos de tu área."
       />

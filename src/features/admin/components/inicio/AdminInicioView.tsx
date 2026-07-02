@@ -80,7 +80,6 @@ export function AdminInicioView({ session, stats }: AdminInicioViewProps) {
     <section className={styles.page} aria-labelledby="admin-inicio-title">
       <PageHeader
         titleId="admin-inicio-title"
-        eyebrow="Administración"
         title={`Hola, ${firstName}`}
         description="Este es tu punto de partida para consultar la información base del programa de servicio social y residencia."
       />

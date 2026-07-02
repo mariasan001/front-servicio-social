@@ -27,7 +27,6 @@ export async function AdminUsuariosSection() {
       <section aria-labelledby="admin-usuarios-error-title">
         <PageHeader
           titleId="admin-usuarios-error-title"
-          eyebrow="Administración"
           title="Usuarios internos"
           description="Administra y consulta las cuentas del personal que opera el programa y los perfiles que tienen asignados."
         />

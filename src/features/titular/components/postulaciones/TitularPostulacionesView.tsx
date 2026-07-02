@@ -81,7 +81,6 @@ export function TitularPostulacionesView({
     <section className={styles.page} aria-labelledby="titular-postulaciones-title">
       <PageHeader
         titleId="titular-postulaciones-title"
-        eyebrow="Titular de área"
         title="Postulaciones"
         description="Revisa las postulaciones recibidas y resuélvelas según el proceso."
       />

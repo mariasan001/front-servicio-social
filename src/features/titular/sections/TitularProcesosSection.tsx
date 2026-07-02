@@ -16,7 +16,6 @@ export async function TitularProcesosSection() {
       <section aria-labelledby="titular-procesos-error-title">
         <PageHeader
           titleId="titular-procesos-error-title"
-          eyebrow="Titular de área"
           title="Procesos"
           description="Supervisión de procesos."
         />

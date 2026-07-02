@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import styles from "./LandingSectionHeader.module.css";
 
 type LandingSectionHeaderProps = {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   intro: string;
   action?: ReactNode;
@@ -41,7 +41,7 @@ export function LandingSectionHeader({
       )}
     >
       <div className={joinClassNames(styles.copy, copyClassName)}>
-        <span className={styles.eyebrow}>{eyebrow}</span>
+        {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.intro}>{intro}</p>
       </div>

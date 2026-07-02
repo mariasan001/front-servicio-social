@@ -14,7 +14,6 @@ export async function EnlaceReportesSection() {
       <section aria-labelledby="enlace-reportes-error-title">
         <PageHeader
           titleId="enlace-reportes-error-title"
-          eyebrow="Enlace escolar"
           title="Reportes"
           description="Reportes institucionales de alumnos y procesos de la escuela."
         />

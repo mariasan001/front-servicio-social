@@ -112,7 +112,6 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   if (successMessage) {
     return (
       <AuthCard
-        eyebrow="Recuperación"
         title="Contraseña actualizada"
         subtitle="Tu acceso quedó restablecido correctamente."
       >
@@ -131,7 +130,6 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
 
   return (
     <AuthCard
-      eyebrow="Recuperación"
       title="Verifica tu correo"
       subtitle={AUTH_COPY.resetCodeSubtitle}
     >

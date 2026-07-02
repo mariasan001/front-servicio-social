@@ -14,7 +14,7 @@ export async function DelegacionReportesSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-rep-error" eyebrow="Delegación" title="Reportes" description="Indicadores y exportaciones." />
+        <PageHeader titleId="delegacion-rep-error" title="Reportes" description="Indicadores y exportaciones." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

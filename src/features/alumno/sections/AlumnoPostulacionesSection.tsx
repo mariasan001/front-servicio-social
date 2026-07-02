@@ -14,7 +14,6 @@ export async function AlumnoPostulacionesSection() {
       <section aria-labelledby="alumno-postulaciones-error-title">
         <PageHeader
           titleId="alumno-postulaciones-error-title"
-          eyebrow="Alumno"
           title="Postulaciones"
           description="Consulta el estatus de tus postulaciones."
         />

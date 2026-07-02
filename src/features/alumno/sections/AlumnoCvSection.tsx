@@ -14,7 +14,6 @@ export async function AlumnoCvSection() {
       <section aria-labelledby="alumno-cv-error-title">
         <PageHeader
           titleId="alumno-cv-error-title"
-          eyebrow="Alumno"
           title="Mi CV"
           description="Currículum vitae asociado a tu perfil."
         />

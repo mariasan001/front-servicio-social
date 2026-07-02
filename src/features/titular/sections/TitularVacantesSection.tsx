@@ -20,7 +20,6 @@ export async function TitularVacantesSection() {
       <section aria-labelledby="titular-vacantes-error-title">
         <PageHeader
           titleId="titular-vacantes-error-title"
-          eyebrow="Titular de área"
           title="Vacantes"
           description="Gestión de vacantes del área."
         />

@@ -12,7 +12,7 @@ export async function DelegacionDocumentosSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-doc-error" eyebrow="Delegación" title="Documentos" description="Validación documental pendiente." />
+        <PageHeader titleId="delegacion-doc-error" title="Documentos" description="Validación documental pendiente." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

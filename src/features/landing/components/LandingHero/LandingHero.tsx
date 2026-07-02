@@ -56,7 +56,7 @@ export function LandingHero() {
         <div className={styles.visual} aria-hidden="true">
           <Image
             className={styles.image}
-            src="/images/fondoLanding.webp"
+            src="/images/fondoLanding_01.png"
             alt=""
             width={800}
             height={800}

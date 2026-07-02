@@ -42,7 +42,6 @@ export async function AlumnoInicioSection() {
       <section aria-labelledby="alumno-inicio-error-title">
         <PageHeader
           titleId="alumno-inicio-error-title"
-          eyebrow="Alumno"
           title="Inicio"
           description="Resumen de tu participación."
         />

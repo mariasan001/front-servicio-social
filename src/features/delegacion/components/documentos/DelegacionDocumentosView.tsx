@@ -47,7 +47,7 @@ export function DelegacionDocumentosView({
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-documentos-title">
-      <PageHeader titleId="delegacion-documentos-title" eyebrow="Delegación" title="Documentos" description="Valida la documentación pendiente de revisión." />
+      <PageHeader titleId="delegacion-documentos-title" title="Documentos" description="Valida la documentación pendiente de revisión." />
       <DataTable columns={columns} rows={documentos} rowKey={(d) => d.idProcesoDocumento} caption="Documentos pendientes" emptyTitle="No hay documentos pendientes" emptyDescription="Cuando haya documentos por revisar, aparecerán aquí." />
       <DocumentoPendienteModal documento={selected} open={selected !== null} onClose={() => setSelected(null)} />
     </section>

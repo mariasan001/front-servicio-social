@@ -38,7 +38,6 @@ export async function DelegacionInicioSection() {
       <section aria-labelledby="delegacion-inicio-error-title">
         <PageHeader
           titleId="delegacion-inicio-error-title"
-          eyebrow="Delegación"
           title="Inicio"
           description="Resumen operativo del programa."
         />

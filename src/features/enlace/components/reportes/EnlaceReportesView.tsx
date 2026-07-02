@@ -74,7 +74,6 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
     <section className={styles.page} aria-labelledby="enlace-reportes-title">
       <PageHeader
         titleId="enlace-reportes-title"
-        eyebrow="Enlace escolar"
         title="Reportes"
         description="Reporte institucional de alumnos y avance de sus procesos."
       />

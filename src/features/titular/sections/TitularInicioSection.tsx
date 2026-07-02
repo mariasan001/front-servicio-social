@@ -40,7 +40,6 @@ export async function TitularInicioSection() {
       <section aria-labelledby="titular-inicio-error-title">
         <PageHeader
           titleId="titular-inicio-error-title"
-          eyebrow="Titular de área"
           title="Inicio"
           description="Resumen de tu área."
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Building2, CheckCircle2, Plus, Search } from "lucide-react";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaDetailModal } from "./DependenciaDetailModal";
 import { DependenciaFormModal } from "./DependenciaFormModal";
@@ -10,6 +10,7 @@ import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
@@ -115,25 +116,15 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
     <section className={styles.page} aria-labelledby="admin-dependencias-title">
       <PageHeader
         titleId="admin-dependencias-title"
-        eyebrow="Administración"
         title="Dependencias"
         description="Administra y consulta las dependencias receptoras que participan en el programa de servicio social y residencia."
       />
 
-      <div className={styles.summaryRow} aria-live="polite">
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{dependencias.length}</span>
-          <span className={styles.summaryLabel}>Dependencias registradas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{activasCount}</span>
-          <span className={styles.summaryLabel}>Dependencias activas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{filteredDependencias.length}</span>
-          <span className={styles.summaryLabel}>Coinciden con tu búsqueda</span>
-        </div>
-      </div>
+      <StatCards aria-live="polite">
+        <StatCard tone="neutral" icon={Building2} value={dependencias.length} label="Dependencias registradas" />
+        <StatCard tone="success" icon={CheckCircle2} value={activasCount} label="Dependencias activas" />
+        <StatCard tone="info" icon={Search} value={filteredDependencias.length} label="Coinciden con tu búsqueda" />
+      </StatCards>
 
       <FilterBar
         actions={

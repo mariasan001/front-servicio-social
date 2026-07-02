@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { Clock, Target, TrendingUp } from "lucide-react";
 import {
   downloadCartaArchivoAction,
   downloadDocumentoArchivoAction,
@@ -31,6 +32,7 @@ import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
@@ -73,7 +75,6 @@ export function AlumnoProcesoView({
       <section className={styles.page} aria-labelledby="alumno-proceso-title">
         <PageHeader
           titleId="alumno-proceso-title"
-          eyebrow="Alumno"
           title="Mi proceso"
           description="Seguimiento de tu servicio social o residencia profesional."
         />
@@ -173,7 +174,6 @@ export function AlumnoProcesoView({
     <section className={styles.page} aria-labelledby="alumno-proceso-title">
       <PageHeader
         titleId="alumno-proceso-title"
-        eyebrow="Alumno"
         title="Mi proceso"
         description="Seguimiento de horas, documentos y avance de tu servicio social."
       />
@@ -204,25 +204,31 @@ export function AlumnoProcesoView({
         </dl>
 
         {horasResumen ? (
-          <div className={styles.summaryRow}>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{horasResumen.horasAcumuladas ?? 0}</span>
-              <span className={styles.summaryLabel}>Horas acumuladas</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{horasResumen.horasRequeridas ?? "—"}</span>
-              <span className={styles.summaryLabel}>Horas requeridas</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>
-                {horasResumen.porcentajeAvance !== undefined &&
+          <StatCards>
+            <StatCard
+              tone="info"
+              icon={Clock}
+              value={horasResumen.horasAcumuladas ?? 0}
+              label="Horas acumuladas"
+            />
+            <StatCard
+              tone="neutral"
+              icon={Target}
+              value={horasResumen.horasRequeridas ?? "—"}
+              label="Horas requeridas"
+            />
+            <StatCard
+              tone="success"
+              icon={TrendingUp}
+              value={
+                horasResumen.porcentajeAvance !== undefined &&
                 horasResumen.porcentajeAvance !== null
                   ? `${horasResumen.porcentajeAvance}%`
-                  : "—"}
-              </span>
-              <span className={styles.summaryLabel}>Avance</span>
-            </div>
-          </div>
+                  : "—"
+              }
+              label="Avance"
+            />
+          </StatCards>
         ) : null}
 
         <section className={styles.detailSection}>

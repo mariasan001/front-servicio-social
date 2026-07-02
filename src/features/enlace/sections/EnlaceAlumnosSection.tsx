@@ -14,7 +14,6 @@ export async function EnlaceAlumnosSection() {
       <section aria-labelledby="enlace-alumnos-error-title">
         <PageHeader
           titleId="enlace-alumnos-error-title"
-          eyebrow="Enlace escolar"
           title="Alumnos"
           description="Consulta de alumnos registrados y vinculados a tu escuela."
         />

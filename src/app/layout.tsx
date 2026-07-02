@@ -75,7 +75,7 @@ export default function RootLayout({
         <link
           rel="preload"
           as="image"
-          href="/images/fondoLanding.webp"
+          href="/images/fondoLanding_01.png"
           type="image/webp"
           media="(min-width: 961px)"
         />

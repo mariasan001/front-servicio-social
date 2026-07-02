@@ -1,0 +1,115 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+  padding: var(--space-4);
+  background-color: var(--color-stat-card-bg);
+  border: none;
+  border-radius: var(--radius-stat-card);
+  box-shadow:
+    0 1px 2px rgb(45 45 45 / 3%),
+    0 4px 16px rgb(45 45 45 / 5%);
+  transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow:
+    0 2px 4px rgb(45 45 45 / 4%),
+    0 8px 22px rgb(45 45 45 / 7%);
+}
+
+.card[data-tone="neutral"] {
+  --stat-icon-color: var(--color-gris-700);
+}
+
+.card[data-tone="success"] {
+  --stat-icon-color: var(--color-stat-success);
+}
+
+.card[data-tone="warning"] {
+  --stat-icon-color: var(--color-stat-warning);
+}
+
+.card[data-tone="danger"] {
+  --stat-icon-color: var(--color-stat-danger);
+}
+
+.card[data-tone="info"] {
+  --stat-icon-color: var(--color-stat-info);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.label {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: var(--line-height-tight);
+  color: var(--color-gris-500);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  color: var(--stat-icon-color);
+  background-color: var(--color-gris-100);
+  border-radius: 0.5rem;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.value {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.2vw, 1.75rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-gris-900);
+  letter-spacing: -0.03em;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-gris-500);
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

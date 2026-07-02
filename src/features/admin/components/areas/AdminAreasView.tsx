@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { CheckCircle2, LayoutGrid, Plus, Search } from "lucide-react";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import type { AreaResponse } from "../../types/area.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
@@ -16,6 +16,7 @@ import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
@@ -135,25 +136,15 @@ export function AdminAreasView({
     <section className={styles.page} aria-labelledby="admin-areas-title">
       <PageHeader
         titleId="admin-areas-title"
-        eyebrow="Administración"
         title="Áreas"
         description="Administra y consulta las áreas receptoras de cada dependencia y las personas titulares asignadas."
       />
 
-      <div className={styles.summaryRow} aria-live="polite">
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{areas.length}</span>
-          <span className={styles.summaryLabel}>Áreas registradas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{activasCount}</span>
-          <span className={styles.summaryLabel}>Áreas activas</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryValue}>{filteredAreas.length}</span>
-          <span className={styles.summaryLabel}>Coinciden con tu búsqueda</span>
-        </div>
-      </div>
+      <StatCards aria-live="polite">
+        <StatCard tone="neutral" icon={LayoutGrid} value={areas.length} label="Áreas registradas" />
+        <StatCard tone="success" icon={CheckCircle2} value={activasCount} label="Áreas activas" />
+        <StatCard tone="info" icon={Search} value={filteredAreas.length} label="Coinciden con tu búsqueda" />
+      </StatCards>
 
       <FilterBar
         actions={

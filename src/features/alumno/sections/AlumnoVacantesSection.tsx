@@ -14,7 +14,6 @@ export async function AlumnoVacantesSection() {
       <section aria-labelledby="alumno-vacantes-error-title">
         <PageHeader
           titleId="alumno-vacantes-error-title"
-          eyebrow="Alumno"
           title="Vacantes"
           description="Oportunidades disponibles para postularte."
         />

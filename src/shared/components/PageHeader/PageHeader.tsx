@@ -4,7 +4,6 @@ import styles from "./PageHeader.module.css";
 type PageHeaderProps = {
   title: ReactNode;
   description?: ReactNode;
-  eyebrow?: string;
   note?: ReactNode;
   titleId?: string;
   headingLevel?: 1 | 2;
@@ -18,7 +17,6 @@ function joinClassNames(...classes: (string | false | undefined)[]) {
 export function PageHeader({
   title,
   description,
-  eyebrow,
   note,
   titleId,
   headingLevel = 1,
@@ -28,12 +26,14 @@ export function PageHeader({
 
   return (
     <header className={joinClassNames(styles.header, className)}>
-      {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
-      <HeadingTag id={titleId} className={styles.title}>
-        {title}
-      </HeadingTag>
-      {description ? <p className={styles.description}>{description}</p> : null}
-      {note ? <p className={styles.note}>{note}</p> : null}
+      <div className={styles.headerBody}>
+        <HeadingTag id={titleId} className={styles.title}>
+          {title}
+        </HeadingTag>
+        {description ? <p className={styles.description}>{description}</p> : null}
+        {note ? <p className={styles.note}>{note}</p> : null}
+      </div>
+      <hr className={styles.divider} aria-hidden="true" />
     </header>
   );
 }

@@ -22,7 +22,6 @@ export async function AdminEscuelasSection() {
       <section aria-labelledby="admin-escuelas-error-title">
         <PageHeader
           titleId="admin-escuelas-error-title"
-          eyebrow="Administración"
           title="Escuelas"
           description="Consulta las instituciones educativas participantes y sus invitaciones de registro para alumnos."
         />

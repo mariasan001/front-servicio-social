@@ -16,7 +16,6 @@ export async function TitularPostulacionesSection() {
       <section aria-labelledby="titular-postulaciones-error-title">
         <PageHeader
           titleId="titular-postulaciones-error-title"
-          eyebrow="Titular de área"
           title="Postulaciones"
           description="Seguimiento de postulaciones."
         />

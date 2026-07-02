@@ -19,7 +19,6 @@ export function LandingInstitutions() {
         <LandingSectionHeader
           align="center"
           className={sectionStyles.headerPad}
-          eyebrow="Red universitaria"
           title={
             <>
               Instituciones registradas en la{" "}

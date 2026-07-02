@@ -88,7 +88,6 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
     <section className={styles.page} aria-labelledby="delegacion-vacantes-title">
       <PageHeader
         titleId="delegacion-vacantes-title"
-        eyebrow="Delegación"
         title="Vacantes"
         description="Consulta las vacantes del programa y gestiona su publicación, cierre o rechazo."
       />

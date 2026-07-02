@@ -30,7 +30,6 @@ export async function AdminAreasSection() {
       <section aria-labelledby="admin-areas-error-title">
         <PageHeader
           titleId="admin-areas-error-title"
-          eyebrow="Administración"
           title="Áreas"
           description="Administra y consulta las áreas receptoras de cada dependencia y las personas titulares asignadas."
         />

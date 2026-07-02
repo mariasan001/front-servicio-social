@@ -14,7 +14,7 @@ export async function DelegacionVacantesSection() {
   if ("error" in result) {
     return (
       <section aria-labelledby="delegacion-vacantes-error-title">
-        <PageHeader titleId="delegacion-vacantes-error-title" eyebrow="Delegación" title="Vacantes" description="Gestión y revisión de vacantes." />
+        <PageHeader titleId="delegacion-vacantes-error-title" title="Vacantes" description="Gestión y revisión de vacantes." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

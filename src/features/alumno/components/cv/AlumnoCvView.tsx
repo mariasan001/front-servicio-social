@@ -61,7 +61,6 @@ export function AlumnoCvView({ cv }: AlumnoCvViewProps) {
     <section className={styles.page} aria-labelledby="alumno-cv-title">
       <PageHeader
         titleId="alumno-cv-title"
-        eyebrow="Alumno"
         title="Mi CV"
         description="Mantén actualizada tu información profesional para tus postulaciones."
       />

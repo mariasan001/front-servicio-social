@@ -85,7 +85,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
 
   return (
     <AuthCard
-      eyebrow="Acceso"
       title={AUTH_COPY.loginTitle}
       subtitle={AUTH_COPY.loginSubtitle}
     >

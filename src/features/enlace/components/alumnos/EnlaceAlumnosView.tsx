@@ -89,7 +89,6 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
     <section className={styles.page} aria-labelledby="enlace-alumnos-title">
       <PageHeader
         titleId="enlace-alumnos-title"
-        eyebrow="Enlace escolar"
         title="Alumnos"
         description="Consulta los alumnos registrados y vinculados a tu escuela."
       />

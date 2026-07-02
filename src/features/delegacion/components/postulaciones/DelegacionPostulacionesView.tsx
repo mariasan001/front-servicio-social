@@ -52,7 +52,7 @@ export function DelegacionPostulacionesView({
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-postulaciones-title">
-      <PageHeader titleId="delegacion-postulaciones-title" eyebrow="Delegación" title="Postulaciones" description="Consulta el seguimiento de postulaciones de los alumnos." />
+      <PageHeader titleId="delegacion-postulaciones-title" title="Postulaciones" description="Consulta el seguimiento de postulaciones de los alumnos." />
       <FilterBar>
         <label className={styles.searchField}>
           <span className={styles.searchLabel}>Buscar</span>

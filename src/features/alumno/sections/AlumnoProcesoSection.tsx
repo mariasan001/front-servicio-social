@@ -63,7 +63,6 @@ export async function AlumnoProcesoSection() {
       <section aria-labelledby="alumno-proceso-error-title">
         <PageHeader
           titleId="alumno-proceso-error-title"
-          eyebrow="Alumno"
           title="Mi proceso"
           description="Seguimiento de tu servicio social."
         />

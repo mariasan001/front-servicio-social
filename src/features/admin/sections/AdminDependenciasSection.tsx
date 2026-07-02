@@ -22,7 +22,6 @@ export async function AdminDependenciasSection() {
       <section aria-labelledby="admin-dependencias-error-title">
         <PageHeader
           titleId="admin-dependencias-error-title"
-          eyebrow="Administración"
           title="Dependencias"
           description="Consulta las dependencias receptoras que participan en el programa de servicio social y residencia."
         />

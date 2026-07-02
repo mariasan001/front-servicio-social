@@ -183,7 +183,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
 
   return (
     <AuthCard
-      eyebrow="Registro de estudiantes"
       title={AUTH_COPY.registerTitle}
       subtitle={
         withToken

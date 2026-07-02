@@ -128,7 +128,6 @@ export function LandingTimeline() {
               tone="dark"
               className={styles.timelineHeader}
               copyClassName={styles.timelineCopy}
-              eyebrow="Proceso de participación"
               title={
                 <>
                   ¿Cómo <span className={headerStyles.titleAccent}>funciona</span>?

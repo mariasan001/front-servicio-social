@@ -23,7 +23,6 @@ export async function EnlaceInicioSection() {
       <section aria-labelledby="enlace-inicio-error-title">
         <PageHeader
           titleId="enlace-inicio-error-title"
-          eyebrow="Enlace escolar"
           title="Inicio"
           description="Resumen de alumnos y procesos de tu escuela."
         />

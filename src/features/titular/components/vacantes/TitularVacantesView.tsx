@@ -98,7 +98,6 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
     <section className={styles.page} aria-labelledby="titular-vacantes-title">
       <PageHeader
         titleId="titular-vacantes-title"
-        eyebrow="Titular de área"
         title="Vacantes"
         description="Crea vacantes, envíalas a revisión y da seguimiento a su estatus."
       />
