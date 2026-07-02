@@ -3,37 +3,34 @@ import { requireServerSession } from "@/lib/auth/session.server";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { TitularInicioView } from "../components/inicio/TitularInicioView";
+import { buildTitularInicioDashboardData } from "../components/inicio/titular-inicio.utils";
 import { listIncidencias } from "../services/incidencias.service";
 import { listPostulaciones } from "../services/postulaciones.service";
 import { listProcesos } from "../services/procesos.service";
 import { listVacantes } from "../services/vacantes.service";
 
-export async function TitularInicioSection() {
-  const result = await requireServerSession()
-    .then(async (session) => {
-      const [vacantes, postulaciones, procesos, incidencias] = await Promise.all([
-        listVacantes(),
-        listPostulaciones(),
-        listProcesos(),
-        listIncidencias(),
-      ]);
+async function loadTitularInicioPageData() {
+  const session = await requireServerSession();
+  const [vacantes, postulaciones, procesos, incidencias] = await Promise.all([
+    listVacantes(),
+    listPostulaciones(),
+    listProcesos(),
+    listIncidencias(),
+  ]);
 
-      return {
-        session,
-        stats: {
-          vacantes: vacantes.length,
-          postulaciones: postulaciones.length,
-          procesos: procesos.length,
-          incidencias: incidencias.length,
-        },
-      };
-    })
-    .catch((error: unknown) => ({
-      error: getApiErrorMessage(
-        error,
-        "No pudimos cargar el resumen. Verifica tu conexión e intenta recargar la página.",
-      ),
-    }));
+  return {
+    session,
+    dashboard: buildTitularInicioDashboardData(vacantes, postulaciones, procesos, incidencias),
+  };
+}
+
+export async function TitularInicioSection() {
+  const result = await loadTitularInicioPageData().catch((error: unknown) => ({
+    error: getApiErrorMessage(
+      error,
+      "No pudimos cargar el resumen. Verifica tu conexión e intenta recargar la página.",
+    ),
+  }));
 
   if ("error" in result) {
     return (
@@ -41,12 +38,12 @@ export async function TitularInicioSection() {
         <PageHeader
           titleId="titular-inicio-error-title"
           title="Inicio"
-          description="Resumen de tu área."
+          description="Resumen visual de vacantes, postulaciones y procesos de tu área."
         />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );
   }
 
-  return <TitularInicioView session={result.session} stats={result.stats} />;
+  return <TitularInicioView session={result.session} dashboard={result.dashboard} />;
 }

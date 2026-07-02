@@ -1,5 +1,6 @@
 "use client";
 
+import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
@@ -7,15 +8,18 @@ import {
   getVacanteDetailAction,
   sendVacanteToReviewAction,
 } from "../../actions/vacantes.actions";
+import { getModalidadTrabajoLabel } from "../../constants/vacante-form";
 import type { VacanteResponse } from "../../types/titular.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { CupoMeter } from "@/shared/components/CupoMeter";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import vacanteStyles from "./TitularVacanteDetailModal.module.css";
 
 type TitularVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -82,6 +86,11 @@ export function TitularVacanteDetailModal({
     refresh();
   };
 
+  const folio = detail?.folio?.trim();
+  const areaNombre = detail?.areaNombre?.trim();
+  const descripcion = detail?.descripcion?.trim();
+  const perfilRequerido = detail?.perfilRequerido?.trim();
+
   return (
     <Modal
       open={open}
@@ -90,21 +99,31 @@ export function TitularVacanteDetailModal({
       size="lg"
       footer={
         detail ? (
-          <div className={styles.modalFooter}>
+          <div className={styles.footer}>
             {canEdit ? (
-              <Button type="button" variant="outline" onClick={() => onEdit(detail)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onEdit(detail)}
+                disabled={isMutating}
+              >
                 Editar vacante
               </Button>
             ) : null}
             {canSendReview ? (
-              <Button type="button" disabled={isMutating} onClick={() => void runMutation("review")}>
-                Enviar a revisión
+              <Button
+                type="button"
+                disabled={isMutating}
+                onClick={() => void runMutation("review")}
+              >
+                {isMutating ? "Procesando…" : "Enviar a revisión"}
               </Button>
             ) : null}
             {canCancel ? (
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
+                className={styles.dangerButton}
                 disabled={isMutating}
                 onClick={() => void runMutation("cancel")}
               >
@@ -115,38 +134,91 @@ export function TitularVacanteDetailModal({
         ) : undefined
       }
     >
-      {isLoading && !detail ? <LoadingState label="Cargando vacante…" /> : null}
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       {detail ? (
-        <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(detail.estatus)}>
-            {formatEtiqueta(detail.estatus, "Sin estatus")}
-          </StatusBadge>
-          <dl className={styles.detailGrid}>
-            <div className={styles.detailItem}>
-              <dt>Folio</dt>
-              <dd>{detail.folio?.trim() || "Sin folio"}</dd>
+        <div
+          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          aria-busy={isReloading}
+        >
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <Briefcase size={18} strokeWidth={1.75} />
             </div>
-            <div className={styles.detailItem}>
-              <dt>Ãrea</dt>
-              <dd>{detail.areaNombre?.trim() || "Sin área"}</dd>
+
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>
+                {areaNombre || "Sin área asignada"}
+              </p>
+              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
             </div>
-            <div className={styles.detailItem}>
-              <dt>Cupo</dt>
-              <dd>
-                {detail.cupoDisponible ?? "—"} disponibles de {detail.cupoTotal ?? "—"}
-              </dd>
+
+            <StatusBadge tone={estatusTone(detail.estatus)}>
+              {formatEtiqueta(detail.estatus, "Sin estatus")}
+            </StatusBadge>
+          </div>
+
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <dt>Folio</dt>
+                <dd>{folio || "Sin folio registrado"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Área</dt>
+                <dd>{areaNombre || "Sin área asignada"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Modalidad de trabajo</dt>
+                <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Examen requerido</dt>
+                <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Cupo</dt>
+                <dd>
+                  <CupoMeter
+                    variant="detail"
+                    disponible={detail.cupoDisponible}
+                    total={detail.cupoTotal}
+                  />
+                </dd>
+              </div>
+            </dl>
+
+            <div className={vacanteStyles.narrativeBlock}>
+              <p className={vacanteStyles.narrativeLabel}>Descripción</p>
+              <p
+                className={[
+                  vacanteStyles.narrativeValue,
+                  !descripcion && vacanteStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {descripcion || "Sin descripción registrada."}
+              </p>
             </div>
-            <div className={styles.detailItem}>
-              <dt>Examen requerido</dt>
-              <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
+
+            <div className={vacanteStyles.narrativeBlock}>
+              <p className={vacanteStyles.narrativeLabel}>Perfil requerido</p>
+              <p
+                className={[
+                  vacanteStyles.narrativeValue,
+                  !perfilRequerido && vacanteStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {perfilRequerido || "Sin perfil registrado."}
+              </p>
             </div>
-          </dl>
-          {detail.descripcion ? (
-            <p className={styles.detailLead}>{detail.descripcion}</p>
-          ) : null}
+          </div>
         </div>
       ) : null}
     </Modal>

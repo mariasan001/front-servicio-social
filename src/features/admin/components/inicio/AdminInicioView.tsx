@@ -3,7 +3,7 @@ import type { AuthUser } from "@/lib/api/types";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import dashStyles from "./AdminInicioDashboard.module.css";
+import dashStyles from "@/shared/styles/PanelDashboard.module.css";
 import type {
   AdminInicioDashboardData,
   ConvenioBreakdown,

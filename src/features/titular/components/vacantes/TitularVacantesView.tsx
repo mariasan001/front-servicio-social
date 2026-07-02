@@ -8,6 +8,7 @@ import { TitularVacanteDetailModal } from "./TitularVacanteDetailModal";
 import { TitularVacanteFormModal } from "./TitularVacanteFormModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
+import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -74,7 +75,14 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
     {
       id: "cupo",
       header: "Cupo",
-      cell: (vacante) => `${vacante.cupoDisponible ?? "—"} / ${vacante.cupoTotal ?? "—"}`,
+      width: "12%",
+      cell: (vacante) => (
+        <CupoMeter
+          variant="compact"
+          disponible={vacante.cupoDisponible}
+          total={vacante.cupoTotal}
+        />
+      ),
     },
     {
       id: "acciones",
