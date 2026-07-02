@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   cancelVacanteAction,
@@ -36,7 +36,7 @@ export function TitularVacanteDetailModal({
   onClose,
   onEdit,
 }: TitularVacanteDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -130,7 +130,7 @@ export function TitularVacanteDetailModal({
               <dd>{detail.folio?.trim() || "Sin folio"}</dd>
             </div>
             <div className={styles.detailItem}>
-              <dt>Área</dt>
+              <dt>Ãrea</dt>
               <dd>{detail.areaNombre?.trim() || "Sin área"}</dd>
             </div>
             <div className={styles.detailItem}>

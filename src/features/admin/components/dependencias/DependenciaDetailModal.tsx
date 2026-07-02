@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   activateDependenciaAction,
@@ -14,8 +14,8 @@ import dependenciaStyles from "./DependenciaDetailModal.module.css";
 import { areaStatusLabel, areaStatusTone, formatFecha } from "../areas/area-labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
@@ -33,7 +33,7 @@ export function DependenciaDetailModal({
   open,
   onClose,
 }: DependenciaDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -115,7 +115,7 @@ export function DependenciaDetailModal({
         }
       >
         {isLoading ? (
-          <LoadingState label="Cargando información de la dependencia…" />
+          <EntityDetailModalSkeleton sections={1} />
         ) : null}
 
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}

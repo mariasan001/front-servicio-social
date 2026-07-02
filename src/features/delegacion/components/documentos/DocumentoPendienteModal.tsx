@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
@@ -27,7 +27,7 @@ export function DocumentoPendienteModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const documentoRef = useRef(documento);
   documentoRef.current = documento;
   const [comentario, setComentario] = useState("");

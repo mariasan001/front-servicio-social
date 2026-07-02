@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   activateUsuarioInternoAction,
@@ -14,7 +14,9 @@ import { UsuarioFormModal } from "./UsuarioFormModal";
 import {
   formatFecha,
   formatRol,
+  formatRoles,
   formatSiNo,
+  formatUsername,
   usuarioActivoLabel,
   usuarioActivoTone,
 } from "./usuario-labels";
@@ -22,9 +24,9 @@ import styles from "@/shared/styles/EntityDetailModal.module.css";
 import usuarioStyles from "./UsuarioDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { PasswordInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
@@ -43,7 +45,7 @@ export function UsuarioDetailModal({
   escuelas,
   onClose,
 }: UsuarioDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -159,7 +161,7 @@ export function UsuarioDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? <LoadingState label="Cargando información del usuario…" /> : null}
+        {isLoading ? <EntityDetailModalSkeleton sections={2} /> : null}
 
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
 
@@ -171,9 +173,11 @@ export function UsuarioDetailModal({
               </div>
 
               <div className={styles.summaryMeta}>
-                <p className={styles.summaryPrimary}>@{detail.username}</p>
+                <p className={styles.summaryPrimary}>
+                  {detail.cargo?.trim() || formatRoles(detail.roles)}
+                </p>
                 <p className={styles.summarySecondary}>
-                  {detail.cargo?.trim() || "Usuario interno"}
+                  {formatUsername(detail.username)}
                 </p>
               </div>
 
@@ -184,6 +188,10 @@ export function UsuarioDetailModal({
 
             <div className={styles.infoPanel}>
               <dl className={styles.infoGrid}>
+                <div className={styles.infoItem}>
+                  <dt>Usuario de acceso</dt>
+                  <dd>{formatUsername(detail.username)}</dd>
+                </div>
                 <div className={styles.infoItem}>
                   <dt>Correo electrónico</dt>
                   <dd>{detail.correo}</dd>
@@ -213,7 +221,7 @@ export function UsuarioDetailModal({
                   Perfiles asignados
                 </h3>
                 <p className={styles.sectionDescription}>
-                  Áreas del sistema a las que esta persona tiene acceso.
+                  Roles y permisos asignados a esta cuenta.
                 </p>
               </div>
 

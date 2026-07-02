@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState, type FormEvent } from "react";
 import { createAreaAction, updateAreaAction } from "../../actions/areas.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
@@ -69,7 +69,7 @@ function AreaFormModalContent({
   onClose,
   onSuccess,
 }: Omit<AreaFormModalProps, "open">) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, area, dependencias));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},

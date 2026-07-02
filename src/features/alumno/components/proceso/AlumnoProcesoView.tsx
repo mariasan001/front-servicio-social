@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useRef, useState } from "react";
 import { Clock, Target, TrendingUp } from "lucide-react";
 import {
@@ -58,7 +58,7 @@ export function AlumnoProcesoView({
   cartas,
   incidencias,
 }: AlumnoProcesoViewProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [nuevaHora, setNuevaHora] = useState({
@@ -194,7 +194,7 @@ export function AlumnoProcesoView({
             <dd>{proceso.vacanteNombre?.trim() || "Sin vacante"}</dd>
           </div>
           <div className={styles.detailItem}>
-            <dt>Área</dt>
+            <dt>Ãrea</dt>
             <dd>{proceso.areaNombre?.trim() || "Sin área"}</dd>
           </div>
           <div className={styles.detailItem}>

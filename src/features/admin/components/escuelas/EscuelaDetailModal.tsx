@@ -1,7 +1,7 @@
 "use client";
 
 import { GraduationCap, Link2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   generateEscuelaTokenAction,
@@ -21,8 +21,8 @@ import escuelaStyles from "./EscuelaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, TextInput } from "@/shared/components/Form";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
@@ -44,7 +44,7 @@ export function EscuelaDetailModal({
   open,
   onClose,
 }: EscuelaDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -159,7 +159,7 @@ export function EscuelaDetailModal({
         }
       >
         {isLoading ? (
-          <LoadingState label="Cargando información de la escuela…" />
+          <EntityDetailModalSkeleton sections={2} />
         ) : null}
 
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}

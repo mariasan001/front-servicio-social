@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import {
@@ -26,7 +26,7 @@ export function AlumnoNotificacionesView({
   notificaciones: NotificacionResponse[];
   totalElements: number;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [search, setSearch] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);

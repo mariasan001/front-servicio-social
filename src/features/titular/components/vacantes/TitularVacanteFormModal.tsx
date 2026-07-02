@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState, type FormEvent } from "react";
 import type { TitularAreaContext } from "../../lib/area-context";
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
@@ -63,7 +63,7 @@ function VacanteFormModalContent({
   areaContext,
   onClose,
 }: Omit<VacanteFormModalProps, "open">) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, vacante));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -146,7 +146,7 @@ function VacanteFormModalContent({
       ) : null}
       {areaContext ? (
         <p className={detailStyles.detailLead}>
-          Área: <strong>{areaContext.areaNombre ?? `#${areaContext.areaId}`}</strong>
+          Ãrea: <strong>{areaContext.areaNombre ?? `#${areaContext.areaId}`}</strong>
         </p>
       ) : null}
 

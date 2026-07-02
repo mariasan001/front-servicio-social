@@ -135,7 +135,7 @@ export function PanelSidebar({
           </span>
           <div className={styles.userInfo}>
             <span className={styles.userName}>{user.nombreCompleto}</span>
-            <span className={styles.userMeta}>@{user.username}</span>
+            <span className={styles.userMeta}>{user.username.replace(/^@+/, "")}</span>
           </div>
         </div>
         <LogoutButton className={styles.logoutButton} />

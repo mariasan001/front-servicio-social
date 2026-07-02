@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { type FormEvent, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
 import type { CvResponse } from "../../types/alumno.types";
@@ -17,7 +17,7 @@ type AlumnoCvViewProps = {
 };
 
 export function AlumnoCvView({ cv }: AlumnoCvViewProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [form, setForm] = useState({
     perfilProfesional: cv.perfilProfesional ?? "",
     experienciaLaboral: cv.experienciaLaboral ?? "",

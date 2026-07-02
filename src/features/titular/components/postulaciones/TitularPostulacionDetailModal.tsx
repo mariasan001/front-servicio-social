@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   acceptPostulacionAction,
@@ -28,7 +28,7 @@ export function TitularPostulacionDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
@@ -32,7 +32,7 @@ export function AlumnoVacanteDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [comentario, setComentario] = useState("");
@@ -91,7 +91,7 @@ export function AlumnoVacanteDetailModal({
           </StatusBadge>
           <dl className={styles.detailGrid}>
             <div className={styles.detailItem}>
-              <dt>Área</dt>
+              <dt>Ãrea</dt>
               <dd>{detail.areaNombre?.trim() || "Sin área"}</dd>
             </div>
             <div className={styles.detailItem}>

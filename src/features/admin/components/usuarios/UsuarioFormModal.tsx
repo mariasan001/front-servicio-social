@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useMemo, useState, type FormEvent } from "react";
 import { USER_ROLES, type UserRole } from "@/lib/auth/constants";
 import {
@@ -102,7 +102,7 @@ function UsuarioFormModalContent({
   onClose,
   onSuccess,
 }: Omit<UsuarioFormModalProps, "open">) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, usuario));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);

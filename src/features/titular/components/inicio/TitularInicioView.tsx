@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Briefcase, ClipboardList, FileText, Shield } from "lucide-react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
-import { PageHeader } from "@/shared/components/PageHeader";
+import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
@@ -63,7 +63,7 @@ export function TitularInicioView({ session, stats }: TitularInicioViewProps) {
     <section className={styles.page} aria-labelledby="titular-inicio-title">
       <PageHeader
         titleId="titular-inicio-title"
-        title={`Hola, ${firstName}`}
+        title={<PageGreeting name={firstName} />}
         description="Gestiona las vacantes, postulaciones y procesos de servicio social en tu área."
       />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useRef, useState } from "react";
 import {
   cancelProcesoHoraAction,
@@ -28,7 +28,7 @@ export function HoraPendienteModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const horaRef = useRef(hora);
   horaRef.current = hora;
   const [comentario, setComentario] = useState("");

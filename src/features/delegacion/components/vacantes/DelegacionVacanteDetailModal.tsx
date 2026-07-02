@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   closeVacanteAction,
@@ -36,7 +36,7 @@ export function DelegacionVacanteDetailModal({
   open,
   onClose,
 }: DelegacionVacanteDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoRechazo, setMotivoRechazo] = useState("");

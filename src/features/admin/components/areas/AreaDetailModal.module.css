@@ -29,6 +29,16 @@
   border-radius: 999px;
 }
 
+.assignForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  background-color: rgb(250 250 250 / 80%);
+  border: 1px solid rgb(240 240 240 / 95%);
+  border-radius: 0.5rem;
+}
+
 .assignRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -69,12 +79,27 @@
 
 .titularRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.375rem 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.5rem 0.75rem;
   align-items: center;
-  padding: 0.5625rem 0.75rem;
+  padding: 0.625rem 0.75rem;
   background-color: rgb(252 252 252 / 50%);
   border-bottom: 1px solid rgb(244 244 244 / 95%);
+}
+
+.titularAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-vino);
+  background: linear-gradient(145deg, rgb(107 35 64 / 10%) 0%, rgb(184 149 106 / 12%) 100%);
+  border: 1px solid rgb(107 35 64 / 12%);
+  border-radius: 50%;
 }
 
 .titularRow:last-child {
@@ -106,6 +131,9 @@
 }
 
 .titularMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 300;
@@ -135,10 +163,11 @@
   }
 
   .titularRow {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
   }
 
   .titularActions {
+    grid-column: 1 / -1;
     justify-content: flex-start;
   }
 }

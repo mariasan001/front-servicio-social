@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState, type FormEvent } from "react";
 import {
   createDependenciaAction,
@@ -57,7 +57,7 @@ function DependenciaFormModalContent({
   onClose,
   onSuccess,
 }: Omit<DependenciaFormModalProps, "open">) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, dependencia));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},

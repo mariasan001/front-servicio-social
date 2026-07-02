@@ -6,7 +6,7 @@ import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { PageHeader } from "@/shared/components/PageHeader";
+import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -80,7 +80,7 @@ export function AlumnoInicioView({
     <section className={styles.page} aria-labelledby="alumno-inicio-title">
       <PageHeader
         titleId="alumno-inicio-title"
-        title={`Hola, ${firstName}`}
+        title={<PageGreeting name={firstName} />}
         description="Resumen de tu participación en servicio social o residencia profesional."
       />
 

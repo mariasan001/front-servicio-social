@@ -1,0 +1,16 @@
+.skeleton {
+  display: block;
+  line-height: 1;
+}
+
+.skeletonContainer {
+  display: block;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeletonContainer :global(.react-loading-skeleton) {
+    animation: none !important;
+  }
+}

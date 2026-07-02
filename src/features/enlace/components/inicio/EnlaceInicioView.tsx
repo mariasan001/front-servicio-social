@@ -5,7 +5,7 @@ import { Activity, BarChart3, FileText, GraduationCap } from "lucide-react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import type { DashboardResumenResponse } from "../../types/enlace.types";
-import { PageHeader } from "@/shared/components/PageHeader";
+import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
@@ -49,7 +49,7 @@ export function EnlaceInicioView({ session, resumen }: EnlaceInicioViewProps) {
     <section className={styles.page} aria-labelledby="enlace-inicio-title">
       <PageHeader
         titleId="enlace-inicio-title"
-        title={`Hola, ${firstName}`}
+        title={<PageGreeting name={firstName} />}
         description="Resumen de alumnos y procesos de servicio social en tu institución."
       />
 

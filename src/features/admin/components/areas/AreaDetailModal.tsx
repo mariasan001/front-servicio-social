@@ -1,7 +1,7 @@
 "use client";
 
-import { LayoutGrid } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { LayoutGrid, Mail } from "lucide-react";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   activateAreaAction,
@@ -18,8 +18,8 @@ import areaStyles from "./AreaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, SelectInput } from "@/shared/components/Form";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
@@ -49,7 +49,7 @@ export function AreaDetailModal({
   titularesDisponibles,
   onClose,
 }: AreaDetailModalProps) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -205,7 +205,7 @@ export function AreaDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? <LoadingState label="Cargando información del área…" /> : null}
+        {isLoading ? <EntityDetailModalSkeleton sections={2} /> : null}
 
         {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
 
@@ -283,36 +283,38 @@ export function AreaDetailModal({
 
               {assignError ? <Alert tone="error">{assignError}</Alert> : null}
 
-              <div className={areaStyles.assignRow}>
-                <SelectInput
-                  id="area-titular-select"
-                  label="Persona titular"
-                  placeholder="Selecciona una persona"
-                  value={selectedTitularId}
-                  onChange={(event) => setSelectedTitularId(event.target.value)}
-                >
-                  {titularesDisponibles.map((usuario) => (
-                    <option key={usuario.idUsuario} value={usuario.idUsuario}>
-                      {usuario.nombreCompleto}
-                    </option>
-                  ))}
-                </SelectInput>
+              <div className={areaStyles.assignForm}>
+                <div className={areaStyles.assignRow}>
+                  <SelectInput
+                    id="area-titular-select"
+                    label="Persona titular"
+                    placeholder="Selecciona una persona"
+                    value={selectedTitularId}
+                    onChange={(event) => setSelectedTitularId(event.target.value)}
+                  >
+                    {titularesDisponibles.map((usuario) => (
+                      <option key={usuario.idUsuario} value={usuario.idUsuario}>
+                        {usuario.nombreCompleto}
+                      </option>
+                    ))}
+                  </SelectInput>
 
-                <Button
-                  type="button"
-                  onClick={() => void handleAssignTitular()}
-                  disabled={isMutating || titularesDisponibles.length === 0}
-                >
-                  Asignar
-                </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void handleAssignTitular()}
+                    disabled={isMutating || titularesDisponibles.length === 0}
+                  >
+                    Asignar
+                  </Button>
+                </div>
+
+                <CheckboxField
+                  id="area-titular-principal"
+                  label="Marcar como responsable principal"
+                  checked={esPrincipal}
+                  onChange={setEsPrincipal}
+                />
               </div>
-
-              <CheckboxField
-                id="area-titular-principal"
-                label="Marcar como responsable principal"
-                checked={esPrincipal}
-                onChange={setEsPrincipal}
-              />
 
               {titularesActivos.length === 0 ? (
                 <p className={areaStyles.emptyTitulares}>
@@ -322,6 +324,15 @@ export function AreaDetailModal({
                 <ul className={areaStyles.titularList}>
                   {titularesActivos.map((titular) => (
                     <li key={titular.idAsignacion} className={areaStyles.titularRow}>
+                      <span className={areaStyles.titularAvatar} aria-hidden="true">
+                        {(titular.nombreCompleto ?? "?")
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((part) => part[0]?.toUpperCase() ?? "")
+                          .join("")}
+                      </span>
+
                       <div className={areaStyles.titularMain}>
                         <div className={areaStyles.titularTop}>
                           <span className={areaStyles.titularName}>
@@ -335,7 +346,8 @@ export function AreaDetailModal({
                           </StatusBadge>
                         </div>
                         <p className={areaStyles.titularMeta}>
-                          {titular.correo ?? "Sin correo registrado"}
+                          <Mail size={12} strokeWidth={1.75} aria-hidden="true" />
+                          <span>{titular.correo ?? "Sin correo registrado"}</span>
                         </p>
                       </div>
 

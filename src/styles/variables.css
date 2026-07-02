@@ -115,6 +115,10 @@
   --color-stat-card-bg: var(--color-white);
   --color-stat-card-border: rgb(236 236 236 / 95%);
 
+  /* Skeleton */
+  --skeleton-base: var(--color-gris-100);
+  --skeleton-highlight: #ffffff;
+
   /* Panel — navegación lateral */
   --color-panel-nav-text: rgb(255 255 255 / 92%);
   --color-panel-nav-text-muted: rgb(255 255 255 / 64%);

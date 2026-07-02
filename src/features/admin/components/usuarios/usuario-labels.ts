@@ -16,6 +16,10 @@ const ROLE_LABELS: Record<string, string> = {
   ALUMNO: "Alumno",
 };
 
+export function formatUsername(username: string) {
+  return username.trim().replace(/^@+/, "");
+}
+
 export function formatRol(rol: string) {
   const trimmed = rol.trim();
   const withPrefix = trimmed.startsWith("ROLE_") ? trimmed : `ROLE_${trimmed}`;

@@ -1,0 +1,11 @@
+.greeting {
+  display: inline;
+}
+
+.prefix {
+  font-weight: 300;
+}
+
+.name {
+  font-weight: 800;
+}

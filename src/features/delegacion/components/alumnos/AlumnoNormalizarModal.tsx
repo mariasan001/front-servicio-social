@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useEffect, useState } from "react";
 import {
   createEscuelaAndNormalizeAlumnoAction,
@@ -27,7 +27,7 @@ function AlumnoNormalizarModalContent({
   escuelas: EscuelaResponse[];
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const router = usePanelRouter();
   const [cvLoading, setCvLoading] = useState(true);
   const [cvSummary, setCvSummary] = useState<string | null>(null);
   const [escuelaId, setEscuelaId] = useState(escuelas[0] ? String(escuelas[0].idEscuela) : "");

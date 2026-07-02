@@ -1,6 +1,6 @@
 import { Building2, CircleOff, FileCheck2, Layers, School, TimerOff, Users } from "lucide-react";
 import type { AuthUser } from "@/lib/api/types";
-import { PageHeader } from "@/shared/components/PageHeader";
+import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import dashStyles from "./AdminInicioDashboard.module.css";
@@ -249,7 +249,7 @@ export function AdminInicioView({ session, dashboard }: AdminInicioViewProps) {
     <section className={`${styles.page} ${dashStyles.inicioPage}`} aria-labelledby="admin-inicio-title">
       <PageHeader
         titleId="admin-inicio-title"
-        title={`Hola, ${firstName}`}
+        title={<PageGreeting name={firstName} />}
         description="Panel de administración con el resumen visual del catálogo institucional y el estado operativo del programa."
       />
 

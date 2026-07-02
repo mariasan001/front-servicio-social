@@ -1,0 +1,1 @@
+export { EntityDetailModalSkeleton } from "./EntityDetailModalSkeleton";
