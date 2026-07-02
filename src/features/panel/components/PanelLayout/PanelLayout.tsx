@@ -6,8 +6,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/lib/api/types";
 import type { UserRole } from "@/lib/auth/constants";
 import { getAccessibleNavigations, getNavigationForRole } from "../../constants/navigation";
-import { PanelRefreshProvider, usePanelRefresh } from "../PanelRefresh/PanelRefreshProvider";
-import { PanelSectionSkeleton } from "../PanelSectionSkeleton/PanelSectionSkeleton";
 import { PanelSidebar } from "../PanelSidebar/PanelSidebar";
 import styles from "./PanelLayout.module.css";
 
@@ -18,18 +16,7 @@ type PanelLayoutProps = {
 };
 
 export function PanelLayout({ user, role, children }: PanelLayoutProps) {
-  return (
-    <PanelRefreshProvider>
-      <PanelLayoutShell user={user} role={role}>
-        {children}
-      </PanelLayoutShell>
-    </PanelRefreshProvider>
-  );
-}
-
-function PanelLayoutShell({ user, role, children }: PanelLayoutProps) {
   const pathname = usePathname();
-  const { isRefreshing } = usePanelRefresh();
   const contentRef = useRef<HTMLDivElement>(null);
   const navigation = getNavigationForRole(role);
   const accessibleNavigations = getAccessibleNavigations(user.roles);
@@ -110,17 +97,8 @@ function PanelLayoutShell({ user, role, children }: PanelLayoutProps) {
           </header>
 
           <main className={styles.content} id="main">
-            <div
-              ref={contentRef}
-              className={styles.contentInner}
-              aria-busy={isRefreshing}
-            >
-              <div className={isRefreshing ? styles.contentBusy : undefined}>{children}</div>
-              {isRefreshing ? (
-                <div className={styles.skeletonOverlay} aria-hidden="true">
-                  <PanelSectionSkeleton />
-                </div>
-              ) : null}
+            <div ref={contentRef} className={styles.contentInner}>
+              <div className={styles.contentBody}>{children}</div>
             </div>
           </main>
         </div>

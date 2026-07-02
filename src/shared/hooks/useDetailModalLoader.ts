@@ -20,6 +20,7 @@ export function useDetailModalLoader<T>(
   const [isLoading, setIsLoading] = useState(false);
   const loadRef = useRef(load);
   const onBeforeLoadRef = useRef(onBeforeLoad);
+  const previousIdRef = useRef<number | null>(null);
 
   loadRef.current = load;
   onBeforeLoadRef.current = onBeforeLoad;
@@ -30,13 +31,18 @@ export function useDetailModalLoader<T>(
     }
 
     const selectedId = id;
+    const isIdChange = previousIdRef.current !== selectedId;
+    previousIdRef.current = selectedId;
     let cancelled = false;
 
     async function fetchDetail() {
       setIsLoading(true);
       setError(null);
-      setDetail(null);
-      onBeforeLoadRef.current?.();
+
+      if (isIdChange) {
+        setDetail(null);
+        onBeforeLoadRef.current?.();
+      }
 
       const result = await loadRef.current(selectedId);
 
@@ -60,12 +66,15 @@ export function useDetailModalLoader<T>(
     };
   }, [open, id, reloadKey]);
 
+  const isReloading = isLoading && detail !== null;
+
   return {
     detail,
     setDetail,
     error,
     setError,
     isLoading,
+    isReloading,
     setIsLoading,
   };
 }

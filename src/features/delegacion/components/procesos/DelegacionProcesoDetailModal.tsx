@@ -60,7 +60,7 @@ export function DelegacionProcesoDetailModal({ procesoId, open, onClose }: Deleg
   });
   const cartaAceptacionInput = useRef<HTMLInputElement | null>(null);
   const cartaLiberacionInput = useRef<HTMLInputElement | null>(null);
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     procesoId,
     getProcesoDetailAction,
@@ -193,8 +193,8 @@ export function DelegacionProcesoDetailModal({ procesoId, open, onClose }: Deleg
       onClose={onClose}
       size="lg"
     >
-      {isLoading ? <LoadingState label="Cargando proceso…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando proceso…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       {!isLoading && proceso ? (

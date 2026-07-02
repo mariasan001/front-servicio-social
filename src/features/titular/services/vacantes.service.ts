@@ -8,6 +8,41 @@ import type {
   VacanteResponse,
 } from "../types/titular.types";
 
+type CreateVacanteBody = Omit<CrearVacanteRequest, "areaId" | "modalidadId"> & {
+  areaId?: number;
+  modalidadId?: string;
+};
+
+function buildCreateVacanteBody(request: CreateVacanteBody) {
+  const body: Record<string, unknown> = {
+    nombre: request.nombre,
+    descripcion: request.descripcion,
+    modalidadTrabajo: request.modalidadTrabajo,
+    cupoTotal: request.cupoTotal,
+  };
+
+  if (request.areaId) {
+    body.areaId = request.areaId;
+  }
+
+  if (request.modalidadId) {
+    body.modalidadId = request.modalidadId;
+  }
+
+  if (request.perfilRequerido) body.perfilRequerido = request.perfilRequerido;
+  if (request.nivelEducativo) body.nivelEducativo = request.nivelEducativo;
+  if (request.tipoHorario) body.tipoHorario = request.tipoHorario;
+  if (request.diasDisponibles) body.diasDisponibles = request.diasDisponibles;
+  if (request.horario) body.horario = request.horario;
+  if (request.direccion) body.direccion = request.direccion;
+  if (request.requiereExamen !== undefined) body.requiereExamen = request.requiereExamen;
+  if (request.requisitos?.length) body.requisitos = request.requisitos;
+  if (request.actividades?.length) body.actividades = request.actividades;
+  if (request.beneficios?.length) body.beneficios = request.beneficios;
+
+  return body;
+}
+
 export async function listVacantes(filters?: ListVacantesFilters) {
   const response = await serverApiRequest<VacanteResponse[]>(
     `/api/titular/vacantes${buildQuery(filters)}`,
@@ -30,10 +65,10 @@ export async function getVacante(idVacante: number) {
   return response.data;
 }
 
-export async function createVacante(request: CrearVacanteRequest) {
+export async function createVacante(request: CreateVacanteBody) {
   const response = await serverApiRequest<VacanteDetalleResponse>(
     "/api/titular/vacantes",
-    { method: "POST", body: request },
+    { method: "POST", body: buildCreateVacanteBody(request) },
   );
 
   if (!response.data) {

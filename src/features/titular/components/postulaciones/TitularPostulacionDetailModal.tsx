@@ -35,7 +35,7 @@ export function TitularPostulacionDetailModal({
   const [comentario, setComentario] = useState("");
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [resultadoExamen, setResultadoExamen] = useState("");
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     postulacionId,
     getPostulacionDetailAction,
@@ -64,11 +64,11 @@ export function TitularPostulacionDetailModal({
       onClose={onClose}
       size="lg"
     >
-      {isLoading ? <LoadingState label="Cargando postulación…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando postulación…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-      {!isLoading && detail ? (
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>
             {formatEtiqueta(detail.estatus)}

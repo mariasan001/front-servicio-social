@@ -69,6 +69,16 @@ export type IncidenciaDetalleResponse = IncidenciaResponse & {
   fechaIncidencia?: string;
 };
 
+export type TitularAreaAsignacionResponse = {
+  idArea: number;
+  areaNombre?: string;
+  nombre?: string;
+  dependenciaNombre?: string;
+  esPrincipal?: boolean;
+  vigente?: boolean;
+  modalidadId?: string;
+};
+
 export type ListVacantesFilters = {
   estatus?: string;
   areaId?: number;

@@ -33,7 +33,7 @@ export function DelegacionIncidenciaDetailModal({
   const [resolucion, setResolucion] = useState("");
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     incidenciaId,
     getIncidenciaDetailAction,
@@ -46,10 +46,10 @@ export function DelegacionIncidenciaDetailModal({
 
   return (
     <Modal open={open} title={`Incidencia #${incidenciaId ?? ""}`} onClose={onClose} size="lg">
-      {isLoading ? <LoadingState label="Cargando incidencia…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando incidencia…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-      {!isLoading && detail ? (
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
           <dl className={styles.detailGrid}>

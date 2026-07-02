@@ -72,7 +72,10 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
   ];
 
   return (
-    <section className={styles.page} aria-labelledby="enlace-reportes-title">
+    <section
+      className={`${styles.page} ${reporte.length === 0 ? styles.pageTableFill : ""}`.trim()}
+      aria-labelledby="enlace-reportes-title"
+    >
       <PageHeader
         titleId="enlace-reportes-title"
         title="Reportes"

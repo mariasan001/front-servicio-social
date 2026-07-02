@@ -36,7 +36,7 @@ export function AlumnoVacanteDetailModal({
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [comentario, setComentario] = useState("");
-  const { detail, error, isLoading } = useDetailModalLoader(open, vacanteId, getVacanteDetailAction, {
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(open, vacanteId, getVacanteDetailAction, {
     onBeforeLoad: () => {
       setActionError(null);
       setComentario("");
@@ -80,11 +80,11 @@ export function AlumnoVacanteDetailModal({
         ) : null
       }
     >
-      {isLoading ? <LoadingState label="Cargando vacante…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando vacante…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-      {!isLoading && detail ? (
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>
             {formatEtiqueta(detail.estatus)}

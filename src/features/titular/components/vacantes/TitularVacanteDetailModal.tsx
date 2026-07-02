@@ -40,7 +40,7 @@ export function TitularVacanteDetailModal({
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     vacanteId,
     getVacanteDetailAction,
@@ -115,11 +115,11 @@ export function TitularVacanteDetailModal({
         ) : undefined
       }
     >
-      {isLoading ? <LoadingState label="Cargando vacante…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando vacante…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-      {!isLoading && detail ? (
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>
             {formatEtiqueta(detail.estatus, "Sin estatus")}

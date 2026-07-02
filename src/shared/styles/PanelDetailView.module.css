@@ -4,6 +4,21 @@
   gap: var(--space-6);
 }
 
+.detailLayoutBusy {
+  position: relative;
+  pointer-events: none;
+}
+
+.detailLayoutBusy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(255 255 255 / 72%);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
 .detailSummary {
   display: flex;
   flex-direction: column;

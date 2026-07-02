@@ -12,6 +12,8 @@ import {
 } from "../../actions/escuelas.actions";
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
 import { EscuelaFormModal } from "./EscuelaFormModal";
+import { InvitacionGeneradaCard } from "./InvitacionGeneradaCard";
+import { cacheSchoolInvitation, getSchoolInvitation } from "./invitation-cache";
 import {
   escuelaEstatusTone,
   formatEtiqueta,
@@ -38,6 +40,14 @@ function normalizeEstatus(value?: string) {
   return value?.trim().toUpperCase() ?? "";
 }
 
+function isActiveInvitation(estatus: string) {
+  return estatus === "ACTIVO" || estatus === "VIGENTE" || estatus === "DISPONIBLE";
+}
+
+function formatInviteExpiry(fechaExpiracion?: string) {
+  return fechaExpiracion ? formatFecha(fechaExpiracion) : "Sin fecha de vencimiento";
+}
+
 export function EscuelaDetailModal({
   escuelaId,
   escuelaName,
@@ -55,7 +65,8 @@ export function EscuelaDetailModal({
   const [invitacionGenerada, setInvitacionGenerada] = useState<TokenGeneradoResponse | null>(
     null,
   );
-  const { detail, error, setError, isLoading } = useDetailModalLoader(
+  const [expandedInviteId, setExpandedInviteId] = useState<number | null>(null);
+  const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     escuelaId,
     getEscuelaDetailAction,
@@ -64,6 +75,7 @@ export function EscuelaDetailModal({
       onBeforeLoad: () => {
         setInvitacionError(null);
         setInvitacionGenerada(null);
+        setExpandedInviteId(null);
       },
     },
   );
@@ -96,6 +108,17 @@ export function EscuelaDetailModal({
     }
 
     setInvitacionGenerada(result.data);
+
+    if (result.data.token?.trim()) {
+      cacheSchoolInvitation(detail.escuela.idEscuela, {
+        idToken: result.data.idToken,
+        token: result.data.token.trim(),
+        urlRegistro: result.data.urlRegistro,
+        fechaExpiracion: result.data.fechaExpiracion,
+      });
+      setExpandedInviteId(result.data.idToken);
+    }
+
     setInvitacionNombre("");
     setInvitacionExpiracion("");
     setRevocarActivas(false);
@@ -158,14 +181,18 @@ export function EscuelaDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? (
+        {isLoading && !detail ? (
           <EntityDetailModalSkeleton sections={2} />
         ) : null}
 
-        {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+        {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-        {!isLoading && escuela ? (
-          <div className={styles.layout}>
+        {escuela ? (
+          <div
+            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            aria-busy={isReloading}
+          >
+            {error ? <Alert tone="error">{error}</Alert> : null}
             <div className={styles.summaryBar}>
               <div className={styles.avatar} aria-hidden="true">
                 <GraduationCap size={18} strokeWidth={1.75} />
@@ -235,19 +262,7 @@ export function EscuelaDetailModal({
               {invitacionError ? <Alert tone="error">{invitacionError}</Alert> : null}
 
               {invitacionGenerada ? (
-                <div className={styles.successBox}>
-                  <strong>Invitación generada correctamente</strong>
-                  {invitacionGenerada.urlRegistro ? (
-                    <span className={styles.successValue}>
-                      Enlace: {invitacionGenerada.urlRegistro}
-                    </span>
-                  ) : null}
-                  {invitacionGenerada.token ? (
-                    <span className={styles.successValue}>
-                      Código: {invitacionGenerada.token}
-                    </span>
-                  ) : null}
-                </div>
+                <InvitacionGeneradaCard invitacion={invitacionGenerada} />
               ) : null}
 
               <div className={escuelaStyles.composer}>
@@ -307,25 +322,42 @@ export function EscuelaDetailModal({
                   <ul className={escuelaStyles.inviteList}>
                     {invitaciones.map((invitacion) => {
                       const estatus = normalizeEstatus(invitacion.estatus);
+                      const cachedInvitation =
+                        escuela && getSchoolInvitation(escuela.idEscuela, invitacion.idToken);
+                      const canShareLink = isActiveInvitation(estatus);
+                      const isExpanded = expandedInviteId === invitacion.idToken;
 
                       return (
-                        <li key={invitacion.idToken} className={escuelaStyles.inviteRow}>
-                          <div className={escuelaStyles.inviteMain}>
-                            <div className={escuelaStyles.inviteTop}>
-                              <span className={escuelaStyles.inviteName}>
-                                {invitacion.nombre?.trim() || "Sin nombre"}
-                              </span>
-                              <StatusBadge tone={escuelaEstatusTone(invitacion.estatus)}>
-                                {formatEtiqueta(invitacion.estatus, "Sin estatus")}
-                              </StatusBadge>
+                        <li key={invitacion.idToken} className={escuelaStyles.inviteRowItem}>
+                          <div className={escuelaStyles.inviteRow}>
+                            <div className={escuelaStyles.inviteMain}>
+                              <div className={escuelaStyles.inviteTop}>
+                                <span className={escuelaStyles.inviteName}>
+                                  {invitacion.nombre?.trim() || "Sin nombre"}
+                                </span>
+                                <StatusBadge tone={escuelaEstatusTone(invitacion.estatus)}>
+                                  {formatEtiqueta(invitacion.estatus, "Sin estatus")}
+                                </StatusBadge>
+                              </div>
+                              <p className={escuelaStyles.inviteMeta}>
+                                Vence el {formatInviteExpiry(invitacion.fechaExpiracion)}
+                              </p>
                             </div>
-                            <p className={escuelaStyles.inviteMeta}>
-                              Vence el {formatFecha(invitacion.fechaExpiracion)}
-                            </p>
-                          </div>
 
-                          <div className={escuelaStyles.inviteActions}>
-                            {estatus === "ACTIVO" || estatus === "VIGENTE" ? (
+                            <div className={escuelaStyles.inviteActions}>
+                              {canShareLink ? (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  disabled={isMutating}
+                                  onClick={() =>
+                                    setExpandedInviteId(isExpanded ? null : invitacion.idToken)
+                                  }
+                                >
+                                  {isExpanded ? "Ocultar enlace" : "Ver enlace"}
+                                </Button>
+                              ) : null}
+                              {estatus === "ACTIVO" || estatus === "VIGENTE" || estatus === "DISPONIBLE" ? (
                               <Button
                                 type="button"
                                 variant="outline"
@@ -359,6 +391,24 @@ export function EscuelaDetailModal({
                               </Button>
                             ) : null}
                           </div>
+                          </div>
+
+                          {isExpanded ? (
+                            <div className={escuelaStyles.inviteExpanded}>
+                              {cachedInvitation ? (
+                                <InvitacionGeneradaCard
+                                  invitacion={cachedInvitation}
+                                  variant="stored"
+                                />
+                              ) : (
+                                <p className={escuelaStyles.inviteUnavailable}>
+                                  Por seguridad, el enlace completo solo se muestra al generar la
+                                  invitación en esta sesión del navegador. Si lo perdiste, crea una
+                                  nueva invitación o contacta al administrador del sistema.
+                                </p>
+                              )}
+                            </div>
+                          ) : null}
                         </li>
                       );
                     })}

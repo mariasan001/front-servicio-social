@@ -21,7 +21,7 @@ export function EnlaceProcesoDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     procesoId,
     getProcesoDetailAction,
@@ -36,8 +36,8 @@ export function EnlaceProcesoDetailModal({
       onClose={onClose}
       size="lg"
     >
-      {isLoading ? <LoadingState label="Cargando proceso…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando proceso…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {!isLoading && proceso ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(proceso.estatus)}>

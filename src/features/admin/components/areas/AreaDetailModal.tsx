@@ -56,7 +56,7 @@ export function AreaDetailModal({
   const [selectedTitularId, setSelectedTitularId] = useState("");
   const [esPrincipal, setEsPrincipal] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
-  const { detail, error, setError, isLoading } = useDetailModalLoader(
+  const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     areaId,
     getAreaDetailAction,
@@ -205,12 +205,16 @@ export function AreaDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? <EntityDetailModalSkeleton sections={2} /> : null}
+        {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
 
-        {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+        {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-        {!isLoading && detail ? (
-          <div className={styles.layout}>
+        {detail ? (
+          <div
+            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            aria-busy={isReloading}
+          >
+            {error ? <Alert tone="error">{error}</Alert> : null}
             <div className={styles.summaryBar}>
               <div className={styles.avatar} aria-hidden="true">
                 <LayoutGrid size={18} strokeWidth={1.75} />

@@ -58,7 +58,7 @@
 
 .bodyFill {
   flex: 1;
-  min-height: 0;
+  min-height: clamp(22rem, 52vh, 38rem);
   overflow: auto;
   display: flex;
   flex-direction: column;

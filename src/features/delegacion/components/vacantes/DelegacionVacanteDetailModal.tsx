@@ -41,7 +41,7 @@ export function DelegacionVacanteDetailModal({
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     vacanteId,
     getVacanteDetailAction,
@@ -137,10 +137,10 @@ export function DelegacionVacanteDetailModal({
         ) : undefined
       }
     >
-      {isLoading ? <LoadingState label="Cargando información de la vacante…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <LoadingState label="Cargando información de la vacante…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-      {!isLoading && detail ? (
+      {detail ? (
         <div className={styles.detailLayout}>
           <div className={styles.detailSummary}>
             <StatusBadge tone={estatusTone(detail.estatus)}>

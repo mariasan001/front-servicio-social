@@ -52,7 +52,7 @@ export function UsuarioDetailModal({
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
-  const { detail, error, setError, isLoading } = useDetailModalLoader(
+  const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     usuarioId,
     getUsuarioDetailAction,
@@ -161,12 +161,16 @@ export function UsuarioDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? <EntityDetailModalSkeleton sections={2} /> : null}
+        {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
 
-        {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+        {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-        {!isLoading && detail ? (
-          <div className={styles.layout}>
+        {detail ? (
+          <div
+            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            aria-busy={isReloading}
+          >
+            {error ? <Alert tone="error">{error}</Alert> : null}
             <div className={styles.summaryBar}>
               <div className={styles.avatar} aria-hidden="true">
                 <User size={18} strokeWidth={1.75} />

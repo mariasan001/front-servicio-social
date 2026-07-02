@@ -18,7 +18,7 @@ export function EnlaceAlumnoDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { detail, error, isLoading } = useDetailModalLoader(open, alumnoId, getAlumnoDetailAction);
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(open, alumnoId, getAlumnoDetailAction);
 
   return (
     <Modal
@@ -27,9 +27,9 @@ export function EnlaceAlumnoDetailModal({
       onClose={onClose}
       size="lg"
     >
-      {isLoading ? <LoadingState label="Cargando alumno…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
-      {!isLoading && detail ? (
+      {isLoading && !detail ? <LoadingState label="Cargando alumno…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatusProceso)}>
             {formatEtiqueta(detail.estatusProceso, "Sin estatus de proceso")}

@@ -20,7 +20,7 @@ export function DelegacionPostulacionDetailModal({
   open,
   onClose,
 }: DelegacionPostulacionDetailModalProps) {
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     postulacionId,
     getPostulacionDetailAction,
@@ -28,9 +28,9 @@ export function DelegacionPostulacionDetailModal({
 
   return (
     <Modal open={open} title={detail?.folio ? `Postulación ${detail.folio}` : "Postulación"} onClose={onClose} size="lg">
-      {isLoading ? <LoadingState label="Cargando postulación…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
-      {!isLoading && detail ? (
+      {isLoading && !detail ? <LoadingState label="Cargando postulación…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
           <dl className={styles.detailGrid}>

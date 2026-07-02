@@ -4,6 +4,21 @@
   gap: 0.875rem;
 }
 
+.layoutBusy {
+  position: relative;
+  pointer-events: none;
+}
+
+.layoutBusy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(255 255 255 / 72%);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
 .summaryBar {
   display: flex;
   align-items: center;

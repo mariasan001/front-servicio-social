@@ -37,7 +37,7 @@ export function DependenciaDetailModal({
   const [isMutating, setIsMutating] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const { detail, setDetail, error, setError, isLoading } = useDetailModalLoader(
+  const { detail, setDetail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     dependenciaId,
     getDependenciaDetailAction,
@@ -114,14 +114,18 @@ export function DependenciaDetailModal({
           ) : undefined
         }
       >
-        {isLoading ? (
+        {isLoading && !detail ? (
           <EntityDetailModalSkeleton sections={1} />
         ) : null}
 
-        {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
+        {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-        {!isLoading && detail ? (
-          <div className={styles.layout}>
+        {detail ? (
+          <div
+            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            aria-busy={isReloading}
+          >
+            {error ? <Alert tone="error">{error}</Alert> : null}
             <div className={styles.summaryBar}>
               <div className={styles.avatar} aria-hidden="true">
                 <Building2 size={18} strokeWidth={1.75} />

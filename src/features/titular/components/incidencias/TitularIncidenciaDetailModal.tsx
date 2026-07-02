@@ -18,7 +18,7 @@ export function TitularIncidenciaDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { detail, error, isLoading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     incidenciaId,
     getIncidenciaDetailAction,
@@ -26,9 +26,9 @@ export function TitularIncidenciaDetailModal({
 
   return (
     <Modal open={open} title={`Incidencia #${incidenciaId ?? ""}`} onClose={onClose} size="lg">
-      {isLoading ? <LoadingState label="Cargando incidencia…" /> : null}
-      {!isLoading && error ? <Alert tone="error">{error}</Alert> : null}
-      {!isLoading && detail ? (
+      {isLoading && !detail ? <LoadingState label="Cargando incidencia…" /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
+      {detail ? (
         <div className={styles.detailLayout}>
           <StatusBadge tone={estatusTone(detail.estatus)}>
             {formatEtiqueta(detail.estatus)}

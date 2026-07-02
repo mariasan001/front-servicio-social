@@ -12,7 +12,6 @@ import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, Dat
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 
 type TitularVacantesViewProps = {
   vacantes: VacanteResponse[];
@@ -96,13 +95,6 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         title="Vacantes"
         description="Crea vacantes, envíalas a revisión y da seguimiento a su estatus."
       />
-
-      {!areaContext ? (
-        <p className={detailStyles.detailLead}>
-          No pudimos identificar automáticamente tu área. Puedes abrir el formulario de alta;
-          si el registro falla, pide a administración que confirme tu asignación como titular.
-        </p>
-      ) : null}
 
       <DataTable
         toolbar={

@@ -9,6 +9,16 @@
   min-height: 0;
 }
 
+.page:has([data-table-expand="true"]) > [data-table-expand="true"] {
+  flex: 1;
+  min-height: 0;
+}
+
+.pageTableFill {
+  flex: 1;
+  min-height: 0;
+}
+
 .searchField,
 .filterField {
   display: flex;
