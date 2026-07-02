@@ -1,28 +1,36 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { getServerSession } from "@/lib/auth/session.server";
-import { ENLACE_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getDashboardResumen, getHealth } from "../services/inicio.service";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { requireServerSession } from "@/lib/auth/session.server";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { EnlaceInicioView } from "../components/inicio/EnlaceInicioView";
+import { getDashboardResumen } from "../services/inicio.service";
 
 export async function EnlaceInicioSection() {
-  const session = await getServerSession();
+  const result = await requireServerSession()
+    .then(async (session) => {
+      const resumen = await getDashboardResumen();
+      return { session, resumen };
+    })
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(
+        error,
+        "No pudimos cargar el resumen. Verifica tu conexión e intenta recargar la página.",
+      ),
+    }));
 
-  const probes = await Promise.all([
-    runApiProbe("Salud del backend", "GET /api/health", () => getHealth()),
-    runApiProbe("Sesión autenticada", "GET /auth/me", async () => session),
-    runApiProbe(
-      "Resumen institucional",
-      "GET /api/enlace/dashboard/resumen",
-      () => getDashboardResumen(),
-    ),
-  ]);
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="enlace-inicio-error-title">
+        <PageHeader
+          titleId="enlace-inicio-error-title"
+          eyebrow="Enlace escolar"
+          title="Inicio"
+          description="Resumen de alumnos y procesos de tu escuela."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
 
-  return (
-    <ApiSection
-      sectionId="enlace-inicio"
-      title="Inicio"
-      description="Resumen de alumnos vinculados y estado operativo de la escuela."
-      endpoints={ENLACE_SECTION_ENDPOINTS.inicio}
-      probes={probes}
-    />
-  );
+  return <EnlaceInicioView session={result.session} resumen={result.resumen} />;
 }

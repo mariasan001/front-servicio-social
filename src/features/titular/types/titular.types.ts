@@ -8,7 +8,8 @@ import type {
 export type VacanteResponse = VacanteBase & {
   areaId?: number;
   areaNombre?: string;
-  modalidadId?: number;
+  modalidadId?: string;
+  modalidadTrabajo?: string;
   cupoTotal?: number;
   cupoDisponible?: number;
 };
@@ -22,6 +23,9 @@ export type VacanteDetalleResponse = VacanteResponse & {
 export type PostulacionResponse = PostulacionBase & {
   alumnoNombre?: string;
   vacanteFolio?: string;
+  areaId?: number;
+  areaNombre?: string;
+  modalidadId?: string;
 };
 
 export type PostulacionDetalleResponse = PostulacionResponse & {
@@ -33,6 +37,9 @@ export type PostulacionDetalleResponse = PostulacionResponse & {
 export type ProcesoResponse = ProcesoBase & {
   alumnoNombre?: string;
   vacanteNombre?: string;
+  areaId?: number;
+  areaNombre?: string;
+  modalidadId?: string;
   horasRequeridas?: number;
   horasAcumuladas?: number;
 };
@@ -59,12 +66,13 @@ export type IncidenciaResponse = IncidenciaBase & {
 export type IncidenciaDetalleResponse = IncidenciaResponse & {
   descripcion?: string;
   alumnoNombre?: string;
+  fechaIncidencia?: string;
 };
 
 export type ListVacantesFilters = {
   estatus?: string;
   areaId?: number;
-  modalidadId?: number;
+  modalidadId?: string;
   nombre?: string;
 };
 
@@ -79,7 +87,7 @@ export type ListProcesosFilters = {
   estatus?: string;
   areaId?: number;
   alumnoNombre?: string;
-  modalidadId?: number;
+  modalidadId?: string;
 };
 
 export type ListIncidenciasFilters = {
@@ -92,12 +100,12 @@ export type ListIncidenciasFilters = {
 
 export type CrearVacanteRequest = {
   areaId: number;
-  modalidadId: number;
+  modalidadId: string;
   nombre: string;
-  descripcion?: string;
+  descripcion: string;
   perfilRequerido?: string;
   nivelEducativo?: string;
-  modalidadTrabajo?: string;
+  modalidadTrabajo: string;
   tipoHorario?: string;
   diasDisponibles?: string;
   horario?: string;
@@ -111,7 +119,7 @@ export type CrearVacanteRequest = {
 
 export type ActualizarVacanteRequest = Omit<CrearVacanteRequest, "areaId" | "modalidadId"> & {
   areaId?: number;
-  modalidadId?: number;
+  modalidadId?: string;
 };
 
 export type AceptarPostulacionRequest = {

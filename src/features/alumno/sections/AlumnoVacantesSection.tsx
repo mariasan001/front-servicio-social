@@ -1,26 +1,27 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getVacante, listVacantes } from "../services/vacantes.service";
-import type { VacanteResponse } from "../types/alumno.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoVacantesView } from "../components/vacantes/AlumnoVacantesView";
+import { listVacantes } from "../services/vacantes.service";
 
 export async function AlumnoVacantesSection() {
-  const probes = await probeListAndDetail<VacanteResponse>({
-    listLabel: "Vacantes disponibles",
-    listPath: "GET /api/alumno/vacantes",
-    detailLabelPrefix: "Detalle vacante",
-    detailPath: (id) => `GET /api/alumno/vacantes/${id}`,
-    listRequest: () => listVacantes(),
-    detailRequest: (id) => getVacante(id),
-    idKey: "idVacante",
-  });
+  const result = await listVacantes().catch((error: unknown) => ({
+    error: getApiErrorMessage(error, "No pudimos cargar las vacantes."),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="alumno-vacantes"
-      title="Vacantes"
-      description="Oportunidades de servicio social y residencia disponibles para postularte."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.vacantes}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-vacantes-error-title">
+        <PageHeader
+          titleId="alumno-vacantes-error-title"
+          eyebrow="Alumno"
+          title="Vacantes"
+          description="Oportunidades disponibles para postularte."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <AlumnoVacantesView vacantes={result} />;
 }

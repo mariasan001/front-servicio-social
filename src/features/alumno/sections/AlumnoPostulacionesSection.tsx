@@ -1,26 +1,27 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getPostulacion, listPostulaciones } from "../services/postulaciones.service";
-import type { PostulacionResponse } from "../types/alumno.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoPostulacionesView } from "../components/postulaciones/AlumnoPostulacionesView";
+import { listPostulaciones } from "../services/postulaciones.service";
 
 export async function AlumnoPostulacionesSection() {
-  const probes = await probeListAndDetail<PostulacionResponse>({
-    listLabel: "Mis postulaciones",
-    listPath: "GET /api/alumno/postulaciones",
-    detailLabelPrefix: "Detalle postulación",
-    detailPath: (id) => `GET /api/alumno/postulaciones/${id}`,
-    listRequest: () => listPostulaciones(),
-    detailRequest: (id) => getPostulacion(id),
-    idKey: "idPostulacion",
-  });
+  const result = await listPostulaciones().catch((error: unknown) => ({
+    error: getApiErrorMessage(error, "No pudimos cargar tus postulaciones."),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="alumno-postulaciones"
-      title="Postulaciones"
-      description="Consulta el estatus de tus postulaciones a vacantes."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.postulaciones}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-postulaciones-error-title">
+        <PageHeader
+          titleId="alumno-postulaciones-error-title"
+          eyebrow="Alumno"
+          title="Postulaciones"
+          description="Consulta el estatus de tus postulaciones."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <AlumnoPostulacionesView postulaciones={result} />;
 }

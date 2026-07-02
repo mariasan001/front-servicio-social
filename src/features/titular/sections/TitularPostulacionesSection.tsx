@@ -1,26 +1,29 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { TITULAR_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getPostulacion, listPostulaciones } from "../services/postulaciones.service";
-import type { PostulacionResponse } from "../types/titular.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { TitularPostulacionesView } from "../components/postulaciones/TitularPostulacionesView";
+import { listPostulaciones } from "../services/postulaciones.service";
 
 export async function TitularPostulacionesSection() {
-  const probes = await probeListAndDetail<PostulacionResponse>({
-    listLabel: "Listado de postulaciones",
-    listPath: "GET /api/titular/postulaciones",
-    detailLabelPrefix: "Detalle postulación",
-    detailPath: (id) => `GET /api/titular/postulaciones/${id}`,
-    listRequest: () => listPostulaciones(),
-    detailRequest: (id) => getPostulacion(id),
-    idKey: "idPostulacion",
-  });
+  const result = await listPostulaciones()
+    .then((postulaciones) => ({ postulaciones }))
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar las postulaciones."),
+    }));
 
-  return (
-    <ApiSection
-      sectionId="titular-postulaciones"
-      title="Postulaciones"
-      description="Revisión de candidatos postulados a vacantes de tu área."
-      endpoints={TITULAR_SECTION_ENDPOINTS.postulaciones}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="titular-postulaciones-error-title">
+        <PageHeader
+          titleId="titular-postulaciones-error-title"
+          eyebrow="Titular de área"
+          title="Postulaciones"
+          description="Seguimiento de postulaciones."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <TitularPostulacionesView postulaciones={result.postulaciones} />;
 }

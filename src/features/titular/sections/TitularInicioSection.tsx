@@ -1,23 +1,53 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { getServerSession } from "@/lib/auth/session.server";
-import { TITULAR_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getHealth } from "../services/inicio.service";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { requireServerSession } from "@/lib/auth/session.server";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { TitularInicioView } from "../components/inicio/TitularInicioView";
+import { listIncidencias } from "../services/incidencias.service";
+import { listPostulaciones } from "../services/postulaciones.service";
+import { listProcesos } from "../services/procesos.service";
+import { listVacantes } from "../services/vacantes.service";
 
 export async function TitularInicioSection() {
-  const session = await getServerSession();
+  const result = await requireServerSession()
+    .then(async (session) => {
+      const [vacantes, postulaciones, procesos, incidencias] = await Promise.all([
+        listVacantes(),
+        listPostulaciones(),
+        listProcesos(),
+        listIncidencias(),
+      ]);
 
-  const probes = await Promise.all([
-    runApiProbe("Salud del backend", "GET /api/health", () => getHealth()),
-    runApiProbe("Sesión autenticada", "GET /auth/me", async () => session),
-  ]);
+      return {
+        session,
+        stats: {
+          vacantes: vacantes.length,
+          postulaciones: postulaciones.length,
+          procesos: procesos.length,
+          incidencias: incidencias.length,
+        },
+      };
+    })
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(
+        error,
+        "No pudimos cargar el resumen. Verifica tu conexión e intenta recargar la página.",
+      ),
+    }));
 
-  return (
-    <ApiSection
-      sectionId="titular-inicio"
-      title="Inicio"
-      description="Estado del backend y sesión del titular de área."
-      endpoints={TITULAR_SECTION_ENDPOINTS.inicio}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="titular-inicio-error-title">
+        <PageHeader
+          titleId="titular-inicio-error-title"
+          eyebrow="Titular de área"
+          title="Inicio"
+          description="Resumen de tu área."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <TitularInicioView session={result.session} stats={result.stats} />;
 }

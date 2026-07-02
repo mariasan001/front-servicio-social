@@ -1,21 +1,37 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoNotificacionesView } from "../components/notificaciones/AlumnoNotificacionesView";
 import { listNotificaciones } from "../services/notificaciones.service";
 
 export async function AlumnoNotificacionesSection() {
-  const probes = await Promise.all([
-    runApiProbe("Listado de notificaciones", "GET /api/notificaciones", () =>
-      listNotificaciones({ page: 0, size: 5 }),
-    ),
-  ]);
+  const result = await listNotificaciones({ page: 0, size: 50 })
+    .then((page) => ({
+      notificaciones: page?.content ?? [],
+      totalElements: page?.totalElements ?? 0,
+    }))
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar las notificaciones."),
+    }));
+
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-notificaciones-error-title">
+        <PageHeader
+          titleId="alumno-notificaciones-error-title"
+          eyebrow="Alumno"
+          title="Notificaciones"
+          description="Avisos y actualizaciones del sistema."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
 
   return (
-    <ApiSection
-      sectionId="alumno-notificaciones"
-      title="Notificaciones"
-      description="Avisos y actualizaciones del sistema dirigidos a tu cuenta."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.notificaciones}
-      probes={probes}
+    <AlumnoNotificacionesView
+      notificaciones={result.notificaciones}
+      totalElements={result.totalElements}
     />
   );
 }

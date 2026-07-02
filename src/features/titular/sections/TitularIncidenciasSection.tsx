@@ -1,26 +1,29 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { TITULAR_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getIncidencia, listIncidencias } from "../services/incidencias.service";
-import type { IncidenciaResponse } from "../types/titular.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { TitularIncidenciasView } from "../components/incidencias/TitularIncidenciasView";
+import { listIncidencias } from "../services/incidencias.service";
 
 export async function TitularIncidenciasSection() {
-  const probes = await probeListAndDetail<IncidenciaResponse>({
-    listLabel: "Listado de incidencias",
-    listPath: "GET /api/titular/incidencias",
-    detailLabelPrefix: "Detalle incidencia",
-    detailPath: (id) => `GET /api/titular/incidencias/${id}`,
-    listRequest: () => listIncidencias(),
-    detailRequest: (id) => getIncidencia(id),
-    idKey: "idIncidencia",
-  });
+  const result = await listIncidencias()
+    .then((incidencias) => ({ incidencias }))
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar las incidencias."),
+    }));
 
-  return (
-    <ApiSection
-      sectionId="titular-incidencias"
-      title="Incidencias"
-      description="Incidencias reportadas en procesos de tu área."
-      endpoints={TITULAR_SECTION_ENDPOINTS.incidencias}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="titular-incidencias-error-title">
+        <PageHeader
+          titleId="titular-incidencias-error-title"
+          eyebrow="Titular de área"
+          title="Incidencias"
+          description="Consulta de incidencias."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <TitularIncidenciasView incidencias={result.incidencias} />;
 }

@@ -1,111 +1,85 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoProcesoView } from "../components/proceso/AlumnoProcesoView";
 import { getProcesoActual } from "../services/inicio.service";
 import {
-  getCartaAceptacion,
-  getCartaLiberacion,
   getProceso,
-  getProcesoEvaluacionFinal,
   getProcesoHorasResumen,
-  getProcesoLiberacionTecnica,
   listProcesoCartas,
   listProcesoDocumentos,
   listProcesoHoras,
   listProcesoIncidencias,
   listProcesos,
 } from "../services/proceso.service";
-import type { ProcesoDetalleResponse, ProcesoResponse } from "../types/alumno.types";
+import type { ProcesoDetalleResponse } from "../types/alumno.types";
 
-export async function AlumnoProcesoSection() {
-  const actualProbe = await runApiProbe(
-    "Proceso actual",
-    "GET /api/alumno/procesos/actual",
-    () => getProcesoActual(),
-  );
-
-  const probes = [actualProbe];
-
-  let idProceso =
-    actualProbe.ok &&
-    typeof (actualProbe.data as ProcesoDetalleResponse | null)?.idProceso ===
-      "number"
-      ? (actualProbe.data as ProcesoDetalleResponse).idProceso
-      : undefined;
-
-  if (typeof idProceso !== "number") {
-    const listProbe = await runApiProbe(
-      "Listado de procesos",
-      "GET /api/alumno/procesos",
-      () => listProcesos(),
-    );
-    probes.push(listProbe);
-    idProceso = listProbe.ok
-      ? (listProbe.data as ProcesoResponse[] | undefined)?.[0]?.idProceso
-      : undefined;
+async function resolveAlumnoProceso(): Promise<ProcesoDetalleResponse | null> {
+  const actual = await getProcesoActual().catch(() => null);
+  if (actual?.idProceso) {
+    return actual;
   }
 
-  if (typeof idProceso === "number") {
-    probes.push(
-      await runApiProbe(
-        `Detalle proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}`,
-        () => getProceso(idProceso),
-      ),
-      await runApiProbe(
-        `Horas proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/horas`,
-        () => listProcesoHoras(idProceso),
-      ),
-      await runApiProbe(
-        `Resumen horas proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/horas/resumen`,
-        () => getProcesoHorasResumen(idProceso),
-      ),
-      await runApiProbe(
-        `Documentos proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/documentos`,
-        () => listProcesoDocumentos(idProceso),
-      ),
-      await runApiProbe(
-        `Cartas proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/cartas`,
-        () => listProcesoCartas(idProceso),
-      ),
-      await runApiProbe(
-        `Carta aceptación proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/carta-aceptacion`,
-        () => getCartaAceptacion(idProceso),
-      ),
-      await runApiProbe(
-        `Carta liberación proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/carta-liberacion`,
-        () => getCartaLiberacion(idProceso),
-      ),
-      await runApiProbe(
-        `Incidencias proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/incidencias`,
-        () => listProcesoIncidencias(idProceso),
-      ),
-      await runApiProbe(
-        `Liberación técnica proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/liberacion-tecnica`,
-        () => getProcesoLiberacionTecnica(idProceso),
-      ),
-      await runApiProbe(
-        `Evaluación final proceso #${idProceso}`,
-        `GET /api/alumno/procesos/${idProceso}/evaluacion-final`,
-        () => getProcesoEvaluacionFinal(idProceso),
-      ),
+  const procesos = await listProcesos();
+  const first = procesos[0];
+  if (!first) {
+    return null;
+  }
+
+  return getProceso(first.idProceso);
+}
+
+export async function AlumnoProcesoSection() {
+  const result = await resolveAlumnoProceso()
+    .then(async (proceso) => {
+      if (!proceso) {
+        return {
+          proceso: null,
+          horasResumen: null,
+          horas: [],
+          documentos: [],
+          cartas: [],
+          incidencias: [],
+        };
+      }
+
+      const idProceso = proceso.idProceso;
+      const [horasResumen, horas, documentos, cartas, incidencias] = await Promise.all([
+        getProcesoHorasResumen(idProceso).catch(() => null),
+        listProcesoHoras(idProceso),
+        listProcesoDocumentos(idProceso),
+        listProcesoCartas(idProceso),
+        listProcesoIncidencias(idProceso),
+      ]);
+
+      return { proceso, horasResumen, horas, documentos, cartas, incidencias };
+    })
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar tu proceso."),
+    }));
+
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-proceso-error-title">
+        <PageHeader
+          titleId="alumno-proceso-error-title"
+          eyebrow="Alumno"
+          title="Mi proceso"
+          description="Seguimiento de tu servicio social."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
     );
   }
 
   return (
-    <ApiSection
-      sectionId="alumno-proceso"
-      title="Mi proceso"
-      description="Seguimiento de tu servicio social o residencia. Los archivos binarios no se incluyen en los probes."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.proceso}
-      probes={probes}
+    <AlumnoProcesoView
+      proceso={result.proceso}
+      horasResumen={result.horasResumen}
+      horas={result.horas}
+      documentos={result.documentos}
+      cartas={result.cartas}
+      incidencias={result.incidencias}
     />
   );
 }

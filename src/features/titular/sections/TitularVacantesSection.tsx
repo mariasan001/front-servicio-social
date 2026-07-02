@@ -1,26 +1,35 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { TITULAR_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getVacante, listVacantes } from "../services/vacantes.service";
-import type { VacanteResponse } from "../types/titular.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { TitularVacantesView } from "../components/vacantes/TitularVacantesView";
+import { resolveTitularAreaContext } from "../lib/area-context";
+import { listVacantes } from "../services/vacantes.service";
 
 export async function TitularVacantesSection() {
-  const probes = await probeListAndDetail<VacanteResponse>({
-    listLabel: "Listado de vacantes",
-    listPath: "GET /api/titular/vacantes",
-    detailLabelPrefix: "Detalle vacante",
-    detailPath: (id) => `GET /api/titular/vacantes/${id}`,
-    listRequest: () => listVacantes(),
-    detailRequest: (id) => getVacante(id),
-    idKey: "idVacante",
-  });
+  const result = await listVacantes()
+    .then(async (vacantes) => ({
+      vacantes,
+      areaContext: await resolveTitularAreaContext(vacantes),
+    }))
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar las vacantes."),
+    }));
+
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="titular-vacantes-error-title">
+        <PageHeader
+          titleId="titular-vacantes-error-title"
+          eyebrow="Titular de área"
+          title="Vacantes"
+          description="Gestión de vacantes del área."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
 
   return (
-    <ApiSection
-      sectionId="titular-vacantes"
-      title="Vacantes"
-      description="Vacantes de tu área: creación, edición y envío a revisión."
-      endpoints={TITULAR_SECTION_ENDPOINTS.vacantes}
-      probes={probes}
-    />
+    <TitularVacantesView vacantes={result.vacantes} areaContext={result.areaContext} />
   );
 }

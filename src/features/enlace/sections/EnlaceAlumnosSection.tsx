@@ -1,26 +1,27 @@
-import { ApiSection, probeListAndDetail } from "@/shared/components/ApiSection";
-import { ENLACE_SECTION_ENDPOINTS } from "../constants/endpoints";
-import { getAlumno, listAlumnos } from "../services/alumnos.service";
-import type { AlumnoResponse } from "../types/enlace.types";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { EnlaceAlumnosView } from "../components/alumnos/EnlaceAlumnosView";
+import { listAlumnos } from "../services/alumnos.service";
 
 export async function EnlaceAlumnosSection() {
-  const probes = await probeListAndDetail<AlumnoResponse>({
-    listLabel: "Listado de alumnos",
-    listPath: "GET /api/enlace/alumnos",
-    detailLabelPrefix: "Detalle alumno",
-    detailPath: (id) => `GET /api/enlace/alumnos/${id}`,
-    listRequest: () => listAlumnos(),
-    detailRequest: (id) => getAlumno(id),
-    idKey: "idAlumno",
-  });
+  const result = await listAlumnos().catch((error: unknown) => ({
+    error: getApiErrorMessage(error, "No pudimos cargar el listado de alumnos."),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="enlace-alumnos"
-      title="Alumnos"
-      description="Consulta de alumnos registrados y vinculados a tu escuela."
-      endpoints={ENLACE_SECTION_ENDPOINTS.alumnos}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="enlace-alumnos-error-title">
+        <PageHeader
+          titleId="enlace-alumnos-error-title"
+          eyebrow="Enlace escolar"
+          title="Alumnos"
+          description="Consulta de alumnos registrados y vinculados a tu escuela."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <EnlaceAlumnosView alumnos={result} />;
 }

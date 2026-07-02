@@ -1,23 +1,27 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { ENLACE_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { EnlaceReportesView } from "../components/reportes/EnlaceReportesView";
 import { getReporteAlumnos } from "../services/reportes.service";
 
 export async function EnlaceReportesSection() {
-  const probes = await Promise.all([
-    runApiProbe(
-      "Reporte de alumnos",
-      "GET /api/enlace/reportes/alumnos",
-      () => getReporteAlumnos(),
-    ),
-  ]);
+  const result = await getReporteAlumnos().catch((error: unknown) => ({
+    error: getApiErrorMessage(error, "No pudimos cargar el reporte de alumnos."),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="enlace-reportes"
-      title="Reportes"
-      description="Reportes institucionales de alumnos y procesos de la escuela."
-      endpoints={ENLACE_SECTION_ENDPOINTS.reportes}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="enlace-reportes-error-title">
+        <PageHeader
+          titleId="enlace-reportes-error-title"
+          eyebrow="Enlace escolar"
+          title="Reportes"
+          description="Reportes institucionales de alumnos y procesos de la escuela."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <EnlaceReportesView reporte={result} />;
 }

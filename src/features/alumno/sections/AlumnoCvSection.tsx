@@ -1,19 +1,27 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoCvView } from "../components/cv/AlumnoCvView";
 import { getCv } from "../services/cv.service";
 
 export async function AlumnoCvSection() {
-  const probes = await Promise.all([
-    runApiProbe("Mi CV", "GET /api/alumno/cv", () => getCv()),
-  ]);
+  const result = await getCv().catch((error: unknown) => ({
+    error: getApiErrorMessage(error, "No pudimos cargar tu CV."),
+  }));
 
-  return (
-    <ApiSection
-      sectionId="alumno-cv"
-      title="Mi CV"
-      description="Currículum vitae asociado a tu perfil de alumno."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.cv}
-      probes={probes}
-    />
-  );
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-cv-error-title">
+        <PageHeader
+          titleId="alumno-cv-error-title"
+          eyebrow="Alumno"
+          title="Mi CV"
+          description="Currículum vitae asociado a tu perfil."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
+
+  return <AlumnoCvView cv={result} />;
 }

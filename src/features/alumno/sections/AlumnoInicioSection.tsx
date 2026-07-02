@@ -1,37 +1,62 @@
-import { ApiSection, runApiProbe } from "@/shared/components/ApiSection";
-import { getServerSession } from "@/lib/auth/session.server";
-import { ALUMNO_SECTION_ENDPOINTS } from "../constants/endpoints";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { requireServerSession } from "@/lib/auth/session.server";
+import { Alert } from "@/shared/components/Alert";
+import { PageHeader } from "@/shared/components/PageHeader";
+import { AlumnoInicioView } from "../components/inicio/AlumnoInicioView";
 import {
   countNotificacionesNoLeidas,
-  getHealth,
   getProcesoActual,
 } from "../services/inicio.service";
+import { listPostulaciones } from "../services/postulaciones.service";
+import { listVacantes } from "../services/vacantes.service";
 
 export async function AlumnoInicioSection() {
-  const session = await getServerSession();
+  const result = await requireServerSession()
+    .then(async (session) => {
+      const [procesoActual, notificacionesCount, vacantes, postulaciones] = await Promise.all([
+        getProcesoActual().catch(() => null),
+        countNotificacionesNoLeidas().then((data) => data?.totalNoLeidas ?? 0),
+        listVacantes(),
+        listPostulaciones(),
+      ]);
 
-  const probes = await Promise.all([
-    runApiProbe("Salud del backend", "GET /api/health", () => getHealth()),
-    runApiProbe("Sesión autenticada", "GET /auth/me", async () => session),
-    runApiProbe(
-      "Proceso actual",
-      "GET /api/alumno/procesos/actual",
-      () => getProcesoActual(),
-    ),
-    runApiProbe(
-      "Notificaciones no leídas",
-      "GET /api/notificaciones/no-leidas/count",
-      () => countNotificacionesNoLeidas(),
-    ),
-  ]);
+      return {
+        session,
+        procesoActual,
+        notificacionesNoLeidas: notificacionesCount,
+        stats: {
+          vacantes: vacantes.length,
+          postulaciones: postulaciones.length,
+        },
+      };
+    })
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(
+        error,
+        "No pudimos cargar el resumen. Verifica tu conexión e intenta recargar la página.",
+      ),
+    }));
+
+  if ("error" in result) {
+    return (
+      <section aria-labelledby="alumno-inicio-error-title">
+        <PageHeader
+          titleId="alumno-inicio-error-title"
+          eyebrow="Alumno"
+          title="Inicio"
+          description="Resumen de tu participación."
+        />
+        <Alert tone="error">{result.error}</Alert>
+      </section>
+    );
+  }
 
   return (
-    <ApiSection
-      sectionId="alumno-inicio"
-      title="Inicio"
-      description="Resumen de tu participación, proceso activo y avisos pendientes."
-      endpoints={ALUMNO_SECTION_ENDPOINTS.inicio}
-      probes={probes}
+    <AlumnoInicioView
+      session={result.session}
+      procesoActual={result.procesoActual}
+      notificacionesNoLeidas={result.notificacionesNoLeidas}
+      stats={result.stats}
     />
   );
 }
