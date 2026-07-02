@@ -7,7 +7,7 @@ import type { AuthUser } from "@/lib/api/types";
 import type { DashboardResumenResponse } from "../../types/enlace.types";
 import { PageHeader } from "@/shared/components/PageHeader";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import inicioStyles from "./EnlaceInicioView.module.css";
+import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
 type EnlaceInicioViewProps = {
   session: AuthUser;

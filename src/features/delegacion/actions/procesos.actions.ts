@@ -1,11 +1,20 @@
 "use server";
 
+import type { DownloadedFile } from "@/lib/api/download";
 import { runServerAction, type ActionResult } from "@/lib/actions";
+import type { CartaDownloadKind } from "@/lib/domain/cartas";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
 import {
   approveProcesoDocumento,
   cancelProceso,
   cancelProcesoHora,
+  downloadProcesoCartaAceptacionArchivo,
+  downloadProcesoCartaLiberacionArchivo,
+  downloadProcesoDocumentoArchivo,
+  emitProcesoCartaAceptacion,
+  emitProcesoCartaAceptacionConArchivo,
+  emitProcesoCartaLiberacion,
+  emitProcesoCartaLiberacionConArchivo,
   getProceso,
   listProcesoCartas,
   listProcesoDocumentos,
@@ -22,6 +31,7 @@ import {
 import type {
   CancelarHoraRequest,
   CancelarProcesoRequest,
+  CartaMetadataResponse,
   CrearIncidenciaProcesoRequest,
   IncidenciaResponse,
   ObservarHoraRequest,
@@ -38,7 +48,7 @@ export type ProcesoDetailPayload = {
   documentos: ProcesoDocumentoResponse[];
   horas: ProcesoHoraResponse[];
   incidencias: IncidenciaResponse[];
-  cartas: unknown[];
+  cartas: CartaMetadataResponse[];
 };
 
 export async function getProcesoDetailAction(
@@ -227,6 +237,70 @@ export async function registerProcesoIncidenciaAction(
   if (result.success) {
     revalidateDelegacionSection("procesos");
     revalidateDelegacionSection("incidencias");
+  }
+
+  return result;
+}
+
+export async function downloadProcesoDocumentoArchivoAction(
+  idProceso: number,
+  idProcesoDocumento: number,
+): Promise<ActionResult<DownloadedFile>> {
+  return runServerAction(
+    () => downloadProcesoDocumentoArchivo(idProceso, idProcesoDocumento),
+    "No pudimos descargar el documento.",
+  );
+}
+
+export async function downloadProcesoCartaArchivoAction(
+  idProceso: number,
+  kind: CartaDownloadKind,
+): Promise<ActionResult<DownloadedFile>> {
+  return runServerAction(
+    () =>
+      kind === "aceptacion"
+        ? downloadProcesoCartaAceptacionArchivo(idProceso)
+        : downloadProcesoCartaLiberacionArchivo(idProceso),
+    "No pudimos descargar la carta.",
+  );
+}
+
+export async function emitProcesoCartaAction(
+  idProceso: number,
+  kind: CartaDownloadKind,
+): Promise<ActionResult<CartaMetadataResponse>> {
+  const result = await runServerAction(
+    () =>
+      kind === "aceptacion"
+        ? emitProcesoCartaAceptacion(idProceso)
+        : emitProcesoCartaLiberacion(idProceso),
+    "No pudimos emitir la carta.",
+  );
+
+  if (result.success) {
+    revalidateDelegacionSection("procesos");
+    revalidateDelegacionSection("inicio");
+  }
+
+  return result;
+}
+
+export async function emitProcesoCartaConArchivoAction(
+  idProceso: number,
+  kind: CartaDownloadKind,
+  formData: FormData,
+): Promise<ActionResult<CartaMetadataResponse>> {
+  const result = await runServerAction(
+    () =>
+      kind === "aceptacion"
+        ? emitProcesoCartaAceptacionConArchivo(idProceso, formData)
+        : emitProcesoCartaLiberacionConArchivo(idProceso, formData),
+    "No pudimos emitir la carta con archivo.",
+  );
+
+  if (result.success) {
+    revalidateDelegacionSection("procesos");
+    revalidateDelegacionSection("inicio");
   }
 
   return result;

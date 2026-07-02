@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { AdminSectionSlug } from "./constants/endpoints";
+import type { AdminSectionSlug } from "./constants/sections";
 import { AdminAreasSection } from "./sections/AdminAreasSection";
 import { AdminDependenciasSection } from "./sections/AdminDependenciasSection";
 import { AdminEscuelasSection } from "./sections/AdminEscuelasSection";

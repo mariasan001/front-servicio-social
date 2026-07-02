@@ -7,8 +7,6 @@ import type {
   NotificacionCorreoResponse,
 } from "../types/delegacion.types";
 
-export { getHealth } from "@/lib/api/health";
-
 export async function getDashboard(filters?: {
   escuelaId?: number;
   areaId?: number;

@@ -21,7 +21,7 @@ import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import inicioStyles from "./DelegacionInicioView.module.css";
+import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
 type DelegacionInicioViewProps = {
   session: AuthUser;
@@ -143,14 +143,15 @@ export function DelegacionInicioView({
               Liberaciones pendientes de carta
             </h2>
             <p className={styles.detailSectionDescription}>
-              Procesos que requieren emisión de carta de liberación.
+              Procesos que requieren emisión de carta de liberación.{" "}
+              <Link href={`${PANEL_PATHS.delegacion}/procesos`}>Ir a procesos</Link>
             </p>
           </div>
-          <ul className={styles.titularList}>
+          <ul className={styles.panelList}>
             {liberacionesPendientes.slice(0, 5).map((item) => (
-              <li key={item.idProceso} className={styles.titularCard}>
+              <li key={item.idProceso} className={styles.panelCard}>
                 <strong>{item.alumnoNombre ?? "Alumno sin nombre"}</strong>
-                <p className={styles.titularMeta}>
+                <p className={styles.panelMeta}>
                   Proceso {item.folio?.trim() || `#${item.idProceso}`}
                 </p>
               </li>
@@ -169,19 +170,19 @@ export function DelegacionInicioView({
               Últimos envíos registrados en el sistema.
             </p>
           </div>
-          <ul className={styles.titularList}>
+          <ul className={styles.panelList}>
             {notificacionesRecientes.map((notificacion, index) => (
               <li
                 key={notificacion.id ?? `${notificacion.destino ?? "correo"}-${index}`}
-                className={styles.titularCard}
+                className={styles.panelCard}
               >
-                <div className={styles.titularHeader}>
+                <div className={styles.panelHeader}>
                   <strong>{notificacion.asunto?.trim() || "Sin asunto"}</strong>
                   <StatusBadge tone={estatusTone(notificacion.estatus)}>
                     {formatEtiqueta(notificacion.estatus, "Sin estatus")}
                   </StatusBadge>
                 </div>
-                <p className={styles.titularMeta}>
+                <p className={styles.panelMeta}>
                   {notificacion.destino?.trim() || "Destino no registrado"}
                 </p>
               </li>

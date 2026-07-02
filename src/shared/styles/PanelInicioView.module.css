@@ -8,11 +8,16 @@
   border-radius: 1.25rem;
 }
 
-.welcomeText {
+.welcomeText,
+.welcomeMeta {
   margin: 0;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
+}
+
+.welcomeMeta {
+  color: var(--color-text-muted);
 }
 
 .sectionHeader {
@@ -26,6 +31,12 @@
   font-size: var(--font-size-xl);
   font-weight: 800;
   color: var(--color-gris-900);
+}
+
+.sectionDescription {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .cardGrid {

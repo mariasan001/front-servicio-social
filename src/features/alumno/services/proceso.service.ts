@@ -1,3 +1,4 @@
+import { serverDownloadRequest } from "@/lib/api/download";
 import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   ActualizarBitacoraRequest,
@@ -114,14 +115,25 @@ export async function downloadDocumentoArchivoActual(
   idProceso: number,
   idProcesoDocumento: number,
 ) {
-  const response = await serverApiRequest<unknown>(
+  return serverDownloadRequest(
     `/api/alumno/procesos/${idProceso}/documentos/${idProcesoDocumento}/archivo-actual`,
-    { method: "GET" },
+    `documento-${idProcesoDocumento}`,
   );
-
-  return response.data;
 }
 
+export async function downloadCartaAceptacionArchivo(idProceso: number) {
+  return serverDownloadRequest(
+    `/api/alumno/procesos/${idProceso}/carta-aceptacion/archivo`,
+    `carta-aceptacion-${idProceso}.pdf`,
+  );
+}
+
+export async function downloadCartaLiberacionArchivo(idProceso: number) {
+  return serverDownloadRequest(
+    `/api/alumno/procesos/${idProceso}/carta-liberacion/archivo`,
+    `carta-liberacion-${idProceso}.pdf`,
+  );
+}
 export async function listProcesoCartas(idProceso: number) {
   const response = await serverApiRequest<CartaMetadataResponse[]>(
     `/api/alumno/procesos/${idProceso}/cartas`,
@@ -129,42 +141,6 @@ export async function listProcesoCartas(idProceso: number) {
   );
 
   return response.data ?? [];
-}
-
-export async function getCartaAceptacion(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/carta-aceptacion`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}
-
-export async function getCartaAceptacionArchivo(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/carta-aceptacion/archivo`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}
-
-export async function getCartaLiberacion(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/carta-liberacion`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}
-
-export async function getCartaLiberacionArchivo(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/carta-liberacion/archivo`,
-    { method: "GET" },
-  );
-
-  return response.data;
 }
 
 export async function listProcesoIncidencias(idProceso: number) {

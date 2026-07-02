@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { EnlaceSectionSlug } from "./constants/endpoints";
+import type { EnlaceSectionSlug } from "./constants/sections";
 import { EnlaceAlumnosSection } from "./sections/EnlaceAlumnosSection";
 import { EnlaceInicioSection } from "./sections/EnlaceInicioSection";
 import { EnlaceProcesosSection } from "./sections/EnlaceProcesosSection";

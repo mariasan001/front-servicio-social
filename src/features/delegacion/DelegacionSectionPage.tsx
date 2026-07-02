@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { DelegacionSectionSlug } from "./constants/endpoints";
+import type { DelegacionSectionSlug } from "./constants/sections";
 import { DelegacionAlumnosSection } from "./sections/DelegacionAlumnosSection";
 import { DelegacionDocumentosSection } from "./sections/DelegacionDocumentosSection";
 import { DelegacionHorasSection } from "./sections/DelegacionHorasSection";

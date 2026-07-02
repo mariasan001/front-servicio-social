@@ -238,3 +238,11 @@ export type CrearEscuelaYNormalizarRequest = {
   municipio?: string;
   observacion?: string;
 };
+
+export type CartaMetadataResponse = {
+  idCarta: number;
+  tipoCarta?: string;
+  folio?: string;
+  estatus?: string;
+  fechaEmision?: string;
+};

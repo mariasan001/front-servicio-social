@@ -6,7 +6,7 @@ import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { AuthUser } from "@/lib/api/types";
 import { PageHeader } from "@/shared/components/PageHeader";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import inicioStyles from "./TitularInicioView.module.css";
+import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
 type TitularInicioStats = {
   vacantes: number;

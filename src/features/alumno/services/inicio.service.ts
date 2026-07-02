@@ -4,8 +4,6 @@ import type {
   ProcesoDetalleResponse,
 } from "../types/alumno.types";
 
-export { getHealth } from "@/lib/api/health";
-
 export async function getProcesoActual() {
   const response = await serverApiRequest<ProcesoDetalleResponse>(
     "/api/alumno/procesos/actual",

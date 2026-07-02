@@ -114,9 +114,9 @@ export function ProcesoDetailModal({
             {(detail?.documentos ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay documentos registrados.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.documentos.map((documento) => (
-                  <li key={documento.idProcesoDocumento} className={styles.titularCard}>
+                  <li key={documento.idProcesoDocumento} className={styles.panelCard}>
                     <strong>{documento.nombreDocumento ?? documento.tipoDocumento ?? "Documento"}</strong>
                     <StatusBadge tone={estatusTone(documento.estatus)}>
                       {formatEtiqueta(documento.estatus)}
@@ -132,11 +132,11 @@ export function ProcesoDetailModal({
             {(detail?.cartas ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay cartas emitidas.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.cartas.map((carta) => (
-                  <li key={carta.idCarta} className={styles.titularCard}>
+                  <li key={carta.idCarta} className={styles.panelCard}>
                     <strong>{formatEtiqueta(carta.tipoCarta, "Carta")}</strong>
-                    <span className={styles.titularMeta}>
+                    <span className={styles.panelMeta}>
                       {carta.folio?.trim() || "Sin folio"} · {formatFecha(carta.fechaEmision)}
                     </span>
                     <StatusBadge tone={estatusTone(carta.estatus)}>

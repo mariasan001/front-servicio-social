@@ -238,7 +238,7 @@ export function UsuarioDetailModal({
                   Esta cuenta no tiene perfiles asignados por el momento.
                 </p>
               ) : (
-                <div className={styles.titularBadges}>
+                <div className={styles.panelBadges}>
                   {detail.roles.map((rol) => (
                     <StatusBadge key={rol} tone="info">
                       {formatRol(rol)}

@@ -308,12 +308,12 @@ export function AreaDetailModal({
                   Por el momento no hay titulares activos asignados a esta área.
                 </p>
               ) : (
-                <ul className={styles.titularList}>
+                <ul className={styles.panelList}>
                   {titularesActivos.map((titular) => (
-                    <li key={titular.idAsignacion} className={styles.titularCard}>
-                      <div className={styles.titularHeader}>
+                    <li key={titular.idAsignacion} className={styles.panelCard}>
+                      <div className={styles.panelHeader}>
                         <strong>{titular.nombreCompleto ?? "Sin nombre registrado"}</strong>
-                        <div className={styles.titularBadges}>
+                        <div className={styles.panelBadges}>
                           {titular.esPrincipal ? (
                             <StatusBadge tone="info">Responsable principal</StatusBadge>
                           ) : null}
@@ -322,7 +322,7 @@ export function AreaDetailModal({
                           </StatusBadge>
                         </div>
                       </div>
-                      <p className={styles.titularMeta}>
+                      <p className={styles.panelMeta}>
                         {titular.correo ?? "Sin correo registrado"}
                       </p>
                       <div className={styles.detailActions}>

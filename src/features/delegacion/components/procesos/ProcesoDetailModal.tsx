@@ -1,11 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
   cancelProcesoAction,
   cancelProcesoHoraAction,
+  downloadProcesoCartaArchivoAction,
+  downloadProcesoDocumentoArchivoAction,
+  emitProcesoCartaAction,
+  emitProcesoCartaConArchivoAction,
   getProcesoDetailAction,
   observeProcesoDocumentoAction,
   observeProcesoHoraAction,
@@ -15,7 +19,15 @@ import {
   validateProcesoHoraAction,
   type ProcesoDetailPayload,
 } from "../../actions/procesos.actions";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import {
+  cartaTipoIncludes,
+  estatusTone,
+  formatEtiqueta,
+  formatFecha,
+  resolveCartaDownloadKind,
+  type CartaDownloadKind,
+} from "@/lib/domain";
+import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
@@ -42,6 +54,8 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [horasRequeridas, setHorasRequeridas] = useState("");
   const [comentario, setComentario] = useState("");
+  const cartaAceptacionInput = useRef<HTMLInputElement | null>(null);
+  const cartaLiberacionInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!open || procesoId === null) return;
@@ -122,6 +136,62 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
     refresh();
   };
 
+  const hasCarta = (kind: CartaDownloadKind) =>
+    (detail?.cartas ?? []).some((carta) => cartaTipoIncludes(carta.tipoCarta, kind));
+
+  const downloadDocumento = async (idProcesoDocumento: number) => {
+    if (!proceso) return;
+    setIsMutating(true);
+    setActionError(null);
+    await runDownloadAction(
+      () => downloadProcesoDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento),
+      setActionError,
+    );
+    setIsMutating(false);
+  };
+
+  const downloadCarta = async (kind: CartaDownloadKind) => {
+    if (!proceso) return;
+    setIsMutating(true);
+    setActionError(null);
+    await runDownloadAction(
+      () => downloadProcesoCartaArchivoAction(proceso.idProceso, kind),
+      setActionError,
+    );
+    setIsMutating(false);
+  };
+
+  const emitCarta = async (kind: CartaDownloadKind, withFile: boolean) => {
+    if (!proceso) return;
+    const input =
+      kind === "aceptacion" ? cartaAceptacionInput.current : cartaLiberacionInput.current;
+    const file = withFile ? input?.files?.[0] : undefined;
+
+    if (withFile && !file) {
+      setActionError("Selecciona un archivo PDF para emitir la carta.");
+      return;
+    }
+
+    setIsMutating(true);
+    setActionError(null);
+    const result = withFile
+      ? await (() => {
+          const formData = new FormData();
+          formData.append("archivo", file as File);
+          return emitProcesoCartaConArchivoAction(proceso.idProceso, kind, formData);
+        })()
+      : await emitProcesoCartaAction(proceso.idProceso, kind);
+    setIsMutating(false);
+
+    if (!result.success) {
+      setActionError(result.error);
+      return;
+    }
+
+    if (input) input.value = "";
+    refresh();
+  };
+
   return (
     <Modal
       open={open}
@@ -195,15 +265,16 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
             {(detail?.documentos ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay documentos registrados.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.documentos.map((doc) => (
-                  <li key={doc.idProcesoDocumento} className={styles.titularCard}>
+                  <li key={doc.idProcesoDocumento} className={styles.panelCard}>
                     <strong>{doc.nombreDocumento ?? doc.tipoDocumento ?? "Documento"}</strong>
                     <StatusBadge tone={estatusTone(doc.estatus)}>{formatEtiqueta(doc.estatus)}</StatusBadge>
                     <div className={styles.detailActions}>
                       <Button type="button" variant="outline" className={styles.actionButton} disabled={isMutating} onClick={() => void runDocAction("approve", doc.idProcesoDocumento)}>Aprobar</Button>
                       <Button type="button" variant="outline" className={styles.actionButton} disabled={isMutating} onClick={() => void runDocAction("observe", doc.idProcesoDocumento)}>Observar</Button>
                       <Button type="button" variant="secondary" className={styles.actionButton} disabled={isMutating} onClick={() => void runDocAction("reject", doc.idProcesoDocumento)}>Rechazar</Button>
+                      <Button type="button" variant="outline" className={styles.actionButton} disabled={isMutating} onClick={() => void downloadDocumento(doc.idProcesoDocumento)}>Descargar</Button>
                     </div>
                   </li>
                 ))}
@@ -216,9 +287,9 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
             {(detail?.horas ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay horas registradas.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.horas.map((hora) => (
-                  <li key={hora.idAsistencia} className={styles.titularCard}>
+                  <li key={hora.idAsistencia} className={styles.panelCard}>
                     <strong>{hora.fecha ?? "Sin fecha"}</strong>
                     <StatusBadge tone={estatusTone(hora.estatus)}>{formatEtiqueta(hora.estatus)}</StatusBadge>
                     <div className={styles.detailActions}>
@@ -229,6 +300,100 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
                     </div>
                   </li>
                 ))}
+              </ul>
+            )}
+          </section>
+
+          <section className={styles.detailSection}>
+            <h3 className={styles.detailSectionTitle}>Cartas</h3>
+            <div className={styles.inlineForm}>
+              {!hasCarta("aceptacion") ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={styles.actionButton}
+                    disabled={isMutating}
+                    onClick={() => void emitCarta("aceptacion", false)}
+                  >
+                    Emitir carta de aceptación
+                  </Button>
+                  <input
+                    ref={cartaAceptacionInput}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    aria-label="Archivo PDF para carta de aceptación"
+                  />
+                  <Button
+                    type="button"
+                    className={styles.actionButton}
+                    disabled={isMutating}
+                    onClick={() => void emitCarta("aceptacion", true)}
+                  >
+                    Emitir aceptación con archivo
+                  </Button>
+                </>
+              ) : null}
+              {!hasCarta("liberacion") ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={styles.actionButton}
+                    disabled={isMutating}
+                    onClick={() => void emitCarta("liberacion", false)}
+                  >
+                    Emitir carta de liberación
+                  </Button>
+                  <input
+                    ref={cartaLiberacionInput}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    aria-label="Archivo PDF para carta de liberación"
+                  />
+                  <Button
+                    type="button"
+                    className={styles.actionButton}
+                    disabled={isMutating}
+                    onClick={() => void emitCarta("liberacion", true)}
+                  >
+                    Emitir liberación con archivo
+                  </Button>
+                </>
+              ) : null}
+            </div>
+            {(detail?.cartas ?? []).length === 0 ? (
+              <p className={styles.emptyInline}>No hay cartas emitidas todavía.</p>
+            ) : (
+              <ul className={styles.panelList}>
+                {detail?.cartas.map((carta) => {
+                  const kind = resolveCartaDownloadKind(carta.tipoCarta);
+
+                  return (
+                    <li key={carta.idCarta} className={styles.panelCard}>
+                      <strong>{formatEtiqueta(carta.tipoCarta, "Carta")}</strong>
+                      <span className={styles.panelMeta}>
+                        {carta.folio?.trim() || "Sin folio"} · {formatFecha(carta.fechaEmision)}
+                      </span>
+                      <StatusBadge tone={estatusTone(carta.estatus)}>
+                        {formatEtiqueta(carta.estatus)}
+                      </StatusBadge>
+                      {kind ? (
+                        <div className={styles.detailActions}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={styles.actionButton}
+                            disabled={isMutating}
+                            onClick={() => void downloadCarta(kind)}
+                          >
+                            Descargar PDF
+                          </Button>
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

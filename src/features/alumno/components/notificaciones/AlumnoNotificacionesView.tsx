@@ -95,16 +95,16 @@ export function AlumnoNotificacionesView({
       {filtered.length === 0 ? (
         <p className={styles.detailLead}>No hay notificaciones para mostrar.</p>
       ) : (
-        <ul className={styles.titularList}>
+        <ul className={styles.panelList}>
           {filtered.map((notificacion) => (
-            <li key={notificacion.id} className={styles.titularCard}>
+            <li key={notificacion.id} className={styles.panelCard}>
               <div className={styles.detailSectionHeader}>
                 <strong>{notificacion.titulo?.trim() || "Sin título"}</strong>
                 <StatusBadge tone={notificacion.leida ? "neutral" : "info"}>
                   {notificacion.leida ? "Leída" : "Sin leer"}
                 </StatusBadge>
               </div>
-              <span className={styles.titularMeta}>
+              <span className={styles.panelMeta}>
                 {formatEtiqueta(notificacion.tipo, "Aviso")} ·{" "}
                 {formatFecha(notificacion.fechaCreacion)}
               </span>

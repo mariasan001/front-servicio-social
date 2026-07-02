@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { AlumnoSectionSlug } from "./constants/endpoints";
+import type { AlumnoSectionSlug } from "./constants/sections";
 import { AlumnoCvSection } from "./sections/AlumnoCvSection";
 import { AlumnoInicioSection } from "./sections/AlumnoInicioSection";
 import { AlumnoNotificacionesSection } from "./sections/AlumnoNotificacionesSection";

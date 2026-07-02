@@ -9,7 +9,7 @@ import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import inicioStyles from "./AlumnoInicioView.module.css";
+import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
 
 type AlumnoInicioViewProps = {
   session: AuthUser;

@@ -191,7 +191,7 @@ export function EscuelaDetailModal({
         {!isLoading && escuela ? (
           <div className={styles.detailLayout}>
             <div className={styles.detailSummary}>
-              <div className={styles.titularBadges}>
+              <div className={styles.panelBadges}>
                 <StatusBadge tone={escuelaEstatusTone(escuela.estatus)}>
                   {formatEtiqueta(escuela.estatus, "Sin estatus")}
                 </StatusBadge>
@@ -303,13 +303,13 @@ export function EscuelaDetailModal({
                   Esta escuela aún no tiene invitaciones de registro registradas.
                 </p>
               ) : (
-                <ul className={styles.titularList}>
+                <ul className={styles.panelList}>
                   {invitaciones.map((invitacion) => {
                     const estatus = normalizeEstatus(invitacion.estatus);
 
                     return (
-                      <li key={invitacion.idToken} className={styles.titularCard}>
-                        <div className={styles.titularHeader}>
+                      <li key={invitacion.idToken} className={styles.panelCard}>
+                        <div className={styles.panelHeader}>
                           <strong>
                             {invitacion.nombre?.trim() || "Invitación sin nombre"}
                           </strong>
@@ -317,7 +317,7 @@ export function EscuelaDetailModal({
                             {formatEtiqueta(invitacion.estatus, "Sin estatus")}
                           </StatusBadge>
                         </div>
-                        <p className={styles.titularMeta}>
+                        <p className={styles.panelMeta}>
                           Vence el {formatFecha(invitacion.fechaExpiracion)}
                         </p>
                         <div className={styles.detailActions}>

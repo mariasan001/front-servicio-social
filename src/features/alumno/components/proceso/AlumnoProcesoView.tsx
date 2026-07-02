@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import {
+  downloadCartaArchivoAction,
+  downloadDocumentoArchivoAction,
   registerProcesoHoraAction,
   updateProcesoHoraBitacoraAction,
   uploadDocumentoArchivoAction,
@@ -17,7 +19,13 @@ import type {
   ProcesoDetalleResponse,
 } from "../../types/alumno.types";
 import { PANEL_PATHS } from "@/lib/auth/constants";
-import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import {
+  estatusTone,
+  formatEtiqueta,
+  formatFecha,
+  resolveCartaDownloadKind,
+} from "@/lib/domain";
+import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
@@ -136,6 +144,31 @@ export function AlumnoProcesoView({
     router.refresh();
   };
 
+  const downloadDocumento = async (idProcesoDocumento: number) => {
+    setIsMutating(true);
+    setActionError(null);
+    await runDownloadAction(
+      () => downloadDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento),
+      setActionError,
+    );
+    setIsMutating(false);
+  };
+
+  const downloadCarta = async (tipoCarta?: string) => {
+    const kind = resolveCartaDownloadKind(tipoCarta);
+    if (!kind) {
+      setActionError("No pudimos identificar el tipo de carta para descargar.");
+      return;
+    }
+    setIsMutating(true);
+    setActionError(null);
+    await runDownloadAction(
+      () => downloadCartaArchivoAction(proceso.idProceso, kind),
+      setActionError,
+    );
+    setIsMutating(false);
+  };
+
   return (
     <section className={styles.page} aria-labelledby="alumno-proceso-title">
       <PageHeader
@@ -251,11 +284,11 @@ export function AlumnoProcesoView({
           {horas.length === 0 ? (
             <p className={styles.emptyInline}>No has registrado horas todavía.</p>
           ) : (
-            <ul className={styles.titularList}>
+            <ul className={styles.panelList}>
               {horas.map((hora) => (
-                <li key={hora.idAsistencia} className={styles.titularCard}>
+                <li key={hora.idAsistencia} className={styles.panelCard}>
                   <strong>{formatFecha(hora.fecha)}</strong>
-                  <span className={styles.titularMeta}>
+                  <span className={styles.panelMeta}>
                     {hora.horasRegistradas ?? "—"} horas registradas
                   </span>
                   <StatusBadge tone={estatusTone(hora.estatus)}>
@@ -302,9 +335,9 @@ export function AlumnoProcesoView({
           {documentos.length === 0 ? (
             <p className={styles.emptyInline}>No hay documentos pendientes en tu proceso.</p>
           ) : (
-            <ul className={styles.titularList}>
+            <ul className={styles.panelList}>
               {documentos.map((documento) => (
-                <li key={documento.idProcesoDocumento} className={styles.titularCard}>
+                <li key={documento.idProcesoDocumento} className={styles.panelCard}>
                   <strong>
                     {documento.nombreDocumento?.trim() ||
                       documento.tipoDocumento?.trim() ||
@@ -330,6 +363,15 @@ export function AlumnoProcesoView({
                     >
                       Subir archivo
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={styles.actionButton}
+                      disabled={isMutating}
+                      onClick={() => void downloadDocumento(documento.idProcesoDocumento)}
+                    >
+                      Descargar
+                    </Button>
                   </div>
                 </li>
               ))}
@@ -342,16 +384,29 @@ export function AlumnoProcesoView({
           {cartas.length === 0 ? (
             <p className={styles.emptyInline}>No hay cartas emitidas todavía.</p>
           ) : (
-            <ul className={styles.titularList}>
+            <ul className={styles.panelList}>
               {cartas.map((carta) => (
-                <li key={carta.idCarta} className={styles.titularCard}>
+                <li key={carta.idCarta} className={styles.panelCard}>
                   <strong>{formatEtiqueta(carta.tipoCarta, "Carta")}</strong>
-                  <span className={styles.titularMeta}>
+                  <span className={styles.panelMeta}>
                     {carta.folio?.trim() || "Sin folio"} · {formatFecha(carta.fechaEmision)}
                   </span>
                   <StatusBadge tone={estatusTone(carta.estatus)}>
                     {formatEtiqueta(carta.estatus)}
                   </StatusBadge>
+                  {resolveCartaDownloadKind(carta.tipoCarta) ? (
+                    <div className={styles.detailActions}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={styles.actionButton}
+                        disabled={isMutating}
+                        onClick={() => void downloadCarta(carta.tipoCarta)}
+                      >
+                        Descargar PDF
+                      </Button>
+                    </div>
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -363,11 +418,11 @@ export function AlumnoProcesoView({
           {incidencias.length === 0 ? (
             <p className={styles.emptyInline}>No hay incidencias registradas.</p>
           ) : (
-            <ul className={styles.titularList}>
+            <ul className={styles.panelList}>
               {incidencias.map((incidencia) => (
-                <li key={incidencia.idIncidencia} className={styles.titularCard}>
+                <li key={incidencia.idIncidencia} className={styles.panelCard}>
                   <strong>{formatEtiqueta(incidencia.tipo, "Incidencia")}</strong>
-                  <span className={styles.titularMeta}>
+                  <span className={styles.panelMeta}>
                     {formatEtiqueta(incidencia.severidad, "Sin severidad")}
                   </span>
                   {incidencia.descripcion ? (

@@ -1,8 +1,10 @@
 import { buildQuery } from "@/lib/api/query";
+import { serverDownloadRequest } from "@/lib/api/download";
 import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   CancelarHoraRequest,
   CancelarProcesoRequest,
+  CartaMetadataResponse,
   CrearIncidenciaProcesoRequest,
   ListProcesosFilters,
   ObservarHoraRequest,
@@ -250,12 +252,94 @@ export async function getProcesoEvaluacionFinal(idProceso: number) {
 }
 
 export async function listProcesoCartas(idProceso: number) {
-  const response = await serverApiRequest<unknown[]>(
+  const response = await serverApiRequest<CartaMetadataResponse[]>(
     `/api/delegacion/procesos/${idProceso}/cartas`,
     { method: "GET" },
   );
 
   return response.data ?? [];
+}
+
+export async function downloadProcesoDocumentoArchivo(
+  idProceso: number,
+  idProcesoDocumento: number,
+) {
+  return serverDownloadRequest(
+    `/api/delegacion/procesos/${idProceso}/documentos/${idProcesoDocumento}/archivo-actual`,
+    `documento-${idProcesoDocumento}`,
+  );
+}
+
+export async function emitProcesoCartaAceptacion(idProceso: number) {
+  const response = await serverApiRequest<CartaMetadataResponse>(
+    `/api/delegacion/procesos/${idProceso}/carta-aceptacion/emitir`,
+    { method: "POST" },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de emisión de carta de aceptación.");
+  }
+
+  return response.data;
+}
+
+export async function emitProcesoCartaAceptacionConArchivo(
+  idProceso: number,
+  body: FormData,
+) {
+  const response = await serverApiRequest<CartaMetadataResponse>(
+    `/api/delegacion/procesos/${idProceso}/carta-aceptacion/emitir-con-archivo`,
+    { method: "POST", body },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de emisión de carta de aceptación.");
+  }
+
+  return response.data;
+}
+
+export async function downloadProcesoCartaAceptacionArchivo(idProceso: number) {
+  return serverDownloadRequest(
+    `/api/delegacion/procesos/${idProceso}/carta-aceptacion/archivo`,
+    `carta-aceptacion-${idProceso}.pdf`,
+  );
+}
+
+export async function emitProcesoCartaLiberacion(idProceso: number) {
+  const response = await serverApiRequest<CartaMetadataResponse>(
+    `/api/delegacion/procesos/${idProceso}/carta-liberacion/emitir`,
+    { method: "POST" },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de emisión de carta de liberación.");
+  }
+
+  return response.data;
+}
+
+export async function emitProcesoCartaLiberacionConArchivo(
+  idProceso: number,
+  body: FormData,
+) {
+  const response = await serverApiRequest<CartaMetadataResponse>(
+    `/api/delegacion/procesos/${idProceso}/carta-liberacion/emitir-con-archivo`,
+    { method: "POST", body },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación de emisión de carta de liberación.");
+  }
+
+  return response.data;
+}
+
+export async function downloadProcesoCartaLiberacionArchivo(idProceso: number) {
+  return serverDownloadRequest(
+    `/api/delegacion/procesos/${idProceso}/carta-liberacion/archivo`,
+    `carta-liberacion-${idProceso}.pdf`,
+  );
 }
 
 export async function setProcesoHorasRequeridas(

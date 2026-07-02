@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import type { TitularSectionSlug } from "./constants/endpoints";
+import type { TitularSectionSlug } from "./constants/sections";
 import { TitularIncidenciasSection } from "./sections/TitularIncidenciasSection";
 import { TitularInicioSection } from "./sections/TitularInicioSection";
 import { TitularPostulacionesSection } from "./sections/TitularPostulacionesSection";

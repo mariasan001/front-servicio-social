@@ -1,24 +1,20 @@
 "use server";
 
+import type { DownloadedFile } from "@/lib/api/download";
 import { runServerAction, type ActionResult } from "@/lib/actions";
+import type { CartaDownloadKind } from "@/lib/domain/cartas";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
 import {
-  getProcesoHorasResumen,
-  listProcesoCartas,
-  listProcesoDocumentos,
-  listProcesoHoras,
-  listProcesoIncidencias,
+  downloadCartaAceptacionArchivo,
+  downloadCartaLiberacionArchivo,
+  downloadDocumentoArchivoActual,
   registerProcesoHora,
   updateProcesoHoraBitacora,
   uploadDocumentoArchivo,
 } from "../services/proceso.service";
 import type {
   ActualizarBitacoraRequest,
-  CartaMetadataResponse,
-  DocumentoEstatusResponse,
   HoraResponse,
-  HorasResumenResponse,
-  IncidenciaResponse,
   RegistrarHoraRequest,
 } from "../types/alumno.types";
 
@@ -73,26 +69,25 @@ export async function uploadDocumentoArchivoAction(
   return result;
 }
 
-export type AlumnoProcesoDetailPayload = {
-  horasResumen: HorasResumenResponse | null;
-  horas: HoraResponse[];
-  documentos: DocumentoEstatusResponse[];
-  cartas: CartaMetadataResponse[];
-  incidencias: IncidenciaResponse[];
-};
-
-export async function getAlumnoProcesoDetailAction(
+export async function downloadDocumentoArchivoAction(
   idProceso: number,
-): Promise<ActionResult<AlumnoProcesoDetailPayload>> {
-  return runServerAction(async () => {
-    const [horasResumen, horas, documentos, cartas, incidencias] = await Promise.all([
-      getProcesoHorasResumen(idProceso).catch(() => null),
-      listProcesoHoras(idProceso),
-      listProcesoDocumentos(idProceso),
-      listProcesoCartas(idProceso),
-      listProcesoIncidencias(idProceso),
-    ]);
+  idProcesoDocumento: number,
+): Promise<ActionResult<DownloadedFile>> {
+  return runServerAction(
+    () => downloadDocumentoArchivoActual(idProceso, idProcesoDocumento),
+    "No pudimos descargar el documento.",
+  );
+}
 
-    return { horasResumen, horas, documentos, cartas, incidencias };
-  }, "No pudimos cargar el detalle del proceso.");
+export async function downloadCartaArchivoAction(
+  idProceso: number,
+  kind: CartaDownloadKind,
+): Promise<ActionResult<DownloadedFile>> {
+  return runServerAction(
+    () =>
+      kind === "aceptacion"
+        ? downloadCartaAceptacionArchivo(idProceso)
+        : downloadCartaLiberacionArchivo(idProceso),
+    "No pudimos descargar la carta.",
+  );
 }

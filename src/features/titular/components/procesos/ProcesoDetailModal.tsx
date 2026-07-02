@@ -156,9 +156,9 @@ export function ProcesoDetailModal({
             {(detail?.horas ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay horas registradas.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.horas.map((hora) => (
-                  <li key={hora.idAsistencia} className={styles.titularCard}>
+                  <li key={hora.idAsistencia} className={styles.panelCard}>
                     <strong>{hora.fecha ?? "Sin fecha"}</strong>
                     <StatusBadge tone={estatusTone(hora.estatus)}>
                       {formatEtiqueta(hora.estatus)}
@@ -258,9 +258,9 @@ export function ProcesoDetailModal({
             {(detail?.incidencias ?? []).length === 0 ? (
               <p className={styles.emptyInline}>No hay incidencias registradas.</p>
             ) : (
-              <ul className={styles.titularList}>
+              <ul className={styles.panelList}>
                 {detail?.incidencias.map((incidencia) => (
-                  <li key={incidencia.idIncidencia} className={styles.titularCard}>
+                  <li key={incidencia.idIncidencia} className={styles.panelCard}>
                     <strong>{formatEtiqueta(incidencia.tipo)}</strong>
                     <StatusBadge tone={estatusTone(incidencia.estatus)}>
                       {formatEtiqueta(incidencia.estatus)}
