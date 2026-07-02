@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
-import { AlumnoDetailModal } from "./AlumnoDetailModal";
+import { EnlaceAlumnoDetailModal } from "./EnlaceAlumnoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
@@ -116,7 +116,7 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
         emptyTitle="No hay alumnos registrados"
         emptyDescription="Los alumnos vinculados a tu escuela aparecerán aquí."
       />
-      <AlumnoDetailModal
+      <EnlaceAlumnoDetailModal
         open={selected !== null}
         alumnoId={selected?.idAlumno ?? null}
         onClose={() => setSelected(null)}

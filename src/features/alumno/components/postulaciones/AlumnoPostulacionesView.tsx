@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/alumno.types";
-import { PostulacionDetailModal } from "./PostulacionDetailModal";
+import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
@@ -113,7 +113,7 @@ export function AlumnoPostulacionesView({
         emptyTitle="No tienes postulaciones"
         emptyDescription="Cuando te postules a una vacante, aparecerá en este listado."
       />
-      <PostulacionDetailModal
+      <AlumnoPostulacionDetailModal
         open={selected !== null}
         postulacionId={selected?.idPostulacion ?? null}
         onClose={() => setSelected(null)}

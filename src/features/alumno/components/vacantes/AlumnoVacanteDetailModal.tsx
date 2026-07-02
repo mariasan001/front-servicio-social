@@ -21,7 +21,7 @@ function canPostular(estatus?: string, activa?: boolean) {
   return normalized === "PUBLICADA" || normalized === "ACTIVA" || normalized === "VIGENTE";
 }
 
-export function VacanteDetailModal({
+export function AlumnoVacanteDetailModal({
   vacanteId,
   vacanteName,
   open,

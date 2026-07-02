@@ -216,7 +216,7 @@ function VacanteFormModalContent({
   );
 }
 
-export function VacanteFormModal({
+export function TitularVacanteFormModal({
   open,
   mode,
   vacante,

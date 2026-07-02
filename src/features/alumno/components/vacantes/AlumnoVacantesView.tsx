@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/alumno.types";
-import { VacanteDetailModal } from "./VacanteDetailModal";
+import { AlumnoVacanteDetailModal } from "./AlumnoVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
@@ -113,7 +113,7 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
         emptyTitle="No hay vacantes disponibles"
         emptyDescription="Cuando existan vacantes publicadas, podrás consultarlas y postularte aquí."
       />
-      <VacanteDetailModal
+      <AlumnoVacanteDetailModal
         open={selected !== null}
         vacanteId={selected?.idVacante ?? null}
         vacanteName={selected?.nombre}

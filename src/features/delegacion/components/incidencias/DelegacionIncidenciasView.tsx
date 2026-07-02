@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { IncidenciaResponse } from "../../types/delegacion.types";
-import { IncidenciaDetailModal } from "./IncidenciaDetailModal";
+import { DelegacionIncidenciaDetailModal } from "./DelegacionIncidenciaDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -41,7 +41,7 @@ export function DelegacionIncidenciasView({
     <section className={styles.page} aria-labelledby="delegacion-incidencias-title">
       <PageHeader titleId="delegacion-incidencias-title" eyebrow="Delegación" title="Incidencias" description="Consulta y resuelve incidencias reportadas en el programa." />
       <DataTable columns={columns} rows={incidencias} rowKey={(i) => i.idIncidencia} caption="Incidencias" emptyTitle="No hay incidencias" emptyDescription="Las incidencias reportadas aparecerán aquí." />
-      <IncidenciaDetailModal open={selected !== null} incidenciaId={selected?.idIncidencia ?? null} onClose={() => setSelected(null)} />
+      <DelegacionIncidenciaDetailModal open={selected !== null} incidenciaId={selected?.idIncidencia ?? null} onClose={() => setSelected(null)} />
     </section>
   );
 }

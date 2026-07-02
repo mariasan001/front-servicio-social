@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/titular.types";
-import { PostulacionDetailModal } from "./PostulacionDetailModal";
+import { TitularPostulacionDetailModal } from "./TitularPostulacionDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -108,7 +108,7 @@ export function TitularPostulacionesView({
         emptyTitle="No hay postulaciones"
         emptyDescription="Las postulaciones a tus vacantes aparecerán aquí."
       />
-      <PostulacionDetailModal
+      <TitularPostulacionDetailModal
         open={selected !== null}
         postulacionId={selected?.idPostulacion ?? null}
         onClose={() => setSelected(null)}

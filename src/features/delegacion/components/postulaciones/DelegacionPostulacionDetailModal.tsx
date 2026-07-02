@@ -10,17 +10,17 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-type PostulacionDetailModalProps = {
+type DelegacionPostulacionDetailModalProps = {
   postulacionId: number | null;
   open: boolean;
   onClose: () => void;
 };
 
-export function PostulacionDetailModal({
+export function DelegacionPostulacionDetailModal({
   postulacionId,
   open,
   onClose,
-}: PostulacionDetailModalProps) {
+}: DelegacionPostulacionDetailModalProps) {
   const [detail, setDetail] = useState<PostulacionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

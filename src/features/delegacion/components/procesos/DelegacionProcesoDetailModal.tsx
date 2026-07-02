@@ -13,6 +13,7 @@ import {
   getProcesoDetailAction,
   observeProcesoDocumentoAction,
   observeProcesoHoraAction,
+  registerProcesoIncidenciaAction,
   rejectProcesoDocumentoAction,
   rejectProcesoHoraAction,
   setProcesoHorasRequeridasAction,
@@ -37,13 +38,13 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-type ProcesoDetailModalProps = {
+type DelegacionProcesoDetailModalProps = {
   procesoId: number | null;
   open: boolean;
   onClose: () => void;
 };
 
-export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailModalProps) {
+export function DelegacionProcesoDetailModal({ procesoId, open, onClose }: DelegacionProcesoDetailModalProps) {
   const router = useRouter();
   const [detail, setDetail] = useState<ProcesoDetailPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +55,12 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [horasRequeridas, setHorasRequeridas] = useState("");
   const [comentario, setComentario] = useState("");
+  const [nuevaIncidencia, setNuevaIncidencia] = useState({
+    tipo: "",
+    severidad: "",
+    descripcion: "",
+    fechaIncidencia: "",
+  });
   const cartaAceptacionInput = useRef<HTMLInputElement | null>(null);
   const cartaLiberacionInput = useRef<HTMLInputElement | null>(null);
 
@@ -303,6 +310,100 @@ export function ProcesoDetailModal({ procesoId, open, onClose }: ProcesoDetailMo
               </ul>
             )}
           </section>
+
+          <section className={styles.detailSection}>
+            <h3 className={styles.detailSectionTitle}>Incidencias del proceso</h3>
+            {(detail?.incidencias ?? []).length === 0 ? (
+              <p className={styles.emptyInline}>No hay incidencias registradas.</p>
+            ) : (
+              <ul className={styles.panelList}>
+                {detail?.incidencias.map((incidencia) => (
+                  <li key={incidencia.idIncidencia} className={styles.panelCard}>
+                    <strong>{formatEtiqueta(incidencia.tipo)}</strong>
+                    <StatusBadge tone={estatusTone(incidencia.estatus)}>
+                      {formatEtiqueta(incidencia.estatus)}
+                    </StatusBadge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <div className={styles.inlineForm}>
+            <h3 className={styles.detailSectionTitle}>Registrar incidencia</h3>
+            <div className={styles.formGrid}>
+              <TextInput
+                id="inc-tipo"
+                label="Tipo"
+                value={nuevaIncidencia.tipo}
+                onChange={(event) =>
+                  setNuevaIncidencia((current) => ({ ...current, tipo: event.target.value }))
+                }
+              />
+              <TextInput
+                id="inc-severidad"
+                label="Severidad"
+                value={nuevaIncidencia.severidad}
+                onChange={(event) =>
+                  setNuevaIncidencia((current) => ({ ...current, severidad: event.target.value }))
+                }
+              />
+              <TextInput
+                id="inc-fecha"
+                label="Fecha"
+                type="date"
+                value={nuevaIncidencia.fechaIncidencia}
+                onChange={(event) =>
+                  setNuevaIncidencia((current) => ({
+                    ...current,
+                    fechaIncidencia: event.target.value,
+                  }))
+                }
+              />
+            </div>
+            <FormField id="inc-descripcion" label="Descripción">
+              <textarea
+                id="inc-descripcion"
+                className={formStyles.textarea}
+                rows={2}
+                value={nuevaIncidencia.descripcion}
+                onChange={(event) =>
+                  setNuevaIncidencia((current) => ({
+                    ...current,
+                    descripcion: event.target.value,
+                  }))
+                }
+              />
+            </FormField>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isMutating}
+              onClick={async () => {
+                if (
+                  !nuevaIncidencia.tipo.trim() ||
+                  !nuevaIncidencia.severidad.trim() ||
+                  !nuevaIncidencia.descripcion.trim() ||
+                  !nuevaIncidencia.fechaIncidencia
+                ) {
+                  setActionError("Completa todos los campos de la incidencia.");
+                  return;
+                }
+                setIsMutating(true);
+                const result = await registerProcesoIncidenciaAction(proceso.idProceso, {
+                  tipo: nuevaIncidencia.tipo.trim(),
+                  severidad: nuevaIncidencia.severidad.trim(),
+                  descripcion: nuevaIncidencia.descripcion.trim(),
+                  fechaIncidencia: nuevaIncidencia.fechaIncidencia,
+                });
+                setIsMutating(false);
+                if (!result.success) setActionError(result.error);
+                else refresh();
+              }}
+            >
+              Registrar incidencia
+            </Button>
+          </div>
 
           <section className={styles.detailSection}>
             <h3 className={styles.detailSectionTitle}>Cartas</h3>

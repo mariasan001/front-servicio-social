@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/titular.types";
-import { ProcesoDetailModal } from "./ProcesoDetailModal";
+import { TitularProcesoDetailModal } from "./TitularProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -102,7 +102,7 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
         emptyTitle="No hay procesos"
         emptyDescription="Los procesos activos de tu área aparecerán aquí."
       />
-      <ProcesoDetailModal
+      <TitularProcesoDetailModal
         open={selected !== null}
         procesoId={selected?.idProceso ?? null}
         onClose={() => setSelected(null)}

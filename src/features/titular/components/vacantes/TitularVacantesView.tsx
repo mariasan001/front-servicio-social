@@ -4,8 +4,8 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/titular.types";
 import type { TitularAreaContext } from "../../lib/area-context";
-import { VacanteDetailModal } from "./VacanteDetailModal";
-import { VacanteFormModal } from "./VacanteFormModal";
+import { TitularVacanteDetailModal } from "./TitularVacanteDetailModal";
+import { TitularVacanteFormModal } from "./TitularVacanteFormModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
@@ -157,7 +157,7 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         emptyDescription="Crea la primera vacante de tu área con el botón Nueva vacante."
       />
 
-      <VacanteDetailModal
+      <TitularVacanteDetailModal
         open={selected !== null}
         vacanteId={selected?.idVacante ?? null}
         vacanteName={selected?.nombre}
@@ -168,14 +168,14 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         }}
       />
 
-      <VacanteFormModal
+      <TitularVacanteFormModal
         open={createOpen}
         mode="create"
         areaContext={areaContext}
         onClose={() => setCreateOpen(false)}
       />
 
-      <VacanteFormModal
+      <TitularVacanteFormModal
         open={editVacante !== null}
         mode="edit"
         vacante={editVacante}

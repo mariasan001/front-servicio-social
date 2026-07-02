@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
-import { ProcesoDetailModal } from "./ProcesoDetailModal";
+import { EnlaceProcesoDetailModal } from "./EnlaceProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
@@ -118,7 +118,7 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
         emptyTitle="No hay procesos activos"
         emptyDescription="Cuando un alumno tenga proceso en curso, aparecerá en este listado."
       />
-      <ProcesoDetailModal
+      <EnlaceProcesoDetailModal
         open={selectedProcesoId !== null}
         procesoId={selectedProcesoId}
         onClose={() => setSelectedProcesoId(null)}

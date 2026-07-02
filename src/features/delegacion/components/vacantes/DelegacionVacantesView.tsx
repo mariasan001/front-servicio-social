@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/delegacion.types";
-import { VacanteDetailModal } from "./VacanteDetailModal";
+import { DelegacionVacanteDetailModal } from "./DelegacionVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -133,7 +133,7 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
         emptyDescription="Cuando existan vacantes en el sistema, aparecerán aquí."
       />
 
-      <VacanteDetailModal
+      <DelegacionVacanteDetailModal
         open={selected !== null}
         vacanteId={selected?.idVacante ?? null}
         vacanteName={selected?.nombre}

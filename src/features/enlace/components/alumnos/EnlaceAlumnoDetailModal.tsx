@@ -10,7 +10,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-export function AlumnoDetailModal({
+export function EnlaceAlumnoDetailModal({
   alumnoId,
   open,
   onClose,

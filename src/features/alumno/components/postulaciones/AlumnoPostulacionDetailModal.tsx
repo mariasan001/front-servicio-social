@@ -25,7 +25,7 @@ function canCancel(estatus?: string) {
   );
 }
 
-export function PostulacionDetailModal({
+export function AlumnoPostulacionDetailModal({
   postulacionId,
   open,
   onClose,

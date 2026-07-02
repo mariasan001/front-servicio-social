@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/delegacion.types";
-import { PostulacionDetailModal } from "./PostulacionDetailModal";
+import { DelegacionPostulacionDetailModal } from "./DelegacionPostulacionDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -63,7 +63,7 @@ export function DelegacionPostulacionesView({
         </label>
       </FilterBar>
       <DataTable columns={columns} rows={filtered} rowKey={(p) => p.idPostulacion} caption="Postulaciones" emptyTitle="No hay postulaciones" emptyDescription="Las postulaciones aparecerán aquí cuando existan en el sistema." />
-      <PostulacionDetailModal open={selected !== null} postulacionId={selected?.idPostulacion ?? null} onClose={() => setSelected(null)} />
+      <DelegacionPostulacionDetailModal open={selected !== null} postulacionId={selected?.idPostulacion ?? null} onClose={() => setSelected(null)} />
     </section>
   );
 }

@@ -12,7 +12,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-export function ProcesoDetailModal({
+export function EnlaceProcesoDetailModal({
   procesoId,
   open,
   onClose,

@@ -36,8 +36,8 @@ Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consum
 ## Panel
 
 - Rutas: `/panel/{rol}/[[...section]]`
-- Fase actual: secciones con `ApiSection` validan el backend con probes JSON
-- Siguiente fase: sustituir probes por UI real usando `DataTable`, `FilterBar`, `Modal`, etc.
+- Cada rol expone secciones desde `constants/sections.ts` y las renderiza con vistas cliente (`*View`) sobre componentes compartidos (`DataTable`, `FilterBar`, `Modal`, etc.)
+- Patrón por sección: `Section` (server) → `*View` (client) → modales con prefijo de rol → `actions/*.ts` → `services` → `revalidate-{rol}.ts`
 
 ## Mutaciones (Server Actions)
 

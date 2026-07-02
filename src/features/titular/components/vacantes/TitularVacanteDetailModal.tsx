@@ -16,7 +16,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-type VacanteDetailModalProps = {
+type TitularVacanteDetailModalProps = {
   vacanteId: number | null;
   vacanteName?: string;
   open: boolean;
@@ -28,13 +28,13 @@ function normalizeEstatus(estatus?: string) {
   return estatus?.trim().toUpperCase() ?? "";
 }
 
-export function VacanteDetailModal({
+export function TitularVacanteDetailModal({
   vacanteId,
   vacanteName,
   open,
   onClose,
   onEdit,
-}: VacanteDetailModalProps) {
+}: TitularVacanteDetailModalProps) {
   const router = useRouter();
   const [detail, setDetail] = useState<VacanteDetalleResponse | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/delegacion.types";
-import { ProcesoDetailModal } from "./ProcesoDetailModal";
+import { DelegacionProcesoDetailModal } from "./DelegacionProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -66,7 +66,7 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
         </label>
       </FilterBar>
       <DataTable columns={columns} rows={filtered} rowKey={(p) => p.idProceso} caption="Procesos" emptyTitle="No hay procesos" emptyDescription="Los procesos activos aparecerán aquí." />
-      <ProcesoDetailModal open={selected !== null} procesoId={selected?.idProceso ?? null} onClose={() => setSelected(null)} />
+      <DelegacionProcesoDetailModal open={selected !== null} procesoId={selected?.idProceso ?? null} onClose={() => setSelected(null)} />
     </section>
   );
 }

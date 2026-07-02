@@ -19,7 +19,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-type VacanteDetailModalProps = {
+type DelegacionVacanteDetailModalProps = {
   vacanteId: number | null;
   vacanteName?: string;
   open: boolean;
@@ -30,12 +30,12 @@ function normalizeEstatus(estatus?: string) {
   return estatus?.trim().toUpperCase() ?? "";
 }
 
-export function VacanteDetailModal({
+export function DelegacionVacanteDetailModal({
   vacanteId,
   vacanteName,
   open,
   onClose,
-}: VacanteDetailModalProps) {
+}: DelegacionVacanteDetailModalProps) {
   const router = useRouter();
   const [detail, setDetail] = useState<VacanteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);

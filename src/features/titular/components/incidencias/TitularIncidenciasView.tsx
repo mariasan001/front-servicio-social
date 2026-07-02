@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/titular.types";
-import { IncidenciaDetailModal } from "./IncidenciaDetailModal";
+import { TitularIncidenciaDetailModal } from "./TitularIncidenciaDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Button } from "@/shared/components/Button";
 import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
@@ -101,7 +101,7 @@ export function TitularIncidenciasView({
         emptyTitle="No hay incidencias"
         emptyDescription="Las incidencias registradas aparecerán aquí."
       />
-      <IncidenciaDetailModal
+      <TitularIncidenciaDetailModal
         open={selected !== null}
         incidenciaId={selected?.idIncidencia ?? null}
         onClose={() => setSelected(null)}
