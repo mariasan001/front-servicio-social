@@ -23,6 +23,10 @@ export type VacanteDetalleResponse = VacanteResponse & {
 export type PostulacionResponse = PostulacionBase & {
   alumnoNombre?: string;
   vacanteFolio?: string;
+  vacanteNombre?: string;
+  fechaPostulacion?: string;
+  requiereExamen?: boolean;
+  examenEstado?: string;
   areaId?: number;
   areaNombre?: string;
   modalidadId?: string;

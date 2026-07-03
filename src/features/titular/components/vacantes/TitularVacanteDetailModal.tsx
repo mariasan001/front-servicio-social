@@ -19,7 +19,7 @@ import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import vacanteStyles from "./TitularVacanteDetailModal.module.css";
+import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
 
 type TitularVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -191,12 +191,12 @@ export function TitularVacanteDetailModal({
               </div>
             </dl>
 
-            <div className={vacanteStyles.narrativeBlock}>
-              <p className={vacanteStyles.narrativeLabel}>Descripción</p>
+            <div className={narrativeStyles.narrativeBlock}>
+              <p className={narrativeStyles.narrativeLabel}>Descripción</p>
               <p
                 className={[
-                  vacanteStyles.narrativeValue,
-                  !descripcion && vacanteStyles.narrativeEmpty,
+                  narrativeStyles.narrativeValue,
+                  !descripcion && narrativeStyles.narrativeEmpty,
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -205,12 +205,12 @@ export function TitularVacanteDetailModal({
               </p>
             </div>
 
-            <div className={vacanteStyles.narrativeBlock}>
-              <p className={vacanteStyles.narrativeLabel}>Perfil requerido</p>
+            <div className={narrativeStyles.narrativeBlock}>
+              <p className={narrativeStyles.narrativeLabel}>Perfil requerido</p>
               <p
                 className={[
-                  vacanteStyles.narrativeValue,
-                  !perfilRequerido && vacanteStyles.narrativeEmpty,
+                  narrativeStyles.narrativeValue,
+                  !perfilRequerido && narrativeStyles.narrativeEmpty,
                 ]
                   .filter(Boolean)
                   .join(" ")}

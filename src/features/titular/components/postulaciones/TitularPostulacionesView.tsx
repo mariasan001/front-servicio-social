@@ -5,11 +5,25 @@ import { ClipboardList, Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/titular.types";
 import { TitularPostulacionDetailModal } from "./TitularPostulacionDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import {
+  DataTable,
+  DataTableActions,
+  DataTableIconAction,
+  DataTableToolbar,
+  type DataTableColumn,
+} from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
+
+function getExamenLabel(postulacion: PostulacionResponse) {
+  if (!postulacion.requiereExamen) {
+    return "No aplica";
+  }
+
+  return formatEtiqueta(postulacion.examenEstado, "Pendiente");
+}
 
 export function TitularPostulacionesView({
   postulaciones,
@@ -25,7 +39,14 @@ export function TitularPostulacionesView({
     if (!query) return postulaciones;
     return postulaciones.filter((postulacion) =>
       normalizeText(
-        [postulacion.folio, postulacion.estatus, postulacion.alumnoNombre, postulacion.vacanteFolio]
+        [
+          postulacion.folio,
+          postulacion.estatus,
+          postulacion.examenEstado,
+          postulacion.alumnoNombre,
+          postulacion.vacanteFolio,
+          postulacion.vacanteNombre,
+        ]
           .filter(Boolean)
           .join(" "),
       ).includes(query),
@@ -48,7 +69,22 @@ export function TitularPostulacionesView({
     {
       id: "vacante",
       header: "Vacante",
-      cell: (postulacion) => postulacion.vacanteFolio ?? "Sin folio",
+      cell: (postulacion) =>
+        postulacion.vacanteNombre?.trim() || postulacion.vacanteFolio || "Sin vacante",
+    },
+    {
+      id: "examen",
+      header: "Examen",
+      align: "center",
+      width: "14%",
+      cell: (postulacion) =>
+        postulacion.requiereExamen ? (
+          <StatusBadge variant="dot" tone={estatusTone(postulacion.examenEstado)}>
+            {getExamenLabel(postulacion)}
+          </StatusBadge>
+        ) : (
+          <span className={styles.cellEmpty}>No aplica</span>
+        ),
     },
     {
       id: "estatus",

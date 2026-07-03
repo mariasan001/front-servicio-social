@@ -20,7 +20,19 @@ export type DashboardResponse = {
   postulacionesPendientes: number;
 };
 
-export type VacanteResponse = VacanteBase;
+export type VacanteResponse = VacanteBase & {
+  areaId?: number;
+  areaNombre?: string;
+  modalidadTrabajo?: string;
+  cupoTotal?: number;
+  cupoDisponible?: number;
+};
+
+export type VacanteDetalleResponse = VacanteResponse & {
+  descripcion?: string;
+  perfilRequerido?: string;
+  requiereExamen?: boolean;
+};
 
 export type PostulacionResponse = PostulacionBase;
 

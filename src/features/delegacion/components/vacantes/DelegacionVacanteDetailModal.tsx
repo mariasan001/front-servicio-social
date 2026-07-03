@@ -1,7 +1,9 @@
 "use client";
 
+import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
+import { getModalidadTrabajoLabel } from "@/features/titular/constants/vacante-form";
 import {
   closeVacanteAction,
   getVacanteDetailAction,
@@ -11,13 +13,16 @@ import {
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { CupoMeter } from "@/shared/components/CupoMeter";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
+import delegacionStyles from "./DelegacionVacanteDetailModal.module.css";
 
 type DelegacionVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -109,80 +114,162 @@ export function DelegacionVacanteDetailModal({
   const canClose = estatus === "PUBLICADA" || estatus === "ACTIVA";
   const canReject = estatus !== "RECHAZADA" && estatus !== "CERRADA";
 
+  const folio = detail?.folio?.trim();
+  const areaNombre = detail?.areaNombre?.trim();
+  const descripcion = detail?.descripcion?.trim();
+  const perfilRequerido = detail?.perfilRequerido?.trim();
+
   return (
     <Modal
       open={open}
-      title={detail?.nombre ?? vacanteName ?? "Información de la vacante"}
+      title={detail?.nombre ?? vacanteName ?? "Vacante"}
       onClose={onClose}
       size="lg"
       footer={
         detail ? (
-          <div className={styles.modalFooter}>
-            {canPublish ? (
-              <Button type="button" onClick={() => void handlePublish()} disabled={isMutating}>
-                Publicar vacante
-              </Button>
-            ) : null}
+          <div className={styles.footer}>
             {canClose ? (
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
+                className={styles.dangerButton}
                 onClick={() => void handleClose()}
                 disabled={isMutating}
               >
                 Cerrar vacante
               </Button>
             ) : null}
+            {canPublish ? (
+              <Button type="button" onClick={() => void handlePublish()} disabled={isMutating}>
+                {isMutating ? "Procesando…" : "Publicar vacante"}
+              </Button>
+            ) : null}
           </div>
         ) : undefined
       }
     >
-      {isLoading && !detail ? <LoadingState label="Cargando información de la vacante…" /> : null}
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
       {detail ? (
-        <div className={styles.detailLayout}>
-          <div className={styles.detailSummary}>
+        <div
+          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          aria-busy={isReloading}
+        >
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <Briefcase size={18} strokeWidth={1.75} />
+            </div>
+
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>{areaNombre || "Sin área asignada"}</p>
+              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
+            </div>
+
             <StatusBadge tone={estatusTone(detail.estatus)}>
               {formatEtiqueta(detail.estatus, "Sin estatus")}
             </StatusBadge>
           </div>
 
-          <dl className={styles.detailGrid}>
-            <div className={styles.detailItem}>
-              <dt>Folio</dt>
-              <dd>{detail.folio?.trim() || "Sin folio"}</dd>
-            </div>
-            <div className={styles.detailItem}>
-              <dt>Nombre</dt>
-              <dd>{detail.nombre?.trim() || "Sin nombre"}</dd>
-            </div>
-          </dl>
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <dt>Folio</dt>
+                <dd>{folio || "Sin folio registrado"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Área</dt>
+                <dd>{areaNombre || "Sin área asignada"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Modalidad de trabajo</dt>
+                <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Examen requerido</dt>
+                <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Cupo</dt>
+                <dd>
+                  <CupoMeter
+                    variant="detail"
+                    disponible={detail.cupoDisponible}
+                    total={detail.cupoTotal}
+                  />
+                </dd>
+              </div>
+            </dl>
 
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+            <div className={narrativeStyles.narrativeBlock}>
+              <p className={narrativeStyles.narrativeLabel}>Descripción</p>
+              <p
+                className={[
+                  narrativeStyles.narrativeValue,
+                  !descripcion && narrativeStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {descripcion || "Sin descripción registrada."}
+              </p>
+            </div>
+
+            <div className={narrativeStyles.narrativeBlock}>
+              <p className={narrativeStyles.narrativeLabel}>Perfil requerido</p>
+              <p
+                className={[
+                  narrativeStyles.narrativeValue,
+                  !perfilRequerido && narrativeStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {perfilRequerido || "Sin perfil registrado."}
+              </p>
+            </div>
+          </div>
 
           {canReject ? (
-            <div className={styles.inlineForm}>
-              <FormField id="vacante-motivo" label="Motivo de rechazo">
-                <textarea
-                  id="vacante-motivo"
-                  className={formStyles.textarea}
-                  rows={3}
-                  value={motivoRechazo}
-                  onChange={(event) => setMotivoRechazo(event.target.value)}
-                />
-              </FormField>
-              <div className={styles.formActions}>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => void handleReject()}
-                  disabled={isMutating}
-                >
+            <section className={styles.section} aria-labelledby="vacante-rechazo-title">
+              <div className={styles.sectionHeader}>
+                <h3 id="vacante-rechazo-title" className={styles.sectionTitle}>
                   Rechazar vacante
-                </Button>
+                </h3>
+                <p className={styles.sectionDescription}>
+                  Indica el motivo para devolver la vacante al titular del área.
+                </p>
               </div>
-            </div>
+
+              <div className={delegacionStyles.rejectComposer}>
+                <FormField id="vacante-motivo" label="Motivo de rechazo" required>
+                  <textarea
+                    id="vacante-motivo"
+                    className={formStyles.textarea}
+                    rows={3}
+                    value={motivoRechazo}
+                    onChange={(event) => {
+                      setMotivoRechazo(event.target.value);
+                      setActionError(null);
+                    }}
+                  />
+                </FormField>
+
+                <div className={delegacionStyles.rejectActions}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={styles.dangerButton}
+                    onClick={() => void handleReject()}
+                    disabled={isMutating}
+                  >
+                    Rechazar vacante
+                  </Button>
+                </div>
+              </div>
+            </section>
           ) : null}
         </div>
       ) : null}

@@ -5,6 +5,7 @@ import { Eye, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/delegacion.types";
 import { DelegacionVacanteDetailModal } from "./DelegacionVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -64,6 +65,18 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
         <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
           {formatEtiqueta(vacante.estatus, "Sin estatus")}
         </StatusBadge>
+      ),
+    },
+    {
+      id: "cupo",
+      header: "Cupo",
+      width: "12%",
+      cell: (vacante) => (
+        <CupoMeter
+          variant="compact"
+          disponible={vacante.cupoDisponible}
+          total={vacante.cupoTotal}
+        />
       ),
     },
     {

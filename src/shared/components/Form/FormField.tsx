@@ -37,13 +37,13 @@ export function FormField({
         ) : null}
       </label>
 
-      <div aria-describedby={describedBy}>{children}</div>
-
       {hint ? (
         <p id={hintId} className={styles.hint}>
           {hint}
         </p>
       ) : null}
+
+      <div aria-describedby={describedBy}>{children}</div>
 
       {error ? (
         <p id={errorId} className={styles.error} role="alert">

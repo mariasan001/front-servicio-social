@@ -1,29 +1,22 @@
 "use client";
 
+import { ClipboardList } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
   cancelPostulacionAction,
   getPostulacionDetailAction,
 } from "../../actions/postulaciones.actions";
+import { canCancelPostulacion } from "../../lib/postulacion.utils";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-
-function canCancel(estatus?: string) {
-  const value = estatus?.trim().toUpperCase() ?? "";
-  return (
-    value === "PENDIENTE" ||
-    value === "EN_REVISION" ||
-    value === "EN_EXAMEN" ||
-    value === "ACEPTADA"
-  );
-}
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
 
 export function AlumnoPostulacionDetailModal({
   postulacionId,
@@ -55,83 +48,126 @@ export function AlumnoPostulacionDetailModal({
     setReloadKey((key) => key + 1);
   };
 
-  const cancelVisible = detail ? canCancel(detail.estatus) : false;
+  const cancelVisible = detail ? canCancelPostulacion(detail.estatus) : false;
+  const vacanteNombre = detail?.vacanteNombre?.trim();
+  const vacanteFolio = detail?.vacanteFolio?.trim();
+  const folio = detail?.folio?.trim();
+
+  const handleCancel = async () => {
+    if (!detail) {
+      return;
+    }
+
+    setIsMutating(true);
+    setActionError(null);
+
+    const result = await cancelPostulacionAction(detail.idPostulacion);
+
+    setIsMutating(false);
+
+    if (!result.success) {
+      setActionError(result.error);
+      return;
+    }
+
+    refresh();
+    onClose();
+  };
 
   return (
     <Modal
       open={open}
-      title={detail?.folio ? `Postulación ${detail.folio}` : "Postulación"}
+      title={vacanteNombre || (folio ? `Postulación ${folio}` : "Postulación")}
       onClose={onClose}
       size="lg"
       footer={
         cancelVisible ? (
-          <div className={styles.modalFooter}>
+          <div className={styles.footer}>
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
+              className={styles.dangerButton}
               disabled={isMutating}
-              onClick={async () => {
-                if (!detail) return;
-                setIsMutating(true);
-                setActionError(null);
-                const result = await cancelPostulacionAction(detail.idPostulacion);
-                setIsMutating(false);
-                if (!result.success) {
-                  setActionError(result.error);
-                  return;
-                }
-                refresh();
-              }}
+              onClick={() => void handleCancel()}
             >
-              Cancelar postulación
+              {isMutating ? "Cancelando…" : "Cancelar postulación"}
             </Button>
           </div>
-        ) : null
+        ) : undefined
       }
     >
-      {isLoading && !detail ? <LoadingState label="Cargando postulación…" /> : null}
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       {detail ? (
-        <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(detail.estatus)}>
-            {formatEtiqueta(detail.estatus)}
-          </StatusBadge>
-          <dl className={styles.detailGrid}>
-            <div className={styles.detailItem}>
-              <dt>Vacante</dt>
-              <dd>{detail.vacanteNombre?.trim() || detail.vacanteFolio || "Sin vacante"}</dd>
+        <div
+          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          aria-busy={isReloading}
+        >
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <ClipboardList size={18} strokeWidth={1.75} />
             </div>
-            <div className={styles.detailItem}>
-              <dt>Fecha de postulación</dt>
-              <dd>{formatFecha(detail.fechaPostulacion)}</dd>
+
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>
+                {vacanteNombre || vacanteFolio || "Sin vacante asignada"}
+              </p>
+              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
             </div>
-            {detail.requiereExamen ? (
-              <div className={styles.detailItem}>
+
+            <StatusBadge tone={estatusTone(detail.estatus)}>
+              {formatEtiqueta(detail.estatus, "Sin estatus")}
+            </StatusBadge>
+          </div>
+
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <dt>Vacante</dt>
+                <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Fecha de postulación</dt>
+                <dd>{formatFecha(detail.fechaPostulacion)}</dd>
+              </div>
+              <div className={styles.infoItem}>
                 <dt>Examen</dt>
-                <dd>{formatEtiqueta(detail.examenEstado, "Pendiente")}</dd>
+                <dd>
+                  {detail.requiereExamen ? (
+                    <StatusBadge tone={estatusTone(detail.examenEstado)}>
+                      {formatEtiqueta(detail.examenEstado, "Pendiente")}
+                    </StatusBadge>
+                  ) : (
+                    "No aplica"
+                  )}
+                </dd>
+              </div>
+            </dl>
+
+            {detail.comentarioAlumno ? (
+              <div className={narrativeStyles.narrativeBlock}>
+                <p className={narrativeStyles.narrativeLabel}>Tu comentario</p>
+                <p className={narrativeStyles.narrativeValue}>{detail.comentarioAlumno}</p>
               </div>
             ) : null}
-          </dl>
-          {detail.comentarioAlumno ? (
-            <section className={styles.detailSection}>
-              <h3 className={styles.detailSectionTitle}>Tu comentario</h3>
-              <p className={styles.emptyInline}>{detail.comentarioAlumno}</p>
-            </section>
-          ) : null}
-          {detail.comentarioTitular ? (
-            <section className={styles.detailSection}>
-              <h3 className={styles.detailSectionTitle}>Comentario del titular</h3>
-              <p className={styles.emptyInline}>{detail.comentarioTitular}</p>
-            </section>
-          ) : null}
-          {detail.motivoRechazo ? (
-            <section className={styles.detailSection}>
-              <h3 className={styles.detailSectionTitle}>Motivo de rechazo</h3>
-              <p className={styles.emptyInline}>{detail.motivoRechazo}</p>
-            </section>
-          ) : null}
+
+            {detail.comentarioTitular ? (
+              <div className={narrativeStyles.narrativeBlock}>
+                <p className={narrativeStyles.narrativeLabel}>Comentario del titular</p>
+                <p className={narrativeStyles.narrativeValue}>{detail.comentarioTitular}</p>
+              </div>
+            ) : null}
+
+            {detail.motivoRechazo ? (
+              <div className={narrativeStyles.narrativeBlock}>
+                <p className={narrativeStyles.narrativeLabel}>Motivo de rechazo</p>
+                <p className={narrativeStyles.narrativeValue}>{detail.motivoRechazo}</p>
+              </div>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </Modal>

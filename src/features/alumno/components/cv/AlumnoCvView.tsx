@@ -1,38 +1,121 @@
 "use client";
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
 import type { CvResponse } from "../../types/alumno.types";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
-import { FormField } from "@/shared/components/Form";
+import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
-import { PageHeader } from "@/shared/components/PageHeader";
+import { PageGreeting } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
+import pageStyles from "@/shared/styles/PanelSectionView.module.css";
+import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
+import { CvEntryList } from "./CvEntryList";
+import {
+  countCvProgress,
+  getMissingCvFields,
+  type CvTrackedField,
+} from "./cv-labels";
+import {
+  parseListItems,
+  serializeListItems,
+} from "./cv-list.utils";
+import styles from "./AlumnoCvView.module.css";
 
 type AlumnoCvViewProps = {
   cv: CvResponse;
+  nombreCompleto: string;
 };
 
-export function AlumnoCvView({ cv }: AlumnoCvViewProps) {
-  const router = usePanelRouter();
-  const [form, setForm] = useState({
+type CvFormState = Record<CvTrackedField, string> & {
+  portafolioUrl: string;
+};
+
+function buildInitialForm(cv: CvResponse): CvFormState {
+  return {
     perfilProfesional: cv.perfilProfesional ?? "",
     experienciaLaboral: cv.experienciaLaboral ?? "",
     habilidades: cv.habilidades ?? "",
     idiomas: cv.idiomas ?? "",
     certificaciones: cv.certificaciones ?? "",
     portafolioUrl: cv.portafolioUrl ?? "",
-  });
+  };
+}
+
+export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
+  const router = usePanelRouter();
+  const firstName =
+    nombreCompleto.trim().split(/\s+/)[0]?.trim() || nombreCompleto.trim() || "alumno";
+  const [form, setForm] = useState(() => buildInitialForm(cv));
+  const [habilidadesItems, setHabilidadesItems] = useState(() =>
+    parseListItems(cv.habilidades ?? ""),
+  );
+  const [experienciaItems, setExperienciaItems] = useState(() =>
+    parseListItems(cv.experienciaLaboral ?? ""),
+  );
+  const [idiomasItems, setIdiomasItems] = useState(() => parseListItems(cv.idiomas ?? ""));
+  const [certificacionesItems, setCertificacionesItems] = useState(() =>
+    parseListItems(cv.certificaciones ?? ""),
+  );
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const updateField = (field: keyof typeof form, value: string) => {
+  useEffect(() => {
+    setForm(buildInitialForm(cv));
+    setHabilidadesItems(parseListItems(cv.habilidades ?? ""));
+    setExperienciaItems(parseListItems(cv.experienciaLaboral ?? ""));
+    setIdiomasItems(parseListItems(cv.idiomas ?? ""));
+    setCertificacionesItems(parseListItems(cv.certificaciones ?? ""));
+  }, [cv]);
+
+  const effectiveForm = useMemo<CvFormState>(
+    () => ({
+      ...form,
+      habilidades: serializeListItems(habilidadesItems),
+      experienciaLaboral: serializeListItems(experienciaItems),
+      idiomas: serializeListItems(idiomasItems),
+      certificaciones: serializeListItems(certificacionesItems),
+    }),
+    [form, habilidadesItems, experienciaItems, idiomasItems, certificacionesItems],
+  );
+
+  const isComplete = useMemo(
+    () => countCvProgress(effectiveForm).requiredComplete,
+    [effectiveForm],
+  );
+  const missingFields = useMemo(() => getMissingCvFields(effectiveForm), [effectiveForm]);
+
+  const updateField = (field: keyof CvFormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
     setSuccess(null);
+    setError(null);
+  };
+
+  const updateHabilidades = (items: string[]) => {
+    setHabilidadesItems(items);
+    setSuccess(null);
+    setError(null);
+  };
+
+  const updateExperiencia = (items: string[]) => {
+    setExperienciaItems(items);
+    setSuccess(null);
+    setError(null);
+  };
+
+  const updateIdiomas = (items: string[]) => {
+    setIdiomasItems(items);
+    setSuccess(null);
+    setError(null);
+  };
+
+  const updateCertificaciones = (items: string[]) => {
+    setCertificacionesItems(items);
+    setSuccess(null);
+    setError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -40,117 +123,177 @@ export function AlumnoCvView({ cv }: AlumnoCvViewProps) {
     setIsSaving(true);
     setError(null);
     setSuccess(null);
+
     const result = await updateCvAction({
-      perfilProfesional: form.perfilProfesional.trim() || undefined,
-      experienciaLaboral: form.experienciaLaboral.trim() || undefined,
-      habilidades: form.habilidades.trim() || undefined,
-      idiomas: form.idiomas.trim() || undefined,
-      certificaciones: form.certificaciones.trim() || undefined,
-      portafolioUrl: form.portafolioUrl.trim() || undefined,
+      perfilProfesional: effectiveForm.perfilProfesional.trim() || undefined,
+      experienciaLaboral: effectiveForm.experienciaLaboral.trim() || undefined,
+      habilidades: effectiveForm.habilidades.trim() || undefined,
+      idiomas: effectiveForm.idiomas.trim() || undefined,
+      certificaciones: effectiveForm.certificaciones.trim() || undefined,
+      portafolioUrl: effectiveForm.portafolioUrl.trim() || undefined,
     });
+
     setIsSaving(false);
+
     if (!result.success) {
       setError(result.error);
       return;
     }
+
     setSuccess("Tu CV se actualizó correctamente.");
     router.refresh();
   };
 
   return (
-    <section className={styles.page} aria-labelledby="alumno-cv-title">
-      <PageHeader
-        titleId="alumno-cv-title"
-        title="Mi CV"
-        description="Mantén actualizada tu información profesional para tus postulaciones."
-      />
+    <section className={pageStyles.page} aria-labelledby="alumno-cv-title">
+      <header className={styles.cvHeader}>
+        <div className={styles.cvHeaderMain}>
+          <div className={styles.cvHeaderCopy}>
+            <h1 id="alumno-cv-title" className={styles.cvTitle}>
+              <PageGreeting name={firstName} />
+            </h1>
+            <p className={styles.cvDescription}>
+              Actualiza tu perfil profesional. Las áreas lo consultan al revisar tus
+              postulaciones.
+            </p>
+          </div>
 
-      <div className={styles.detailLayout}>
-        <StatusBadge tone={cv.completo ? "success" : "warning"}>
-          {cv.completo ? "CV completo" : "CV incompleto"}
-        </StatusBadge>
+          <StatusBadge tone={isComplete ? "success" : "warning"}>
+            {isComplete ? "CV completo" : "CV incompleto"}
+          </StatusBadge>
+        </div>
 
-        {!cv.completo && (cv.camposFaltantes?.length ?? 0) > 0 ? (
-          <p className={styles.detailLead}>
-            Campos pendientes: {cv.camposFaltantes?.join(", ")}
+        {!isComplete && missingFields.length > 0 ? (
+          <p className={styles.cvPending}>
+            Te falta completar: {missingFields.join(", ")}.
           </p>
         ) : null}
 
-        {error ? <Alert tone="error">{error}</Alert> : null}
-        {success ? <Alert tone="success">{success}</Alert> : null}
+        <hr className={styles.cvDivider} aria-hidden="true" />
+      </header>
 
-        <form className={styles.detailLayout} onSubmit={(event) => void handleSubmit(event)}>
-          <div className={styles.formGrid}>
-            <div className={styles.formGridFull}>
-              <FormField id="perfil-profesional" label="Perfil profesional">
-                <textarea
-                  id="perfil-profesional"
-                  className={formStyles.textarea}
-                  rows={4}
-                  value={form.perfilProfesional}
-                  onChange={(event) => updateField("perfilProfesional", event.target.value)}
-                />
-              </FormField>
+      <div className={styles.layout}>
+        <article className={styles.formCard}>
+          {error ? <Alert tone="error">{error}</Alert> : null}
+          {success ? <Alert tone="success">{success}</Alert> : null}
+
+          <form className={formLayoutStyles.formLayout} onSubmit={(event) => void handleSubmit(event)}>
+            <section className={formLayoutStyles.formSection} aria-label="Perfil profesional">
+              <p className={formLayoutStyles.formSectionTitle}>Perfil profesional</p>
+              <div className={formLayoutStyles.formGrid}>
+                <div className={formLayoutStyles.formGridFull}>
+                  <FormField
+                    id="perfil-profesional"
+                    label="Resumen profesional"
+                    hint="Formación, intereses y objetivo en servicio social o residencia."
+                  >
+                    <textarea
+                      id="perfil-profesional"
+                      className={formStyles.textarea}
+                      rows={4}
+                      value={form.perfilProfesional}
+                      onChange={(event) => updateField("perfilProfesional", event.target.value)}
+                    />
+                  </FormField>
+                </div>
+              </div>
+            </section>
+
+            <section className={formLayoutStyles.formSection} aria-label="Experiencia y habilidades">
+              <p className={formLayoutStyles.formSectionTitle}>Experiencia y habilidades</p>
+              <div className={formLayoutStyles.formGrid}>
+                <div className={formLayoutStyles.formGridFull}>
+                  <FormField
+                    id="experiencia-laboral"
+                    label="Experiencia laboral"
+                    hint="Agrega cada práctica, proyecto o empleo por separado."
+                  >
+                    <CvEntryList
+                      idPrefix="experiencia-laboral"
+                      items={experienciaItems}
+                      onChange={updateExperiencia}
+                      addLabel="Agregar experiencia"
+                      placeholder="Ej: Auxiliar administrativo — Empresa X (2024)"
+                      emptyHint="Aún no has agregado experiencia. Usa el botón para registrar la primera."
+                    />
+                  </FormField>
+                </div>
+
+                <div className={formLayoutStyles.formGridFull}>
+                  <FormField
+                    id="habilidades"
+                    label="Habilidades"
+                    hint="Escribe una habilidad por renglón y agrega más cuando lo necesites."
+                  >
+                    <CvEntryList
+                      idPrefix="habilidad"
+                      items={habilidadesItems}
+                      onChange={updateHabilidades}
+                      addLabel="Agregar habilidad"
+                      placeholder="Ej: Trabajo en equipo"
+                      emptyHint="Agrega al menos una habilidad para completar este apartado."
+                    />
+                  </FormField>
+                </div>
+              </div>
+            </section>
+
+            <section className={formLayoutStyles.formSection} aria-label="Información complementaria">
+              <p className={formLayoutStyles.formSectionTitle}>Información complementaria</p>
+              <div className={formLayoutStyles.formGrid}>
+                <div className={formLayoutStyles.formGridFull}>
+                  <FormField
+                    id="idiomas"
+                    label="Idiomas"
+                    hint="Agrega un idioma por renglón con su nivel."
+                  >
+                    <CvEntryList
+                      idPrefix="idioma"
+                      items={idiomasItems}
+                      onChange={updateIdiomas}
+                      addLabel="Agregar idioma"
+                      placeholder="Ej: Inglés intermedio (B1)"
+                    />
+                  </FormField>
+                </div>
+
+                <div className={formLayoutStyles.formGridFull}>
+                  <FormField
+                    id="certificaciones"
+                    label="Certificaciones"
+                    hint="Agrega cada curso o diploma por separado."
+                  >
+                    <CvEntryList
+                      idPrefix="certificacion"
+                      items={certificacionesItems}
+                      onChange={updateCertificaciones}
+                      addLabel="Agregar certificación"
+                      placeholder="Ej: Excel intermedio — Udemy (2024)"
+                    />
+                  </FormField>
+                </div>
+
+                <div className={formLayoutStyles.formGridFull}>
+                  <TextInput
+                    id="portafolio-url"
+                    label="URL de portafolio"
+                    type="url"
+                    hint="Opcional. Enlace a GitHub, Behance, sitio personal u otro portafolio."
+                    placeholder="https://"
+                    value={form.portafolioUrl}
+                    onChange={(event) => updateField("portafolioUrl", event.target.value)}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <div className={styles.formFooter}>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Guardando…" : "Guardar CV"}
+              </Button>
             </div>
-            <div className={styles.formGridFull}>
-              <FormField id="experiencia-laboral" label="Experiencia laboral">
-                <textarea
-                  id="experiencia-laboral"
-                  className={formStyles.textarea}
-                  rows={4}
-                  value={form.experienciaLaboral}
-                  onChange={(event) => updateField("experienciaLaboral", event.target.value)}
-                />
-              </FormField>
-            </div>
-            <div className={styles.formGridFull}>
-              <FormField id="habilidades" label="Habilidades">
-                <textarea
-                  id="habilidades"
-                  className={formStyles.textarea}
-                  rows={3}
-                  value={form.habilidades}
-                  onChange={(event) => updateField("habilidades", event.target.value)}
-                />
-              </FormField>
-            </div>
-            <FormField id="idiomas" label="Idiomas">
-              <textarea
-                id="idiomas"
-                className={formStyles.textarea}
-                rows={2}
-                value={form.idiomas}
-                onChange={(event) => updateField("idiomas", event.target.value)}
-              />
-            </FormField>
-            <FormField id="certificaciones" label="Certificaciones">
-              <textarea
-                id="certificaciones"
-                className={formStyles.textarea}
-                rows={2}
-                value={form.certificaciones}
-                onChange={(event) => updateField("certificaciones", event.target.value)}
-              />
-            </FormField>
-            <div className={styles.formGridFull}>
-              <FormField id="portafolio-url" label="URL de portafolio">
-                <input
-                  id="portafolio-url"
-                  className={formStyles.input}
-                  type="url"
-                  value={form.portafolioUrl}
-                  onChange={(event) => updateField("portafolioUrl", event.target.value)}
-                  placeholder="https://"
-                />
-              </FormField>
-            </div>
-          </div>
-          <div className={styles.detailActions}>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? "Guardando…" : "Guardar CV"}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </article>
       </div>
     </section>
   );

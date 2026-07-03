@@ -2,6 +2,7 @@ import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   ListVacantesFilters,
+  VacanteDetalleResponse,
   VacanteResponse,
 } from "../types/delegacion.types";
 
@@ -15,7 +16,7 @@ export async function listVacantes(filters?: ListVacantesFilters) {
 }
 
 export async function getVacante(idVacante: number) {
-  const response = await serverApiRequest<VacanteResponse>(
+  const response = await serverApiRequest<VacanteDetalleResponse>(
     `/api/delegacion/vacantes/${idVacante}`,
     { method: "GET" },
   );

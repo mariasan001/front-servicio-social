@@ -1,13 +1,19 @@
 import { getApiErrorMessage } from "@/lib/api/errors";
+import { requireServerSession } from "@/lib/auth/session.server";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { AlumnoCvView } from "../components/cv/AlumnoCvView";
 import { getCv } from "../services/cv.service";
 
 export async function AlumnoCvSection() {
-  const result = await getCv().catch((error: unknown) => ({
-    error: getApiErrorMessage(error, "No pudimos cargar tu CV."),
-  }));
+  const result = await requireServerSession()
+    .then(async (session) => {
+      const cv = await getCv();
+      return { session, cv };
+    })
+    .catch((error: unknown) => ({
+      error: getApiErrorMessage(error, "No pudimos cargar tu CV."),
+    }));
 
   if ("error" in result) {
     return (
@@ -22,5 +28,10 @@ export async function AlumnoCvSection() {
     );
   }
 
-  return <AlumnoCvView cv={result} />;
+  return (
+    <AlumnoCvView
+      cv={result.cv}
+      nombreCompleto={result.session.nombreCompleto}
+    />
+  );
 }

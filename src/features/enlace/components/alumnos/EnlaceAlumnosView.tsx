@@ -23,9 +23,11 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       const haystack = [
         alumno.nombreCompleto,
         alumno.correo,
+        alumno.nombreEscuela,
         alumno.folioProceso,
         alumno.estatusProceso,
         alumno.vacante,
+        alumno.modalidad,
       ]
         .filter(Boolean)
         .join(" ");
@@ -45,13 +47,35 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       ),
     },
     {
+      id: "escuela",
+      header: "Escuela",
+      cell: (alumno) => alumno.nombreEscuela?.trim() || "Sin escuela",
+    },
+    {
       id: "proceso",
       header: "Proceso",
-      cell: (alumno) => alumno.folioProceso?.trim() || "Sin proceso",
+      cell: (alumno) => (
+        <div className={styles.nameCell}>
+          <strong>{alumno.folioProceso?.trim() || "Sin proceso"}</strong>
+          <span className={styles.nameHint}>{alumno.vacante?.trim() || "Sin vacante"}</span>
+        </div>
+      ),
+    },
+    {
+      id: "horas",
+      header: "Horas",
+      align: "center",
+      width: "12%",
+      cell: (alumno) =>
+        alumno.horasRequeridas !== undefined && alumno.horasRequeridas !== null
+          ? `${alumno.horasAcumuladas ?? 0} / ${alumno.horasRequeridas}`
+          : "—",
     },
     {
       id: "avance",
       header: "Avance",
+      align: "center",
+      width: "10%",
       cell: (alumno) =>
         alumno.porcentajeAvance !== undefined && alumno.porcentajeAvance !== null
           ? `${alumno.porcentajeAvance}%`
@@ -97,7 +121,7 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
                   type="search"
                   className={styles.searchInput}
                   value={search}
-                  placeholder="Nombre, correo o proceso"
+                  placeholder="Nombre, correo, escuela o proceso"
                   onChange={(event) => setSearch(event.target.value)}
                 />
               </span>

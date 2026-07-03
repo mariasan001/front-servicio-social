@@ -10,12 +10,13 @@ import {
 } from "../services/vacantes.service";
 import type {
   RechazarVacanteRequest,
+  VacanteDetalleResponse,
   VacanteResponse,
 } from "../types/delegacion.types";
 
 export async function getVacanteDetailAction(
   idVacante: number,
-): Promise<ActionResult<VacanteResponse>> {
+): Promise<ActionResult<VacanteDetalleResponse>> {
   return runServerAction(
     () => getVacante(idVacante),
     "No pudimos cargar la información de la vacante.",

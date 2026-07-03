@@ -10,6 +10,7 @@ export type VacanteResponse = VacanteBase & {
   areaNombre?: string;
   dependenciaNombre?: string;
   modalidadTrabajo?: string;
+  cupoTotal?: number;
   cupoDisponible?: number;
   requiereExamen?: boolean;
 };
@@ -26,6 +27,8 @@ export type PostulacionResponse = PostulacionBase & {
   vacanteFolio?: string;
   vacanteNombre?: string;
   fechaPostulacion?: string;
+  requiereExamen?: boolean;
+  examenEstado?: string;
 };
 
 export type PostulacionDetalleResponse = PostulacionResponse & {

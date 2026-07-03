@@ -1,23 +1,44 @@
 "use client";
 
+import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDeferredValue, useMemo, useState } from "react";
-import { Eye, Search } from "lucide-react";
+import { CircleX, Eye, Search } from "lucide-react";
+import { cancelPostulacionAction } from "../../actions/postulaciones.actions";
+import { canCancelPostulacion } from "../../lib/postulacion.utils";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
-import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import { Alert } from "@/shared/components/Alert";
+import {
+  DataTable,
+  DataTableActions,
+  DataTableIconAction,
+  DataTableToolbar,
+  type DataTableColumn,
+} from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+
+function getExamenLabel(postulacion: PostulacionResponse) {
+  if (!postulacion.requiereExamen) {
+    return "No aplica";
+  }
+
+  return formatEtiqueta(postulacion.examenEstado, "Pendiente");
+}
 
 export function AlumnoPostulacionesView({
   postulaciones,
 }: {
   postulaciones: PostulacionResponse[];
 }) {
+  const router = usePanelRouter();
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<PostulacionResponse | null>(null);
+  const [cancelingId, setCancelingId] = useState<number | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
@@ -27,6 +48,7 @@ export function AlumnoPostulacionesView({
       const haystack = [
         postulacion.folio,
         postulacion.estatus,
+        postulacion.examenEstado,
         postulacion.vacanteFolio,
         postulacion.vacanteNombre,
       ]
@@ -35,6 +57,36 @@ export function AlumnoPostulacionesView({
       return normalizeText(haystack).includes(query);
     });
   }, [deferredSearch, postulaciones]);
+
+  const handleCancel = async (postulacion: PostulacionResponse) => {
+    const folio = postulacion.folio?.trim() || `#${postulacion.idPostulacion}`;
+    const vacante = postulacion.vacanteNombre?.trim() || "esta vacante";
+    const confirmed = window.confirm(
+      `¿Cancelar tu postulación ${folio} para ${vacante}? Esta acción no se puede deshacer.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setCancelingId(postulacion.idPostulacion);
+    setActionError(null);
+
+    const result = await cancelPostulacionAction(postulacion.idPostulacion);
+
+    setCancelingId(null);
+
+    if (!result.success) {
+      setActionError(result.error);
+      return;
+    }
+
+    if (selected?.idPostulacion === postulacion.idPostulacion) {
+      setSelected(null);
+    }
+
+    router.refresh();
+  };
 
   const columns: DataTableColumn<PostulacionResponse>[] = [
     {
@@ -55,12 +107,27 @@ export function AlumnoPostulacionesView({
       cell: (postulacion) => formatFecha(postulacion.fechaPostulacion),
     },
     {
+      id: "examen",
+      header: "Examen",
+      align: "center",
+      width: "14%",
+      cell: (postulacion) =>
+        postulacion.requiereExamen ? (
+          <StatusBadge variant="dot" tone={estatusTone(postulacion.examenEstado)}>
+            {getExamenLabel(postulacion)}
+          </StatusBadge>
+        ) : (
+          <span className={styles.cellEmpty}>No aplica</span>
+        ),
+    },
+    {
       id: "estatus",
       header: "Estatus",
       align: "center",
+      width: "14%",
       cell: (postulacion) => (
         <StatusBadge variant="dot" tone={estatusTone(postulacion.estatus)}>
-          {formatEtiqueta(postulacion.estatus)}
+          {formatEtiqueta(postulacion.estatus, "Sin estatus")}
         </StatusBadge>
       ),
     },
@@ -71,6 +138,14 @@ export function AlumnoPostulacionesView({
       cell: (postulacion) => (
         <DataTableActions>
           <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(postulacion)} />
+          {canCancelPostulacion(postulacion.estatus) ? (
+            <DataTableIconAction
+              label="Cancelar postulación"
+              icon={CircleX}
+              disabled={cancelingId === postulacion.idPostulacion}
+              onClick={() => void handleCancel(postulacion)}
+            />
+          ) : null}
         </DataTableActions>
       ),
     },
@@ -83,6 +158,9 @@ export function AlumnoPostulacionesView({
         title="Postulaciones"
         description="Consulta el estatus de tus postulaciones a vacantes."
       />
+
+      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
       <DataTable
         toolbar={
           <DataTableToolbar>

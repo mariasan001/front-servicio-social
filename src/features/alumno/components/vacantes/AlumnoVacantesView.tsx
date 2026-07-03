@@ -6,12 +6,19 @@ import type { VacanteResponse } from "../../types/alumno.types";
 import { AlumnoVacanteDetailModal } from "./AlumnoVacanteDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
+import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
-export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }) {
+export function AlumnoVacantesView({
+  vacantes,
+  nombreCompleto,
+}: {
+  vacantes: VacanteResponse[];
+  nombreCompleto?: string;
+}) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<VacanteResponse | null>(null);
   const deferredSearch = useDeferredValue(search);
@@ -47,12 +54,29 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
     {
       id: "area",
       header: "Área",
-      cell: (vacante) => vacante.areaNombre?.trim() || "—",
+      width: "22%",
+      cell: (vacante) => {
+        const area = vacante.areaNombre?.trim();
+        return area ? (
+          <span className={styles.cellTruncate} title={area}>
+            {area}
+          </span>
+        ) : (
+          <span className={styles.cellEmpty}>—</span>
+        );
+      },
     },
     {
       id: "cupo",
       header: "Cupo",
-      cell: (vacante) => vacante.cupoDisponible ?? "—",
+      width: "12%",
+      cell: (vacante) => (
+        <CupoMeter
+          variant="compact"
+          disponible={vacante.cupoDisponible}
+          total={vacante.cupoTotal ?? vacante.cupoDisponible}
+        />
+      ),
     },
     {
       id: "estatus",
@@ -112,6 +136,7 @@ export function AlumnoVacantesView({ vacantes }: { vacantes: VacanteResponse[] }
         open={selected !== null}
         vacanteId={selected?.idVacante ?? null}
         vacanteName={selected?.nombre}
+        nombreCompleto={nombreCompleto}
         onClose={() => setSelected(null)}
       />
     </section>
