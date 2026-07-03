@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
   async rewrites() {
     const apiOrigin = process.env.API_PROXY_TARGET ?? "http://localhost:8080";

@@ -90,7 +90,7 @@ export async function setProcesoHorasRequeridasAction(
 ): Promise<ActionResult<ProcesoResponse>> {
   const result = await runServerAction(
     () => setProcesoHorasRequeridas(idProceso, { horasRequeridas }),
-    "No pudimos actualizar las horas requeridas.",
+    "No pudimos guardar las horas requeridas.",
   );
 
   if (result.success) {

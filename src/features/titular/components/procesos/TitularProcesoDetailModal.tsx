@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
@@ -12,23 +13,67 @@ import {
   rejectProcesoHoraAction,
   validateProcesoHoraAction,
 } from "../../actions/procesos.actions";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import type { ProcesoDetalleResponse } from "../../types/titular.types";
+import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import { validarRegistroHoraAlumno } from "@/lib/domain/horas";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
+import procesoStyles from "./TitularProcesoDetailModal.module.css";
+import {
+  TITULAR_PROCESO_SECTION_LABELS,
+  type TitularProcesoModalSection,
+} from "./titular-proceso-sections";
+
+function formatHoras(acumuladas?: number, requeridas?: number) {
+  if (requeridas === undefined || requeridas === null) {
+    return acumuladas ? `${acumuladas} h registradas` : "Sin dato";
+  }
+
+  return `${acumuladas ?? 0} de ${requeridas} h`;
+}
+
+function getContextItems(section: TitularProcesoModalSection, proceso: ProcesoDetalleResponse) {
+  const alumno = proceso.alumnoNombre?.trim() || "Sin nombre";
+  const vacante = proceso.vacanteNombre?.trim() || "Sin vacante";
+  const horas = formatHoras(proceso.horasAcumuladas, proceso.horasRequeridas);
+  const estatus = formatEtiqueta(proceso.estatus);
+
+  if (section === "horas" || section === "liberacion") {
+    return [
+      { label: "Alumno", value: alumno },
+      { label: "Horas", value: horas },
+    ];
+  }
+
+  if (section === "incidencias") {
+    return [
+      { label: "Alumno", value: alumno },
+      { label: "Vacante", value: vacante },
+    ];
+  }
+
+  return [
+    { label: "Alumno", value: alumno },
+    { label: "Estatus", value: estatus },
+  ];
+}
 
 export function TitularProcesoDetailModal({
   procesoId,
+  section,
   open,
   onClose,
 }: {
   procesoId: number | null;
+  section: TitularProcesoModalSection | null;
   open: boolean;
   onClose: () => void;
 }) {
@@ -58,6 +103,20 @@ export function TitularProcesoDetailModal({
       reloadKey,
       onBeforeLoad: () => {
         setActionError(null);
+        setComentario("");
+        setNuevaHora({
+          fecha: "",
+          horaEntrada: "",
+          horaSalida: "",
+          descripcionActividades: "",
+        });
+        setNuevaIncidencia({
+          tipo: "",
+          severidad: "",
+          descripcion: "",
+          fechaIncidencia: "",
+        });
+        setEvaluacion({ calificacion: "", comentarioTitular: "" });
       },
     },
   );
@@ -68,12 +127,19 @@ export function TitularProcesoDetailModal({
   };
 
   const proceso = detail?.proceso;
+  const alumnoNombre = proceso?.alumnoNombre?.trim();
+  const folio = proceso?.folio?.trim();
+  const sectionLabel = section ? TITULAR_PROCESO_SECTION_LABELS[section] : "Proceso";
+  const contextItems = proceso && section ? getContextItems(section, proceso) : [];
 
   const runHoraAction = async (
     action: "validate" | "observe" | "reject",
     idAsistencia: number,
   ) => {
-    if (!proceso) return;
+    if (!proceso) {
+      return;
+    }
+
     setIsMutating(true);
     setActionError(null);
     const idProceso = proceso.idProceso;
@@ -91,316 +157,494 @@ export function TitularProcesoDetailModal({
           : await rejectProcesoHoraAction(idProceso, idAsistencia, {
               comentarioTitular: comentario.trim() || "Registro rechazado.",
             });
+
     setIsMutating(false);
-    if (!result.success) setActionError(result.error);
-    else {
-      setComentario("");
-      refresh();
+
+    if (!result.success) {
+      setActionError(result.error);
+      return;
     }
+
+    setComentario("");
+    refresh();
   };
 
   return (
     <Modal
       open={open}
-      title={proceso?.folio ? `Proceso ${proceso.folio}` : "Proceso"}
+      title={sectionLabel}
       onClose={onClose}
       size="lg"
     >
-      {isLoading && !detail ? <LoadingState label="Cargando proceso…" /> : null}
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={1} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-      {!isLoading && proceso ? (
-        <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(proceso.estatus)}>
-            {formatEtiqueta(proceso.estatus)}
-          </StatusBadge>
-          <dl className={styles.detailGrid}>
-            <div className={styles.detailItem}>
-              <dt>Alumno</dt>
-              <dd>{proceso.alumnoNombre ?? "Sin nombre"}</dd>
+      {proceso && section ? (
+        <div
+          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          aria-busy={isReloading}
+        >
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <FileText size={18} strokeWidth={1.75} />
             </div>
-            <div className={styles.detailItem}>
-              <dt>Horas</dt>
-              <dd>
-                {proceso.horasAcumuladas ?? 0} de {proceso.horasRequeridas ?? "—"} requeridas
-              </dd>
+
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>{alumnoNombre || "Sin alumno registrado"}</p>
+              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
             </div>
-          </dl>
 
-          <FormField id="comentario-hora" label="Comentario para acciones sobre horas">
-            <textarea
-              id="comentario-hora"
-              className={formStyles.textarea}
-              rows={2}
-              value={comentario}
-              onChange={(event) => setComentario(event.target.value)}
-            />
-          </FormField>
+            <StatusBadge tone={estatusTone(proceso.estatus)}>
+              {formatEtiqueta(proceso.estatus)}
+            </StatusBadge>
+          </div>
 
-          <section className={styles.detailSection}>
-            <h3 className={styles.detailSectionTitle}>Registros de horas</h3>
-            {(detail?.horas ?? []).length === 0 ? (
-              <p className={styles.emptyInline}>No hay horas registradas.</p>
-            ) : (
-              <ul className={styles.panelList}>
-                {detail?.horas.map((hora) => (
-                  <li key={hora.idAsistencia} className={styles.panelCard}>
-                    <strong>{hora.fecha ?? "Sin fecha"}</strong>
-                    <StatusBadge tone={estatusTone(hora.estatus)}>
-                      {formatEtiqueta(hora.estatus)}
-                    </StatusBadge>
-                    <div className={styles.detailActions}>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className={styles.actionButton}
-                        disabled={isMutating}
-                        onClick={() => void runHoraAction("validate", hora.idAsistencia)}
-                      >
-                        Validar
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className={styles.actionButton}
-                        disabled={isMutating}
-                        onClick={() => void runHoraAction("observe", hora.idAsistencia)}
-                      >
-                        Observar
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className={styles.actionButton}
-                        disabled={isMutating}
-                        onClick={() => void runHoraAction("reject", hora.idAsistencia)}
-                      >
-                        Rechazar
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              {contextItems.map((item) => (
+                <div key={item.label} className={styles.infoItem}>
+                  <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+              <div className={styles.infoItem}>
+                <dt>Proceso</dt>
+                <dd>{folio || "Sin folio"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          {section === "horas" ? (
+          <section className={styles.section} aria-label="Registros de horas">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Pendientes de revisión</h3>
+              <p className={styles.sectionDescription}>
+                Valida, observa o rechaza los registros enviados por el alumno.
+              </p>
+            </div>
+
+            <div className={formLayoutStyles.formLayout}>
+              <FormField id="comentario-hora" label="Comentario para acciones sobre horas">
+                <textarea
+                  id="comentario-hora"
+                  className={formStyles.textarea}
+                  rows={2}
+                  value={comentario}
+                  onChange={(event) => setComentario(event.target.value)}
+                />
+              </FormField>
+
+              {(detail?.horas ?? []).length === 0 ? (
+                <p className={procesoStyles.emptyHint}>No hay horas registradas.</p>
+              ) : (
+                <ul className={procesoStyles.recordList}>
+                  {detail?.horas.map((hora) => (
+                    <li key={hora.idAsistencia} className={procesoStyles.recordCard}>
+                      <div className={procesoStyles.recordHeader}>
+                        <span className={procesoStyles.recordTitle}>
+                          {hora.fecha ? formatFecha(hora.fecha) : "Sin fecha"}
+                        </span>
+                        <StatusBadge tone={estatusTone(hora.estatus)}>
+                          {formatEtiqueta(hora.estatus)}
+                        </StatusBadge>
+                      </div>
+                      {hora.horasRegistradas !== undefined ? (
+                        <p className={procesoStyles.recordMeta}>
+                          {hora.horasRegistradas} h registradas
+                        </p>
+                      ) : null}
+                      <div className={procesoStyles.recordActions}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isMutating}
+                          onClick={() => void runHoraAction("validate", hora.idAsistencia)}
+                        >
+                          Validar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isMutating}
+                          onClick={() => void runHoraAction("observe", hora.idAsistencia)}
+                        >
+                          Observar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={styles.dangerButton}
+                          disabled={isMutating}
+                          onClick={() => void runHoraAction("reject", hora.idAsistencia)}
+                        >
+                          Rechazar
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </section>
+          ) : null}
 
-          <div className={styles.inlineForm}>
-            <h3 className={styles.detailSectionTitle}>Registrar hora interna</h3>
-            <div className={styles.formGrid}>
-              <TextInput
-                id="hora-fecha"
-                label="Fecha"
-                type="date"
-                value={nuevaHora.fecha}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, fecha: event.target.value }))
-                }
-              />
-              <TextInput
-                id="hora-entrada"
-                label="Hora entrada"
-                type="time"
-                value={nuevaHora.horaEntrada}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, horaEntrada: event.target.value }))
-                }
-              />
-              <TextInput
-                id="hora-salida"
-                label="Hora salida"
-                type="time"
-                value={nuevaHora.horaSalida}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, horaSalida: event.target.value }))
-                }
-              />
+          {section === "horas" ? (
+          <section className={styles.section} aria-label="Registrar hora interna">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Registrar hora interna</h3>
+              <p className={styles.sectionDescription}>
+                Captura asistencia directamente desde el área, sin depender del alumno.
+              </p>
             </div>
-            <Button
-              type="button"
-              disabled={isMutating}
-              onClick={async () => {
-                if (!nuevaHora.fecha || !nuevaHora.horaEntrada || !nuevaHora.horaSalida) {
-                  setActionError("Completa fecha y horario para registrar la hora.");
-                  return;
-                }
-                setIsMutating(true);
-                const result = await registerProcesoHoraAction(proceso.idProceso, {
-                  fecha: nuevaHora.fecha,
-                  horaEntrada: nuevaHora.horaEntrada,
-                  horaSalida: nuevaHora.horaSalida,
-                  descripcionActividades: nuevaHora.descripcionActividades.trim() || undefined,
-                });
-                setIsMutating(false);
-                if (!result.success) setActionError(result.error);
-                else refresh();
-              }}
-            >
-              Registrar hora
-            </Button>
-          </div>
 
-          <section className={styles.detailSection}>
-            <h3 className={styles.detailSectionTitle}>Incidencias del proceso</h3>
-            {(detail?.incidencias ?? []).length === 0 ? (
-              <p className={styles.emptyInline}>No hay incidencias registradas.</p>
-            ) : (
-              <ul className={styles.panelList}>
-                {detail?.incidencias.map((incidencia) => (
-                  <li key={incidencia.idIncidencia} className={styles.panelCard}>
-                    <strong>{formatEtiqueta(incidencia.tipo)}</strong>
-                    <StatusBadge tone={estatusTone(incidencia.estatus)}>
-                      {formatEtiqueta(incidencia.estatus)}
-                    </StatusBadge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <div className={styles.inlineForm}>
-            <h3 className={styles.detailSectionTitle}>Registrar incidencia</h3>
-            <div className={styles.formGrid}>
-              <TextInput
-                id="inc-tipo"
-                label="Tipo"
-                value={nuevaIncidencia.tipo}
-                onChange={(event) =>
-                  setNuevaIncidencia((current) => ({ ...current, tipo: event.target.value }))
-                }
-              />
-              <TextInput
-                id="inc-severidad"
-                label="Severidad"
-                value={nuevaIncidencia.severidad}
-                onChange={(event) =>
-                  setNuevaIncidencia((current) => ({ ...current, severidad: event.target.value }))
-                }
-              />
-              <TextInput
-                id="inc-fecha"
-                label="Fecha"
-                type="date"
-                value={nuevaIncidencia.fechaIncidencia}
-                onChange={(event) =>
-                  setNuevaIncidencia((current) => ({
-                    ...current,
-                    fechaIncidencia: event.target.value,
-                  }))
-                }
-              />
-            </div>
-            <FormField id="inc-descripcion" label="Descripción">
-              <textarea
-                id="inc-descripcion"
-                className={formStyles.textarea}
-                rows={2}
-                value={nuevaIncidencia.descripcion}
-                onChange={(event) =>
-                  setNuevaIncidencia((current) => ({
-                    ...current,
-                    descripcion: event.target.value,
-                  }))
-                }
-              />
-            </FormField>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isMutating}
-              onClick={async () => {
-                if (
-                  !nuevaIncidencia.tipo.trim() ||
-                  !nuevaIncidencia.severidad.trim() ||
-                  !nuevaIncidencia.descripcion.trim() ||
-                  !nuevaIncidencia.fechaIncidencia
-                ) {
-                  setActionError("Completa todos los campos de la incidencia.");
-                  return;
-                }
-                setIsMutating(true);
-                const result = await registerProcesoIncidenciaAction(proceso.idProceso, {
-                  tipo: nuevaIncidencia.tipo.trim(),
-                  severidad: nuevaIncidencia.severidad.trim(),
-                  descripcion: nuevaIncidencia.descripcion.trim(),
-                  fechaIncidencia: nuevaIncidencia.fechaIncidencia,
-                });
-                setIsMutating(false);
-                if (!result.success) setActionError(result.error);
-                else refresh();
-              }}
-            >
-              Registrar incidencia
-            </Button>
-          </div>
-
-          <div className={styles.inlineForm}>
-            <h3 className={styles.detailSectionTitle}>Liberación técnica</h3>
-            {detail?.liberacionTecnica ? (
-              <p className={styles.detailLead}>Ya existe un registro de liberación técnica.</p>
-            ) : (
-              <Button
-                type="button"
-                disabled={isMutating}
-                onClick={async () => {
-                  setIsMutating(true);
-                  const result = await emitProcesoLiberacionTecnicaAction(proceso.idProceso, {
-                    comentarioTitular: comentario.trim() || undefined,
-                  });
-                  setIsMutating(false);
-                  if (!result.success) setActionError(result.error);
-                  else refresh();
-                }}
-              >
-                Emitir liberación técnica
-              </Button>
-            )}
-          </div>
-
-          <div className={styles.inlineForm}>
-            <h3 className={styles.detailSectionTitle}>Evaluación final</h3>
-            {detail?.evaluacionFinal ? (
-              <p className={styles.detailLead}>La evaluación final ya fue registrada.</p>
-            ) : (
-              <>
+            <div className={formLayoutStyles.formLayout}>
+              <div className={formLayoutStyles.formGrid}>
                 <TextInput
-                  id="eval-calificacion"
-                  label="Calificación"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={evaluacion.calificacion}
+                  id="hora-fecha"
+                  label="Fecha"
+                  type="date"
+                  value={nuevaHora.fecha}
                   onChange={(event) =>
-                    setEvaluacion((current) => ({
-                      ...current,
-                      calificacion: event.target.value,
-                    }))
+                    setNuevaHora((current) => ({ ...current, fecha: event.target.value }))
                   }
                 />
+                <TextInput
+                  id="hora-entrada"
+                  label="Hora entrada"
+                  type="time"
+                  value={nuevaHora.horaEntrada}
+                  onChange={(event) =>
+                    setNuevaHora((current) => ({ ...current, horaEntrada: event.target.value }))
+                  }
+                />
+                <TextInput
+                  id="hora-salida"
+                  label="Hora salida"
+                  type="time"
+                  value={nuevaHora.horaSalida}
+                  onChange={(event) =>
+                    setNuevaHora((current) => ({ ...current, horaSalida: event.target.value }))
+                  }
+                />
+                <div className={formLayoutStyles.formGridFull}>
+                  <TextInput
+                    id="hora-actividades"
+                    label="Actividades realizadas"
+                    required
+                    value={nuevaHora.descripcionActividades}
+                    onChange={(event) =>
+                      setNuevaHora((current) => ({
+                        ...current,
+                        descripcionActividades: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className={formLayoutStyles.formActions}>
                 <Button
                   type="button"
                   disabled={isMutating}
                   onClick={async () => {
-                    const calificacion = Number(evaluacion.calificacion);
-                    if (!calificacion && calificacion !== 0) {
-                      setActionError("Indica la calificación.");
+                    const validationError = validarRegistroHoraAlumno(nuevaHora);
+                    if (validationError) {
+                      setActionError(validationError);
                       return;
                     }
+
                     setIsMutating(true);
-                    const result = await registerProcesoEvaluacionFinalAction(proceso.idProceso, {
-                      calificacion,
-                      comentarioTitular: evaluacion.comentarioTitular.trim() || undefined,
+                    setActionError(null);
+                    const result = await registerProcesoHoraAction(proceso.idProceso, {
+                      fecha: nuevaHora.fecha,
+                      horaEntrada: nuevaHora.horaEntrada,
+                      horaSalida: nuevaHora.horaSalida,
+                      descripcionActividades: nuevaHora.descripcionActividades.trim(),
                     });
                     setIsMutating(false);
-                    if (!result.success) setActionError(result.error);
-                    else refresh();
+
+                    if (!result.success) {
+                      setActionError(result.error);
+                      return;
+                    }
+
+                    refresh();
                   }}
                 >
-                  Registrar evaluación
+                  Registrar hora
                 </Button>
-              </>
+              </div>
+            </div>
+          </section>
+          ) : null}
+
+          {section === "incidencias" ? (
+          <section className={styles.section} aria-label="Incidencias del proceso">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Incidencias</h3>
+              <p className={styles.sectionDescription}>
+                Consulta las incidencias registradas en este proceso.
+              </p>
+            </div>
+
+            {(detail?.incidencias ?? []).length === 0 ? (
+              <p className={procesoStyles.emptyHint}>No hay incidencias registradas.</p>
+            ) : (
+              <ul className={procesoStyles.recordList}>
+                {detail?.incidencias.map((incidencia) => (
+                  <li key={incidencia.idIncidencia} className={procesoStyles.recordCard}>
+                    <div className={procesoStyles.recordHeader}>
+                      <span className={procesoStyles.recordTitle}>
+                        {formatEtiqueta(incidencia.tipo, "Incidencia")}
+                      </span>
+                      <StatusBadge tone={estatusTone(incidencia.estatus)}>
+                        {formatEtiqueta(incidencia.estatus)}
+                      </StatusBadge>
+                    </div>
+                    {incidencia.severidad ? (
+                      <p className={procesoStyles.recordMeta}>
+                        Severidad: {formatEtiqueta(incidencia.severidad)}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
             )}
-          </div>
+          </section>
+          ) : null}
+
+          {section === "incidencias" ? (
+          <section className={styles.section} aria-label="Registrar incidencia">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Registrar incidencia</h3>
+              <p className={styles.sectionDescription}>
+                Documenta un evento relevante durante el seguimiento del alumno.
+              </p>
+            </div>
+
+            <div className={formLayoutStyles.formLayout}>
+              <div className={formLayoutStyles.formGrid}>
+                <TextInput
+                  id="inc-tipo"
+                  label="Tipo"
+                  value={nuevaIncidencia.tipo}
+                  onChange={(event) =>
+                    setNuevaIncidencia((current) => ({ ...current, tipo: event.target.value }))
+                  }
+                />
+                <TextInput
+                  id="inc-severidad"
+                  label="Severidad"
+                  value={nuevaIncidencia.severidad}
+                  onChange={(event) =>
+                    setNuevaIncidencia((current) => ({ ...current, severidad: event.target.value }))
+                  }
+                />
+                <div className={formLayoutStyles.formGridFull}>
+                  <TextInput
+                    id="inc-fecha"
+                    label="Fecha"
+                    type="date"
+                    value={nuevaIncidencia.fechaIncidencia}
+                    onChange={(event) =>
+                      setNuevaIncidencia((current) => ({
+                        ...current,
+                        fechaIncidencia: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <FormField id="inc-descripcion" label="Descripción" required>
+                <textarea
+                  id="inc-descripcion"
+                  className={formStyles.textarea}
+                  rows={2}
+                  value={nuevaIncidencia.descripcion}
+                  onChange={(event) =>
+                    setNuevaIncidencia((current) => ({
+                      ...current,
+                      descripcion: event.target.value,
+                    }))
+                  }
+                />
+              </FormField>
+              <div className={formLayoutStyles.formActions}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isMutating}
+                  onClick={async () => {
+                    if (
+                      !nuevaIncidencia.tipo.trim() ||
+                      !nuevaIncidencia.severidad.trim() ||
+                      !nuevaIncidencia.descripcion.trim() ||
+                      !nuevaIncidencia.fechaIncidencia
+                    ) {
+                      setActionError("Completa todos los campos de la incidencia.");
+                      return;
+                    }
+
+                    setIsMutating(true);
+                    setActionError(null);
+                    const result = await registerProcesoIncidenciaAction(proceso.idProceso, {
+                      tipo: nuevaIncidencia.tipo.trim(),
+                      severidad: nuevaIncidencia.severidad.trim(),
+                      descripcion: nuevaIncidencia.descripcion.trim(),
+                      fechaIncidencia: nuevaIncidencia.fechaIncidencia,
+                    });
+                    setIsMutating(false);
+
+                    if (!result.success) {
+                      setActionError(result.error);
+                      return;
+                    }
+
+                    refresh();
+                  }}
+                >
+                  Registrar incidencia
+                </Button>
+              </div>
+            </div>
+          </section>
+          ) : null}
+
+          {section === "liberacion" ? (
+          <section className={styles.section} aria-label="Liberación técnica">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Liberación técnica</h3>
+              <p className={styles.sectionDescription}>
+                Emite la liberación técnica cuando el alumno cumple los requisitos del área.
+              </p>
+            </div>
+
+            {detail?.liberacionTecnica ? (
+              <div className={styles.successBox}>
+                <strong>Liberación técnica registrada</strong>
+                <span className={styles.successValue}>
+                  Ya existe un registro de liberación técnica para este proceso.
+                </span>
+              </div>
+            ) : (
+              <div className={formLayoutStyles.formLayout}>
+                <FormField id="comentario-liberacion" label="Comentario (opcional)">
+                  <textarea
+                    id="comentario-liberacion"
+                    className={formStyles.textarea}
+                    rows={2}
+                    value={comentario}
+                    onChange={(event) => setComentario(event.target.value)}
+                  />
+                </FormField>
+                <div className={formLayoutStyles.formActions}>
+                  <Button
+                    type="button"
+                    disabled={isMutating}
+                    onClick={async () => {
+                      setIsMutating(true);
+                      setActionError(null);
+                      const result = await emitProcesoLiberacionTecnicaAction(proceso.idProceso, {
+                        comentarioTitular: comentario.trim() || undefined,
+                      });
+                      setIsMutating(false);
+
+                      if (!result.success) {
+                        setActionError(result.error);
+                        return;
+                      }
+
+                      refresh();
+                    }}
+                  >
+                    Emitir liberación técnica
+                  </Button>
+                </div>
+              </div>
+            )}
+          </section>
+          ) : null}
+
+          {section === "evaluacion" ? (
+          <section className={styles.section} aria-label="Evaluación final">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Evaluación final</h3>
+              <p className={styles.sectionDescription}>
+                Registra la calificación final del desempeño del alumno.
+              </p>
+            </div>
+
+            {detail?.evaluacionFinal ? (
+              <div className={styles.successBox}>
+                <strong>Evaluación final registrada</strong>
+                <span className={styles.successValue}>
+                  La evaluación final ya fue capturada para este proceso.
+                </span>
+              </div>
+            ) : (
+              <div className={formLayoutStyles.formLayout}>
+                <div className={formLayoutStyles.formGrid}>
+                  <TextInput
+                    id="eval-calificacion"
+                    label="Calificación"
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={evaluacion.calificacion}
+                    onChange={(event) =>
+                      setEvaluacion((current) => ({
+                        ...current,
+                        calificacion: event.target.value,
+                      }))
+                    }
+                  />
+                  <TextInput
+                    id="eval-comentario"
+                    label="Comentario (opcional)"
+                    value={evaluacion.comentarioTitular}
+                    onChange={(event) =>
+                      setEvaluacion((current) => ({
+                        ...current,
+                        comentarioTitular: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className={formLayoutStyles.formActions}>
+                  <Button
+                    type="button"
+                    disabled={isMutating}
+                    onClick={async () => {
+                      const calificacion = Number(evaluacion.calificacion);
+                      if (!evaluacion.calificacion.trim() || Number.isNaN(calificacion)) {
+                        setActionError("Indica la calificación.");
+                        return;
+                      }
+
+                      setIsMutating(true);
+                      setActionError(null);
+                      const result = await registerProcesoEvaluacionFinalAction(proceso.idProceso, {
+                        calificacion,
+                        comentarioTitular: evaluacion.comentarioTitular.trim() || undefined,
+                      });
+                      setIsMutating(false);
+
+                      if (!result.success) {
+                        setActionError(result.error);
+                        return;
+                      }
+
+                      refresh();
+                    }}
+                  >
+                    Registrar evaluación
+                  </Button>
+                </div>
+              </div>
+            )}
+          </section>
+          ) : null}
         </div>
       ) : null}
     </Modal>

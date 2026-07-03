@@ -132,12 +132,12 @@ export type RegistrarHoraRequest = {
   fecha: string;
   horaEntrada: string;
   horaSalida: string;
-  descripcionActividades?: string;
+  descripcionActividades: string;
   evidenciaUrl?: string;
 };
 
 export type ActualizarBitacoraRequest = {
-  descripcionActividades?: string;
+  descripcionActividades: string;
   evidenciaUrl?: string;
 };
 

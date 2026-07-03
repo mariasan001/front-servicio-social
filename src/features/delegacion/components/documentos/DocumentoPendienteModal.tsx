@@ -1,14 +1,17 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
+  downloadProcesoDocumentoArchivoAction,
   observeProcesoDocumentoAction,
   rejectProcesoDocumentoAction,
 } from "../../actions/procesos.actions";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
@@ -16,7 +19,8 @@ import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/PanelDetailView.module.css";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
 
 export function DocumentoPendienteModal({
   documento,
@@ -31,8 +35,10 @@ export function DocumentoPendienteModal({
   const documentoRef = useRef(documento);
   documentoRef.current = documento;
   const [comentario, setComentario] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
-  const { detail, error, setError } = useDetailModalLoader(
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { detail, error } = useDetailModalLoader(
     open,
     documento?.idProcesoDocumento ?? null,
     async (id) => {
@@ -45,15 +51,29 @@ export function DocumentoPendienteModal({
     {
       onBeforeLoad: () => {
         setComentario("");
-        setError(null);
+        setActionError(null);
       },
     },
   );
 
+  const tipoDocumento = formatEtiqueta(detail?.tipoDocumento, "Documento");
+  const alumnoNombre = detail?.alumnoNombre?.trim();
+  const folioProceso = detail?.folioProceso?.trim();
+  const vacanteNombre = detail?.vacanteNombre?.trim();
+  const procesoLabel = folioProceso || (detail ? `Proceso #${detail.idProceso}` : "Sin proceso");
+
   const run = async (action: "approve" | "observe" | "reject") => {
     if (!detail) return;
+    if (action === "observe" && !comentario.trim()) {
+      setActionError("Escribe una observación para el alumno.");
+      return;
+    }
+    if (action === "reject" && !comentario.trim()) {
+      setActionError("Escribe el motivo del rechazo.");
+      return;
+    }
     setIsMutating(true);
-    setError(null);
+    setActionError(null);
     const body = comentario.trim() ? { observacion: comentario.trim() } : {};
     const result =
       action === "approve"
@@ -63,30 +83,135 @@ export function DocumentoPendienteModal({
           : await rejectProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento, body);
     setIsMutating(false);
     if (!result.success) {
-      setError(result.error);
+      setActionError(result.error);
       return;
     }
     router.refresh();
     onClose();
   };
 
+  const downloadDocumento = async () => {
+    if (!detail) return;
+    setIsDownloading(true);
+    setActionError(null);
+    await runDownloadAction(
+      () => downloadProcesoDocumentoArchivoAction(detail.idProceso, detail.idProcesoDocumento),
+      setActionError,
+    );
+    setIsDownloading(false);
+  };
+
   return (
-    <Modal open={open} title="Revisar documento" onClose={onClose} size="lg">
+    <Modal
+      open={open}
+      title={tipoDocumento}
+      onClose={onClose}
+      size="lg"
+    >
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
+
       {detail ? (
-        <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
-          <p className={styles.detailLead}>
-            <strong>{detail.alumnoNombre ?? "Alumno"}</strong> · {detail.tipoDocumento ?? "Documento"}
-          </p>
-          {error ? <Alert tone="error">{error}</Alert> : null}
-          <FormField id="doc-comentario" label="Comentario u observación">
-            <textarea id="doc-comentario" className={formStyles.textarea} rows={3} value={comentario} onChange={(e) => setComentario(e.target.value)} />
-          </FormField>
-          <div className={styles.modalFooter}>
-            <Button type="button" disabled={isMutating} onClick={() => void run("approve")}>Aprobar</Button>
-            <Button type="button" variant="outline" disabled={isMutating} onClick={() => void run("observe")}>Observar</Button>
-            <Button type="button" variant="secondary" disabled={isMutating} onClick={() => void run("reject")}>Rechazar</Button>
+        <div className={styles.layout}>
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <FileText size={18} strokeWidth={1.75} />
+            </div>
+
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>{tipoDocumento}</p>
+              <p className={styles.summarySecondary}>{alumnoNombre || "Sin alumno registrado"}</p>
+            </div>
+
+            <StatusBadge tone={estatusTone(detail.estatus)}>
+              {formatEtiqueta(detail.estatus, "Sin estatus")}
+            </StatusBadge>
           </div>
+
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <dt>Alumno</dt>
+                <dd>{alumnoNombre || "Sin nombre"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Proceso</dt>
+                <dd>{procesoLabel}</dd>
+              </div>
+              {vacanteNombre ? (
+                <div className={styles.infoItem}>
+                  <dt>Vacante</dt>
+                  <dd>{vacanteNombre}</dd>
+                </div>
+              ) : null}
+              <div className={styles.infoItem}>
+                <dt>Tipo de documento</dt>
+                <dd>{tipoDocumento}</dd>
+              </div>
+            </dl>
+
+            <div className={formLayoutStyles.formActions}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isMutating || isDownloading}
+                onClick={() => void downloadDocumento()}
+              >
+                {isDownloading ? "Descargando…" : "Descargar archivo"}
+              </Button>
+            </div>
+          </div>
+
+          <section className={styles.section} aria-label="Revisar documento">
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Revisar documento</h3>
+              <p className={styles.sectionDescription}>
+                Aprueba el archivo si cumple los requisitos. Si falta información, observa o rechaza
+                para que el alumno lo corrija. Cuando todos los documentos del proceso estén
+                aprobados, ve a Procesos para capturar las horas y emitir la carta de aceptación.
+              </p>
+            </div>
+
+            <div className={formLayoutStyles.formLayout}>
+              <FormField
+                id="doc-comentario"
+                label="Comentario u observación"
+                hint="Obligatorio al observar o rechazar."
+              >
+                <textarea
+                  id="doc-comentario"
+                  className={formStyles.textarea}
+                  rows={3}
+                  value={comentario}
+                  onChange={(event) => setComentario(event.target.value)}
+                />
+              </FormField>
+
+              <div className={formLayoutStyles.formActions}>
+                <Button type="button" disabled={isMutating} onClick={() => void run("approve")}>
+                  {isMutating ? "Procesando…" : "Aprobar"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isMutating}
+                  onClick={() => void run("observe")}
+                >
+                  Observar
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={styles.dangerButton}
+                  disabled={isMutating}
+                  onClick={() => void run("reject")}
+                >
+                  Rechazar
+                </Button>
+              </div>
+            </div>
+          </section>
         </div>
       ) : null}
     </Modal>

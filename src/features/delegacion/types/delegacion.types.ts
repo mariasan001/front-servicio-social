@@ -38,6 +38,9 @@ export type PostulacionResponse = PostulacionBase;
 
 export type ProcesoResponse = ProcesoBase & {
   alumnoNombre?: string;
+  vacanteNombre?: string;
+  horasRequeridas?: number;
+  horasAcumuladas?: number;
 };
 
 export type DocumentoPendienteResponse = {
@@ -46,6 +49,8 @@ export type DocumentoPendienteResponse = {
   tipoDocumento?: string;
   estatus?: string;
   alumnoNombre?: string;
+  folioProceso?: string;
+  vacanteNombre?: string;
 };
 
 export type HoraPendienteResponse = {

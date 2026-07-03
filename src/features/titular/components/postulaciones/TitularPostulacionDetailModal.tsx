@@ -9,6 +9,12 @@ import {
   markPostulacionExamFinishedAction,
   rejectPostulacionAction,
 } from "../../actions/postulaciones.actions";
+import {
+  canAcceptPostulacion,
+  canMarkPostulacionExam,
+  canRejectPostulacion,
+  isExamenFinalizado,
+} from "../../lib/postulacion.utils";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -58,10 +64,11 @@ export function TitularPostulacionDetailModal({
     setReloadKey((key) => key + 1);
   };
 
-  const estatus = detail?.estatus?.trim().toUpperCase() ?? "";
-  const canAccept = estatus === "PENDIENTE" || estatus === "EN_REVISION";
-  const canReject = canAccept || estatus === "ACEPTADA";
-  const canMarkExam = estatus === "ACEPTADA" || estatus === "EN_EXAMEN";
+  const estatus = detail?.estatus;
+  const canAccept = canAcceptPostulacion(estatus);
+  const canReject = canRejectPostulacion(estatus);
+  const canMarkExam = canMarkPostulacionExam(estatus, detail?.requiereExamen, detail?.examenEstado);
+  const examenListo = isExamenFinalizado(detail?.examenEstado);
   const alumnoNombre = detail?.alumnoNombre?.trim();
   const vacanteFolio = detail?.vacanteFolio?.trim();
   const vacanteNombre = detail?.vacanteNombre?.trim();
@@ -127,6 +134,13 @@ export function TitularPostulacionDetailModal({
               </div>
             </dl>
 
+            {detail.resultadoExamen ? (
+              <div className={narrativeStyles.narrativeBlock}>
+                <p className={narrativeStyles.narrativeLabel}>Resultado del examen</p>
+                <p className={narrativeStyles.narrativeValue}>{detail.resultadoExamen}</p>
+              </div>
+            ) : null}
+
             {detail.comentarioAlumno ? (
               <div className={narrativeStyles.narrativeBlock}>
                 <p className={narrativeStyles.narrativeLabel}>Comentario del alumno</p>
@@ -154,7 +168,9 @@ export function TitularPostulacionDetailModal({
               <div className={styles.sectionHeader}>
                 <h3 className={styles.sectionTitle}>Aceptar postulación</h3>
                 <p className={styles.sectionDescription}>
-                  Aprueba la solicitud para continuar con el proceso de selección.
+                  {examenListo
+                    ? "El examen ya fue registrado. Acepta la postulación para abrir el proceso del alumno."
+                    : "Aprueba la solicitud para continuar con el proceso de selección."}
                 </p>
               </div>
               <div className={formLayoutStyles.formLayout}>

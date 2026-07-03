@@ -26,6 +26,13 @@ const STATUS_LABELS: Record<string, string> = {
   RESUELTO: "Resuelto",
   ABIERTA: "Abierta",
   EN_REVISION: "En revisión",
+  PENDIENTE_EVALUACION: "Pendiente de evaluación",
+  PENDIENTE_DOCUMENTACION: "Pendiente de documentación",
+  LISTO_PARA_ACTIVACION: "Listo para activación",
+  FINALIZADO: "Finalizado",
+  FINALIZADA: "Finalizada",
+  EN_EXAMEN: "En examen",
+  ACEPTADA: "Aceptada",
   LIBERADO: "Liberado",
   BAJA: "Baja",
 };
@@ -96,7 +103,10 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "EN_REVISION" ||
     value === "OBSERVADO" ||
     value === "OBSERVADA" ||
-    value === "SUSPENDIDO"
+    value === "SUSPENDIDO" ||
+    value === "LISTO_PARA_ACTIVACION" ||
+    value === "PENDIENTE_DOCUMENTACION" ||
+    value === "PENDIENTE_EVALUACION"
   ) {
     return "warning";
   }

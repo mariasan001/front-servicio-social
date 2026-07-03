@@ -12,3 +12,8 @@ export {
   resolveCartaDownloadKind,
   type CartaDownloadKind,
 } from "./cartas";
+export {
+  MAX_HORAS_ALUMNO_POR_DIA,
+  calcularHorasEntre,
+  validarRegistroHoraAlumno,
+} from "./horas";

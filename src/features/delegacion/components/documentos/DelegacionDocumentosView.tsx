@@ -1,46 +1,93 @@
 "use client";
 
-import { useState } from "react";
-import { FileSearch } from "lucide-react";
+import { useDeferredValue, useMemo, useState } from "react";
+import { FileSearch, Search } from "lucide-react";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
 import { DocumentoPendienteModal } from "./DocumentoPendienteModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
+import {
+  DataTable,
+  DataTableActions,
+  DataTableIconAction,
+  DataTableToolbar,
+  type DataTableColumn,
+} from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
+import { normalizeText } from "@/lib/utils/search";
 
 export function DelegacionDocumentosView({
   documentos,
 }: {
   documentos: DocumentoPendienteResponse[];
 }) {
+  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<DocumentoPendienteResponse | null>(null);
+  const deferredSearch = useDeferredValue(search);
+
+  const filtered = useMemo(() => {
+    const query = normalizeText(deferredSearch);
+    if (!query) return documentos;
+    return documentos.filter((documento) =>
+      normalizeText(
+        [
+          documento.alumnoNombre,
+          documento.tipoDocumento,
+          documento.estatus,
+          documento.folioProceso,
+          documento.vacanteNombre,
+          String(documento.idProceso),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ).includes(query),
+    );
+  }, [deferredSearch, documentos]);
 
   const columns: DataTableColumn<DocumentoPendienteResponse>[] = [
     {
       id: "alumno",
       header: "Alumno",
-      cell: (d) => d.alumnoNombre ?? "Sin nombre",
+      cell: (documento) => (
+        <div className={styles.nameCell}>
+          <strong>{documento.alumnoNombre ?? "Sin nombre"}</strong>
+          <span className={styles.nameHint}>
+            {documento.folioProceso?.trim() || `Proceso #${documento.idProceso}`}
+          </span>
+        </div>
+      ),
     },
     {
-      id: "tipo",
+      id: "documento",
       header: "Documento",
-      cell: (d) => d.tipoDocumento ?? "Sin tipo",
+      cell: (documento) => (
+        <div className={styles.nameCell}>
+          <strong>{formatEtiqueta(documento.tipoDocumento, "Sin tipo")}</strong>
+          {documento.vacanteNombre?.trim() ? (
+            <span className={styles.nameHint}>{documento.vacanteNombre}</span>
+          ) : null}
+        </div>
+      ),
     },
     {
       id: "estatus",
       header: "Estatus",
       align: "center",
-      cell: (d) => <StatusBadge variant="dot" tone={estatusTone(d.estatus)}>{formatEtiqueta(d.estatus)}</StatusBadge>,
+      width: "16%",
+      cell: (documento) => (
+        <StatusBadge tone={estatusTone(documento.estatus)}>
+          {formatEtiqueta(documento.estatus)}
+        </StatusBadge>
+      ),
     },
     {
       id: "acciones",
       header: "Acciones",
       align: "right",
-      cell: (d) => (
+      cell: (documento) => (
         <DataTableActions>
-          <DataTableIconAction label="Revisar" icon={FileSearch} onClick={() => setSelected(d)} />
+          <DataTableIconAction label="Revisar" icon={FileSearch} onClick={() => setSelected(documento)} />
         </DataTableActions>
       ),
     },
@@ -48,8 +95,36 @@ export function DelegacionDocumentosView({
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-documentos-title">
-      <PageHeader titleId="delegacion-documentos-title" title="Documentos" description="Valida la documentación pendiente de revisión." />
-      <DataTable columns={columns} rows={documentos} rowKey={(d) => d.idProcesoDocumento} caption="Documentos pendientes" emptyTitle="No hay documentos pendientes" emptyDescription="Cuando haya documentos por revisar, aparecerán aquí." />
+      <PageHeader
+        titleId="delegacion-documentos-title"
+        title="Documentos"
+        description="Valida la documentación enviada por los alumnos. Cuando todos los documentos de un proceso estén aprobados, actívalo en Procesos capturando las horas y emitiendo la carta de aceptación."
+      />
+      <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Alumno, documento o proceso"
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
+        columns={columns}
+        rows={filtered}
+        rowKey={(documento) => documento.idProcesoDocumento}
+        caption="Documentos pendientes"
+        emptyTitle="No hay documentos pendientes"
+        emptyDescription="Cuando haya documentos por revisar, aparecerán aquí."
+      />
       <DocumentoPendienteModal documento={selected} open={selected !== null} onClose={() => setSelected(null)} />
     </section>
   );

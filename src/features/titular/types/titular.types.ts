@@ -36,6 +36,7 @@ export type PostulacionDetalleResponse = PostulacionResponse & {
   comentarioAlumno?: string;
   motivoRechazo?: string;
   comentarioTitular?: string;
+  resultadoExamen?: string;
 };
 
 export type ProcesoResponse = ProcesoBase & {

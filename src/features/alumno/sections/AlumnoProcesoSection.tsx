@@ -1,3 +1,4 @@
+import { requireServerSession } from "@/lib/auth/session.server";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
@@ -30,6 +31,8 @@ async function resolveAlumnoProceso(): Promise<ProcesoDetalleResponse | null> {
 }
 
 export async function AlumnoProcesoSection() {
+  const sessionResult = await requireServerSession().catch(() => null);
+
   const result = await resolveAlumnoProceso()
     .then(async (proceso) => {
       if (!proceso) {
@@ -79,6 +82,7 @@ export async function AlumnoProcesoSection() {
       documentos={result.documentos}
       cartas={result.cartas}
       incidencias={result.incidencias}
+      nombreCompleto={sessionResult?.nombreCompleto}
     />
   );
 }

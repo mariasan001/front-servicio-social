@@ -18,11 +18,15 @@ import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
 function getExamenLabel(postulacion: PostulacionResponse) {
-  if (!postulacion.requiereExamen) {
+  if (postulacion.requiereExamen === false) {
     return "No aplica";
   }
 
-  return formatEtiqueta(postulacion.examenEstado, "Pendiente");
+  if (postulacion.requiereExamen || postulacion.examenEstado) {
+    return formatEtiqueta(postulacion.examenEstado, "Pendiente");
+  }
+
+  return "No aplica";
 }
 
 export function TitularPostulacionesView({
@@ -77,21 +81,25 @@ export function TitularPostulacionesView({
       header: "Examen",
       align: "center",
       width: "14%",
-      cell: (postulacion) =>
-        postulacion.requiereExamen ? (
-          <StatusBadge variant="dot" tone={estatusTone(postulacion.examenEstado)}>
-            {getExamenLabel(postulacion)}
+      cell: (postulacion) => {
+        const label = getExamenLabel(postulacion);
+        if (label === "No aplica") {
+          return <span className={styles.cellEmpty}>{label}</span>;
+        }
+
+        return (
+          <StatusBadge tone={estatusTone(postulacion.examenEstado)}>
+            {label}
           </StatusBadge>
-        ) : (
-          <span className={styles.cellEmpty}>No aplica</span>
-        ),
+        );
+      },
     },
     {
       id: "estatus",
       header: "Estatus",
       align: "center",
       cell: (postulacion) => (
-        <StatusBadge variant="dot" tone={estatusTone(postulacion.estatus)}>
+        <StatusBadge tone={estatusTone(postulacion.estatus)}>
           {formatEtiqueta(postulacion.estatus)}
         </StatusBadge>
       ),

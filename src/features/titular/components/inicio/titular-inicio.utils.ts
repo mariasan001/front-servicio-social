@@ -64,6 +64,7 @@ function countPostulacionesPendientes(postulaciones: PostulacionResponse[]) {
     return (
       estatus === "PENDIENTE" ||
       estatus === "EN_REVISION" ||
+      estatus === "PENDIENTE_EVALUACION" ||
       estatus === "OBSERVADA" ||
       estatus === "OBSERVADO"
     );

@@ -1,11 +1,13 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ClipboardList, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/titular.types";
+import { TitularProcesoActionMenu } from "./TitularProcesoActionMenu";
 import { TitularProcesoDetailModal } from "./TitularProcesoDetailModal";
+import type { TitularProcesoModalSection } from "./titular-proceso-sections";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableActions, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -13,7 +15,10 @@ import { normalizeText } from "@/lib/utils/search";
 
 export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] }) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<ProcesoResponse | null>(null);
+  const [selected, setSelected] = useState<{
+    proceso: ProcesoResponse;
+    section: TitularProcesoModalSection;
+  } | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
@@ -40,8 +45,15 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
       ),
     },
     {
+      id: "vacante",
+      header: "Vacante",
+      cell: (proceso) => proceso.vacanteNombre?.trim() || "Sin vacante",
+    },
+    {
       id: "horas",
       header: "Horas",
+      align: "center",
+      width: "12%",
       cell: (proceso) => `${proceso.horasAcumuladas ?? 0} / ${proceso.horasRequeridas ?? "—"}`,
     },
     {
@@ -49,7 +61,7 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
       header: "Estatus",
       align: "center",
       cell: (proceso) => (
-        <StatusBadge variant="dot" tone={estatusTone(proceso.estatus)}>
+        <StatusBadge tone={estatusTone(proceso.estatus)}>
           {formatEtiqueta(proceso.estatus)}
         </StatusBadge>
       ),
@@ -60,7 +72,9 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
       align: "right",
       cell: (proceso) => (
         <DataTableActions>
-          <DataTableIconAction label="Gestionar" icon={ClipboardList} onClick={() => setSelected(proceso)} />
+          <TitularProcesoActionMenu
+            onSelect={(section) => setSelected({ proceso, section })}
+          />
         </DataTableActions>
       ),
     },
@@ -100,7 +114,8 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
       />
       <TitularProcesoDetailModal
         open={selected !== null}
-        procesoId={selected?.idProceso ?? null}
+        procesoId={selected?.proceso.idProceso ?? null}
+        section={selected?.section ?? null}
         onClose={() => setSelected(null)}
       />
     </section>
