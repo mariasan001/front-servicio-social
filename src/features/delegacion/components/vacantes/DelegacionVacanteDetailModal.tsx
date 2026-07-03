@@ -11,6 +11,11 @@ import {
   rejectVacanteAction,
 } from "../../actions/vacantes.actions";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import {
+  canCloseVacanteDelegacion,
+  canPublishVacanteDelegacion,
+  canRejectVacanteDelegacion,
+} from "@/lib/domain/vacante";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
@@ -99,7 +104,7 @@ export function DelegacionVacanteDetailModal({
     setIsMutating(true);
     setActionError(null);
     const result = await rejectVacanteAction(detail.idVacante, {
-      motivoRechazo: motivoRechazo.trim(),
+      motivo: motivoRechazo.trim(),
     });
     setIsMutating(false);
     if (!result.success) {
@@ -110,9 +115,9 @@ export function DelegacionVacanteDetailModal({
   };
 
   const estatus = normalizeEstatus(detail?.estatus);
-  const canPublish = estatus !== "PUBLICADA" && estatus !== "CERRADA" && estatus !== "RECHAZADA";
-  const canClose = estatus === "PUBLICADA" || estatus === "ACTIVA";
-  const canReject = estatus !== "RECHAZADA" && estatus !== "CERRADA";
+  const canPublish = canPublishVacanteDelegacion(estatus);
+  const canClose = canCloseVacanteDelegacion(estatus);
+  const canReject = canRejectVacanteDelegacion(estatus);
 
   const folio = detail?.folio?.trim();
   const areaNombre = detail?.areaNombre?.trim();

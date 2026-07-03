@@ -17,7 +17,7 @@ import dataTableStyles from "@/shared/components/DataTable/DataTable.module.css"
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import detailStyles from "@/shared/styles/PanelDetailView.module.css";
+import listStyles from "@/shared/styles/EntityDetailRecordList.module.css";
 
 export function AlumnoNotificacionesView({
   notificaciones,
@@ -98,26 +98,28 @@ export function AlumnoNotificacionesView({
         }
       >
         {filtered.length === 0 ? (
-          <p className={detailStyles.detailLead}>No hay notificaciones para mostrar.</p>
+          <p className={listStyles.emptyHint}>No hay notificaciones para mostrar.</p>
         ) : (
-          <ul className={detailStyles.panelList}>
+          <ul className={listStyles.recordList}>
             {filtered.map((notificacion) => (
-              <li key={notificacion.id} className={detailStyles.panelCard}>
-                <div className={detailStyles.detailSectionHeader}>
-                  <strong>{notificacion.titulo?.trim() || "Sin título"}</strong>
+              <li key={notificacion.id} className={listStyles.recordCard}>
+                <div className={listStyles.recordHeader}>
+                  <strong className={listStyles.recordTitle}>
+                    {notificacion.titulo?.trim() || "Sin título"}
+                  </strong>
                   <StatusBadge tone={notificacion.leida ? "neutral" : "info"}>
                     {notificacion.leida ? "Leída" : "Sin leer"}
                   </StatusBadge>
                 </div>
-                <span className={detailStyles.panelMeta}>
+                <span className={listStyles.recordMeta}>
                   {formatEtiqueta(notificacion.tipo, "Aviso")} ·{" "}
                   {formatFecha(notificacion.fechaCreacion)}
                 </span>
                 {notificacion.mensaje ? (
-                  <p className={detailStyles.emptyInline}>{notificacion.mensaje}</p>
+                  <p className={listStyles.emptyHint}>{notificacion.mensaje}</p>
                 ) : null}
                 {!notificacion.leida ? (
-                  <div className={detailStyles.detailActions}>
+                  <div className={listStyles.recordActions}>
                     <Button
                       type="button"
                       variant="outline"
@@ -135,7 +137,7 @@ export function AlumnoNotificacionesView({
         )}
       </DataTableShell>
 
-      <p className={detailStyles.detailLead}>
+      <p className={listStyles.emptyHint}>
         Mostrando {filtered.length} de {totalElements} notificaciones.
       </p>
     </section>

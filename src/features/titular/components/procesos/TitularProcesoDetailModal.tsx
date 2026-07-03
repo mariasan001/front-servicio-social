@@ -15,7 +15,19 @@ import {
 } from "../../actions/procesos.actions";
 import type { ProcesoDetalleResponse } from "../../types/titular.types";
 import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
-import { validarRegistroHoraAlumno } from "@/lib/domain/horas";
+import {
+  canObserveHora,
+  canRejectHora,
+  canValidateHora,
+  validarRegistroHoraAlumno,
+} from "@/lib/domain/horas";
+import {
+  canEmitirLiberacionTecnica,
+  canRegistrarEvaluacionFinal,
+  canRegistrarHoraProceso,
+  canRegistrarIncidenciaProceso,
+  formatHorasProceso,
+} from "@/lib/domain/proceso";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
@@ -32,18 +44,10 @@ import {
   type TitularProcesoModalSection,
 } from "./titular-proceso-sections";
 
-function formatHoras(acumuladas?: number, requeridas?: number) {
-  if (requeridas === undefined || requeridas === null) {
-    return acumuladas ? `${acumuladas} h registradas` : "Sin dato";
-  }
-
-  return `${acumuladas ?? 0} de ${requeridas} h`;
-}
-
 function getContextItems(section: TitularProcesoModalSection, proceso: ProcesoDetalleResponse) {
   const alumno = proceso.alumnoNombre?.trim() || "Sin nombre";
   const vacante = proceso.vacanteNombre?.trim() || "Sin vacante";
-  const horas = formatHoras(proceso.horasAcumuladas, proceso.horasRequeridas);
+  const horas = formatHorasProceso(proceso.horasAcumuladas, proceso.horasRequeridas, "detalle");
   const estatus = formatEtiqueta(proceso.estatus);
 
   if (section === "horas" || section === "liberacion") {
@@ -94,7 +98,11 @@ export function TitularProcesoDetailModal({
     descripcion: "",
     fechaIncidencia: "",
   });
-  const [evaluacion, setEvaluacion] = useState({ calificacion: "", comentarioTitular: "" });
+  const [evaluacion, setEvaluacion] = useState({
+    estatus: "APROBADA",
+    calificacion: "",
+    comentario: "",
+  });
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     procesoId,
@@ -116,7 +124,7 @@ export function TitularProcesoDetailModal({
           descripcion: "",
           fechaIncidencia: "",
         });
-        setEvaluacion({ calificacion: "", comentarioTitular: "" });
+        setEvaluacion({ estatus: "APROBADA", calificacion: "", comentario: "" });
       },
     },
   );
@@ -148,14 +156,14 @@ export function TitularProcesoDetailModal({
         ? await validateProcesoHoraAction(
             idProceso,
             idAsistencia,
-            comentario.trim() ? { comentarioTitular: comentario.trim() } : {},
+            comentario.trim() ? { comentario: comentario.trim() } : {},
           )
         : action === "observe"
           ? await observeProcesoHoraAction(idProceso, idAsistencia, {
-              comentarioTitular: comentario.trim() || "Observación registrada.",
+              comentario: comentario.trim() || "Observación registrada.",
             })
           : await rejectProcesoHoraAction(idProceso, idAsistencia, {
-              comentarioTitular: comentario.trim() || "Registro rechazado.",
+              comentario: comentario.trim() || "Registro rechazado.",
             });
 
     setIsMutating(false);
@@ -256,6 +264,7 @@ export function TitularProcesoDetailModal({
                         </p>
                       ) : null}
                       <div className={procesoStyles.recordActions}>
+                        {canValidateHora(hora.estatus) ? (
                         <Button
                           type="button"
                           variant="outline"
@@ -264,6 +273,8 @@ export function TitularProcesoDetailModal({
                         >
                           Validar
                         </Button>
+                        ) : null}
+                        {canObserveHora(hora.estatus) ? (
                         <Button
                           type="button"
                           variant="outline"
@@ -272,6 +283,8 @@ export function TitularProcesoDetailModal({
                         >
                           Observar
                         </Button>
+                        ) : null}
+                        {canRejectHora(hora.estatus) ? (
                         <Button
                           type="button"
                           variant="outline"
@@ -281,6 +294,7 @@ export function TitularProcesoDetailModal({
                         >
                           Rechazar
                         </Button>
+                        ) : null}
                       </div>
                     </li>
                   ))}
@@ -290,7 +304,7 @@ export function TitularProcesoDetailModal({
           </section>
           ) : null}
 
-          {section === "horas" ? (
+          {section === "horas" && proceso && canRegistrarHoraProceso(proceso.estatus) ? (
           <section className={styles.section} aria-label="Registrar hora interna">
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Registrar hora interna</h3>
@@ -414,7 +428,7 @@ export function TitularProcesoDetailModal({
           </section>
           ) : null}
 
-          {section === "incidencias" ? (
+          {section === "incidencias" && proceso && canRegistrarIncidenciaProceso(proceso.estatus) ? (
           <section className={styles.section} aria-label="Registrar incidencia">
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Registrar incidencia</h3>
@@ -527,7 +541,11 @@ export function TitularProcesoDetailModal({
                   Ya existe un registro de liberación técnica para este proceso.
                 </span>
               </div>
-            ) : (
+            ) : canEmitirLiberacionTecnica(
+                proceso.estatus,
+                detail?.evaluacionFinal,
+                detail?.liberacionTecnica,
+              ) ? (
               <div className={formLayoutStyles.formLayout}>
                 <FormField id="comentario-liberacion" label="Comentario (opcional)">
                   <textarea
@@ -545,9 +563,12 @@ export function TitularProcesoDetailModal({
                     onClick={async () => {
                       setIsMutating(true);
                       setActionError(null);
-                      const result = await emitProcesoLiberacionTecnicaAction(proceso.idProceso, {
-                        comentarioTitular: comentario.trim() || undefined,
-                      });
+                      const liberacionPayload =
+                        comentario.trim() ? { comentario: comentario.trim() } : {};
+                      const result = await emitProcesoLiberacionTecnicaAction(
+                        proceso.idProceso,
+                        liberacionPayload,
+                      );
                       setIsMutating(false);
 
                       if (!result.success) {
@@ -562,6 +583,11 @@ export function TitularProcesoDetailModal({
                   </Button>
                 </div>
               </div>
+            ) : (
+              <p className={procesoStyles.emptyHint}>
+                La liberación técnica requiere evaluación final aprobada y proceso con horas
+                completas.
+              </p>
             )}
           </section>
           ) : null}
@@ -582,9 +608,26 @@ export function TitularProcesoDetailModal({
                   La evaluación final ya fue capturada para este proceso.
                 </span>
               </div>
-            ) : (
+            ) : canRegistrarEvaluacionFinal(proceso.estatus, detail?.evaluacionFinal) ? (
               <div className={formLayoutStyles.formLayout}>
                 <div className={formLayoutStyles.formGrid}>
+                  <FormField id="eval-estatus" label="Estatus de evaluación" required>
+                    <select
+                      id="eval-estatus"
+                      className={formStyles.select}
+                      value={evaluacion.estatus}
+                      onChange={(event) =>
+                        setEvaluacion((current) => ({
+                          ...current,
+                          estatus: event.target.value,
+                        }))
+                      }
+                    >
+                      <option value="APROBADA">Aprobada</option>
+                      <option value="NO_APROBADA">No aprobada</option>
+                      <option value="OBSERVADA">Observada</option>
+                    </select>
+                  </FormField>
                   <TextInput
                     id="eval-calificacion"
                     label="Calificación"
@@ -602,11 +645,11 @@ export function TitularProcesoDetailModal({
                   <TextInput
                     id="eval-comentario"
                     label="Comentario (opcional)"
-                    value={evaluacion.comentarioTitular}
+                    value={evaluacion.comentario}
                     onChange={(event) =>
                       setEvaluacion((current) => ({
                         ...current,
-                        comentarioTitular: event.target.value,
+                        comentario: event.target.value,
                       }))
                     }
                   />
@@ -624,10 +667,21 @@ export function TitularProcesoDetailModal({
 
                       setIsMutating(true);
                       setActionError(null);
-                      const result = await registerProcesoEvaluacionFinalAction(proceso.idProceso, {
+                      const evalPayload: {
+                        estatus: string;
+                        calificacion: number;
+                        comentario?: string;
+                      } = {
+                        estatus: evaluacion.estatus,
                         calificacion,
-                        comentarioTitular: evaluacion.comentarioTitular.trim() || undefined,
-                      });
+                      };
+                      if (evaluacion.comentario.trim()) {
+                        evalPayload.comentario = evaluacion.comentario.trim();
+                      }
+                      const result = await registerProcesoEvaluacionFinalAction(
+                        proceso.idProceso,
+                        evalPayload,
+                      );
                       setIsMutating(false);
 
                       if (!result.success) {
@@ -642,6 +696,11 @@ export function TitularProcesoDetailModal({
                   </Button>
                 </div>
               </div>
+            ) : (
+              <p className={procesoStyles.emptyHint}>
+                La evaluación final solo está disponible cuando el proceso tiene las horas
+                completas.
+              </p>
             )}
           </section>
           ) : null}

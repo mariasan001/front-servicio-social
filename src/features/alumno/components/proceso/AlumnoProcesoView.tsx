@@ -26,6 +26,9 @@ import {
   formatFecha,
   resolveCartaDownloadKind,
   validarRegistroHoraAlumno,
+  canAlumnoActualizarBitacora,
+  canAlumnoSubirDocumento,
+  canRegistrarHoraProceso,
 } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
@@ -50,21 +53,6 @@ type AlumnoProcesoViewProps = {
   incidencias: IncidenciaResponse[];
   nombreCompleto?: string;
 };
-
-function canUpdateBitacora(estatus?: string) {
-  const value = estatus?.trim().toUpperCase() ?? "";
-  return value === "OBSERVADA" || value === "OBSERVADO" || value === "PENDIENTE";
-}
-
-function canUploadDocument(estatus?: string) {
-  const value = estatus?.trim().toUpperCase() ?? "";
-  return (
-    value !== "APROBADO" &&
-    value !== "APROBADA" &&
-    value !== "VALIDADO" &&
-    value !== "VALIDADA"
-  );
-}
 
 export function AlumnoProcesoView({
   proceso,
@@ -123,6 +111,7 @@ export function AlumnoProcesoView({
 
   const vacanteNombre = proceso.vacanteNombre?.trim();
   const folio = proceso.folio?.trim();
+  const canRegisterHours = canRegistrarHoraProceso(proceso.estatus);
 
   const submitHora = async () => {
     const validationError = validarRegistroHoraAlumno(nuevaHora);
@@ -310,6 +299,7 @@ export function AlumnoProcesoView({
           ) : null}
         </div>
 
+        {canRegisterHours ? (
         <section className={entityStyles.section} aria-label="Registrar horas">
           <div className={entityStyles.sectionHeader}>
             <h2 className={entityStyles.sectionTitle}>Registrar horas</h2>
@@ -377,6 +367,17 @@ export function AlumnoProcesoView({
             </div>
           </div>
         </section>
+        ) : (
+          <section className={entityStyles.section} aria-label="Registrar horas">
+            <div className={entityStyles.sectionHeader}>
+              <h2 className={entityStyles.sectionTitle}>Registrar horas</h2>
+              <p className={entityStyles.sectionDescription}>
+                Podrás registrar horas cuando tu proceso esté activo y la delegación haya emitido
+                la carta de aceptación.
+              </p>
+            </div>
+          </section>
+        )}
 
         <section className={entityStyles.section} aria-label="Mis registros de horas">
           <div className={entityStyles.sectionHeader}>
@@ -402,7 +403,7 @@ export function AlumnoProcesoView({
                     {hora.horasRegistradas ?? "—"} horas registradas
                   </p>
 
-                  {canUpdateBitacora(hora.estatus) ? (
+                  {canAlumnoActualizarBitacora(hora.estatus) ? (
                     <div className={formLayoutStyles.formLayout}>
                       <FormField
                         id={`bitacora-${hora.idAsistencia}`}
@@ -477,7 +478,7 @@ export function AlumnoProcesoView({
                     }
                     selectedFile={selectedFiles[documento.idProcesoDocumento] ?? null}
                     disabled={isMutating}
-                    canUpload={canUploadDocument(documento.estatus)}
+                    canUpload={canAlumnoSubirDocumento(documento.estatus)}
                     canDownload
                     onFileSelect={(file) =>
                       setSelectedFiles((current) => ({

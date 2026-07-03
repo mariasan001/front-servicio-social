@@ -16,7 +16,8 @@ import { SelectInput, TextInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import formStyles from "@/shared/styles/PanelFormModal.module.css";
 
 function AlumnoNormalizarModalContent({
   alumno,
@@ -98,18 +99,18 @@ function AlumnoNormalizarModalContent({
   };
 
   return (
-    <div className={styles.detailLayout}>
+    <div className={styles.layout}>
       <StatusBadge tone={estatusTone(alumno.estatusVinculacionEscuela)}>
         {formatEtiqueta(alumno.estatusVinculacionEscuela, "Pendiente de vincular")}
       </StatusBadge>
-      <p className={styles.detailLead}>
+      <p className={styles.sectionDescription}>
         Escuela capturada: <strong>{alumno.escuelaTextoCapturada ?? "Sin dato"}</strong>
       </p>
       {cvLoading ? <LoadingState label="Cargando CV…" /> : null}
-      {!cvLoading && cvSummary ? <p className={styles.detailLead}>{cvSummary}</p> : null}
+      {!cvLoading && cvSummary ? <p className={styles.sectionBody}>{cvSummary}</p> : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className={styles.detailActions}>
+      <div className={formStyles.formActions}>
         <Button
           type="button"
           variant={mode === "vincular" ? "primary" : "outline"}
@@ -127,7 +128,7 @@ function AlumnoNormalizarModalContent({
       </div>
 
       {mode === "vincular" ? (
-        <div className={styles.inlineForm}>
+        <div className={formStyles.formLayout}>
           <SelectInput
             id="escuela-id"
             label="Escuela"
@@ -140,12 +141,14 @@ function AlumnoNormalizarModalContent({
               </option>
             ))}
           </SelectInput>
-          <Button type="button" disabled={isMutating} onClick={() => void handleVincular()}>
-            Vincular escuela
-          </Button>
+          <div className={formStyles.formActions}>
+            <Button type="button" disabled={isMutating} onClick={() => void handleVincular()}>
+              Vincular escuela
+            </Button>
+          </div>
         </div>
       ) : (
-        <div className={styles.inlineForm}>
+        <div className={formStyles.formLayout}>
           <TextInput
             id="esc-nombre"
             label="Nombre de la escuela"
@@ -164,9 +167,11 @@ function AlumnoNormalizarModalContent({
             value={nuevaEscuela.municipio}
             onChange={(e) => setNuevaEscuela((c) => ({ ...c, municipio: e.target.value }))}
           />
-          <Button type="button" disabled={isMutating} onClick={() => void handleCrear()}>
-            Registrar y vincular
-          </Button>
+          <div className={formStyles.formActions}>
+            <Button type="button" disabled={isMutating} onClick={() => void handleCrear()}>
+              Registrar y vincular
+            </Button>
+          </div>
         </div>
       )}
     </div>

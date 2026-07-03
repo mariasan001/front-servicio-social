@@ -187,9 +187,9 @@ export function TitularPostulacionDetailModal({
                     onClick={async () => {
                       setIsMutating(true);
                       setActionError(null);
-                      const result = await acceptPostulacionAction(detail.idPostulacion, {
-                        comentarioTitular: comentario.trim() || undefined,
-                      });
+                      const payload =
+                        comentario.trim() ? { comentario: comentario.trim() } : {};
+                      const result = await acceptPostulacionAction(detail.idPostulacion, payload);
                       setIsMutating(false);
                       if (!result.success) {
                         setActionError(result.error);
@@ -237,8 +237,7 @@ export function TitularPostulacionDetailModal({
                       setIsMutating(true);
                       setActionError(null);
                       const result = await rejectPostulacionAction(detail.idPostulacion, {
-                        motivoRechazo: motivoRechazo.trim(),
-                        comentarioTitular: comentario.trim() || undefined,
+                        motivo: motivoRechazo.trim(),
                       });
                       setIsMutating(false);
                       if (!result.success) {
@@ -267,6 +266,9 @@ export function TitularPostulacionDetailModal({
                 <TextInput
                   id="resultado-examen"
                   label="Resultado del examen"
+                  type="number"
+                  min={0}
+                  max={100}
                   value={resultadoExamen}
                   onChange={(event) => setResultadoExamen(event.target.value)}
                 />
@@ -276,16 +278,23 @@ export function TitularPostulacionDetailModal({
                     variant="outline"
                     disabled={isMutating}
                     onClick={async () => {
-                      if (!resultadoExamen.trim()) {
-                        setActionError("Indica el resultado del examen.");
+                      const resultado = Number(resultadoExamen.trim());
+                      if (!resultadoExamen.trim() || Number.isNaN(resultado)) {
+                        setActionError("Indica el resultado del examen como número.");
                         return;
                       }
                       setIsMutating(true);
                       setActionError(null);
-                      const result = await markPostulacionExamFinishedAction(detail.idPostulacion, {
-                        resultadoExamen: resultadoExamen.trim(),
-                        comentarioTitular: comentario.trim() || undefined,
-                      });
+                      const examPayload: { resultadoExamen: number; comentario?: string } = {
+                        resultadoExamen: resultado,
+                      };
+                      if (comentario.trim()) {
+                        examPayload.comentario = comentario.trim();
+                      }
+                      const result = await markPostulacionExamFinishedAction(
+                        detail.idPostulacion,
+                        examPayload,
+                      );
                       setIsMutating(false);
                       if (!result.success) {
                         setActionError(result.error);

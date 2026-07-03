@@ -194,56 +194,20 @@ export type ProcesoHoraResponse = {
   descripcionActividades?: string;
 };
 
-export type RechazarVacanteRequest = {
-  motivoRechazo: string;
-};
-
-export type CancelarProcesoRequest = {
-  motivoCancelacion: string;
-};
-
-export type ValidarDocumentoRequest = {
-  observacion?: string;
-};
-
-export type ValidarHoraRequest = {
-  comentarioDelegacion?: string;
-};
-
-export type RechazarHoraRequest = {
-  comentarioDelegacion: string;
-};
-
-export type ObservarHoraRequest = {
-  comentarioDelegacion: string;
-};
-
-export type CancelarHoraRequest = {
-  motivoCancelacion: string;
-};
-
-export type RegistrarHoraInternaRequest = {
-  fecha: string;
-  horaEntrada: string;
-  horaSalida: string;
-  descripcionActividades?: string;
-  evidenciaUrl?: string;
-};
-
-export type CrearIncidenciaProcesoRequest = {
-  tipo: string;
-  severidad: string;
-  descripcion: string;
-  fechaIncidencia: string;
-};
-
-export type ResolverIncidenciaRequest = {
-  resoluciones: string[];
-};
-
-export type CancelarIncidenciaRequest = {
-  motivoCancelacion: string;
-};
+export type {
+  CancelarHoraRequest,
+  CancelarIncidenciaRequest,
+  CancelarProcesoRequest,
+  CrearIncidenciaRequest,
+  CrearIncidenciaRequest as CrearIncidenciaProcesoRequest,
+  RechazarVacanteRequest,
+  RegistrarHoraInternaRequest,
+  ResolverIncidenciaRequest,
+  ValidarDocumentoRequest,
+  ValidarHoraRequest,
+  RechazarHoraRequest,
+  ObservarHoraRequest,
+} from "@/lib/domain";
 
 export type NormalizarEscuelaRequest = {
   escuelaId: number;

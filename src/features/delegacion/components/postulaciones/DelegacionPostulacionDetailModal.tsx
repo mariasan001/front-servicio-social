@@ -1,13 +1,14 @@
 "use client";
 
+import { UserRound } from "lucide-react";
 import { getPostulacionDetailAction } from "../../actions/postulaciones.actions";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/PanelDetailView.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 type DelegacionPostulacionDetailModalProps = {
   postulacionId: number | null;
@@ -26,18 +27,55 @@ export function DelegacionPostulacionDetailModal({
     getPostulacionDetailAction,
   );
 
+  const folio = detail?.folio?.trim();
+
   return (
-    <Modal open={open} title={detail?.folio ? `Postulación ${detail.folio}` : "Postulación"} onClose={onClose} size="lg">
-      {isLoading && !detail ? <LoadingState label="Cargando postulación…" /> : null}
+    <Modal
+      open={open}
+      title={folio ? `Postulación ${folio}` : "Postulación"}
+      onClose={onClose}
+      size="lg"
+    >
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={0} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
+
       {detail ? (
-        <div className={styles.detailLayout}>
-          <StatusBadge tone={estatusTone(detail.estatus)}>{formatEtiqueta(detail.estatus)}</StatusBadge>
-          <dl className={styles.detailGrid}>
-            <div className={styles.detailItem}><dt>Folio</dt><dd>{detail.folio ?? "Sin folio"}</dd></div>
-            <div className={styles.detailItem}><dt>Identificador</dt><dd>#{detail.idPostulacion}</dd></div>
-          </dl>
-          <p className={styles.detailLead}>Esta sección es de consulta. Las acciones sobre postulaciones las realiza el titular del área.</p>
+        <div
+          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          aria-busy={isReloading}
+        >
+          <div className={styles.summaryBar}>
+            <div className={styles.avatar} aria-hidden="true">
+              <UserRound size={18} strokeWidth={1.75} />
+            </div>
+            <div className={styles.summaryMeta}>
+              <p className={styles.summaryPrimary}>{folio || `Postulación #${detail.idPostulacion}`}</p>
+              <p className={styles.summarySecondary}>Consulta de solo lectura</p>
+            </div>
+            <StatusBadge tone={estatusTone(detail.estatus)}>
+              {formatEtiqueta(detail.estatus, "Sin estatus")}
+            </StatusBadge>
+          </div>
+
+          <div className={styles.infoPanel}>
+            <dl className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <dt>Folio</dt>
+                <dd>{folio || "Sin folio"}</dd>
+              </div>
+              <div className={styles.infoItem}>
+                <dt>Identificador</dt>
+                <dd>#{detail.idPostulacion}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <section className={styles.section} aria-label="Información">
+            <p className={styles.sectionDescription}>
+              Esta sección es de consulta. Las acciones sobre postulaciones las realiza el titular
+              del área.
+            </p>
+          </section>
         </div>
       ) : null}
     </Modal>

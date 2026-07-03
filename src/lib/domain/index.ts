@@ -17,3 +17,66 @@ export {
   calcularHorasEntre,
   validarRegistroHoraAlumno,
 } from "./horas";
+export {
+  formatHorasProceso,
+  isListoParaActivacion,
+  puedeActivarProceso,
+  tieneHorasRequeridas,
+  canCancelProceso,
+  canEmitCartaAceptacion,
+  canEmitCartaLiberacion,
+  canEmitirLiberacionTecnica,
+  canRegistrarEvaluacionFinal,
+  canRegistrarHoraProceso,
+  canRegistrarIncidenciaProceso,
+  canSetHorasRequeridas,
+  isProcesoActivo,
+  type FormatHorasProcesoStyle,
+} from "./proceso";
+export {
+  canAlumnoActualizarBitacora,
+  canAlumnoSubirDocumento,
+  canApproveDocumento,
+  canObserveDocumento,
+  canRejectDocumento,
+  canReviewDocumento,
+} from "./documento";
+export {
+  canCancelHora,
+  canObserveHora,
+  canRejectHora,
+  canValidateHora,
+  isHoraPendienteRevision,
+} from "./horas";
+export { canCancelIncidencia, canResolveIncidencia } from "./incidencia";
+export {
+  canCancelVacanteTitular,
+  canCloseVacanteDelegacion,
+  canEditVacanteTitular,
+  canPublishVacanteDelegacion,
+  canRejectVacanteDelegacion,
+  canSendVacanteToReview,
+  isVacantePendienteRevision,
+} from "./vacante";
+export { normalizeDomainCode, readEntityEstatus } from "./status";
+export type {
+  AceptarPostulacionRequest,
+  CancelarHoraRequest,
+  CancelarIncidenciaRequest,
+  CancelarProcesoRequest,
+  ComentarioOpcionalRequest,
+  ComentarioRequest,
+  CrearEvaluacionFinalRequest,
+  CrearIncidenciaRequest,
+  EmitirLiberacionTecnicaRequest,
+  ExamenFinalizadoRequest,
+  MotivoRequest,
+  ObservarHoraRequest,
+  RechazarHoraRequest,
+  RechazarPostulacionRequest,
+  RechazarVacanteRequest,
+  RegistrarHoraInternaRequest,
+  ResolverIncidenciaRequest,
+  ValidarDocumentoRequest,
+  ValidarHoraRequest,
+} from "./requests";

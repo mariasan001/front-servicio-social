@@ -56,7 +56,7 @@ export async function closeVacante(idVacante: number) {
 
 export async function rejectVacante(
   idVacante: number,
-  request: { motivoRechazo: string },
+  request: { motivo: string },
 ) {
   const response = await serverApiRequest<VacanteResponse>(
     `/api/delegacion/vacantes/${idVacante}/rechazar`,

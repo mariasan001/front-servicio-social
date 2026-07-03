@@ -11,6 +11,12 @@ import {
 } from "../../actions/procesos.actions";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import {
+  canApproveDocumento,
+  canObserveDocumento,
+  canRejectDocumento,
+  canReviewDocumento,
+} from "@/lib/domain/documento";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -61,6 +67,7 @@ export function DocumentoPendienteModal({
   const folioProceso = detail?.folioProceso?.trim();
   const vacanteNombre = detail?.vacanteNombre?.trim();
   const procesoLabel = folioProceso || (detail ? `Proceso #${detail.idProceso}` : "Sin proceso");
+  const canReview = detail ? canReviewDocumento(detail.estatus) : false;
 
   const run = async (action: "approve" | "observe" | "reject") => {
     if (!detail) return;
@@ -74,7 +81,7 @@ export function DocumentoPendienteModal({
     }
     setIsMutating(true);
     setActionError(null);
-    const body = comentario.trim() ? { observacion: comentario.trim() } : {};
+    const body = { comentario: comentario.trim() };
     const result =
       action === "approve"
         ? await approveProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento)
@@ -163,6 +170,7 @@ export function DocumentoPendienteModal({
             </div>
           </div>
 
+          {canReview ? (
           <section className={styles.section} aria-label="Revisar documento">
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Revisar documento</h3>
@@ -189,9 +197,12 @@ export function DocumentoPendienteModal({
               </FormField>
 
               <div className={formLayoutStyles.formActions}>
+                {canApproveDocumento(detail.estatus) ? (
                 <Button type="button" disabled={isMutating} onClick={() => void run("approve")}>
                   {isMutating ? "Procesando…" : "Aprobar"}
                 </Button>
+                ) : null}
+                {canObserveDocumento(detail.estatus) ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -200,6 +211,8 @@ export function DocumentoPendienteModal({
                 >
                   Observar
                 </Button>
+                ) : null}
+                {canRejectDocumento(detail.estatus) ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -209,9 +222,11 @@ export function DocumentoPendienteModal({
                 >
                   Rechazar
                 </Button>
+                ) : null}
               </div>
             </div>
           </section>
+          ) : null}
         </div>
       ) : null}
     </Modal>

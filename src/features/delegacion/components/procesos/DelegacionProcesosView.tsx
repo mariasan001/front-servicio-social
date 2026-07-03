@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { ClipboardList, Search, Zap } from "lucide-react";
 import type { ProcesoResponse } from "../../types/delegacion.types";
-import { formatHorasProceso, isListoParaActivacion } from "../../lib/proceso.utils";
+import { formatHorasProceso, isListoParaActivacion } from "@/lib/domain/proceso";
 import { DelegacionProcesoDetailModal } from "./DelegacionProcesoDetailModal";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import {

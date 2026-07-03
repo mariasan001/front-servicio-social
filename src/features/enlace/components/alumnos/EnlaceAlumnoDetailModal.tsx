@@ -4,6 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { getAlumnoDetailAction } from "../../actions/alumnos.actions";
 import type { AlumnoDetalleResponse } from "../../types/enlace.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatHorasProceso } from "@/lib/domain/proceso";
 import { Alert } from "@/shared/components/Alert";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
@@ -43,14 +44,6 @@ function resolveCarrera(detail: AlumnoDetalleResponse) {
   }
 
   return carrera;
-}
-
-function formatHoras(acumuladas?: number, requeridas?: number) {
-  if (requeridas === undefined || requeridas === null) {
-    return acumuladas ? `${acumuladas} h registradas` : "Sin dato";
-  }
-
-  return `${acumuladas ?? 0} de ${requeridas} h`;
 }
 
 function formatAvance(porcentaje?: number | null) {
@@ -154,7 +147,7 @@ export function EnlaceAlumnoDetailModal({
               </div>
               <div className={styles.infoItem}>
                 <dt>Horas</dt>
-                <dd>{formatHoras(detail.horasAcumuladas, detail.horasRequeridas)}</dd>
+                <dd>{formatHorasProceso(detail.horasAcumuladas, detail.horasRequeridas, "detalle")}</dd>
               </div>
               <div className={styles.infoItem}>
                 <dt>Avance</dt>

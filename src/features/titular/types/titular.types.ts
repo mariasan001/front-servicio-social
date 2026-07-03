@@ -137,52 +137,15 @@ export type ActualizarVacanteRequest = Omit<CrearVacanteRequest, "areaId" | "mod
   modalidadId?: string;
 };
 
-export type AceptarPostulacionRequest = {
-  comentarioTitular?: string;
-};
-
-export type RechazarPostulacionRequest = {
-  motivoRechazo: string;
-  comentarioTitular?: string;
-};
-
-export type ExamenFinalizadoRequest = {
-  resultadoExamen: string;
-  comentarioTitular?: string;
-};
-
-export type RegistrarHoraInternaRequest = {
-  fecha: string;
-  horaEntrada: string;
-  horaSalida: string;
-  descripcionActividades?: string;
-  evidenciaUrl?: string;
-};
-
-export type ValidarHoraRequest = {
-  comentarioTitular?: string;
-};
-
-export type RechazarHoraRequest = {
-  comentarioTitular: string;
-};
-
-export type ObservarHoraRequest = {
-  comentarioTitular: string;
-};
-
-export type CrearIncidenciaRequest = {
-  tipo: string;
-  severidad: string;
-  descripcion: string;
-  fechaIncidencia: string;
-};
-
-export type EmitirLiberacionTecnicaRequest = {
-  comentarioTitular?: string;
-};
-
-export type CrearEvaluacionFinalRequest = {
-  calificacion: number;
-  comentarioTitular?: string;
-};
+export type {
+  AceptarPostulacionRequest,
+  CrearEvaluacionFinalRequest,
+  CrearIncidenciaRequest,
+  EmitirLiberacionTecnicaRequest,
+  ExamenFinalizadoRequest,
+  ObservarHoraRequest,
+  RechazarHoraRequest,
+  RechazarPostulacionRequest,
+  RegistrarHoraInternaRequest,
+  ValidarHoraRequest,
+} from "@/lib/domain";

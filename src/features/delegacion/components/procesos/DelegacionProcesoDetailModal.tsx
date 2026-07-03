@@ -20,7 +20,27 @@ import {
   setProcesoHorasRequeridasAction,
   validateProcesoHoraAction,
 } from "../../actions/procesos.actions";
-import { formatHorasProceso, isListoParaActivacion, tieneHorasRequeridas } from "../../lib/proceso.utils";
+import {
+  canApproveDocumento,
+  canObserveDocumento,
+  canRejectDocumento,
+  canReviewDocumento,
+} from "@/lib/domain/documento";
+import {
+  canCancelHora,
+  canObserveHora,
+  canRejectHora,
+  canValidateHora,
+} from "@/lib/domain/horas";
+import {
+  canCancelProceso,
+  canEmitCartaLiberacion,
+  canRegistrarIncidenciaProceso,
+  canSetHorasRequeridas,
+  formatHorasProceso,
+  isListoParaActivacion,
+  tieneHorasRequeridas,
+} from "@/lib/domain/proceso";
 import {
   cartaTipoIncludes,
   estatusTone,
@@ -40,7 +60,7 @@ import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
 import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
-import listStyles from "@/shared/styles/PanelDetailView.module.css";
+import listStyles from "@/shared/styles/EntityDetailRecordList.module.css";
 
 type DelegacionProcesoDetailModalProps = {
   procesoId: number | null;
@@ -87,11 +107,13 @@ export function DelegacionProcesoDetailModal({
 
   const proceso = detail?.proceso;
   const estatus = proceso?.estatus?.trim().toUpperCase() ?? "";
-  const listoParaActivar = isListoParaActivacion(estatus);
   const cartaAceptacionEmitida = (detail?.cartas ?? []).some((carta) =>
     cartaTipoIncludes(carta.tipoCarta, "aceptacion"),
   );
-  const canCancel = estatus !== "CANCELADO" && estatus !== "CANCELADA" && estatus !== "BAJA";
+  const listoParaActivar = isListoParaActivacion(estatus);
+  const canCancel = canCancelProceso(estatus);
+  const canEditHoras = canSetHorasRequeridas(estatus);
+  const canRegistrarIncidencia = canRegistrarIncidenciaProceso(estatus);
   const alumnoNombre = proceso?.alumnoNombre?.trim();
   const folio = proceso?.folio?.trim();
   const vacanteNombre = proceso?.vacanteNombre?.trim();
@@ -175,9 +197,17 @@ export function DelegacionProcesoDetailModal({
     idProcesoDocumento: number,
   ) => {
     if (!proceso) return;
+    if (action === "observe" && !comentario.trim()) {
+      setActionError("Escribe una observación para el alumno.");
+      return;
+    }
+    if (action === "reject" && !comentario.trim()) {
+      setActionError("Escribe el motivo del rechazo.");
+      return;
+    }
     setIsMutating(true);
     setActionError(null);
-    const body = comentario.trim() ? { observacion: comentario.trim() } : {};
+    const body = { comentario: comentario.trim() };
     const result =
       action === "approve"
         ? await approveProcesoDocumentoAction(proceso.idProceso, idProcesoDocumento)
@@ -205,18 +235,18 @@ export function DelegacionProcesoDetailModal({
         ? await validateProcesoHoraAction(
             proceso.idProceso,
             idAsistencia,
-            comentario.trim() ? { comentarioDelegacion: comentario.trim() } : {},
+            comentario.trim() ? { comentario: comentario.trim() } : {},
           )
         : action === "observe"
           ? await observeProcesoHoraAction(proceso.idProceso, idAsistencia, {
-              comentarioDelegacion: comentario.trim() || "Observación registrada.",
+              comentario: comentario.trim() || "Observación registrada.",
             })
           : action === "reject"
             ? await rejectProcesoHoraAction(proceso.idProceso, idAsistencia, {
-                comentarioDelegacion: comentario.trim() || "Registro rechazado.",
+                comentario: comentario.trim() || "Registro rechazado.",
               })
             : await cancelProcesoHoraAction(proceso.idProceso, idAsistencia, {
-                motivoCancelacion: comentario.trim() || "Cancelado por delegación.",
+                motivo: comentario.trim() || "Cancelado por delegación.",
               });
     setIsMutating(false);
     if (!result.success) {
@@ -418,7 +448,7 @@ export function DelegacionProcesoDetailModal({
                 </div>
               </div>
             </section>
-          ) : !listoParaActivar ? (
+          ) : canEditHoras && !listoParaActivar ? (
             <section className={styles.section} aria-label="Horas requeridas">
               <div className={styles.sectionHeader}>
                 <h3 className={styles.sectionTitle}>Horas requeridas</h3>
@@ -467,47 +497,52 @@ export function DelegacionProcesoDetailModal({
               <h3 className={styles.sectionTitle}>Documentos del proceso</h3>
             </div>
             {(detail?.documentos ?? []).length === 0 ? (
-              <p className={listStyles.emptyInline}>No hay documentos registrados.</p>
+              <p className={listStyles.emptyHint}>No hay documentos registrados.</p>
             ) : (
-              <ul className={listStyles.panelList}>
+              <ul className={listStyles.recordList}>
                 {detail?.documentos.map((doc) => (
-                  <li key={doc.idProcesoDocumento} className={listStyles.panelCard}>
+                  <li key={doc.idProcesoDocumento} className={listStyles.recordCard}>
                     <strong>{doc.nombreDocumento ?? formatEtiqueta(doc.tipoDocumento, "Documento")}</strong>
                     <StatusBadge tone={estatusTone(doc.estatus)}>
                       {formatEtiqueta(doc.estatus)}
                     </StatusBadge>
-                    <div className={listStyles.detailActions}>
+                    <div className={listStyles.recordActions}>
+                      {canReviewDocumento(doc.estatus) ? (
+                        <>
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void runDocAction("approve", doc.idProcesoDocumento)}
                       >
                         Aprobar
                       </Button>
+                      {canObserveDocumento(doc.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void runDocAction("observe", doc.idProcesoDocumento)}
                       >
                         Observar
                       </Button>
+                      ) : null}
+                      {canRejectDocumento(doc.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={`${listStyles.actionButton} ${styles.dangerButton}`}
+                        className={styles.dangerButton}
                         disabled={isMutating}
                         onClick={() => void runDocAction("reject", doc.idProcesoDocumento)}
                       >
                         Rechazar
                       </Button>
+                      ) : null}
+                        </>
+                      ) : null}
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void downloadDocumento(doc.idProcesoDocumento)}
                       >
@@ -525,52 +560,57 @@ export function DelegacionProcesoDetailModal({
               <h3 className={styles.sectionTitle}>Registros de horas</h3>
             </div>
             {(detail?.horas ?? []).length === 0 ? (
-              <p className={listStyles.emptyInline}>No hay horas registradas.</p>
+              <p className={listStyles.emptyHint}>No hay horas registradas.</p>
             ) : (
-              <ul className={listStyles.panelList}>
+              <ul className={listStyles.recordList}>
                 {detail?.horas.map((hora) => (
-                  <li key={hora.idAsistencia} className={listStyles.panelCard}>
+                  <li key={hora.idAsistencia} className={listStyles.recordCard}>
                     <strong>{hora.fecha ?? "Sin fecha"}</strong>
                     <StatusBadge tone={estatusTone(hora.estatus)}>
                       {formatEtiqueta(hora.estatus)}
                     </StatusBadge>
-                    <div className={listStyles.detailActions}>
+                    <div className={listStyles.recordActions}>
+                      {canValidateHora(hora.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void runHoraAction("validate", hora.idAsistencia)}
                       >
                         Validar
                       </Button>
+                      ) : null}
+                      {canObserveHora(hora.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void runHoraAction("observe", hora.idAsistencia)}
                       >
                         Observar
                       </Button>
+                      ) : null}
+                      {canRejectHora(hora.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={`${listStyles.actionButton} ${styles.dangerButton}`}
+                        className={styles.dangerButton}
                         disabled={isMutating}
                         onClick={() => void runHoraAction("reject", hora.idAsistencia)}
                       >
                         Rechazar
                       </Button>
+                      ) : null}
+                      {canCancelHora(hora.estatus) ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className={listStyles.actionButton}
                         disabled={isMutating}
                         onClick={() => void runHoraAction("cancel", hora.idAsistencia)}
                       >
                         Cancelar
                       </Button>
+                      ) : null}
                     </div>
                   </li>
                 ))}
@@ -583,11 +623,11 @@ export function DelegacionProcesoDetailModal({
               <h3 className={styles.sectionTitle}>Incidencias</h3>
             </div>
             {(detail?.incidencias ?? []).length === 0 ? (
-              <p className={listStyles.emptyInline}>No hay incidencias registradas.</p>
+              <p className={listStyles.emptyHint}>No hay incidencias registradas.</p>
             ) : (
-              <ul className={listStyles.panelList}>
+              <ul className={listStyles.recordList}>
                 {detail?.incidencias.map((incidencia) => (
-                  <li key={incidencia.idIncidencia} className={listStyles.panelCard}>
+                  <li key={incidencia.idIncidencia} className={listStyles.recordCard}>
                     <strong>{formatEtiqueta(incidencia.tipo)}</strong>
                     <StatusBadge tone={estatusTone(incidencia.estatus)}>
                       {formatEtiqueta(incidencia.estatus)}
@@ -597,8 +637,9 @@ export function DelegacionProcesoDetailModal({
               </ul>
             )}
 
+            {canRegistrarIncidencia ? (
             <div className={formLayoutStyles.formLayout}>
-              <div className={listStyles.formGrid}>
+              <div className={formLayoutStyles.formGrid}>
                 <TextInput
                   id="inc-tipo"
                   label="Tipo"
@@ -673,46 +714,19 @@ export function DelegacionProcesoDetailModal({
                 </Button>
               </div>
             </div>
+            ) : null}
           </section>
 
           <section className={styles.section} aria-label="Cartas">
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Cartas</h3>
             </div>
-            <div className={listStyles.inlineForm}>
-              {!hasCarta("aceptacion") && !listoParaActivar ? (
+            <div className={formLayoutStyles.formActions}>
+              {canEmitCartaLiberacion(estatus, hasCarta("liberacion")) ? (
                 <>
                   <Button
                     type="button"
                     variant="outline"
-                    className={listStyles.actionButton}
-                    disabled={isMutating}
-                    onClick={() => void emitCarta("aceptacion", false)}
-                  >
-                    Emitir carta de aceptación
-                  </Button>
-                  <input
-                    ref={cartaAceptacionInput}
-                    type="file"
-                    accept="application/pdf,.pdf"
-                    aria-label="Archivo PDF para carta de aceptación"
-                  />
-                  <Button
-                    type="button"
-                    className={listStyles.actionButton}
-                    disabled={isMutating}
-                    onClick={() => void emitCarta("aceptacion", true)}
-                  >
-                    Emitir aceptación con archivo
-                  </Button>
-                </>
-              ) : null}
-              {!hasCarta("liberacion") ? (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={listStyles.actionButton}
                     disabled={isMutating}
                     onClick={() => void emitCarta("liberacion", false)}
                   >
@@ -726,7 +740,6 @@ export function DelegacionProcesoDetailModal({
                   />
                   <Button
                     type="button"
-                    className={listStyles.actionButton}
                     disabled={isMutating}
                     onClick={() => void emitCarta("liberacion", true)}
                   >
@@ -736,27 +749,26 @@ export function DelegacionProcesoDetailModal({
               ) : null}
             </div>
             {(detail?.cartas ?? []).length === 0 ? (
-              <p className={listStyles.emptyInline}>No hay cartas emitidas todavía.</p>
+              <p className={listStyles.emptyHint}>No hay cartas emitidas todavía.</p>
             ) : (
-              <ul className={listStyles.panelList}>
+              <ul className={listStyles.recordList}>
                 {detail?.cartas.map((carta) => {
                   const kind = resolveCartaDownloadKind(carta.tipoCarta);
 
                   return (
-                    <li key={carta.idCarta} className={listStyles.panelCard}>
+                    <li key={carta.idCarta} className={listStyles.recordCard}>
                       <strong>{formatEtiqueta(carta.tipoCarta, "Carta")}</strong>
-                      <span className={listStyles.panelMeta}>
+                      <span className={listStyles.recordMeta}>
                         {carta.folio?.trim() || "Sin folio"} · {formatFecha(carta.fechaEmision)}
                       </span>
                       <StatusBadge tone={estatusTone(carta.estatus)}>
                         {formatEtiqueta(carta.estatus)}
                       </StatusBadge>
                       {kind ? (
-                        <div className={listStyles.detailActions}>
+                        <div className={listStyles.recordActions}>
                           <Button
                             type="button"
                             variant="outline"
-                            className={listStyles.actionButton}
                             disabled={isMutating}
                             onClick={() => void downloadCarta(kind)}
                           >
@@ -802,7 +814,7 @@ export function DelegacionProcesoDetailModal({
                       }
                       setIsMutating(true);
                       const result = await cancelProcesoAction(proceso.idProceso, {
-                        motivoCancelacion: motivoCancelacion.trim(),
+                        motivo: motivoCancelacion.trim(),
                       });
                       setIsMutating(false);
                       if (!result.success) setActionError(result.error);

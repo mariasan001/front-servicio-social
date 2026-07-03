@@ -1,3 +1,5 @@
+import { matchesDomainCode, normalizeDomainCode } from "./status";
+
 export const MAX_HORAS_ALUMNO_POR_DIA = 12;
 
 export function calcularHorasEntre(horaEntrada: string, horaSalida: string) {
@@ -43,4 +45,24 @@ export function validarRegistroHoraAlumno(input: {
   }
 
   return null;
+}
+
+export function isHoraPendienteRevision(estatus?: string) {
+  return matchesDomainCode(estatus, "REGISTRADA", "OBSERVADA");
+}
+
+export function canValidateHora(estatus?: string) {
+  return isHoraPendienteRevision(estatus);
+}
+
+export function canObserveHora(estatus?: string) {
+  return isHoraPendienteRevision(estatus);
+}
+
+export function canRejectHora(estatus?: string) {
+  return isHoraPendienteRevision(estatus);
+}
+
+export function canCancelHora(estatus?: string) {
+  return normalizeDomainCode(estatus) !== "CANCELADA";
 }

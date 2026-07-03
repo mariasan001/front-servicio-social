@@ -11,6 +11,11 @@ import {
 import { getModalidadTrabajoLabel } from "../../constants/vacante-form";
 import type { VacanteResponse } from "../../types/titular.types";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import {
+  canCancelVacanteTitular,
+  canEditVacanteTitular,
+  canSendVacanteToReview,
+} from "@/lib/domain/vacante";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
@@ -62,13 +67,9 @@ export function TitularVacanteDetailModal({
   };
 
   const estatus = normalizeEstatus(detail?.estatus);
-  const canSendReview =
-    estatus !== "EN_REVISION" &&
-    estatus !== "PUBLICADA" &&
-    estatus !== "CANCELADA" &&
-    estatus !== "CERRADA";
-  const canCancel = estatus !== "CANCELADA" && estatus !== "CERRADA";
-  const canEdit = canCancel;
+  const canSendReview = canSendVacanteToReview(estatus);
+  const canCancel = canCancelVacanteTitular(estatus);
+  const canEdit = canEditVacanteTitular(estatus);
 
   const runMutation = async (action: "review" | "cancel") => {
     if (!detail) return;

@@ -9,7 +9,6 @@ import { DataTable, DataTableToolbar, type DataTableColumn } from "@/shared/comp
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import detailStyles from "@/shared/styles/PanelDetailView.module.css";
 
 export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse[] }) {
   const [search, setSearch] = useState("");
@@ -106,7 +105,7 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
         emptyTitle="Sin datos en el reporte"
         emptyDescription="El reporte se llenará cuando existan alumnos con procesos registrados."
       />
-      <p className={detailStyles.detailLead}>
+      <p className={styles.pageNote}>
         Mostrando {filtered.length} de {reporte.length} registros.
       </p>
     </section>

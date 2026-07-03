@@ -3,6 +3,7 @@ import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   IncidenciaResponse,
   ListIncidenciasFilters,
+  ResolverIncidenciaRequest,
 } from "../types/delegacion.types";
 
 export async function listIncidencias(filters?: ListIncidenciasFilters) {
@@ -29,7 +30,7 @@ export async function getIncidencia(idIncidencia: number) {
 
 export async function resolveIncidencia(
   idIncidencia: number,
-  request: { resoluciones: string[] },
+  request: ResolverIncidenciaRequest,
 ) {
   const response = await serverApiRequest<IncidenciaResponse>(
     `/api/delegacion/incidencias/${idIncidencia}/resolver`,
@@ -45,7 +46,7 @@ export async function resolveIncidencia(
 
 export async function cancelIncidencia(
   idIncidencia: number,
-  request: { motivoCancelacion: string },
+  request: { motivo: string },
 ) {
   const response = await serverApiRequest<IncidenciaResponse>(
     `/api/delegacion/incidencias/${idIncidencia}/cancelar`,
