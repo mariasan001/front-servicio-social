@@ -87,6 +87,27 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
     [effectiveForm],
   );
   const missingFields = useMemo(() => getMissingCvFields(effectiveForm), [effectiveForm]);
+  const savedSnapshot = useMemo(() => buildInitialForm(cv), [cv]);
+  const isDirty = useMemo(() => {
+    const savedLists = {
+      habilidades: savedSnapshot.habilidades,
+      experienciaLaboral: savedSnapshot.experienciaLaboral,
+      idiomas: savedSnapshot.idiomas,
+      certificaciones: savedSnapshot.certificaciones,
+    };
+    const currentLists = {
+      habilidades: effectiveForm.habilidades,
+      experienciaLaboral: effectiveForm.experienciaLaboral,
+      idiomas: effectiveForm.idiomas,
+      certificaciones: effectiveForm.certificaciones,
+    };
+
+    return (
+      effectiveForm.perfilProfesional !== savedSnapshot.perfilProfesional ||
+      effectiveForm.portafolioUrl !== savedSnapshot.portafolioUrl ||
+      JSON.stringify(currentLists) !== JSON.stringify(savedLists)
+    );
+  }, [effectiveForm, savedSnapshot]);
 
   const updateField = (field: keyof CvFormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -144,6 +165,16 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
     router.refresh();
   };
 
+  const handleDiscard = () => {
+    setForm(savedSnapshot);
+    setHabilidadesItems(parseListItems(savedSnapshot.habilidades));
+    setExperienciaItems(parseListItems(savedSnapshot.experienciaLaboral));
+    setIdiomasItems(parseListItems(savedSnapshot.idiomas));
+    setCertificacionesItems(parseListItems(savedSnapshot.certificaciones));
+    setError(null);
+    setSuccess(null);
+  };
+
   return (
     <section className={pageStyles.page} aria-labelledby="alumno-cv-title">
       <header className={styles.cvHeader}>
@@ -158,7 +189,10 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
             </p>
           </div>
 
-          <StatusBadge tone={isComplete ? "success" : "warning"}>
+          <StatusBadge
+            tone={isComplete ? "success" : "warning"}
+            icon={isComplete ? "done" : "review"}
+          >
             {isComplete ? "CV completo" : "CV incompleto"}
           </StatusBadge>
         </div>
@@ -175,7 +209,11 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
       <div className={styles.layout}>
         <article className={styles.formCard}>
           {error ? <Alert tone="error">{error}</Alert> : null}
-          {success ? <Alert tone="success">{success}</Alert> : null}
+          {success ? (
+            <Alert tone="success" title="Cambios guardados">
+              {success}
+            </Alert>
+          ) : null}
 
           <form className={formLayoutStyles.formLayout} onSubmit={(event) => void handleSubmit(event)}>
             <section className={formLayoutStyles.formSection} aria-label="Perfil profesional">
@@ -288,8 +326,13 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
             </section>
 
             <div className={styles.formFooter}>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Guardando…" : "Guardar CV"}
+              {isDirty ? (
+                <Button type="button" variant="outline" disabled={isSaving} onClick={handleDiscard}>
+                  Descartar
+                </Button>
+              ) : null}
+              <Button type="submit" variant="success" disabled={isSaving || !isDirty}>
+                {isSaving ? "Guardando…" : "Guardar cambios"}
               </Button>
             </div>
           </form>

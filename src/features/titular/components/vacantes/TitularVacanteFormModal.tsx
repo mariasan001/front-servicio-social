@@ -190,7 +190,7 @@ function VacanteFormModalContent({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="titular-vacante-form" disabled={isSubmitting}>
+          <Button type="submit" form="titular-vacante-form" variant="action" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : mode === "create"

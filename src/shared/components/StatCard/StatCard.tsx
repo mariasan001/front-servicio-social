@@ -18,7 +18,7 @@ export function StatCard({ label, value, icon: Icon, tone = "neutral", hint }: S
       <div className={styles.cardHead}>
         <p className={styles.label}>{label}</p>
         <div className={styles.iconWrap} aria-hidden="true">
-          <Icon className={styles.icon} size={16} strokeWidth={1.5} />
+          <Icon className={styles.icon} size={14} strokeWidth={1.5} />
         </div>
       </div>
 

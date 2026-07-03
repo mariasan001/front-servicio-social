@@ -144,7 +144,7 @@ function AreaFormModalContent({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="area-form" disabled={isSubmitting}>
+          <Button type="submit" form="area-form" variant="action" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : mode === "create"

@@ -5,7 +5,7 @@ type CupoMeterTone = "success" | "warning" | "danger" | "neutral";
 type CupoMeterProps = {
   disponible?: number;
   total?: number;
-  variant?: "compact" | "detail";
+  variant?: "compact" | "detail" | "slots";
   className?: string;
 };
 
@@ -71,6 +71,50 @@ export function CupoMeter({
 
   const tone = resolveTone(cupo.ratio, cupo.disponible);
   const fillPercent = cupo.total > 0 ? Math.round((cupo.disponible / cupo.total) * 100) : 0;
+
+  if (variant === "slots") {
+    const maxVisibleSlots = 12;
+    const showSlots = cupo.total > 0 && cupo.total <= maxVisibleSlots;
+
+    return (
+      <div
+        className={joinClassNames(styles.slotsMeter, className)}
+        role="img"
+        aria-label={`${cupo.disponible} lugares libres de ${cupo.total}`}
+      >
+        <div className={styles.slotsInline}>
+          {showSlots ? (
+            <div className={styles.slotsRow} aria-hidden="true">
+              {Array.from({ length: cupo.total }, (_, index) => (
+                <span
+                  key={index}
+                  className={joinClassNames(
+                    styles.slot,
+                    index < cupo.ocupado ? styles.slotTaken : styles.slotFree,
+                  )}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.track}>
+              <div
+                className={joinClassNames(styles.fill, FILL_TONE_CLASS[tone])}
+                style={{ width: `${fillPercent}%` }}
+              />
+            </div>
+          )}
+
+          <span className={styles.slotsValue}>
+            {cupo.disponible}/{cupo.total}
+          </span>
+        </div>
+
+        <p className={styles.slotsHint}>
+          {cupo.disponible > 0 ? formatLibres(cupo.disponible) : "Completo"}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

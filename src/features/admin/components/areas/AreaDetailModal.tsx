@@ -305,6 +305,7 @@ export function AreaDetailModal({
 
                   <Button
                     type="button"
+                    variant="action"
                     onClick={() => void handleAssignTitular()}
                     disabled={isMutating || titularesDisponibles.length === 0}
                   >
@@ -359,7 +360,7 @@ export function AreaDetailModal({
                         {!titular.esPrincipal ? (
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="action"
                             disabled={isMutating}
                             onClick={() => void handleSetPrincipal(titular.idAsignacion)}
                           >

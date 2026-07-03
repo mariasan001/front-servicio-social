@@ -120,17 +120,17 @@
 }
 
 .headerCellStatus,
-.cellStatus {
-  padding-right: 0.375rem;
-  padding-left: 0.375rem;
-  text-align: center;
-}
-
+.cellStatus,
 .headerCellActions,
 .cellActions {
   padding-right: 0.375rem;
   padding-left: 0.375rem;
   text-align: center;
+}
+
+.headerCellStatus,
+.cellStatus {
+  white-space: nowrap;
 }
 
 .headerCellActions {
@@ -208,6 +208,16 @@ tbody tr:last-child .cell {
 .iconAction:disabled {
   cursor: not-allowed;
   opacity: 0.4;
+}
+
+.iconActionDanger {
+  color: var(--color-stat-danger);
+}
+
+.iconActionDanger:hover {
+  color: var(--color-stat-danger);
+  background-color: rgb(143 61 61 / 10%);
+  border-color: rgb(143 61 61 / 20%);
 }
 
 .emptyEmbedded {

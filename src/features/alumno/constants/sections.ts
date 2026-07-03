@@ -9,8 +9,7 @@ export type AlumnoSectionSlug =
   | "vacantes"
   | "postulaciones"
   | "proceso"
-  | "cv"
-  | "notificaciones";
+  | "cv";
 
 export const ALUMNO_SECTIONS = getRoleSectionSlugs(
   USER_ROLES.ALUMNO,

@@ -59,7 +59,6 @@ export const PANEL_NAVIGATION: PanelNavGroup[] = [
       item(PANEL_PATHS.alumno, "postulaciones", "Postulaciones", ClipboardList, "Consulta el estatus de tus postulaciones."),
       item(PANEL_PATHS.alumno, "proceso", "Mi proceso", FileText, "Seguimiento de tu servicio social o residencia."),
       item(PANEL_PATHS.alumno, "cv", "Mi CV", UserCircle, "Actualiza tu currículum vitae."),
-      item(PANEL_PATHS.alumno, "notificaciones", "Notificaciones", Layers, "Avisos y actualizaciones del sistema."),
     ],
   },
   {

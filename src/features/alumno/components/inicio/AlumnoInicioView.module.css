@@ -1,0 +1,22 @@
+.inicioHeader {
+  padding-bottom: 0;
+}
+
+.calendarSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0;
+}
+
+.emptyCalendar {
+  margin: 0;
+  padding: 1rem 1.125rem;
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--color-gris-600);
+  background: rgb(252 252 252 / 90%);
+  border: 1px solid rgb(236 236 236 / 95%);
+  border-radius: 0.875rem;
+}

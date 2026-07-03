@@ -1,7 +1,9 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { actionFailure, runServerAction, type ActionResult } from "@/lib/actions";
+import { puedePostularVacantes } from "@/lib/domain";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
+import { getProcesoActual } from "../services/inicio.service";
 import {
   cancelPostulacion,
   createPostulacion,
@@ -24,6 +26,15 @@ export async function getPostulacionDetailAction(
 export async function createPostulacionAction(
   request: CrearPostulacionRequest,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
+  const procesoActual = await getProcesoActual().catch(() => null);
+
+  if (!puedePostularVacantes(procesoActual)) {
+    return actionFailure(
+      "Ya tienes un proceso de servicio social en curso. No puedes postularte a nuevas vacantes mientras esté vigente.",
+      { code: "ALUMNO_CON_PROCESO_VIGENTE" },
+    );
+  }
+
   const result = await runServerAction(
     () => createPostulacion(request),
     "No pudimos registrar tu postulación.",

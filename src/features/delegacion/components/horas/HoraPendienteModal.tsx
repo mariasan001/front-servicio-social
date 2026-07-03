@@ -142,7 +142,7 @@ export function HoraPendienteModal({
                 </FormField>
                 <div className={formLayoutStyles.formActions}>
                   {canValidateHora(detail.estatus) ? (
-                    <Button type="button" disabled={isMutating} onClick={() => void run("validate")}>
+                    <Button type="button" variant="action" disabled={isMutating} onClick={() => void run("validate")}>
                       Validar
                     </Button>
                   ) : null}

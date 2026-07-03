@@ -58,6 +58,10 @@ export type HoraResponse = {
   fecha?: string;
   estatus?: string;
   horasRegistradas?: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
+  fechaRegistro?: string;
 };
 
 export type HorasResumenResponse = {

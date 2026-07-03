@@ -297,6 +297,7 @@ export function EscuelaDetailModal({
 
                   <Button
                     type="button"
+                    variant="action"
                     onClick={() => void handleGenerateInvitacion()}
                     disabled={isMutating}
                   >

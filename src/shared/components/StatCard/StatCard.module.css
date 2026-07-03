@@ -1,16 +1,16 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-2);
   min-height: 0;
-  padding: var(--space-4);
+  padding: 0.75rem 0.875rem;
   overflow: hidden;
   background-color: var(--color-stat-card-bg);
   border: 1px solid var(--color-stat-card-border);
@@ -41,27 +41,22 @@
 }
 
 .card[data-tone="neutral"] {
-  --stat-icon-color: var(--color-gris-700);
   --stat-accent: var(--color-vino);
 }
 
 .card[data-tone="success"] {
-  --stat-icon-color: var(--color-stat-success);
-  --stat-accent: var(--color-badge-success);
+  --stat-accent: var(--color-stat-success);
 }
 
 .card[data-tone="warning"] {
-  --stat-icon-color: var(--color-stat-warning);
   --stat-accent: var(--color-dorado);
 }
 
 .card[data-tone="danger"] {
-  --stat-icon-color: var(--color-stat-danger);
-  --stat-accent: var(--color-badge-error);
+  --stat-accent: var(--color-stat-danger);
 }
 
 .card[data-tone="info"] {
-  --stat-icon-color: var(--color-stat-info);
   --stat-accent: var(--color-dorado);
 }
 
@@ -69,7 +64,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .label {
@@ -88,12 +83,12 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  color: var(--stat-icon-color);
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--stat-accent);
   background-color: var(--color-white);
   border: 1px solid rgb(236 236 236 / 80%);
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
 }
 
 .icon {
@@ -103,23 +98,23 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.0625rem;
 }
 
 .value {
   margin: 0;
-  font-size: clamp(1.5rem, 2.2vw, 1.75rem);
+  font-size: clamp(1.125rem, 1.65vw, 1.375rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1;
+  line-height: 1.05;
   color: var(--color-gris-900);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 .hint {
   margin: 0;
   font-size: var(--font-size-xs);
-  line-height: var(--line-height-normal);
+  line-height: 1.35;
   color: var(--color-gris-500);
 }
 

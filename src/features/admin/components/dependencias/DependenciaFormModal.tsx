@@ -119,7 +119,7 @@ function DependenciaFormModalContent({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="dependencia-form" disabled={isSubmitting}>
+          <Button type="submit" form="dependencia-form" variant="action" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : mode === "create"

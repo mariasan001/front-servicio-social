@@ -183,6 +183,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
+                    variant="action"
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
@@ -275,7 +276,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="action"
                     disabled={isMutating}
                     onClick={async () => {
                       const resultado = Number(resultadoExamen.trim());

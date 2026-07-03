@@ -276,7 +276,7 @@ export function UsuarioDetailModal({
                 <div className={usuarioStyles.passwordActions}>
                   <Button
                     type="button"
-                    variant="primary"
+                    variant="action"
                     onClick={() => void handleResetPassword()}
                     disabled={isMutating}
                   >

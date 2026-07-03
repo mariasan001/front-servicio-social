@@ -1,18 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import { getModalidadTrabajoLabel } from "@/features/titular/constants/vacante-form";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import type { ProcesoDetalleResponse } from "../../types/alumno.types";
+import { PANEL_PATHS } from "@/lib/auth/constants";
+import { puedePostularVacantes } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
 import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
@@ -28,12 +31,14 @@ export function AlumnoVacanteDetailModal({
   vacanteId,
   vacanteName,
   nombreCompleto,
+  procesoActual,
   open,
   onClose,
 }: {
   vacanteId: number | null;
   vacanteName?: string;
   nombreCompleto?: string;
+  procesoActual: ProcesoDetalleResponse | null;
   open: boolean;
   onClose: () => void;
 }) {
@@ -53,7 +58,9 @@ export function AlumnoVacanteDetailModal({
     },
   );
 
-  const postularVisible = detail ? canPostular(detail.estatus, detail.activa) : false;
+  const alumnoPuedePostular = puedePostularVacantes(procesoActual);
+  const vacanteDisponible = detail ? canPostular(detail.estatus, detail.activa) : false;
+  const postularVisible = Boolean(detail && alumnoPuedePostular && vacanteDisponible);
   const firstName =
     nombreCompleto?.trim().split(/\s+/)[0]?.trim() || nombreCompleto?.trim() || "";
 
@@ -109,9 +116,7 @@ export function AlumnoVacanteDetailModal({
               <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
             </div>
 
-            <StatusBadge tone={estatusTone(detail.estatus)}>
-              {formatEtiqueta(detail.estatus)}
-            </StatusBadge>
+            <EstatusBadge estatus={detail.estatus} />
           </div>
 
           <div className={styles.infoPanel}>
@@ -197,11 +202,23 @@ export function AlumnoVacanteDetailModal({
               />
 
               <div className={alumnoStyles.postularActions}>
-                <Button type="button" disabled={isMutating} onClick={() => void handlePostular()}>
+                <Button type="button" variant="primary" disabled={isMutating} onClick={() => void handlePostular()}>
                   {isMutating ? "Enviando postulación…" : "Postularme"}
                 </Button>
               </div>
             </section>
+          ) : !alumnoPuedePostular ? (
+            <Alert tone="warning" title="Postulaciones bloqueadas">
+              Tienes un proceso de servicio social en curso
+              {procesoActual?.vacanteNombre ? (
+                <>
+                  {" "}
+                  (<strong>{procesoActual.vacanteNombre}</strong>)
+                </>
+              ) : null}
+              . Mientras esté vigente no puedes postularte a otra vacante.{" "}
+              <Link href={`${PANEL_PATHS.alumno}/proceso`}>Ir a mi proceso</Link>.
+            </Alert>
           ) : (
             <p className={alumnoStyles.unavailableNote} role="status">
               Esta vacante no está disponible para postulación en este momento.

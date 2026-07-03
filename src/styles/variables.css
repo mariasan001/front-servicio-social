@@ -11,6 +11,16 @@
   --color-text-on-vino: rgb(255 255 255 / 88%);
   --color-text-on-vino-muted: rgb(255 255 255 / 80%);
 
+  /* Acción — crear, registrar, guardar, subir */
+  --color-action: #3b6ea5;
+  --color-action-dark: #2f5783;
+  --color-action-bg: rgb(59 110 165 / 10%);
+  --color-action-border: rgb(59 110 165 / 24%);
+
+  /* Éxito — guardar cambios confirmados */
+  --color-success: #2f6b52;
+  --color-success-dark: #245a43;
+
   /* Grises */
   --color-gris-900: #2d2d2d;
   --color-gris-800: #454545;
@@ -78,8 +88,8 @@
   --radius-stat-card: 0.875rem;
 
   /* Panel — contenido principal */
-  --color-panel-scroll-thumb: rgb(107 35 64 / 20%);
-  --color-panel-scroll-thumb-hover: rgb(107 35 64 / 32%);
+  --color-panel-scroll-thumb: rgb(212 212 212 / 55%);
+  --color-panel-scroll-thumb-hover: rgb(180 180 180 / 75%);
   --color-panel-header-divider: rgb(212 212 212 / 85%);
 
   /* Panel — tarjetas de contador */
@@ -91,8 +101,8 @@
   --color-stat-warning-bg: rgb(184 149 106 / 12%);
   --color-stat-danger: #8f3d3d;
   --color-stat-danger-bg: rgb(143 61 61 / 10%);
-  --color-stat-info: #5a4a6a;
-  --color-stat-info-bg: rgb(90 74 106 / 9%);
+  --color-stat-info: var(--color-action);
+  --color-stat-info-bg: var(--color-action-bg);
 
   /* Panel — badges de estatus (semáforo institucional) */
   --color-badge-success: #3a5c47;
@@ -104,9 +114,9 @@
   --color-badge-error: #6b2340;
   --color-badge-error-bg: rgb(107 35 64 / 10%);
   --color-badge-error-border: rgb(107 35 64 / 24%);
-  --color-badge-info: #5a4a6a;
-  --color-badge-info-bg: rgb(90 74 106 / 10%);
-  --color-badge-info-border: rgb(90 74 106 / 22%);
+  --color-badge-info: var(--color-action);
+  --color-badge-info-bg: var(--color-action-bg);
+  --color-badge-info-border: var(--color-action-border);
   --color-badge-neutral: var(--color-gris-700);
   --color-badge-neutral-bg: rgb(250 250 250 / 95%);
   --color-badge-neutral-border: rgb(212 212 212 / 85%);

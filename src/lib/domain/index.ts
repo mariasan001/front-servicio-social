@@ -6,7 +6,7 @@ export type {
   ProcesoBase,
   VacanteBase,
 } from "./types";
-export { estatusTone, formatEtiqueta, formatFecha, formatSiNo } from "./labels";
+export { estatusBadgeIcon, estatusTone, formatEtiqueta, formatFecha, formatSiNo } from "./labels";
 export {
   cartaTipoIncludes,
   resolveCartaDownloadKind,
@@ -15,6 +15,7 @@ export {
 export {
   MAX_HORAS_ALUMNO_POR_DIA,
   calcularHorasEntre,
+  isFechaRegistroHoy,
   validarRegistroHoraAlumno,
 } from "./horas";
 export {
@@ -31,6 +32,7 @@ export {
   canRegistrarIncidenciaProceso,
   canSetHorasRequeridas,
   isProcesoActivo,
+  puedePostularVacantes,
   type FormatHorasProcesoStyle,
 } from "./proceso";
 export {

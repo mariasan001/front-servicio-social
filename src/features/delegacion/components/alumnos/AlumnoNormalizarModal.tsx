@@ -113,14 +113,14 @@ function AlumnoNormalizarModalContent({
       <div className={formStyles.formActions}>
         <Button
           type="button"
-          variant={mode === "vincular" ? "primary" : "outline"}
+          variant={mode === "vincular" ? "action" : "outline"}
           onClick={() => setMode("vincular")}
         >
           Vincular escuela existente
         </Button>
         <Button
           type="button"
-          variant={mode === "crear" ? "primary" : "outline"}
+          variant={mode === "crear" ? "action" : "outline"}
           onClick={() => setMode("crear")}
         >
           Registrar escuela nueva
@@ -142,7 +142,7 @@ function AlumnoNormalizarModalContent({
             ))}
           </SelectInput>
           <div className={formStyles.formActions}>
-            <Button type="button" disabled={isMutating} onClick={() => void handleVincular()}>
+            <Button type="button" variant="action" disabled={isMutating} onClick={() => void handleVincular()}>
               Vincular escuela
             </Button>
           </div>
@@ -168,7 +168,7 @@ function AlumnoNormalizarModalContent({
             onChange={(e) => setNuevaEscuela((c) => ({ ...c, municipio: e.target.value }))}
           />
           <div className={formStyles.formActions}>
-            <Button type="button" disabled={isMutating} onClick={() => void handleCrear()}>
+            <Button type="button" variant="action" disabled={isMutating} onClick={() => void handleCrear()}>
               Registrar y vincular
             </Button>
           </div>

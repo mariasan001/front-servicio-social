@@ -52,17 +52,80 @@
 }
 
 .fillSuccess {
-  background: linear-gradient(90deg, rgb(58 92 71 / 88%) 0%, rgb(47 107 82 / 95%) 100%);
+  background-color: var(--color-stat-success);
 }
 
 .fillWarning {
-  background: linear-gradient(90deg, rgb(184 149 106 / 88%) 0%, rgb(154 115 64 / 95%) 100%);
+  background-color: var(--color-stat-warning);
 }
 
 .fillDanger {
-  background: linear-gradient(90deg, rgb(107 35 64 / 78%) 0%, rgb(107 35 64 / 95%) 100%);
+  background-color: var(--color-vino);
 }
 
 .fillNeutral {
-  background: linear-gradient(90deg, rgb(140 140 140 / 70%) 0%, rgb(112 112 112 / 85%) 100%);
+  background-color: var(--color-gris-500);
+}
+
+.slotsMeter {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  width: max-content;
+  max-width: 100%;
+}
+
+.slotsInline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.slotsRow {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.1875rem;
+}
+
+.slot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.125rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+.slotFree {
+  background-color: var(--color-stat-success-bg);
+  border-color: rgb(47 107 82 / 32%);
+}
+
+.slotTaken {
+  background-color: rgb(220 220 220 / 95%);
+  border-color: rgb(188 188 188 / 80%);
+  box-shadow: none;
+}
+
+.slotsValue {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-gris-800);
+  white-space: nowrap;
+}
+
+.slotsHint {
+  margin: 0;
+  font-size: 0.5625rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-gris-500);
+  text-align: center;
+  white-space: nowrap;
 }

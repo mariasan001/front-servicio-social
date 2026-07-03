@@ -404,6 +404,7 @@ export function DelegacionProcesoDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
+                    variant="action"
                     disabled={
                       isMutating ||
                       !horasRequeridas.trim() ||
@@ -416,7 +417,7 @@ export function DelegacionProcesoDetailModal({
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="action"
                     disabled={isMutating || !horasRequeridas.trim()}
                     onClick={() => void guardarHoras()}
                   >
@@ -439,7 +440,7 @@ export function DelegacionProcesoDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="action"
                     disabled={isMutating}
                     onClick={() => void activarProceso(true)}
                   >
@@ -468,7 +469,7 @@ export function DelegacionProcesoDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="action"
                     disabled={isMutating || !horasRequeridas.trim()}
                     onClick={() => void guardarHoras()}
                   >
@@ -511,7 +512,7 @@ export function DelegacionProcesoDetailModal({
                         <>
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="action"
                         disabled={isMutating}
                         onClick={() => void runDocAction("approve", doc.idProcesoDocumento)}
                       >
@@ -573,7 +574,7 @@ export function DelegacionProcesoDetailModal({
                       {canValidateHora(hora.estatus) ? (
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="action"
                         disabled={isMutating}
                         onClick={() => void runHoraAction("validate", hora.idAsistencia)}
                       >
@@ -686,7 +687,7 @@ export function DelegacionProcesoDetailModal({
               <div className={formLayoutStyles.formActions}>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="action"
                   disabled={isMutating}
                   onClick={async () => {
                     if (
@@ -726,7 +727,7 @@ export function DelegacionProcesoDetailModal({
                 <>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="action"
                     disabled={isMutating}
                     onClick={() => void emitCarta("liberacion", false)}
                   >
@@ -740,6 +741,7 @@ export function DelegacionProcesoDetailModal({
                   />
                   <Button
                     type="button"
+                    variant="action"
                     disabled={isMutating}
                     onClick={() => void emitCarta("liberacion", true)}
                   >

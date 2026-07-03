@@ -17,6 +17,7 @@ type DocumentoUploadFieldProps = {
   disabled?: boolean;
   canUpload?: boolean;
   canDownload?: boolean;
+  showActions?: boolean;
   onFileSelect: (file: File | null) => void;
   onInvalidFile?: (message: string) => void;
   onUpload: () => void;
@@ -29,6 +30,7 @@ export function DocumentoUploadField({
   disabled = false,
   canUpload = true,
   canDownload = true,
+  showActions = true,
   onFileSelect,
   onInvalidFile,
   onUpload,
@@ -93,22 +95,25 @@ export function DocumentoUploadField({
         </>
       ) : null}
 
-      <div className={styles.actions}>
-        {canUpload ? (
-          <Button
-            type="button"
-            disabled={disabled || !selectedFile}
-            onClick={onUpload}
-          >
-            Subir archivo
-          </Button>
-        ) : null}
-        {canDownload ? (
-          <Button type="button" variant="outline" disabled={disabled} onClick={onDownload}>
-            Descargar
-          </Button>
-        ) : null}
-      </div>
+      {showActions ? (
+        <div className={styles.actions}>
+          {canUpload ? (
+            <Button
+              type="button"
+              variant="success"
+              disabled={disabled || !selectedFile}
+              onClick={onUpload}
+            >
+              Subir archivo
+            </Button>
+          ) : null}
+          {canDownload ? (
+            <Button type="button" variant="outline" disabled={disabled} onClick={onDownload}>
+              Descargar
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -50,6 +50,7 @@ type DataTableToolbarActionProps = React.ButtonHTMLAttributes<HTMLButtonElement>
 type DataTableIconActionProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
   icon: LucideIcon;
+  tone?: "default" | "danger";
 };
 
 type DataTableActionsProps = {
@@ -101,7 +102,7 @@ export function DataTableToolbarAction({
   ...props
 }: DataTableToolbarActionProps) {
   return (
-    <Button variant="primary" className={joinClassNames(styles.toolbarAction, className)} {...props}>
+    <Button variant="action" className={joinClassNames(styles.toolbarAction, className)} {...props}>
       {children}
     </Button>
   );
@@ -114,13 +115,18 @@ export function DataTableActions({ children }: DataTableActionsProps) {
 export function DataTableIconAction({
   label,
   icon: Icon,
+  tone = "default",
   className,
   ...props
 }: DataTableIconActionProps) {
   return (
     <button
       type="button"
-      className={joinClassNames(styles.iconAction, className)}
+      className={joinClassNames(
+        styles.iconAction,
+        tone === "danger" && styles.iconActionDanger,
+        className,
+      )}
       aria-label={label}
       title={label}
       {...props}

@@ -114,6 +114,7 @@ export function TitularVacanteDetailModal({
             {canSendReview ? (
               <Button
                 type="button"
+                variant="action"
                 disabled={isMutating}
                 onClick={() => void runMutation("review")}
               >

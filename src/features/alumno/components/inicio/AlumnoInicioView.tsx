@@ -1,157 +1,159 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Briefcase, ClipboardList, FileText, Layers, UserCircle } from "lucide-react";
-import { PANEL_PATHS } from "@/lib/auth/constants";
+import { CalendarClock, Clock, Shield } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { HoraResponse, NotificacionResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import type { AuthUser } from "@/lib/api/types";
-import type { ProcesoDetalleResponse } from "../../types/alumno.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { PANEL_PATHS } from "@/lib/auth/constants";
+import type { AlumnoInicioStats } from "../../services/inicio.service";
+import {
+  canRegistrarHoraProceso,
+  formatFecha,
+} from "@/lib/domain";
+import { horasEnFecha, parseDateKey } from "../../lib/horas-calendar.utils";
+import { Alert } from "@/shared/components/Alert";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-import inicioStyles from "@/shared/styles/PanelInicioView.module.css";
+import { HoraDiaDetailModal } from "../proceso/HoraDiaDetailModal";
+import { HorasCalendar, type HorasCalendarView } from "../proceso/HorasCalendar";
+import headerStyles from "./AlumnoInicioView.module.css";
+import { AlumnoNotificacionesTray } from "./AlumnoNotificacionesTray";
 
 type AlumnoInicioViewProps = {
   session: AuthUser;
   procesoActual: ProcesoDetalleResponse | null;
-  notificacionesNoLeidas: number;
-  stats: {
-    vacantes: number;
-    postulaciones: number;
-  };
+  horas: HoraResponse[];
+  stats: AlumnoInicioStats;
+  notificaciones: NotificacionResponse[];
+  totalNotificaciones: number;
+  unreadCount: number;
 };
-
-const QUICK_ACCESS = [
-  {
-    href: `${PANEL_PATHS.alumno}/vacantes`,
-    label: "Vacantes",
-    description: "Explora oportunidades disponibles y postúlate.",
-    icon: Briefcase,
-    statKey: "vacantes" as const,
-    statLabel: "disponibles",
-  },
-  {
-    href: `${PANEL_PATHS.alumno}/postulaciones`,
-    label: "Postulaciones",
-    description: "Consulta el estatus de tus solicitudes.",
-    icon: ClipboardList,
-    statKey: "postulaciones" as const,
-    statLabel: "registradas",
-  },
-  {
-    href: `${PANEL_PATHS.alumno}/proceso`,
-    label: "Mi proceso",
-    description: "Seguimiento de horas, documentos y avance.",
-    icon: FileText,
-    statKey: null,
-    statLabel: "activo",
-    useProceso: true,
-  },
-  {
-    href: `${PANEL_PATHS.alumno}/cv`,
-    label: "Mi CV",
-    description: "Mantén actualizado tu perfil profesional.",
-    icon: UserCircle,
-    statKey: null,
-    statLabel: "perfil",
-    staticValue: "—",
-  },
-  {
-    href: `${PANEL_PATHS.alumno}/notificaciones`,
-    label: "Notificaciones",
-    description: "Avisos y actualizaciones del sistema.",
-    icon: Layers,
-    statKey: null,
-    statLabel: "sin leer",
-    useNotificaciones: true,
-  },
-];
 
 export function AlumnoInicioView({
   session,
   procesoActual,
-  notificacionesNoLeidas,
+  horas,
   stats,
+  notificaciones,
+  totalNotificaciones,
+  unreadCount,
 }: AlumnoInicioViewProps) {
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [calendarView, setCalendarView] = useState<HorasCalendarView>("month");
+  const [calendarAnchor, setCalendarAnchor] = useState(() => new Date());
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [dayModalOpen, setDayModalOpen] = useState(false);
+
   const firstName = session.nombreCompleto.trim().split(/\s+/)[0] ?? session.nombreCompleto;
+  const canRegisterHours = procesoActual
+    ? canRegistrarHoraProceso(procesoActual.estatus)
+    : false;
+
+  const selectedDayHoras = useMemo(() => {
+    if (!selectedDateKey) {
+      return [];
+    }
+
+    return horasEnFecha(horas, selectedDateKey);
+  }, [horas, selectedDateKey]);
+
+  const horasValue =
+    stats.horasRequeridas !== null
+      ? `${stats.horasRegistradas} / ${stats.horasRequeridas} horas`
+      : `${stats.horasRegistradas} horas`;
+
+  const horasHint = (() => {
+    if (stats.horasAcumuladas > 0) {
+      return `${stats.horasAcumuladas} h validadas`;
+    }
+
+    if (stats.horasRegistradas > 0) {
+      return "Pendientes de validar";
+    }
+
+    return undefined;
+  })();
+
+  const handleSelectDate = (dateKey: string) => {
+    setSelectedDateKey(dateKey);
+    const parsed = parseDateKey(dateKey);
+    if (parsed) {
+      setCalendarAnchor(parsed);
+    }
+    setDayModalOpen(true);
+  };
 
   return (
     <section className={styles.page} aria-labelledby="alumno-inicio-title">
       <PageHeader
+        className={headerStyles.inicioHeader}
         titleId="alumno-inicio-title"
         title={<PageGreeting name={firstName} />}
         description="Resumen de tu participación en servicio social o residencia profesional."
+        actions={
+          <AlumnoNotificacionesTray
+            notificaciones={notificaciones}
+            unreadCount={unreadCount}
+            totalElements={totalNotificaciones}
+          />
+        }
       />
 
-      <div className={inicioStyles.welcomeCard}>
-        <p className={inicioStyles.welcomeText}>
-          Desde este panel puedes postularte a vacantes, dar seguimiento a tu proceso y mantener
-          tu información al día.
-        </p>
-        {procesoActual ? (
-          <p className={inicioStyles.welcomeText}>
-            Proceso activo:{" "}
-            <strong>{procesoActual.folio?.trim() || `#${procesoActual.idProceso}`}</strong>{" "}
-            <StatusBadge tone={estatusTone(procesoActual.estatus)}>
-              {formatEtiqueta(procesoActual.estatus)}
-            </StatusBadge>
-          </p>
-        ) : (
-          <p className={inicioStyles.welcomeText}>
-            Aún no tienes un proceso activo. Revisa las vacantes disponibles para comenzar.
-          </p>
-        )}
-      </div>
+      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       <StatCards>
-        <StatCard tone="neutral" icon={ClipboardList} value={stats.postulaciones} label="Postulaciones" />
-        <StatCard tone="success" icon={Briefcase} value={stats.vacantes} label="Vacantes disponibles" />
         <StatCard
-          tone={notificacionesNoLeidas > 0 ? "warning" : "neutral"}
-          icon={Bell}
-          value={notificacionesNoLeidas}
-          label="Notificaciones sin leer"
+          tone="success"
+          icon={Clock}
+          value={horasValue}
+          label="Total de horas"
+          hint={horasHint}
+        />
+        <StatCard
+          tone={stats.incidenciasTotales > 0 ? "warning" : "neutral"}
+          icon={Shield}
+          value={stats.incidenciasTotales}
+          label="Total de incidencias"
+        />
+        <StatCard
+          tone="info"
+          icon={CalendarClock}
+          value={stats.ultimoRegistro ? formatFecha(stats.ultimoRegistro) : "Sin registro"}
+          label="Último registro"
         />
       </StatCards>
 
-      <div className={inicioStyles.sectionHeader}>
-        <h2 className={inicioStyles.sectionTitle}>Accesos rápidos</h2>
-      </div>
+      {procesoActual ? (
+        <div className={headerStyles.calendarSection}>
+          <HorasCalendar
+          horas={horas}
+          view={calendarView}
+          anchorDate={calendarAnchor}
+          selectedDateKey={selectedDateKey}
+          layout="tall"
+          onViewChange={setCalendarView}
+          onAnchorChange={setCalendarAnchor}
+          onSelectDate={handleSelectDate}
+        />
+        </div>
+      ) : (
+        <p className={headerStyles.emptyCalendar}>
+          Aún no tienes un proceso activo. Cuando tu postulación sea aceptada, aquí verás el
+          calendario de tus horas.{" "}
+          <Link href={`${PANEL_PATHS.alumno}/vacantes`}>Explora vacantes disponibles</Link>.
+        </p>
+      )}
 
-      <div className={inicioStyles.cardGrid}>
-        {QUICK_ACCESS.map((item) => {
-          const Icon = item.icon;
-          let value: string | number = "—";
-
-          if (item.useProceso) {
-            value = procesoActual ? 1 : 0;
-          } else if (item.useNotificaciones) {
-            value = notificacionesNoLeidas;
-          } else if (item.statKey) {
-            value = stats[item.statKey];
-          } else if (item.staticValue) {
-            value = item.staticValue;
-          }
-
-          return (
-            <Link key={item.href} href={item.href} className={inicioStyles.accessCard}>
-              <span className={inicioStyles.accessIcon} aria-hidden="true">
-                <Icon size={22} strokeWidth={2} />
-              </span>
-              <div className={inicioStyles.accessContent}>
-                <h3 className={inicioStyles.accessTitle}>{item.label}</h3>
-                <p className={inicioStyles.accessDescription}>{item.description}</p>
-              </div>
-              <div className={inicioStyles.accessStats}>
-                <span className={inicioStyles.accessTotal}>{value}</span>
-                <span className={inicioStyles.accessMeta}>{item.statLabel}</span>
-              </div>
-              <span className={inicioStyles.accessCta}>Entrar</span>
-            </Link>
-          );
-        })}
-      </div>
+      <HoraDiaDetailModal
+        open={dayModalOpen}
+        dateKey={selectedDateKey}
+        horas={selectedDayHoras}
+        canRegister={canRegisterHours}
+        idProceso={procesoActual?.idProceso}
+        onClose={() => setDayModalOpen(false)}
+      />
     </section>
   );
 }

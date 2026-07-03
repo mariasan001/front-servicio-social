@@ -3,31 +3,45 @@ import { requireServerSession } from "@/lib/auth/session.server";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { AlumnoInicioView } from "../components/inicio/AlumnoInicioView";
-import {
-  countNotificacionesNoLeidas,
-  getProcesoActual,
-} from "../services/inicio.service";
-import { listPostulaciones } from "../services/postulaciones.service";
-import { listVacantes } from "../services/vacantes.service";
+import { getProcesoActual, loadAlumnoInicioDashboard, countNotificacionesNoLeidas } from "../services/inicio.service";
+import { listNotificaciones } from "../services/notificaciones.service";
+import type { AlumnoInicioStats } from "../services/inicio.service";
+import type { HoraResponse } from "../types/alumno.types";
+
+const EMPTY_STATS: AlumnoInicioStats = {
+  horasAcumuladas: 0,
+  horasRequeridas: null,
+  horasRegistradas: 0,
+  incidenciasTotales: 0,
+  ultimoRegistro: null,
+};
 
 export async function AlumnoInicioSection() {
   const result = await requireServerSession()
     .then(async (session) => {
-      const [procesoActual, notificacionesCount, vacantes, postulaciones] = await Promise.all([
-        getProcesoActual().catch(() => null),
-        countNotificacionesNoLeidas().then((data) => data?.totalNoLeidas ?? 0),
-        listVacantes(),
-        listPostulaciones(),
+      const procesoActual = await getProcesoActual().catch(() => null);
+
+      let horas: HoraResponse[] = [];
+      let stats = EMPTY_STATS;
+      const [notificacionesPage, unreadCountResponse] = await Promise.all([
+        listNotificaciones({ page: 0, size: 30 }).catch(() => null),
+        countNotificacionesNoLeidas().catch(() => null),
       ]);
+
+      if (procesoActual?.idProceso) {
+        const dashboard = await loadAlumnoInicioDashboard(procesoActual.idProceso);
+        horas = dashboard.horas;
+        stats = dashboard.stats;
+      }
 
       return {
         session,
         procesoActual,
-        notificacionesNoLeidas: notificacionesCount,
-        stats: {
-          vacantes: vacantes.length,
-          postulaciones: postulaciones.length,
-        },
+        horas,
+        stats,
+        notificaciones: notificacionesPage?.content ?? [],
+        totalNotificaciones: notificacionesPage?.totalElements ?? 0,
+        unreadCount: unreadCountResponse?.totalNoLeidas ?? 0,
       };
     })
     .catch((error: unknown) => ({
@@ -54,8 +68,11 @@ export async function AlumnoInicioSection() {
     <AlumnoInicioView
       session={result.session}
       procesoActual={result.procesoActual}
-      notificacionesNoLeidas={result.notificacionesNoLeidas}
+      horas={result.horas}
       stats={result.stats}
+      notificaciones={result.notificaciones}
+      totalNotificaciones={result.totalNotificaciones}
+      unreadCount={result.unreadCount}
     />
   );
 }

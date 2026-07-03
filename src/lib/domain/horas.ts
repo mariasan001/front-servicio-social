@@ -20,6 +20,30 @@ export function calcularHorasEntre(horaEntrada: string, horaSalida: string) {
   return (salidaMinutos - entradaMinutos) / 60;
 }
 
+function parseFechaLocal(fecha: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(fecha.trim());
+  if (!match) {
+    return null;
+  }
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function isFechaRegistroHoy(fecha?: string) {
+  const parsed = fecha?.trim() ? parseFechaLocal(fecha) : null;
+  if (!parsed) {
+    return false;
+  }
+
+  const today = new Date();
+  return (
+    parsed.getFullYear() === today.getFullYear() &&
+    parsed.getMonth() === today.getMonth() &&
+    parsed.getDate() === today.getDate()
+  );
+}
+
 export function validarRegistroHoraAlumno(input: {
   fecha?: string;
   horaEntrada?: string;
@@ -28,6 +52,10 @@ export function validarRegistroHoraAlumno(input: {
 }) {
   if (!input.fecha?.trim() || !input.horaEntrada?.trim() || !input.horaSalida?.trim()) {
     return "Completa fecha, hora de entrada y hora de salida.";
+  }
+
+  if (!isFechaRegistroHoy(input.fecha)) {
+    return "Solo puedes registrar horas del día de hoy.";
   }
 
   const descripcion = input.descripcionActividades?.trim() ?? "";

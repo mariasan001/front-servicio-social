@@ -198,7 +198,7 @@ export function DocumentoPendienteModal({
 
               <div className={formLayoutStyles.formActions}>
                 {canApproveDocumento(detail.estatus) ? (
-                <Button type="button" disabled={isMutating} onClick={() => void run("approve")}>
+                <Button type="button" variant="action" disabled={isMutating} onClick={() => void run("approve")}>
                   {isMutating ? "Procesando…" : "Aprobar"}
                 </Button>
                 ) : null}

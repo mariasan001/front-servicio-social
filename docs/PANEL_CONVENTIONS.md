@@ -81,6 +81,33 @@ Ver `DelegacionVacantesView.tsx`:
 
 ---
 
+## Sistema de color
+
+Tokens en `src/styles/variables.css`. Regla general: **~80 % gris/blanco**, marca y acentos con moderación.
+
+| Rol visual | Token / variante | Uso |
+|------------|------------------|-----|
+| **Vino** | `--color-vino`, `Button variant="primary"` | Marca, navegación lateral, día activo en calendario, CTAs de landing, filtros activos |
+| **Azul acción** | `--color-action`, `Button variant="action"` | Crear, registrar, guardar, subir, validar, aprobar, publicar, emitir |
+| **Dorado** | `--color-dorado`, `variant="secondary"` / `accent` | Acento en cards, nav activo (icono), highlights secundarios |
+| **Verde** | `--color-success`, `variant="success"` | Guardar cambios confirmados; estatus validado (badges, contadores) |
+| **Gris** | `--color-gris-*`, `--color-border` | Estructura, texto secundario, fondos |
+
+### Botones
+
+```tsx
+<Button variant="outline">Cancelar</Button>
+<Button variant="action">Registrar horas</Button>   {/* operación principal */}
+<Button variant="primary">Registrarme</Button>      {/* marca en landing */}
+```
+
+- `DataTableToolbarAction` usa `action` por defecto (ej. “Nueva vacante”).
+- Formularios en modal: submit con `variant="action"`.
+- Destructivos: `variant="outline"` + clase `dangerButton` del modal.
+- No usar vino para “Registrar horas”, “Guardar cambios”, etc.
+
+---
+
 ## Modales de detalle (patrón canónico)
 
 ### Usar (nuevo)

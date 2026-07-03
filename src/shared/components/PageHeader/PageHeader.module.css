@@ -5,6 +5,20 @@
   padding-bottom: var(--space-5);
 }
 
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.headerActions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  padding-top: 0.125rem;
+}
+
 .headerBody {
   display: flex;
   flex-direction: column;

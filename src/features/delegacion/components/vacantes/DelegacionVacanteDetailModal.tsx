@@ -145,7 +145,7 @@ export function DelegacionVacanteDetailModal({
               </Button>
             ) : null}
             {canPublish ? (
-              <Button type="button" onClick={() => void handlePublish()} disabled={isMutating}>
+              <Button type="button" variant="action" onClick={() => void handlePublish()} disabled={isMutating}>
                 {isMutating ? "Procesando…" : "Publicar vacante"}
               </Button>
             ) : null}

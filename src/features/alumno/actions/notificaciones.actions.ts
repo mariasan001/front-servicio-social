@@ -17,7 +17,6 @@ export async function markNotificacionReadAction(
   );
 
   if (result.success) {
-    revalidateAlumnoSection("notificaciones");
     revalidateAlumnoSection("inicio");
   }
 
@@ -31,7 +30,6 @@ export async function markAllNotificacionesReadAction(): Promise<ActionResult<un
   );
 
   if (result.success) {
-    revalidateAlumnoSection("notificaciones");
     revalidateAlumnoSection("inicio");
   }
 

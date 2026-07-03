@@ -8,6 +8,7 @@ type PageHeaderProps = {
   titleId?: string;
   headingLevel?: 1 | 2;
   className?: string;
+  actions?: ReactNode;
 };
 
 function joinClassNames(...classes: (string | false | undefined)[]) {
@@ -21,17 +22,21 @@ export function PageHeader({
   titleId,
   headingLevel = 1,
   className,
+  actions,
 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 1 ? "h1" : "h2";
 
   return (
     <header className={joinClassNames(styles.header, className)}>
-      <div className={styles.headerBody}>
-        <HeadingTag id={titleId} className={styles.title}>
-          {title}
-        </HeadingTag>
-        {description ? <p className={styles.description}>{description}</p> : null}
-        {note ? <p className={styles.note}>{note}</p> : null}
+      <div className={styles.headerRow}>
+        <div className={styles.headerBody}>
+          <HeadingTag id={titleId} className={styles.title}>
+            {title}
+          </HeadingTag>
+          {description ? <p className={styles.description}>{description}</p> : null}
+          {note ? <p className={styles.note}>{note}</p> : null}
+        </div>
+        {actions ? <div className={styles.headerActions}>{actions}</div> : null}
       </div>
       <hr className={styles.divider} aria-hidden="true" />
     </header>

@@ -85,6 +85,10 @@ export function canEmitirLiberacionTecnica(
 
 export type FormatHorasProcesoStyle = "tabla" | "detalle";
 
+export function puedePostularVacantes(procesoActual?: { idProceso?: number } | null) {
+  return procesoActual?.idProceso == null;
+}
+
 export function formatHorasProceso(
   acumuladas?: number,
   requeridas?: number,

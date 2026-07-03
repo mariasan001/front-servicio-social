@@ -1,0 +1,181 @@
+.dayContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.listHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.375rem;
+}
+
+.listTitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.listMeta {
+  font-size: 0.75rem;
+  color: var(--color-gris-500);
+}
+
+.horaCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgb(45 45 45 / 4%);
+}
+
+.horaMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.horaTimeBlock {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.horaTimeIcon {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--color-gris-500);
+}
+
+.horaRange {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.horaMeta {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-gris-500);
+}
+
+.horaDescription {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-gris-700);
+}
+
+.horaDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid rgb(236 236 236 / 90%);
+}
+
+.horaDetailLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gris-500);
+}
+
+.horaDescriptionMuted {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--color-gris-500);
+}
+
+.horaEditHint {
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--color-gris-500);
+}
+
+.footerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.registerIntro {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--color-gris-600);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 1.5rem 1rem 1.25rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-gris-500);
+  background: var(--color-gris-50);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.emptyValue {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-gris-900);
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gris-800);
+}
+
+.emptyHint {
+  max-width: 22rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-gris-500);
+}

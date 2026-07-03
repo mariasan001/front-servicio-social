@@ -151,21 +151,3 @@ export async function listProcesoIncidencias(idProceso: number) {
 
   return response.data ?? [];
 }
-
-export async function getProcesoLiberacionTecnica(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/liberacion-tecnica`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}
-
-export async function getProcesoEvaluacionFinal(idProceso: number) {
-  const response = await serverApiRequest<unknown>(
-    `/api/alumno/procesos/${idProceso}/evaluacion-final`,
-    { method: "GET" },
-  );
-
-  return response.data;
-}

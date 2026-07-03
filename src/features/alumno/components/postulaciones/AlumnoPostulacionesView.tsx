@@ -4,12 +4,16 @@ import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDeferredValue, useMemo, useState } from "react";
 import { CircleX, Eye, Search } from "lucide-react";
 import { cancelPostulacionAction } from "../../actions/postulaciones.actions";
-import { canCancelPostulacion } from "../../lib/postulacion.utils";
+import {
+  canCancelPostulacion,
+  getCancelPostulacionConfirmMessage,
+} from "../../lib/postulacion.utils";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
-import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import { formatFecha } from "@/lib/domain";
 import { normalizeText } from "@/lib/utils/search";
 import { Alert } from "@/shared/components/Alert";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import {
   DataTable,
   DataTableActions,
@@ -18,16 +22,8 @@ import {
   type DataTableColumn,
 } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
-
-function getExamenLabel(postulacion: PostulacionResponse) {
-  if (!postulacion.requiereExamen) {
-    return "No aplica";
-  }
-
-  return formatEtiqueta(postulacion.examenEstado, "Pendiente");
-}
 
 export function AlumnoPostulacionesView({
   postulaciones,
@@ -37,6 +33,7 @@ export function AlumnoPostulacionesView({
   const router = usePanelRouter();
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<PostulacionResponse | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<PostulacionResponse | null>(null);
   const [cancelingId, setCancelingId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const deferredSearch = useDeferredValue(search);
@@ -58,21 +55,15 @@ export function AlumnoPostulacionesView({
     });
   }, [deferredSearch, postulaciones]);
 
-  const handleCancel = async (postulacion: PostulacionResponse) => {
-    const folio = postulacion.folio?.trim() || `#${postulacion.idPostulacion}`;
-    const vacante = postulacion.vacanteNombre?.trim() || "esta vacante";
-    const confirmed = window.confirm(
-      `¿Cancelar tu postulación ${folio} para ${vacante}? Esta acción no se puede deshacer.`,
-    );
-
-    if (!confirmed) {
+  const handleConfirmCancel = async () => {
+    if (!cancelTarget) {
       return;
     }
 
-    setCancelingId(postulacion.idPostulacion);
+    setCancelingId(cancelTarget.idPostulacion);
     setActionError(null);
 
-    const result = await cancelPostulacionAction(postulacion.idPostulacion);
+    const result = await cancelPostulacionAction(cancelTarget.idPostulacion);
 
     setCancelingId(null);
 
@@ -81,7 +72,9 @@ export function AlumnoPostulacionesView({
       return;
     }
 
-    if (selected?.idPostulacion === postulacion.idPostulacion) {
+    setCancelTarget(null);
+
+    if (selected?.idPostulacion === cancelTarget.idPostulacion) {
       setSelected(null);
     }
 
@@ -92,6 +85,7 @@ export function AlumnoPostulacionesView({
     {
       id: "folio",
       header: "Postulación",
+      width: "34%",
       cell: (postulacion) => (
         <div className={styles.nameCell}>
           <strong>{postulacion.folio?.trim() || `#${postulacion.idPostulacion}`}</strong>
@@ -104,18 +98,22 @@ export function AlumnoPostulacionesView({
     {
       id: "fecha",
       header: "Fecha",
-      cell: (postulacion) => formatFecha(postulacion.fechaPostulacion),
+      width: "18%",
+      cell: (postulacion) =>
+        postulacion.fechaPostulacion?.trim() ? (
+          formatFecha(postulacion.fechaPostulacion)
+        ) : (
+          <span className={styles.cellEmpty}>—</span>
+        ),
     },
     {
       id: "examen",
       header: "Examen",
       align: "center",
-      width: "14%",
+      width: "10.25rem",
       cell: (postulacion) =>
         postulacion.requiereExamen ? (
-          <StatusBadge variant="dot" tone={estatusTone(postulacion.examenEstado)}>
-            {getExamenLabel(postulacion)}
-          </StatusBadge>
+          <EstatusBadge estatus={postulacion.examenEstado} fallback="Pendiente" />
         ) : (
           <span className={styles.cellEmpty}>No aplica</span>
         ),
@@ -124,17 +122,13 @@ export function AlumnoPostulacionesView({
       id: "estatus",
       header: "Estatus",
       align: "center",
-      width: "14%",
-      cell: (postulacion) => (
-        <StatusBadge variant="dot" tone={estatusTone(postulacion.estatus)}>
-          {formatEtiqueta(postulacion.estatus, "Sin estatus")}
-        </StatusBadge>
-      ),
+      width: "10.25rem",
+      cell: (postulacion) => <EstatusBadge estatus={postulacion.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (postulacion) => (
         <DataTableActions>
           <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(postulacion)} />
@@ -142,8 +136,9 @@ export function AlumnoPostulacionesView({
             <DataTableIconAction
               label="Cancelar postulación"
               icon={CircleX}
+              tone="danger"
               disabled={cancelingId === postulacion.idPostulacion}
-              onClick={() => void handleCancel(postulacion)}
+              onClick={() => setCancelTarget(postulacion)}
             />
           ) : null}
         </DataTableActions>
@@ -186,10 +181,28 @@ export function AlumnoPostulacionesView({
         emptyTitle="No tienes postulaciones"
         emptyDescription="Cuando te postules a una vacante, aparecerá en este listado."
       />
+
       <AlumnoPostulacionDetailModal
         open={selected !== null}
         postulacionId={selected?.idPostulacion ?? null}
         onClose={() => setSelected(null)}
+      />
+
+      <ConfirmDialog
+        open={cancelTarget !== null}
+        title="Cancelar postulación"
+        description={
+          cancelTarget ? getCancelPostulacionConfirmMessage(cancelTarget) : ""
+        }
+        confirmLabel="Sí, cancelar"
+        cancelLabel="No, volver"
+        isLoading={cancelingId !== null}
+        onConfirm={() => void handleConfirmCancel()}
+        onClose={() => {
+          if (cancelingId === null) {
+            setCancelTarget(null);
+          }
+        }}
       />
     </section>
   );

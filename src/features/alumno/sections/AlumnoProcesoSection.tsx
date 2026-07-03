@@ -1,8 +1,15 @@
 import { requireServerSession } from "@/lib/auth/session.server";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { Alert } from "@/shared/components/Alert";
-import { PageHeader } from "@/shared/components/PageHeader";
-import { AlumnoProcesoView } from "../components/proceso/AlumnoProcesoView";
+import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
+import type { AlumnoProcesoSubSlug } from "../constants/proceso-sections";
+import { AlumnoProcesoCartasView } from "../components/proceso/AlumnoProcesoCartasView";
+import { AlumnoProcesoDocumentosView } from "../components/proceso/AlumnoProcesoDocumentosView";
+import { AlumnoProcesoEmptyView } from "../components/proceso/AlumnoProcesoContextBar";
+import { AlumnoProcesoHorasView } from "../components/proceso/AlumnoProcesoHorasView";
+import { AlumnoProcesoIncidenciasView } from "../components/proceso/AlumnoProcesoIncidenciasView";
+import { AlumnoProcesoLayout } from "../components/proceso/AlumnoProcesoLayout";
+import { AlumnoProcesoResumenView } from "../components/proceso/AlumnoProcesoResumenView";
 import { getProcesoActual } from "../services/inicio.service";
 import {
   getProceso,
@@ -14,6 +21,8 @@ import {
   listProcesos,
 } from "../services/proceso.service";
 import type { ProcesoDetalleResponse } from "../types/alumno.types";
+import pageStyles from "@/shared/styles/PanelSectionView.module.css";
+import styles from "../components/proceso/AlumnoProcesoShell.module.css";
 
 async function resolveAlumnoProceso(): Promise<ProcesoDetalleResponse | null> {
   const actual = await getProcesoActual().catch(() => null);
@@ -30,32 +39,48 @@ async function resolveAlumnoProceso(): Promise<ProcesoDetalleResponse | null> {
   return getProceso(first.idProceso);
 }
 
-export async function AlumnoProcesoSection() {
+function resolveFirstName(nombreCompleto?: string) {
+  return nombreCompleto?.trim().split(/\s+/)[0]?.trim() || nombreCompleto?.trim() || "alumno";
+}
+
+type AlumnoProcesoSectionProps = {
+  subSection: AlumnoProcesoSubSlug;
+};
+
+export async function AlumnoProcesoSection({ subSection }: AlumnoProcesoSectionProps) {
   const sessionResult = await requireServerSession().catch(() => null);
+  const firstName = resolveFirstName(sessionResult?.nombreCompleto);
 
   const result = await resolveAlumnoProceso()
     .then(async (proceso) => {
       if (!proceso) {
-        return {
-          proceso: null,
-          horasResumen: null,
-          horas: [],
-          documentos: [],
-          cartas: [],
-          incidencias: [],
-        };
+        return { proceso: null };
       }
 
       const idProceso = proceso.idProceso;
-      const [horasResumen, horas, documentos, cartas, incidencias] = await Promise.all([
-        getProcesoHorasResumen(idProceso).catch(() => null),
-        listProcesoHoras(idProceso),
-        listProcesoDocumentos(idProceso),
-        listProcesoCartas(idProceso),
-        listProcesoIncidencias(idProceso),
-      ]);
 
-      return { proceso, horasResumen, horas, documentos, cartas, incidencias };
+      if (subSection === "resumen") {
+        const horasResumen = await getProcesoHorasResumen(idProceso).catch(() => null);
+        return { proceso, horasResumen };
+      }
+
+      if (subSection === "horas") {
+        const horas = await listProcesoHoras(idProceso);
+        return { proceso, horas };
+      }
+
+      if (subSection === "documentos") {
+        const documentos = await listProcesoDocumentos(idProceso);
+        return { proceso, documentos };
+      }
+
+      if (subSection === "cartas") {
+        const cartas = await listProcesoCartas(idProceso);
+        return { proceso, cartas };
+      }
+
+      const incidencias = await listProcesoIncidencias(idProceso);
+      return { proceso, incidencias };
     })
     .catch((error: unknown) => ({
       error: getApiErrorMessage(error, "No pudimos cargar tu proceso."),
@@ -74,15 +99,82 @@ export async function AlumnoProcesoSection() {
     );
   }
 
-  return (
-    <AlumnoProcesoView
-      proceso={result.proceso}
-      horasResumen={result.horasResumen}
-      horas={result.horas}
-      documentos={result.documentos}
-      cartas={result.cartas}
-      incidencias={result.incidencias}
-      nombreCompleto={sessionResult?.nombreCompleto}
-    />
-  );
+  if (!result.proceso) {
+    return (
+      <section className={pageStyles.page} aria-labelledby="alumno-proceso-title">
+        <header className={styles.procesoHeader}>
+          <div className={styles.procesoHeaderMain}>
+            <div className={styles.procesoHeaderCopy}>
+              <h1 id="alumno-proceso-title" className={styles.procesoTitle}>
+                <PageGreeting name={firstName} />
+              </h1>
+              <p className={styles.procesoDescription}>
+                Seguimiento de tu servicio social o residencia profesional.
+              </p>
+            </div>
+          </div>
+          <hr className={styles.procesoDivider} />
+        </header>
+
+        <AlumnoProcesoEmptyView firstName={firstName} />
+      </section>
+    );
+  }
+
+  const proceso = result.proceso;
+
+  switch (subSection) {
+    case "resumen":
+      return (
+        <AlumnoProcesoResumenView
+          proceso={proceso}
+          horasResumen={result.horasResumen ?? null}
+          firstName={firstName}
+        />
+      );
+    case "horas":
+      return (
+        <AlumnoProcesoHorasView
+          proceso={proceso}
+          horas={result.horas ?? []}
+          firstName={firstName}
+        />
+      );
+    case "documentos":
+      return (
+        <AlumnoProcesoDocumentosView
+          proceso={proceso}
+          documentos={result.documentos ?? []}
+          firstName={firstName}
+        />
+      );
+    case "cartas":
+      return (
+        <AlumnoProcesoCartasView
+          proceso={proceso}
+          cartas={result.cartas ?? []}
+          firstName={firstName}
+        />
+      );
+    case "incidencias":
+      return (
+        <AlumnoProcesoIncidenciasView
+          proceso={proceso}
+          incidencias={result.incidencias ?? []}
+          firstName={firstName}
+        />
+      );
+    default:
+      return (
+        <AlumnoProcesoLayout
+          titleId="alumno-proceso-title"
+          firstName={firstName}
+          title="Mi proceso"
+          description="Seguimiento de tu servicio social o residencia profesional."
+          estatus={proceso.estatus}
+        >
+          <Alert tone="error">No pudimos cargar esta sección del proceso.</Alert>
+        </AlumnoProcesoLayout>
+      );
+  }
 }

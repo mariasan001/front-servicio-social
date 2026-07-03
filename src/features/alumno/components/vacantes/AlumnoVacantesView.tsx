@@ -1,27 +1,33 @@
 "use client";
 
+import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import { Eye, Search } from "lucide-react";
-import type { VacanteResponse } from "../../types/alumno.types";
+import type { VacanteResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import { AlumnoVacanteDetailModal } from "./AlumnoVacanteDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
+import { puedePostularVacantes } from "@/lib/domain";
+import { PANEL_PATHS } from "@/lib/auth/constants";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function AlumnoVacantesView({
   vacantes,
   nombreCompleto,
+  procesoActual,
 }: {
   vacantes: VacanteResponse[];
   nombreCompleto?: string;
+  procesoActual: ProcesoDetalleResponse | null;
 }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<VacanteResponse | null>(null);
   const deferredSearch = useDeferredValue(search);
+  const puedePostular = puedePostularVacantes(procesoActual);
 
   const filtered = useMemo(() => {
     const query = normalizeText(deferredSearch);
@@ -44,6 +50,7 @@ export function AlumnoVacantesView({
     {
       id: "vacante",
       header: "Vacante",
+      width: "34%",
       cell: (vacante) => (
         <div className={styles.nameCell}>
           <strong>{vacante.nombre?.trim() || "Sin nombre"}</strong>
@@ -54,7 +61,7 @@ export function AlumnoVacantesView({
     {
       id: "area",
       header: "Área",
-      width: "22%",
+      width: "24%",
       cell: (vacante) => {
         const area = vacante.areaNombre?.trim();
         return area ? (
@@ -69,10 +76,11 @@ export function AlumnoVacantesView({
     {
       id: "cupo",
       header: "Cupo",
-      width: "12%",
+      align: "center",
+      width: "6.75rem",
       cell: (vacante) => (
         <CupoMeter
-          variant="compact"
+          variant="slots"
           disponible={vacante.cupoDisponible}
           total={vacante.cupoTotal ?? vacante.cupoDisponible}
         />
@@ -82,16 +90,13 @@ export function AlumnoVacantesView({
       id: "estatus",
       header: "Estatus",
       align: "center",
-      cell: (vacante) => (
-        <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
-          {formatEtiqueta(vacante.estatus, "Sin estatus")}
-        </StatusBadge>
-      ),
+      width: "10.25rem",
+      cell: (vacante) => <EstatusBadge estatus={vacante.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (vacante) => (
         <DataTableActions>
           <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(vacante)} />
@@ -107,6 +112,21 @@ export function AlumnoVacantesView({
         title="Vacantes"
         description="Oportunidades de servicio social y residencia disponibles para postularte."
       />
+
+      {!puedePostular ? (
+        <Alert tone="warning" title="Postulaciones bloqueadas">
+          Tienes un proceso de servicio social en curso
+          {procesoActual?.vacanteNombre ? (
+            <>
+              {" "}
+              (<strong>{procesoActual.vacanteNombre}</strong>)
+            </>
+          ) : null}
+          . Mientras esté vigente no puedes postularte a nuevas vacantes.{" "}
+          <Link href={`${PANEL_PATHS.alumno}/proceso`}>Ir a mi proceso</Link>.
+        </Alert>
+      ) : null}
+
       <DataTable
         toolbar={
           <DataTableToolbar>
@@ -137,6 +157,7 @@ export function AlumnoVacantesView({
         vacanteId={selected?.idVacante ?? null}
         vacanteName={selected?.nombre}
         nombreCompleto={nombreCompleto}
+        procesoActual={procesoActual}
         onClose={() => setSelected(null)}
       />
     </section>

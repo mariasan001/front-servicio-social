@@ -3,13 +3,17 @@ import { requireServerSession } from "@/lib/auth/session.server";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { AlumnoVacantesView } from "../components/vacantes/AlumnoVacantesView";
+import { getProcesoActual } from "../services/inicio.service";
 import { listVacantes } from "../services/vacantes.service";
 
 export async function AlumnoVacantesSection() {
   const result = await requireServerSession()
     .then(async (session) => {
-      const vacantes = await listVacantes();
-      return { session, vacantes };
+      const [vacantes, procesoActual] = await Promise.all([
+        listVacantes(),
+        getProcesoActual().catch(() => null),
+      ]);
+      return { session, vacantes, procesoActual };
     })
     .catch((error: unknown) => ({
       error: getApiErrorMessage(error, "No pudimos cargar las vacantes."),
@@ -32,6 +36,7 @@ export async function AlumnoVacantesSection() {
     <AlumnoVacantesView
       vacantes={result.vacantes}
       nombreCompleto={result.session.nombreCompleto}
+      procesoActual={result.procesoActual ?? null}
     />
   );
 }

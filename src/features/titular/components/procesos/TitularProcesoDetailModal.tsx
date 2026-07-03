@@ -267,7 +267,7 @@ export function TitularProcesoDetailModal({
                         {canValidateHora(hora.estatus) ? (
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="action"
                           disabled={isMutating}
                           onClick={() => void runHoraAction("validate", hora.idAsistencia)}
                         >
@@ -360,6 +360,7 @@ export function TitularProcesoDetailModal({
               <div className={formLayoutStyles.formActions}>
                 <Button
                   type="button"
+                  variant="action"
                   disabled={isMutating}
                   onClick={async () => {
                     const validationError = validarRegistroHoraAlumno(nuevaHora);
@@ -487,7 +488,7 @@ export function TitularProcesoDetailModal({
               <div className={formLayoutStyles.formActions}>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="action"
                   disabled={isMutating}
                   onClick={async () => {
                     if (
@@ -559,6 +560,7 @@ export function TitularProcesoDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
+                    variant="action"
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
@@ -657,6 +659,7 @@ export function TitularProcesoDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
+                    variant="action"
                     disabled={isMutating}
                     onClick={async () => {
                       const calificacion = Number(evaluacion.calificacion);
