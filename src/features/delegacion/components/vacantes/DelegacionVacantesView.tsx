@@ -4,11 +4,11 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Eye, Search } from "lucide-react";
 import type { VacanteResponse } from "../../types/delegacion.types";
 import { DelegacionVacanteDetailModal } from "./DelegacionVacanteDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatEtiqueta } from "@/lib/domain/labels";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -50,6 +50,7 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
     {
       id: "nombre",
       header: "Vacante",
+      width: "36%",
       cell: (vacante) => (
         <div className={styles.nameCell}>
           <strong>{vacante.nombre?.trim() || "Sin nombre"}</strong>
@@ -60,32 +61,31 @@ export function DelegacionVacantesView({ vacantes }: DelegacionVacantesViewProps
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (vacante) => (
-        <StatusBadge variant="dot" tone={estatusTone(vacante.estatus)}>
-          {formatEtiqueta(vacante.estatus, "Sin estatus")}
-        </StatusBadge>
-      ),
+      cell: (vacante) => <EstatusBadge estatus={vacante.estatus} />,
     },
     {
       id: "cupo",
       header: "Cupo",
-      width: "12%",
+      align: "center",
+      width: "6.75rem",
       cell: (vacante) => (
         <CupoMeter
-          variant="compact"
+          variant="slots"
           disponible={vacante.cupoDisponible}
-          total={vacante.cupoTotal}
+          total={vacante.cupoTotal ?? vacante.cupoDisponible}
         />
       ),
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (vacante) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(vacante)} />
+          <DataTableIconAction label="Ver vacante" icon={Eye} onClick={() => setSelected(vacante)} />
         </DataTableActions>
       ),
     },

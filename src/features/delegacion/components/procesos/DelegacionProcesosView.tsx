@@ -1,26 +1,29 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ClipboardList, Search, Zap } from "lucide-react";
+import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/delegacion.types";
-import { formatHorasProceso, isListoParaActivacion } from "@/lib/domain/proceso";
+import { formatHorasProceso } from "@/lib/domain/proceso";
+import { DelegacionProcesoActionMenu } from "./DelegacionProcesoActionMenu";
 import { DelegacionProcesoDetailModal } from "./DelegacionProcesoDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import type { DelegacionProcesoModalSection } from "./delegacion-proceso-sections";
 import {
   DataTable,
   DataTableActions,
-  DataTableIconAction,
   DataTableToolbar,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
 export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse[] }) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<ProcesoResponse | null>(null);
+  const [selected, setSelected] = useState<{
+    proceso: ProcesoResponse;
+    section: DelegacionProcesoModalSection;
+  } | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
@@ -45,6 +48,7 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
     {
       id: "proceso",
       header: "Proceso",
+      width: "32%",
       cell: (proceso) => (
         <div className={styles.nameCell}>
           <strong>{proceso.alumnoNombre ?? "Sin alumno"}</strong>
@@ -55,36 +59,32 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
     {
       id: "vacante",
       header: "Vacante",
+      width: "24%",
       cell: (proceso) => proceso.vacanteNombre?.trim() || <span className={styles.cellEmpty}>Sin vacante</span>,
     },
     {
       id: "horas",
       header: "Horas",
       align: "center",
-      width: "12%",
+      width: "10%",
       cell: (proceso) => formatHorasProceso(proceso.horasAcumuladas, proceso.horasRequeridas),
     },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      width: "18%",
-      cell: (proceso) => (
-        <StatusBadge tone={estatusTone(proceso.estatus)}>
-          {formatEtiqueta(proceso.estatus)}
-        </StatusBadge>
-      ),
+      cell: (proceso) => <EstatusBadge estatus={proceso.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (proceso) => (
         <DataTableActions>
-          <DataTableIconAction
-            label={isListoParaActivacion(proceso.estatus) ? "Activar proceso" : "Gestionar"}
-            icon={isListoParaActivacion(proceso.estatus) ? Zap : ClipboardList}
-            onClick={() => setSelected(proceso)}
+          <DelegacionProcesoActionMenu
+            onSelect={(section) => setSelected({ proceso, section })}
           />
         </DataTableActions>
       ),
@@ -125,7 +125,8 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
       />
       <DelegacionProcesoDetailModal
         open={selected !== null}
-        procesoId={selected?.idProceso ?? null}
+        procesoId={selected?.proceso.idProceso ?? null}
+        section={selected?.section ?? null}
         onClose={() => setSelected(null)}
       />
     </section>

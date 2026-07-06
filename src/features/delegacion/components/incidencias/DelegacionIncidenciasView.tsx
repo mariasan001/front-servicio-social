@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardList } from "lucide-react";
+import { Eye } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/delegacion.types";
 import { DelegacionIncidenciaDetailModal } from "./DelegacionIncidenciaDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatEtiqueta } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function DelegacionIncidenciasView({
@@ -18,21 +18,37 @@ export function DelegacionIncidenciasView({
   const [selected, setSelected] = useState<IncidenciaResponse | null>(null);
 
   const columns: DataTableColumn<IncidenciaResponse>[] = [
-    { id: "id", header: "Folio", cell: (i) => i.folioProceso ?? `#${i.idIncidencia}` },
-    { id: "tipo", header: "Tipo", cell: (i) => formatEtiqueta(i.tipo) },
+    {
+      id: "id",
+      header: "Folio",
+      width: "32%",
+      cell: (incidencia) => (
+        <div className={styles.nameCell}>
+          <strong>{incidencia.folioProceso ?? `#${incidencia.idIncidencia}`}</strong>
+        </div>
+      ),
+    },
+    {
+      id: "tipo",
+      header: "Tipo",
+      width: "24%",
+      cell: (incidencia) => formatEtiqueta(incidencia.tipo),
+    },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (i) => <StatusBadge variant="dot" tone={estatusTone(i.estatus)}>{formatEtiqueta(i.estatus)}</StatusBadge>,
+      cell: (incidencia) => <EstatusBadge estatus={incidencia.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
-      cell: (i) => (
+      variant: "actions",
+      cell: (incidencia) => (
         <DataTableActions>
-          <DataTableIconAction label="Gestionar" icon={ClipboardList} onClick={() => setSelected(i)} />
+          <DataTableIconAction label="Ver incidencia" icon={Eye} onClick={() => setSelected(incidencia)} />
         </DataTableActions>
       ),
     },

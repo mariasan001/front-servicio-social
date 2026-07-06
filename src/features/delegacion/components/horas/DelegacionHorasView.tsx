@@ -1,33 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { FileSearch } from "lucide-react";
+import { Eye } from "lucide-react";
 import type { HoraPendienteResponse } from "../../types/delegacion.types";
 import { HoraPendienteModal } from "./HoraPendienteModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function DelegacionHorasView({ horas }: { horas: HoraPendienteResponse[] }) {
   const [selected, setSelected] = useState<HoraPendienteResponse | null>(null);
 
   const columns: DataTableColumn<HoraPendienteResponse>[] = [
-    { id: "alumno", header: "Alumno", cell: (h) => h.alumnoNombre ?? "Sin nombre" },
+    {
+      id: "alumno",
+      header: "Alumno",
+      width: "36%",
+      cell: (hora) => (
+        <div className={styles.nameCell}>
+          <strong>{hora.alumnoNombre ?? "Sin nombre"}</strong>
+        </div>
+      ),
+    },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (h) => <StatusBadge variant="dot" tone={estatusTone(h.estatus)}>{formatEtiqueta(h.estatus)}</StatusBadge>,
+      cell: (hora) => <EstatusBadge estatus={hora.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
-      cell: (h) => (
+      variant: "actions",
+      cell: (hora) => (
         <DataTableActions>
-          <DataTableIconAction label="Revisar" icon={FileSearch} onClick={() => setSelected(h)} />
+          <DataTableIconAction label="Ver registro" icon={Eye} onClick={() => setSelected(hora)} />
         </DataTableActions>
       ),
     },

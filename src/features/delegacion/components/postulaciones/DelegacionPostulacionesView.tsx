@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Eye, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/delegacion.types";
-import { DelegacionPostulacionDetailModal } from "./DelegacionPostulacionDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -17,7 +15,6 @@ export function DelegacionPostulacionesView({
   postulaciones: PostulacionResponse[];
 }) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<PostulacionResponse | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
@@ -31,30 +28,33 @@ export function DelegacionPostulacionesView({
   }, [deferredSearch, postulaciones]);
 
   const columns: DataTableColumn<PostulacionResponse>[] = [
-    { id: "folio", header: "Folio", cell: (p) => p.folio ?? `#${p.idPostulacion}` },
     {
-      id: "estatus",
-      header: "Estatus",
-      align: "center",
-      cell: (p) => (
-        <StatusBadge variant="dot" tone={estatusTone(p.estatus)}>{formatEtiqueta(p.estatus)}</StatusBadge>
+      id: "folio",
+      header: "Folio",
+      width: "50%",
+      cell: (postulacion) => (
+        <div className={styles.nameCell}>
+          <strong>{postulacion.folio ?? `#${postulacion.idPostulacion}`}</strong>
+        </div>
       ),
     },
     {
-      id: "acciones",
-      header: "Acciones",
-      align: "right",
-      cell: (p) => (
-        <DataTableActions>
-          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(p)} />
-        </DataTableActions>
-      ),
+      id: "estatus",
+      header: "Estatus",
+      variant: "status",
+      width: "14rem",
+      align: "center",
+      cell: (postulacion) => <EstatusBadge estatus={postulacion.estatus} />,
     },
   ];
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-postulaciones-title">
-      <PageHeader titleId="delegacion-postulaciones-title" title="Postulaciones" description="Consulta el seguimiento de postulaciones de los alumnos." />
+      <PageHeader
+        titleId="delegacion-postulaciones-title"
+        title="Postulaciones"
+        description="Consulta el seguimiento de postulaciones de los alumnos."
+      />
       <DataTable
         toolbar={
           <DataTableToolbar>
@@ -78,8 +78,8 @@ export function DelegacionPostulacionesView({
         rowKey={(p) => p.idPostulacion}
         caption="Postulaciones"
         emptyTitle="No hay postulaciones"
-        emptyDescription="Las postulaciones aparecerán aquí cuando existan en el sistema." />
-      <DelegacionPostulacionDetailModal open={selected !== null} postulacionId={selected?.idPostulacion ?? null} onClose={() => setSelected(null)} />
+        emptyDescription="Las postulaciones aparecerán aquí cuando existan en el sistema."
+      />
     </section>
   );
 }

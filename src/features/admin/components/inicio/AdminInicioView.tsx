@@ -254,7 +254,7 @@ export function AdminInicioView({ session, dashboard }: AdminInicioViewProps) {
       />
 
       <div className={dashStyles.dashboard}>
-        <StatCards className={dashStyles.statCardsFour} aria-live="polite">
+        <StatCards columns={4} compact aria-live="polite">
           <StatCard
             tone="neutral"
             icon={Building2}

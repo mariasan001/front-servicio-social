@@ -10,7 +10,6 @@ import {
 } from "../../actions/vacantes.actions";
 import { getModalidadTrabajoLabel } from "../../constants/vacante-form";
 import type { VacanteResponse } from "../../types/titular.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import {
   canCancelVacanteTitular,
   canEditVacanteTitular,
@@ -21,10 +20,10 @@ import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
-import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
+import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
+import styles from "./TitularVacanteDetailModal.module.css";
 
 type TitularVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -100,7 +99,7 @@ export function TitularVacanteDetailModal({
       size="lg"
       footer={
         detail ? (
-          <div className={styles.footer}>
+          <div className={styles.footerActions}>
             {canEdit ? (
               <Button
                 type="button"
@@ -114,7 +113,7 @@ export function TitularVacanteDetailModal({
             {canSendReview ? (
               <Button
                 type="button"
-                variant="action"
+                variant="primary"
                 disabled={isMutating}
                 onClick={() => void runMutation("review")}
               >
@@ -125,7 +124,7 @@ export function TitularVacanteDetailModal({
               <Button
                 type="button"
                 variant="outline"
-                className={styles.dangerButton}
+                className={sharedStyles.dangerButton}
                 disabled={isMutating}
                 onClick={() => void runMutation("cancel")}
               >
@@ -141,85 +140,73 @@ export function TitularVacanteDetailModal({
 
       {detail ? (
         <div
-          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          className={[sharedStyles.layout, styles.modalBody, isReloading && sharedStyles.layoutBusy]
+            .filter(Boolean)
+            .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <Briefcase size={18} strokeWidth={1.75} />
+          <div className={styles.modalHero}>
+            <span className={styles.modalHeroIcon} aria-hidden="true">
+              <Briefcase size={22} strokeWidth={1.75} />
+            </span>
+            <div className={styles.modalHeroCopy}>
+              <p className={styles.modalHeroTitle}>{areaNombre || "Sin área asignada"}</p>
+              <p className={styles.modalHeroSubtitle}>{folio || "Sin folio registrado"}</p>
+              <EstatusBadge estatus={detail.estatus} />
             </div>
-
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>
-                {areaNombre || "Sin área asignada"}
-              </p>
-              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
-            </div>
-
-            <StatusBadge tone={estatusTone(detail.estatus)}>
-              {formatEtiqueta(detail.estatus, "Sin estatus")}
-            </StatusBadge>
           </div>
 
-          <div className={styles.infoPanel}>
-            <dl className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <dt>Folio</dt>
-                <dd>{folio || "Sin folio registrado"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Área</dt>
-                <dd>{areaNombre || "Sin área asignada"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Modalidad de trabajo</dt>
-                <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Examen requerido</dt>
-                <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Cupo</dt>
-                <dd>
-                  <CupoMeter
-                    variant="detail"
-                    disponible={detail.cupoDisponible}
-                    total={detail.cupoTotal}
-                  />
-                </dd>
-              </div>
-            </dl>
-
-            <div className={narrativeStyles.narrativeBlock}>
-              <p className={narrativeStyles.narrativeLabel}>Descripción</p>
-              <p
-                className={[
-                  narrativeStyles.narrativeValue,
-                  !descripcion && narrativeStyles.narrativeEmpty,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {descripcion || "Sin descripción registrada."}
-              </p>
+          <dl className={styles.metaList}>
+            <div className={styles.metaRow}>
+              <dt>Folio</dt>
+              <dd>{folio || "Sin folio registrado"}</dd>
             </div>
-
-            <div className={narrativeStyles.narrativeBlock}>
-              <p className={narrativeStyles.narrativeLabel}>Perfil requerido</p>
-              <p
-                className={[
-                  narrativeStyles.narrativeValue,
-                  !perfilRequerido && narrativeStyles.narrativeEmpty,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {perfilRequerido || "Sin perfil registrado."}
-              </p>
+            <div className={styles.metaRow}>
+              <dt>Área</dt>
+              <dd>{areaNombre || "Sin área asignada"}</dd>
             </div>
+            <div className={styles.metaRow}>
+              <dt>Modalidad de trabajo</dt>
+              <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
+            </div>
+            <div className={styles.metaRow}>
+              <dt>Examen requerido</dt>
+              <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
+            </div>
+            <div className={styles.metaRow}>
+              <dt>Cupo</dt>
+              <dd>
+                <CupoMeter
+                  variant="detail"
+                  disponible={detail.cupoDisponible}
+                  total={detail.cupoTotal}
+                />
+              </dd>
+            </div>
+          </dl>
+
+          <div className={styles.narrativeSection}>
+            <p className={styles.narrativeLabel}>Descripción</p>
+            <p
+              className={[styles.narrativeValue, !descripcion && styles.narrativeEmpty]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {descripcion || "Sin descripción registrada."}
+            </p>
+          </div>
+
+          <div className={styles.narrativeSection}>
+            <p className={styles.narrativeLabel}>Perfil requerido</p>
+            <p
+              className={[styles.narrativeValue, !perfilRequerido && styles.narrativeEmpty]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {perfilRequerido || "Sin perfil registrado."}
+            </p>
           </div>
         </div>
       ) : null}

@@ -4,11 +4,10 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Eye, Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
 import { EnlaceAlumnoDetailModal } from "./EnlaceAlumnoDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
@@ -86,15 +85,13 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       header: "Estatus",
       align: "center",
       cell: (alumno) => (
-        <StatusBadge variant="dot" tone={estatusTone(alumno.estatusProceso)}>
-          {formatEtiqueta(alumno.estatusProceso, "Sin estatus")}
-        </StatusBadge>
+        <EstatusBadge estatus={alumno.estatusProceso} fallback="Sin estatus" />
       ),
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      align: "center",
       cell: (alumno) => (
         <DataTableActions>
           <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(alumno)} />

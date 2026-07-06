@@ -1,18 +1,16 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import {
-  getProcesoDetailAction,
-} from "../../actions/procesos.actions";
-import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import { getProcesoDetailAction } from "../../actions/procesos.actions";
+import { formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { formatHorasProceso } from "@/lib/domain/proceso";
 import { Alert } from "@/shared/components/Alert";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
-import listStyles from "@/shared/styles/EntityDetailRecordList.module.css";
+import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
+import styles from "./EnlaceProcesoDetailModal.module.css";
 
 export function EnlaceProcesoDetailModal({
   procesoId,
@@ -45,54 +43,52 @@ export function EnlaceProcesoDetailModal({
 
       {proceso ? (
         <div
-          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          className={[sharedStyles.layout, styles.modalBody, isReloading && sharedStyles.layoutBusy]
+            .filter(Boolean)
+            .join(" ")}
           aria-busy={isReloading}
         >
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <FileText size={18} strokeWidth={1.75} />
+          <div className={styles.modalHero}>
+            <span className={styles.modalHeroIcon} aria-hidden="true">
+              <FileText size={22} strokeWidth={1.75} />
+            </span>
+            <div className={styles.modalHeroCopy}>
+              <p className={styles.modalHeroTitle}>{alumnoNombre || "Sin alumno registrado"}</p>
+              <p className={styles.modalHeroSubtitle}>
+                {folio || `Proceso #${proceso.idProceso}`}
+              </p>
+              <EstatusBadge estatus={proceso.estatus} fallback="Sin estatus" />
             </div>
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>{alumnoNombre || "Sin alumno registrado"}</p>
-              <p className={styles.summarySecondary}>{folio || `Proceso #${proceso.idProceso}`}</p>
-            </div>
-            <StatusBadge tone={estatusTone(proceso.estatus)}>
-              {formatEtiqueta(proceso.estatus, "Sin estatus")}
-            </StatusBadge>
           </div>
 
-          <div className={styles.infoPanel}>
-            <dl className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <dt>Alumno</dt>
-                <dd>{alumnoNombre || "Sin nombre"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Escuela</dt>
-                <dd>{proceso.nombreEscuela ?? "Sin escuela"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Vacante</dt>
-                <dd>{proceso.vacante ?? "Sin vacante"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Área</dt>
-                <dd>{proceso.area ?? "Sin área"}</dd>
-              </div>
-            </dl>
-          </div>
+          <dl className={styles.metaList}>
+            <div className={styles.metaRow}>
+              <dt>Alumno</dt>
+              <dd>{alumnoNombre || "Sin nombre"}</dd>
+            </div>
+            <div className={styles.metaRow}>
+              <dt>Escuela</dt>
+              <dd>{proceso.nombreEscuela ?? "Sin escuela"}</dd>
+            </div>
+            <div className={styles.metaRow}>
+              <dt>Vacante</dt>
+              <dd>{proceso.vacante ?? "Sin vacante"}</dd>
+            </div>
+            <div className={styles.metaRow}>
+              <dt>Área</dt>
+              <dd>{proceso.area ?? "Sin área"}</dd>
+            </div>
+          </dl>
 
           {detail?.horasResumen ? (
             <section className={styles.section} aria-label="Resumen de horas">
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Resumen de horas</h3>
-              </div>
-              <dl className={styles.infoGrid}>
-                <div className={styles.infoItem}>
+              <h3 className={styles.sectionTitle}>Resumen de horas</h3>
+              <dl className={styles.metricsPanel}>
+                <div className={styles.metricItem}>
                   <dt>Acumuladas</dt>
                   <dd>{detail.horasResumen.horasAcumuladas ?? 0}</dd>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={styles.metricItem}>
                   <dt>Requeridas</dt>
                   <dd>
                     {formatHorasProceso(
@@ -102,11 +98,11 @@ export function EnlaceProcesoDetailModal({
                     )}
                   </dd>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={styles.metricItem}>
                   <dt>Pendientes</dt>
                   <dd>{detail.horasResumen.horasPendientes ?? "—"}</dd>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={styles.metricItem}>
                   <dt>Avance</dt>
                   <dd>
                     {detail.horasResumen.porcentajeAvance !== undefined &&
@@ -120,22 +116,18 @@ export function EnlaceProcesoDetailModal({
           ) : null}
 
           <section className={styles.section} aria-label="Documentos">
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Documentos</h3>
-            </div>
+            <h3 className={styles.sectionTitle}>Documentos</h3>
             {(detail?.documentos ?? []).length === 0 ? (
-              <p className={listStyles.emptyHint}>No hay documentos registrados.</p>
+              <p className={styles.emptyHint}>No hay documentos registrados.</p>
             ) : (
-              <ul className={listStyles.recordList}>
+              <ul className={styles.recordList}>
                 {detail?.documentos.map((documento) => (
-                  <li key={documento.idProcesoDocumento} className={listStyles.recordCard}>
-                    <div className={listStyles.recordHeader}>
-                      <span className={listStyles.recordTitle}>
+                  <li key={documento.idProcesoDocumento} className={styles.recordCard}>
+                    <div className={styles.recordHeader}>
+                      <span className={styles.recordTitle}>
                         {documento.nombreDocumento ?? documento.tipoDocumento ?? "Documento"}
                       </span>
-                      <StatusBadge tone={estatusTone(documento.estatus)}>
-                        {formatEtiqueta(documento.estatus)}
-                      </StatusBadge>
+                      <EstatusBadge estatus={documento.estatus} />
                     </div>
                   </li>
                 ))}
@@ -144,24 +136,20 @@ export function EnlaceProcesoDetailModal({
           </section>
 
           <section className={styles.section} aria-label="Cartas">
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Cartas</h3>
-            </div>
+            <h3 className={styles.sectionTitle}>Cartas</h3>
             {(detail?.cartas ?? []).length === 0 ? (
-              <p className={listStyles.emptyHint}>No hay cartas emitidas.</p>
+              <p className={styles.emptyHint}>No hay cartas emitidas.</p>
             ) : (
-              <ul className={listStyles.recordList}>
+              <ul className={styles.recordList}>
                 {detail?.cartas.map((carta) => (
-                  <li key={carta.idCarta} className={listStyles.recordCard}>
-                    <div className={listStyles.recordHeader}>
-                      <span className={listStyles.recordTitle}>
+                  <li key={carta.idCarta} className={styles.recordCard}>
+                    <div className={styles.recordHeader}>
+                      <span className={styles.recordTitle}>
                         {formatEtiqueta(carta.tipoCarta, "Carta")}
                       </span>
-                      <StatusBadge tone={estatusTone(carta.estatus)}>
-                        {formatEtiqueta(carta.estatus)}
-                      </StatusBadge>
+                      <EstatusBadge estatus={carta.estatus} />
                     </div>
-                    <p className={listStyles.recordMeta}>
+                    <p className={styles.recordMeta}>
                       {carta.folio?.trim() || "Sin folio"} · {formatFecha(carta.fechaEmision)}
                     </p>
                   </li>

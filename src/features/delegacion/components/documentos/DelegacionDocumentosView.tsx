@@ -1,10 +1,10 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { FileSearch, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
 import { DocumentoPendienteModal } from "./DocumentoPendienteModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatEtiqueta } from "@/lib/domain/labels";
 import {
   DataTable,
   DataTableActions,
@@ -13,7 +13,7 @@ import {
   type DataTableColumn,
 } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -49,6 +49,7 @@ export function DelegacionDocumentosView({
     {
       id: "alumno",
       header: "Alumno",
+      width: "28%",
       cell: (documento) => (
         <div className={styles.nameCell}>
           <strong>{documento.alumnoNombre ?? "Sin nombre"}</strong>
@@ -61,6 +62,7 @@ export function DelegacionDocumentosView({
     {
       id: "documento",
       header: "Documento",
+      width: "28%",
       cell: (documento) => (
         <div className={styles.nameCell}>
           <strong>{formatEtiqueta(documento.tipoDocumento, "Sin tipo")}</strong>
@@ -73,21 +75,18 @@ export function DelegacionDocumentosView({
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      width: "16%",
-      cell: (documento) => (
-        <StatusBadge tone={estatusTone(documento.estatus)}>
-          {formatEtiqueta(documento.estatus)}
-        </StatusBadge>
-      ),
+      cell: (documento) => <EstatusBadge estatus={documento.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (documento) => (
         <DataTableActions>
-          <DataTableIconAction label="Revisar" icon={FileSearch} onClick={() => setSelected(documento)} />
+          <DataTableIconAction label="Ver documento" icon={Eye} onClick={() => setSelected(documento)} />
         </DataTableActions>
       ),
     },

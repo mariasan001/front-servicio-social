@@ -1,17 +1,30 @@
-.contextBanner {
+.formBody {
   display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
-  background-color: var(--color-gris-50);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  flex-direction: column;
+  gap: 0.875rem;
 }
 
-.contextIcon {
+.contextBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--color-white);
+  border: 1px solid rgb(236 236 236);
+  border-radius: 0.875rem;
+}
+
+.contextIconWrap {
+  display: inline-flex;
   flex-shrink: 0;
-  margin-top: 0.125rem;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
   color: var(--color-vino);
+  background: rgb(107 35 64 / 6%);
+  border: 1px solid rgb(107 35 64 / 10%);
+  border-radius: 0.625rem;
 }
 
 .contextCopy {
@@ -23,16 +36,16 @@
 
 .contextEyebrow {
   margin: 0;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-gris-500);
 }
 
 .contextTitle {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.35;
   color: var(--color-gris-900);
@@ -43,5 +56,75 @@
   font-size: 0.75rem;
   font-weight: 300;
   line-height: 1.45;
-  color: var(--color-text-secondary);
+  color: var(--color-gris-500);
+}
+
+.formPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: var(--color-white);
+  border: 1px solid rgb(236 236 236);
+  border-radius: 0.875rem;
+}
+
+.formPanelTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-gris-800);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem 0.75rem;
+}
+
+.formGridFull {
+  grid-column: 1 / -1;
+}
+
+.conditionsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  gap: 0.625rem 0.75rem;
+  align-items: start;
+}
+
+.examenField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-height: 100%;
+  padding: 0.625rem 0.75rem;
+  background: rgb(248 248 248);
+  border: 1px solid rgb(236 236 236);
+  border-radius: 0.625rem;
+}
+
+.examenLabel {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.modalFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .formGrid,
+  .conditionsGrid {
+    grid-template-columns: 1fr;
+  }
 }

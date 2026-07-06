@@ -33,12 +33,30 @@ export function StatCard({ label, value, icon: Icon, tone = "neutral", hint }: S
 type StatCardsProps = {
   children: ReactNode;
   className?: string;
+  columns?: 3 | 4;
+  compact?: boolean;
   "aria-live"?: "off" | "polite" | "assertive";
 };
 
-export function StatCards({ children, className, "aria-live": ariaLive }: StatCardsProps) {
+export function StatCards({
+  children,
+  className,
+  columns = 3,
+  compact = false,
+  "aria-live": ariaLive,
+}: StatCardsProps) {
   return (
-    <div className={[styles.grid, className].filter(Boolean).join(" ")} aria-live={ariaLive}>
+    <div
+      className={[
+        styles.grid,
+        columns === 4 && styles.gridFour,
+        compact && styles.gridCompact,
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-live={ariaLive}
+    >
       {children}
     </div>
   );

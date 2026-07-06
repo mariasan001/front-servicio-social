@@ -1,10 +1,9 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ClipboardList, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { PostulacionResponse } from "../../types/titular.types";
 import { TitularPostulacionDetailModal } from "./TitularPostulacionDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import {
   DataTable,
   DataTableActions,
@@ -13,21 +12,9 @@ import {
   type DataTableColumn,
 } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
-
-function getExamenLabel(postulacion: PostulacionResponse) {
-  if (postulacion.requiereExamen === false) {
-    return "No aplica";
-  }
-
-  if (postulacion.requiereExamen || postulacion.examenEstado) {
-    return formatEtiqueta(postulacion.examenEstado, "Pendiente");
-  }
-
-  return "No aplica";
-}
 
 export function TitularPostulacionesView({
   postulaciones,
@@ -61,6 +48,7 @@ export function TitularPostulacionesView({
     {
       id: "alumno",
       header: "Alumno",
+      width: "28%",
       cell: (postulacion) => (
         <div className={styles.nameCell}>
           <strong>{postulacion.alumnoNombre ?? "Sin nombre"}</strong>
@@ -73,6 +61,7 @@ export function TitularPostulacionesView({
     {
       id: "vacante",
       header: "Vacante",
+      width: "24%",
       cell: (postulacion) =>
         postulacion.vacanteNombre?.trim() || postulacion.vacanteFolio || "Sin vacante",
     },
@@ -80,39 +69,31 @@ export function TitularPostulacionesView({
       id: "examen",
       header: "Examen",
       align: "center",
-      width: "14%",
-      cell: (postulacion) => {
-        const label = getExamenLabel(postulacion);
-        if (label === "No aplica") {
-          return <span className={styles.cellEmpty}>{label}</span>;
-        }
-
-        return (
-          <StatusBadge tone={estatusTone(postulacion.examenEstado)}>
-            {label}
-          </StatusBadge>
-        );
-      },
+      width: "10.25rem",
+      cell: (postulacion) =>
+        postulacion.requiereExamen ? (
+          <EstatusBadge estatus={postulacion.examenEstado} fallback="Pendiente" />
+        ) : (
+          <span className={styles.cellEmpty}>No aplica</span>
+        ),
     },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (postulacion) => (
-        <StatusBadge tone={estatusTone(postulacion.estatus)}>
-          {formatEtiqueta(postulacion.estatus)}
-        </StatusBadge>
-      ),
+      cell: (postulacion) => <EstatusBadge estatus={postulacion.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (postulacion) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Gestionar"
-            icon={ClipboardList}
+            label="Ver postulación"
+            icon={Eye}
             onClick={() => setSelected(postulacion)}
           />
         </DataTableActions>

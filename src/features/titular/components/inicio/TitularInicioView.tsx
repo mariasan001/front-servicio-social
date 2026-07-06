@@ -66,7 +66,15 @@ function VacanteEstatusDonut({ breakdown }: { breakdown: VacanteEstatusBreakdown
     breakdown.enCaptura + breakdown.enRevision + breakdown.publicadas + breakdown.cerradas;
 
   if (total === 0) {
-    return <p className={dashStyles.emptyChart}>Aún no hay vacantes registradas.</p>;
+    return (
+      <div className={dashStyles.emptyChartState}>
+        <p className={dashStyles.emptyChartTitle}>Sin vacantes registradas</p>
+        <p className={dashStyles.emptyChartHint}>
+          Crea tu primera vacante en la sección Vacantes para comenzar a recibir postulaciones en tu
+          área.
+        </p>
+      </div>
+    );
   }
 
   const segments = [
@@ -209,7 +217,15 @@ function PostulacionEstatusChart({
   items: TitularInicioDashboardData["postulacionesPorEstatus"];
 }) {
   if (items.length === 0) {
-    return <p className={dashStyles.emptyChart}>Aún no hay postulaciones registradas.</p>;
+    return (
+      <div className={dashStyles.emptyChartState}>
+        <p className={dashStyles.emptyChartTitle}>Sin postulaciones aún</p>
+        <p className={dashStyles.emptyChartHint}>
+          Cuando publiques vacantes y los alumnos se postulen, aquí verás cuántas hay en cada
+          estatus.
+        </p>
+      </div>
+    );
   }
 
   const maxCount = Math.max(...items.map((item) => item.count));
@@ -263,34 +279,50 @@ export function TitularInicioView({ session, dashboard }: TitularInicioViewProps
       />
 
       <div className={dashStyles.dashboard}>
-        <StatCards className={dashStyles.statCardsFour} aria-live="polite">
+        <StatCards columns={4} compact aria-live="polite">
           <StatCard
             tone="neutral"
             icon={Briefcase}
             value={stats.vacantes.total}
             label="Vacantes"
-            hint={`${stats.vacantes.publicadas} publicadas`}
+            hint={
+              stats.vacantes.total === 0
+                ? "Publica tu primera vacante para abrir convocatorias"
+                : `${stats.vacantes.publicadas} publicadas`
+            }
           />
           <StatCard
             tone="warning"
             icon={ClipboardList}
             value={stats.postulaciones.total}
             label="Postulaciones"
-            hint={`${stats.postulaciones.pendientes} pendientes`}
+            hint={
+              stats.postulaciones.total === 0
+                ? "Aparecerán cuando haya vacantes publicadas"
+                : `${stats.postulaciones.pendientes} pendientes`
+            }
           />
           <StatCard
             tone="success"
             icon={FileText}
             value={stats.procesos.total}
             label="Procesos"
-            hint={`${stats.procesos.activos} activos`}
+            hint={
+              stats.procesos.total === 0
+                ? "Inician al aceptar postulaciones de alumnos"
+                : `${stats.procesos.activos} activos`
+            }
           />
           <StatCard
             tone="info"
             icon={Shield}
             value={stats.incidencias.total}
             label="Incidencias"
-            hint={`${stats.incidencias.abiertas} abiertas`}
+            hint={
+              stats.incidencias.total === 0
+                ? "Sin eventos reportados en tu área"
+                : `${stats.incidencias.abiertas} abiertas`
+            }
           />
         </StatCards>
 

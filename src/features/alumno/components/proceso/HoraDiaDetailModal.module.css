@@ -106,25 +106,49 @@
   color: var(--color-gris-500);
 }
 
+.registerPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: var(--color-white);
+  border: 1px solid rgb(236 236 236);
+  border-radius: 0.875rem;
+}
+
+.registerPanelHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
+.registerPanelTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-gris-800);
+}
+
+.registerPanelDescription {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--color-gris-500);
+}
+
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem 0.75rem;
+}
+
 .footerActions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
-}
-
-.registerForm {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.registerIntro {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 300;
-  line-height: 1.5;
-  color: var(--color-gris-600);
 }
 
 .list {
@@ -178,4 +202,10 @@
   font-size: 0.8125rem;
   line-height: 1.55;
   color: var(--color-gris-500);
+}
+
+@media (max-width: 480px) {
+  .timeGrid {
+    grid-template-columns: 1fr;
+  }
 }

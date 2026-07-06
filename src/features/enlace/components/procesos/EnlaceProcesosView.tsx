@@ -4,11 +4,10 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { FolderOpen, Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
 import { EnlaceProcesoDetailModal } from "./EnlaceProcesoDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
@@ -62,16 +61,12 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       id: "estatus",
       header: "Estatus",
       align: "center",
-      cell: (alumno) => (
-        <StatusBadge variant="dot" tone={estatusTone(alumno.estatusProceso)}>
-          {formatEtiqueta(alumno.estatusProceso)}
-        </StatusBadge>
-      ),
+      cell: (alumno) => <EstatusBadge estatus={alumno.estatusProceso} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      align: "center",
       cell: (alumno) => (
         <DataTableActions>
           <DataTableIconAction

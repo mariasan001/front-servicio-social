@@ -5,10 +5,9 @@ import { GraduationCap } from "lucide-react";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
 import { AlumnoNormalizarModal } from "./AlumnoNormalizarModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function DelegacionAlumnosView({
@@ -21,28 +20,42 @@ export function DelegacionAlumnosView({
   const [selected, setSelected] = useState<AlumnoPorNormalizarResponse | null>(null);
 
   const columns: DataTableColumn<AlumnoPorNormalizarResponse>[] = [
-    { id: "nombre", header: "Alumno", cell: (a) => a.nombreCompleto ?? "Sin nombre" },
-    { id: "escuela", header: "Escuela capturada", cell: (a) => a.escuelaTextoCapturada ?? "Sin dato" },
+    {
+      id: "nombre",
+      header: "Alumno",
+      width: "28%",
+      cell: (alumno) => (
+        <div className={styles.nameCell}>
+          <strong>{alumno.nombreCompleto ?? "Sin nombre"}</strong>
+        </div>
+      ),
+    },
+    {
+      id: "escuela",
+      header: "Escuela capturada",
+      width: "28%",
+      cell: (alumno) => alumno.escuelaTextoCapturada ?? "Sin dato",
+    },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (a) => (
-        <StatusBadge variant="dot" tone={estatusTone(a.estatusVinculacionEscuela)}>
-          {formatEtiqueta(a.estatusVinculacionEscuela, "Pendiente")}
-        </StatusBadge>
+      cell: (alumno) => (
+        <EstatusBadge estatus={alumno.estatusVinculacionEscuela} fallback="Pendiente" />
       ),
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
-      cell: (a) => (
+      variant: "actions",
+      cell: (alumno) => (
         <DataTableActions>
           <DataTableIconAction
             label="Normalizar escuela"
             icon={GraduationCap}
-            onClick={() => setSelected(a)}
+            onClick={() => setSelected(alumno)}
           />
         </DataTableActions>
       ),

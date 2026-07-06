@@ -189,6 +189,7 @@ export type ProcesoHoraResponse = {
   idProceso?: number;
   fecha?: string;
   estatus?: string;
+  horasRegistradas?: number;
   horaEntrada?: string;
   horaSalida?: string;
   descripcionActividades?: string;

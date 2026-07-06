@@ -102,6 +102,7 @@
 
 .cell {
   min-width: 0;
+  overflow: hidden;
   padding: 0.4375rem 0.75rem;
   font-size: 0.75rem;
   line-height: 1.35;
@@ -130,12 +131,21 @@
 
 .headerCellStatus,
 .cellStatus {
-  white-space: nowrap;
+  white-space: normal;
+  overflow: hidden;
+}
+
+.cellStatus > * {
+  max-width: 100%;
 }
 
 .headerCellActions {
   font-size: 0.5625rem;
   letter-spacing: 0.03em;
+}
+
+.cellActions {
+  overflow: visible;
 }
 
 .dataRow {

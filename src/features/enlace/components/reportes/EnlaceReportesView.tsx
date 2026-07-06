@@ -3,11 +3,10 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ReporteAlumnoResponse } from "../../types/enlace.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { normalizeText } from "@/lib/utils/search";
 import { DataTable, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse[] }) {
@@ -62,11 +61,7 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
       id: "estatus",
       header: "Estatus",
       align: "center",
-      cell: (row) => (
-        <StatusBadge variant="dot" tone={estatusTone(row.estatusProceso)}>
-          {formatEtiqueta(row.estatusProceso)}
-        </StatusBadge>
-      ),
+      cell: (row) => <EstatusBadge estatus={row.estatusProceso} />,
     },
   ];
 
@@ -105,9 +100,6 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
         emptyTitle="Sin datos en el reporte"
         emptyDescription="El reporte se llenará cuando existan alumnos con procesos registrados."
       />
-      <p className={styles.pageNote}>
-        Mostrando {filtered.length} de {reporte.length} registros.
-      </p>
     </section>
   );
 }

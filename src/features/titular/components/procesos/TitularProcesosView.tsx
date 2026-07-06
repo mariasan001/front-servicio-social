@@ -6,10 +6,14 @@ import type { ProcesoResponse } from "../../types/titular.types";
 import { TitularProcesoActionMenu } from "./TitularProcesoActionMenu";
 import { TitularProcesoDetailModal } from "./TitularProcesoDetailModal";
 import type { TitularProcesoModalSection } from "./titular-proceso-sections";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { DataTable, DataTableActions, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import {
+  DataTable,
+  DataTableActions,
+  DataTableToolbar,
+  type DataTableColumn,
+} from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -37,6 +41,7 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
     {
       id: "proceso",
       header: "Proceso",
+      width: "32%",
       cell: (proceso) => (
         <div className={styles.nameCell}>
           <strong>{proceso.alumnoNombre ?? "Sin alumno"}</strong>
@@ -47,29 +52,28 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
     {
       id: "vacante",
       header: "Vacante",
+      width: "24%",
       cell: (proceso) => proceso.vacanteNombre?.trim() || "Sin vacante",
     },
     {
       id: "horas",
       header: "Horas",
       align: "center",
-      width: "12%",
+      width: "10%",
       cell: (proceso) => `${proceso.horasAcumuladas ?? 0} / ${proceso.horasRequeridas ?? "—"}`,
     },
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (proceso) => (
-        <StatusBadge tone={estatusTone(proceso.estatus)}>
-          {formatEtiqueta(proceso.estatus)}
-        </StatusBadge>
-      ),
+      cell: (proceso) => <EstatusBadge estatus={proceso.estatus} />,
     },
     {
       id: "acciones",
       header: "Acciones",
-      align: "right",
+      variant: "actions",
       cell: (proceso) => (
         <DataTableActions>
           <TitularProcesoActionMenu

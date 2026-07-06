@@ -15,18 +15,18 @@ import {
   canRejectPostulacion,
   isExamenFinalizado,
 } from "../../lib/postulacion.utils";
-import { estatusTone, formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import { formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
+import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
 import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
-import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
+import heroStyles from "../vacantes/TitularVacanteDetailModal.module.css";
 
 export function TitularPostulacionDetailModal({
   postulacionId,
@@ -86,88 +86,90 @@ export function TitularPostulacionDetailModal({
 
       {detail ? (
         <div
-          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          className={[
+            sharedStyles.layout,
+            heroStyles.modalBody,
+            isReloading && sharedStyles.layoutBusy,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <UserRound size={18} strokeWidth={1.75} />
+          <div className={heroStyles.modalHero}>
+            <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+              <UserRound size={22} strokeWidth={1.75} />
+            </span>
+            <div className={heroStyles.modalHeroCopy}>
+              <p className={heroStyles.modalHeroTitle}>
+                {alumnoNombre || "Sin nombre registrado"}
+              </p>
+              <p className={heroStyles.modalHeroSubtitle}>
+                {folio || `Postulación #${detail.idPostulacion}`}
+              </p>
+              <EstatusBadge estatus={detail.estatus} />
             </div>
-
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>{alumnoNombre || "Sin nombre registrado"}</p>
-              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
-            </div>
-
-            <StatusBadge tone={estatusTone(detail.estatus)}>
-              {formatEtiqueta(detail.estatus, "Sin estatus")}
-            </StatusBadge>
           </div>
 
-          <div className={styles.infoPanel}>
-            <dl className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <dt>Alumno</dt>
-                <dd>{alumnoNombre || "Sin nombre"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Vacante</dt>
-                <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Fecha de postulación</dt>
-                <dd>{formatFecha(detail.fechaPostulacion)}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Examen</dt>
-                <dd>
-                  {detail.requiereExamen ? (
-                    <StatusBadge tone={estatusTone(detail.examenEstado)}>
-                      {formatEtiqueta(detail.examenEstado, "Pendiente")}
-                    </StatusBadge>
-                  ) : (
-                    "No aplica"
-                  )}
-                </dd>
-              </div>
-            </dl>
+          <dl className={heroStyles.metaList}>
+            <div className={heroStyles.metaRow}>
+              <dt>Alumno</dt>
+              <dd>{alumnoNombre || "Sin nombre"}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Vacante</dt>
+              <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Fecha de postulación</dt>
+              <dd>{formatFecha(detail.fechaPostulacion)}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Examen</dt>
+              <dd>
+                {detail.requiereExamen ? (
+                  <EstatusBadge estatus={detail.examenEstado} fallback="Pendiente" />
+                ) : (
+                  "No aplica"
+                )}
+              </dd>
+            </div>
+          </dl>
 
-            {detail.resultadoExamen ? (
-              <div className={narrativeStyles.narrativeBlock}>
-                <p className={narrativeStyles.narrativeLabel}>Resultado del examen</p>
-                <p className={narrativeStyles.narrativeValue}>{detail.resultadoExamen}</p>
-              </div>
-            ) : null}
+          {detail.resultadoExamen ? (
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Resultado del examen</p>
+              <p className={heroStyles.narrativeValue}>{detail.resultadoExamen}</p>
+            </div>
+          ) : null}
 
-            {detail.comentarioAlumno ? (
-              <div className={narrativeStyles.narrativeBlock}>
-                <p className={narrativeStyles.narrativeLabel}>Comentario del alumno</p>
-                <p className={narrativeStyles.narrativeValue}>{detail.comentarioAlumno}</p>
-              </div>
-            ) : null}
+          {detail.comentarioAlumno ? (
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Comentario del alumno</p>
+              <p className={heroStyles.narrativeValue}>{detail.comentarioAlumno}</p>
+            </div>
+          ) : null}
 
-            {detail.comentarioTitular ? (
-              <div className={narrativeStyles.narrativeBlock}>
-                <p className={narrativeStyles.narrativeLabel}>Tu comentario previo</p>
-                <p className={narrativeStyles.narrativeValue}>{detail.comentarioTitular}</p>
-              </div>
-            ) : null}
+          {detail.comentarioTitular ? (
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Tu comentario previo</p>
+              <p className={heroStyles.narrativeValue}>{detail.comentarioTitular}</p>
+            </div>
+          ) : null}
 
-            {detail.motivoRechazo ? (
-              <div className={narrativeStyles.narrativeBlock}>
-                <p className={narrativeStyles.narrativeLabel}>Motivo de rechazo</p>
-                <p className={narrativeStyles.narrativeValue}>{detail.motivoRechazo}</p>
-              </div>
-            ) : null}
-          </div>
+          {detail.motivoRechazo ? (
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Motivo de rechazo</p>
+              <p className={heroStyles.narrativeValue}>{detail.motivoRechazo}</p>
+            </div>
+          ) : null}
 
           {canAccept ? (
-            <section className={styles.section} aria-label="Aceptar postulación">
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Aceptar postulación</h3>
-                <p className={styles.sectionDescription}>
+            <section className={sharedStyles.section} aria-label="Aceptar postulación">
+              <div className={sharedStyles.sectionHeader}>
+                <h3 className={sharedStyles.sectionTitle}>Aceptar postulación</h3>
+                <p className={sharedStyles.sectionDescription}>
                   {examenListo
                     ? "El examen ya fue registrado. Acepta la postulación para abrir el proceso del alumno."
                     : "Aprueba la solicitud para continuar con el proceso de selección."}
@@ -183,7 +185,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="action"
+                    variant="primary"
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
@@ -207,10 +209,10 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canReject ? (
-            <section className={styles.section} aria-label="Rechazar postulación">
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Rechazar postulación</h3>
-                <p className={styles.sectionDescription}>
+            <section className={sharedStyles.section} aria-label="Rechazar postulación">
+              <div className={sharedStyles.sectionHeader}>
+                <h3 className={sharedStyles.sectionTitle}>Rechazar postulación</h3>
+                <p className={sharedStyles.sectionDescription}>
                   Indica el motivo para notificar al alumno.
                 </p>
               </div>
@@ -228,7 +230,7 @@ export function TitularPostulacionDetailModal({
                   <Button
                     type="button"
                     variant="outline"
-                    className={styles.dangerButton}
+                    className={sharedStyles.dangerButton}
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoRechazo.trim()) {
@@ -256,10 +258,10 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canMarkExam ? (
-            <section className={styles.section} aria-label="Registrar examen">
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Registrar examen</h3>
-                <p className={styles.sectionDescription}>
+            <section className={sharedStyles.section} aria-label="Registrar examen">
+              <div className={sharedStyles.sectionHeader}>
+                <h3 className={sharedStyles.sectionTitle}>Registrar examen</h3>
+                <p className={sharedStyles.sectionDescription}>
                   Captura el resultado del examen de ingreso del alumno.
                 </p>
               </div>
@@ -276,7 +278,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="action"
+                    variant="primary"
                     disabled={isMutating}
                     onClick={async () => {
                       const resultado = Number(resultadoExamen.trim());

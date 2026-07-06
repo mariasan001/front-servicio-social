@@ -17,11 +17,10 @@ import {
 import { canAlumnoActualizarBitacora, validarRegistroHoraAlumno } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
-import { FormField, TextInput } from "@/shared/components/Form";
+import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
 import styles from "./HoraDiaDetailModal.module.css";
 
 type HoraRegisterDraft = {
@@ -244,26 +243,20 @@ export function HoraDiaDetailModal({
       ) : null}
 
       {showRegisterForm ? (
-        <div className={styles.registerForm}>
-          <p className={styles.registerIntro}>
-            Captura tu asistencia del día con horario de entrada, salida y una descripción de las
-            actividades. El máximo por día es 12 horas.
-          </p>
+        <div className={styles.registerPanel}>
+          <div className={styles.registerPanelHeader}>
+            <h3 className={styles.registerPanelTitle}>Registrar jornada</h3>
+            <p className={styles.registerPanelDescription}>
+              Indica tu horario y las actividades del día. Máximo 12 horas por jornada.
+            </p>
+          </div>
 
-          <div className={formLayoutStyles.formLayout}>
-            <div className={formLayoutStyles.formGrid}>
-              <TextInput
-                id="hora-fecha-modal"
-                label="Fecha"
-                type="date"
-                value={dateKey}
-                readOnly
-                hint="Solo puedes registrar horas del día de hoy."
-              />
-              <TextInput
+          <div className={styles.timeGrid}>
+            <FormField id="hora-entrada-modal" label="Hora de entrada" required>
+              <input
                 id="hora-entrada-modal"
-                label="Hora de entrada"
                 type="time"
+                className={formStyles.input}
                 value={registerDraft.horaEntrada}
                 onChange={(event) =>
                   setRegisterDraft((current) => ({
@@ -272,10 +265,12 @@ export function HoraDiaDetailModal({
                   }))
                 }
               />
-              <TextInput
+            </FormField>
+            <FormField id="hora-salida-modal" label="Hora de salida" required>
+              <input
                 id="hora-salida-modal"
-                label="Hora de salida"
                 type="time"
+                className={formStyles.input}
                 value={registerDraft.horaSalida}
                 onChange={(event) =>
                   setRegisterDraft((current) => ({
@@ -284,29 +279,28 @@ export function HoraDiaDetailModal({
                   }))
                 }
               />
-              <div className={formLayoutStyles.formGridFull}>
-                <FormField
-                  id="hora-descripcion-modal"
-                  label="Actividades realizadas"
-                  required
-                  hint="Obligatorio. Describe brevemente qué hiciste durante tu jornada."
-                >
-                  <textarea
-                    id="hora-descripcion-modal"
-                    className={formStyles.textarea}
-                    rows={3}
-                    value={registerDraft.descripcionActividades}
-                    onChange={(event) =>
-                      setRegisterDraft((current) => ({
-                        ...current,
-                        descripcionActividades: event.target.value,
-                      }))
-                    }
-                  />
-                </FormField>
-              </div>
-            </div>
+            </FormField>
           </div>
+
+          <FormField
+            id="hora-descripcion-modal"
+            label="Actividades realizadas"
+            required
+            hint="Describe brevemente qué hiciste durante tu jornada."
+          >
+            <textarea
+              id="hora-descripcion-modal"
+              className={formStyles.textarea}
+              rows={3}
+              value={registerDraft.descripcionActividades}
+              onChange={(event) =>
+                setRegisterDraft((current) => ({
+                  ...current,
+                  descripcionActividades: event.target.value,
+                }))
+              }
+            />
+          </FormField>
         </div>
       ) : !hasHoras ? (
         <div className={styles.emptyState}>

@@ -13,7 +13,6 @@ import { Button } from "@/shared/components/Button";
 import { CheckboxField, FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
-import panelFormStyles from "@/shared/styles/PanelFormModal.module.css";
 import styles from "./TitularVacanteFormModal.module.css";
 
 type FormValues = {
@@ -62,33 +61,21 @@ function buildInitialValues(
 }
 
 function VacanteContextBanner({
-  areaContext,
+  areaLabel,
+  hint,
 }: {
-  areaContext: TitularAreaContext | null;
+  areaLabel: string;
+  hint?: string;
 }) {
-  if (areaContext) {
-    return (
-      <div className={styles.contextBanner} role="status">
-        <Building2 className={styles.contextIcon} size={16} strokeWidth={1.75} aria-hidden="true" />
-        <div className={styles.contextCopy}>
-          <p className={styles.contextEyebrow}>Área asignada</p>
-          <p className={styles.contextTitle}>
-            {areaContext.areaNombre ?? `Área #${areaContext.areaId}`}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.contextBanner} role="status">
-      <Building2 className={styles.contextIcon} size={16} strokeWidth={1.75} aria-hidden="true" />
+      <span className={styles.contextIconWrap} aria-hidden="true">
+        <Building2 size={18} strokeWidth={1.75} />
+      </span>
       <div className={styles.contextCopy}>
-        <p className={styles.contextEyebrow}>Primera vacante</p>
-        <p className={styles.contextTitle}>Tu área se vinculará al registrar la vacante</p>
-        <p className={styles.contextHint}>
-          Si ya fuiste asignado como titular, completa el formulario y envía el registro.
-        </p>
+        <p className={styles.contextEyebrow}>Área asignada</p>
+        <p className={styles.contextTitle}>{areaLabel}</p>
+        {hint ? <p className={styles.contextHint}>{hint}</p> : null}
       </div>
     </div>
   );
@@ -112,6 +99,13 @@ function VacanteFormModalContent({
   const hasCustomModalidad =
     Boolean(values.modalidadTrabajo) &&
     !MODALIDAD_TRABAJO_OPTIONS.some((option) => option.value === values.modalidadTrabajo);
+
+  const areaLabel =
+    mode === "edit"
+      ? vacante?.areaNombre?.trim() || (vacante?.areaId ? `Área #${vacante.areaId}` : "Sin área")
+      : areaContext
+        ? areaContext.areaNombre ?? `Área #${areaContext.areaId}`
+        : null;
 
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
     setValues((current) => ({ ...current, [field]: value }));
@@ -186,11 +180,16 @@ function VacanteFormModalContent({
       onClose={onClose}
       size="lg"
       footer={
-        <div className={panelFormStyles.modalFooter}>
+        <div className={styles.modalFooter}>
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="titular-vacante-form" variant="action" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            form="titular-vacante-form"
+            variant={mode === "create" ? "primary" : "success"}
+            disabled={isSubmitting}
+          >
             {isSubmitting
               ? "Guardando…"
               : mode === "create"
@@ -200,15 +199,24 @@ function VacanteFormModalContent({
         </div>
       }
     >
-      <form id="titular-vacante-form" className={panelFormStyles.formLayout} onSubmit={handleSubmit}>
+      <form id="titular-vacante-form" className={styles.formBody} onSubmit={handleSubmit}>
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-        {mode === "create" ? <VacanteContextBanner areaContext={areaContext} /> : null}
+        {areaLabel ? (
+          <VacanteContextBanner
+            areaLabel={areaLabel}
+            hint={
+              mode === "create" && !areaContext
+                ? "Tu área se vinculará al registrar la vacante."
+                : undefined
+            }
+          />
+        ) : null}
 
-        <section className={panelFormStyles.formSection} aria-label="Información de la vacante">
-          <p className={panelFormStyles.formSectionTitle}>Información general</p>
-          <div className={panelFormStyles.formGrid}>
-            <div className={panelFormStyles.formGridFull}>
+        <section className={styles.formPanel} aria-label="Información de la vacante">
+          <h3 className={styles.formPanelTitle}>Información general</h3>
+          <div className={styles.formGrid}>
+            <div className={styles.formGridFull}>
               <TextInput
                 id="vacante-nombre"
                 label="Nombre de la vacante"
@@ -219,7 +227,7 @@ function VacanteFormModalContent({
               />
             </div>
 
-            <div className={panelFormStyles.formGridFull}>
+            <div className={styles.formGridFull}>
               <FormField
                 id="vacante-descripcion"
                 label="Descripción"
@@ -237,7 +245,7 @@ function VacanteFormModalContent({
               </FormField>
             </div>
 
-            <div className={panelFormStyles.formGridFull}>
+            <div className={styles.formGridFull}>
               <TextInput
                 id="vacante-perfil"
                 label="Perfil requerido"
@@ -250,10 +258,10 @@ function VacanteFormModalContent({
           </div>
         </section>
 
-        <section className={panelFormStyles.formSection} aria-label="Condiciones de la vacante">
-          <p className={panelFormStyles.formSectionTitle}>Condiciones</p>
-          <div className={panelFormStyles.formGrid}>
-            <div className={panelFormStyles.formGridFull}>
+        <section className={styles.formPanel} aria-label="Condiciones de la vacante">
+          <h3 className={styles.formPanelTitle}>Condiciones</h3>
+          <div className={styles.formGrid}>
+            <div className={styles.formGridFull}>
               <SelectInput
                 id="vacante-modalidad-trabajo"
                 label="Modalidad de trabajo"
@@ -274,7 +282,9 @@ function VacanteFormModalContent({
                 ))}
               </SelectInput>
             </div>
+          </div>
 
+          <div className={styles.conditionsGrid}>
             <TextInput
               id="vacante-cupo"
               label="Cupo total"
@@ -286,19 +296,15 @@ function VacanteFormModalContent({
               onChange={(event) => updateField("cupoTotal", event.target.value)}
             />
 
-            <FormField id="vacante-examen-group" label="Proceso de ingreso">
-              <div className={formStyles.optionPanel}>
-                <div className={formStyles.optionFull}>
-                  <CheckboxField
-                    id="vacante-requiere-examen"
-                    variant="tile"
-                    label="Requiere examen de ingreso"
-                    checked={values.requiereExamen}
-                    onChange={(checked) => updateField("requiereExamen", checked)}
-                  />
-                </div>
-              </div>
-            </FormField>
+            <div className={styles.examenField}>
+              <p className={styles.examenLabel}>Proceso de ingreso</p>
+              <CheckboxField
+                id="vacante-requiere-examen"
+                label="Requiere examen de ingreso"
+                checked={values.requiereExamen}
+                onChange={(checked) => updateField("requiereExamen", checked)}
+              />
+            </div>
           </div>
         </section>
       </form>
