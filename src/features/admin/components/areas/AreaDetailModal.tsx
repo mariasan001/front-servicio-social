@@ -2,7 +2,7 @@
 
 import { LayoutGrid, Mail } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   activateAreaAction,
   assignAreaTitularAction,
@@ -17,20 +17,15 @@ import { AreaFormModal } from "./AreaFormModal";
 import areaStyles from "./AreaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
-import { CheckboxField, SelectInput } from "@/shared/components/Form";
+import { CheckboxField, SearchableSelect } from "@/shared/components/Form";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import {
-  areaStatusLabel,
-  areaStatusTone,
-  formatContacto,
-  formatFecha,
-  titularStatusLabel,
-  titularStatusTone,
-} from "./area-labels";
+import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
+import adminStyles from "../shared/AdminDetailContent.module.css";
+import { areaActivaEstatus, formatContacto, formatFecha } from "./area-labels";
 
 type AreaDetailModalProps = {
   areaId: number | null;
@@ -164,6 +159,19 @@ export function AreaDetailModal({
 
   const titulares = detail?.titulares ?? [];
   const titularesActivos = titulares.filter((titular) => titular.vigente !== false);
+  const titularOptions = useMemo(() => {
+    const assignedIds = new Set(titularesActivos.map((titular) => titular.idUsuario));
+
+    return titularesDisponibles
+      .filter((usuario) => !assignedIds.has(usuario.idUsuario))
+      .map((usuario) => ({
+        value: String(usuario.idUsuario),
+        label: usuario.nombreCompleto,
+        searchText: [usuario.username, usuario.correo, usuario.cargo].filter(Boolean).join(" "),
+        hint: usuario.correo,
+      }))
+      .sort((left, right) => left.label.localeCompare(right.label, "es"));
+  }, [titularesActivos, titularesDisponibles]);
   const areaForEdit: AreaResponse | null = detail;
   const isActive = detail?.activa !== false;
   const dependenciaNombre = detail?.dependenciaNombre?.trim();
@@ -179,7 +187,7 @@ export function AreaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={styles.footer}>
+            <div className={adminStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -211,76 +219,81 @@ export function AreaDetailModal({
 
         {detail ? (
           <div
-            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            className={[
+              styles.layout,
+              heroStyles.modalBody,
+              isReloading && styles.layoutBusy,
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-busy={isReloading}
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
-            <div className={styles.summaryBar}>
-              <div className={styles.avatar} aria-hidden="true">
-                <LayoutGrid size={18} strokeWidth={1.75} />
-              </div>
 
-              <div className={styles.summaryMeta}>
-                <p className={styles.summaryPrimary}>
-                  {dependenciaNombre || "Sin dependencia asignada"}
+            <div className={heroStyles.modalHero}>
+              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+                <LayoutGrid size={22} strokeWidth={1.75} />
+              </span>
+              <div className={heroStyles.modalHeroCopy}>
+                <p className={heroStyles.modalHeroTitle}>
+                  {dependenciaNombre || detail.nombre}
                 </p>
-                <p className={styles.summarySecondary}>
+                <p className={heroStyles.modalHeroSubtitle}>
                   {ubicacion || "Sin ubicación registrada"}
                 </p>
+                <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
               </div>
-
-              <StatusBadge tone={areaStatusTone(detail.activa)}>
-                {areaStatusLabel(detail.activa)}
-              </StatusBadge>
             </div>
 
-            <div className={styles.infoPanel}>
-              <dl className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <dt>Dependencia</dt>
-                  <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Ubicación</dt>
-                  <dd>{ubicacion || "Sin ubicación registrada"}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Contacto</dt>
-                  <dd>{formatContacto(detail.correoContacto, detail.telefonoContacto)}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Última actualización</dt>
-                  <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
-                </div>
-              </dl>
-            </div>
-
-            <section className={styles.section} aria-labelledby="area-descripcion-title">
-              <div className={styles.sectionHeader}>
-                <h3 id="area-descripcion-title" className={styles.sectionTitle}>
-                  Descripción
-                </h3>
-                <p className={styles.sectionDescription}>
-                  Funciones y alcance de esta área dentro de la dependencia.
-                </p>
+            <dl className={heroStyles.metaList}>
+              <div className={heroStyles.metaRow}>
+                <dt>Área</dt>
+                <dd>{detail.nombre}</dd>
               </div>
-              <p className={styles.sectionBody}>
+              <div className={heroStyles.metaRow}>
+                <dt>Dependencia</dt>
+                <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Ubicación</dt>
+                <dd>{ubicacion || "Sin ubicación registrada"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Contacto</dt>
+                <dd>{formatContacto(detail.correoContacto, detail.telefonoContacto)}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Última actualización</dt>
+                <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
+              </div>
+            </dl>
+
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Descripción</p>
+              <p
+                className={[
+                  heroStyles.narrativeValue,
+                  !descripcion && heroStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
                 {descripcion || "Esta área aún no tiene una descripción registrada."}
               </p>
-            </section>
+            </div>
 
             <section
-              className={areaStyles.titularesBlock}
+              className={adminStyles.contentPanel}
               aria-labelledby="area-titulares-title"
             >
-              <div className={styles.sectionHeader}>
-                <div className={areaStyles.titleRow}>
-                  <h3 id="area-titulares-title" className={styles.sectionTitle}>
+              <div className={adminStyles.panelHeader}>
+                <div className={adminStyles.panelTitleRow}>
+                  <h3 id="area-titulares-title" className={adminStyles.panelTitle}>
                     Personas titulares
                   </h3>
-                  <span className={areaStyles.countBadge}>{titularesActivos.length}</span>
+                  <span className={adminStyles.countBadge}>{titularesActivos.length}</span>
                 </div>
-                <p className={styles.sectionDescription}>
+                <p className={adminStyles.panelDescription}>
                   Responsables asignados a esta área.
                 </p>
               </div>
@@ -289,25 +302,21 @@ export function AreaDetailModal({
 
               <div className={areaStyles.assignForm}>
                 <div className={areaStyles.assignRow}>
-                  <SelectInput
+                  <SearchableSelect
                     id="area-titular-select"
                     label="Persona titular"
-                    placeholder="Selecciona una persona"
+                    placeholder="Selecciona o busca persona"
                     value={selectedTitularId}
-                    onChange={(event) => setSelectedTitularId(event.target.value)}
-                  >
-                    {titularesDisponibles.map((usuario) => (
-                      <option key={usuario.idUsuario} value={usuario.idUsuario}>
-                        {usuario.nombreCompleto}
-                      </option>
-                    ))}
-                  </SelectInput>
+                    options={titularOptions}
+                    emptyMessage="No hay personas titulares disponibles para asignar."
+                    onChange={setSelectedTitularId}
+                  />
 
                   <Button
                     type="button"
-                    variant="action"
+                    variant="primary"
                     onClick={() => void handleAssignTitular()}
-                    disabled={isMutating || titularesDisponibles.length === 0}
+                    disabled={isMutating || titularOptions.length === 0}
                   >
                     Asignar
                   </Button>
@@ -344,11 +353,11 @@ export function AreaDetailModal({
                             {titular.nombreCompleto ?? "Sin nombre registrado"}
                           </span>
                           {titular.esPrincipal ? (
-                            <StatusBadge tone="info">Principal</StatusBadge>
+                            <EstatusBadge estatus="PRINCIPAL" fallback="Principal" />
                           ) : null}
-                          <StatusBadge tone={titularStatusTone(titular.vigente)}>
-                            {titularStatusLabel(titular.vigente)}
-                          </StatusBadge>
+                          <EstatusBadge
+                            estatus={titular.vigente === false ? "INACTIVO" : "ACTIVO"}
+                          />
                         </div>
                         <p className={areaStyles.titularMeta}>
                           <Mail size={12} strokeWidth={1.75} aria-hidden="true" />
@@ -360,7 +369,7 @@ export function AreaDetailModal({
                         {!titular.esPrincipal ? (
                           <Button
                             type="button"
-                            variant="action"
+                            variant="primary"
                             disabled={isMutating}
                             onClick={() => void handleSetPrincipal(titular.idAsignacion)}
                           >

@@ -142,7 +142,7 @@ function EscuelaFormModalContent({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="escuela-form" variant="action" disabled={isSubmitting}>
+          <Button type="submit" form="escuela-form" variant="success" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : mode === "create"

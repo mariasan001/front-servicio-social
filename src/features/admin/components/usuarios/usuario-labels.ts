@@ -47,6 +47,10 @@ export function usuarioActivoLabel(activo?: boolean) {
   return areaStatusLabel(activo);
 }
 
+export function usuarioActivoEstatus(activo?: boolean) {
+  return activo === false ? "INACTIVO" : "ACTIVO";
+}
+
 export function usuarioActivoTone(activo?: boolean): StatusBadgeTone {
   return areaStatusTone(activo);
 }

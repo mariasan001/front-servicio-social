@@ -5,12 +5,13 @@ import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useRef, useState } from "react";
 import {
   cancelProcesoHoraAction,
+  getHoraPendienteDetailAction,
   observeProcesoHoraAction,
   rejectProcesoHoraAction,
   validateProcesoHoraAction,
 } from "../../actions/procesos.actions";
-import type { HoraPendienteResponse } from "../../types/delegacion.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import type { HoraPendienteDetail, HoraPendienteResponse } from "../../types/delegacion.types";
+import { formatFecha } from "@/lib/domain/labels";
 import {
   canCancelHora,
   canObserveHora,
@@ -18,15 +19,42 @@ import {
   canValidateHora,
   isHoraPendienteRevision,
 } from "@/lib/domain/horas";
+import adminStyles from "@/features/admin/components/shared/AdminDetailContent.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
+import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
+
+function formatHoraValue(value?: string) {
+  if (!value?.trim()) {
+    return "Sin registro";
+  }
+
+  return value.trim();
+}
+
+function formatHorasRegistradas(value?: number) {
+  if (value === undefined || value === null) {
+    return "Sin registro";
+  }
+
+  return `${value} ${value === 1 ? "hora" : "horas"}`;
+}
+
+function buildBaseDetail(hora: HoraPendienteResponse): HoraPendienteDetail {
+  return {
+    idAsistencia: hora.idAsistencia,
+    idProceso: hora.idProceso,
+    estatus: hora.estatus,
+    alumnoNombre: hora.alumnoNombre,
+  };
+}
 
 export function HoraPendienteModal({
   hora,
@@ -43,15 +71,31 @@ export function HoraPendienteModal({
   const [comentario, setComentario] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
-  const { detail, error } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     hora?.idAsistencia ?? null,
-    async (id) => {
+    async (idAsistencia) => {
       const current = horaRef.current;
-      if (!current || current.idAsistencia !== id) {
+
+      if (!current || current.idAsistencia !== idAsistencia) {
         return { success: false as const, error: "No se encontró el registro de horas." };
       }
-      return { success: true as const, data: current };
+
+      const baseDetail = buildBaseDetail(current);
+      const result = await getHoraPendienteDetailAction(current.idProceso, idAsistencia);
+
+      if (!result.success) {
+        return { success: true as const, data: baseDetail };
+      }
+
+      return {
+        success: true as const,
+        data: {
+          ...baseDetail,
+          ...result.data,
+          alumnoNombre: current.alumnoNombre ?? result.data.alumnoNombre,
+        },
+      };
     },
     {
       onBeforeLoad: () => {
@@ -62,9 +106,13 @@ export function HoraPendienteModal({
   );
 
   const run = async (action: "validate" | "observe" | "reject" | "cancel") => {
-    if (!detail) return;
+    if (!detail) {
+      return;
+    }
+
     setIsMutating(true);
     setActionError(null);
+
     const result =
       action === "validate"
         ? await validateProcesoHoraAction(
@@ -83,102 +131,164 @@ export function HoraPendienteModal({
             : await cancelProcesoHoraAction(detail.idProceso, detail.idAsistencia, {
                 motivo: comentario.trim() || "Cancelado por delegación.",
               });
+
     setIsMutating(false);
+
     if (!result.success) {
       setActionError(result.error);
       return;
     }
+
     router.refresh();
     onClose();
   };
 
-  const alumnoNombre = detail?.alumnoNombre?.trim();
+  const alumnoNombre = detail?.alumnoNombre?.trim() || hora?.alumnoNombre?.trim();
   const canReview = detail ? isHoraPendienteRevision(detail.estatus) : false;
+  const descripcion = detail?.descripcionActividades?.trim();
 
   return (
     <Modal
       open={open}
-      title={alumnoNombre || "Revisar horas"}
+      title={alumnoNombre || "Registro de horas"}
       onClose={onClose}
       size="lg"
+      footer={
+        detail && canReview ? (
+          <div className={adminStyles.footerActions}>
+            {canValidateHora(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="success"
+                disabled={isMutating}
+                onClick={() => void run("validate")}
+              >
+                {isMutating ? "Procesando…" : "Validar"}
+              </Button>
+            ) : null}
+            {canObserveHora(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isMutating}
+                onClick={() => void run("observe")}
+              >
+                Observar
+              </Button>
+            ) : null}
+            {canRejectHora(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="outline"
+                className={styles.dangerButton}
+                disabled={isMutating}
+                onClick={() => void run("reject")}
+              >
+                Rechazar
+              </Button>
+            ) : null}
+            {canCancelHora(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isMutating}
+                onClick={() => void run("cancel")}
+              >
+                Cancelar
+              </Button>
+            ) : null}
+          </div>
+        ) : undefined
+      }
     >
-      {detail ? (
-        <div className={styles.layout}>
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-          {error ? <Alert tone="error">{error}</Alert> : null}
+      {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
+      {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <Clock3 size={18} strokeWidth={1.75} />
-            </div>
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>{alumnoNombre || "Sin alumno registrado"}</p>
-              <p className={styles.summarySecondary}>
+      {detail ? (
+        <div
+          className={[styles.layout, heroStyles.modalBody, isReloading && styles.layoutBusy]
+            .filter(Boolean)
+            .join(" ")}
+          aria-busy={isReloading}
+        >
+          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
+
+          <div className={heroStyles.modalHero}>
+            <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+              <Clock3 size={22} strokeWidth={1.75} />
+            </span>
+            <div className={heroStyles.modalHeroCopy}>
+              <p className={heroStyles.modalHeroTitle}>
+                {alumnoNombre || "Sin alumno registrado"}
+              </p>
+              <p className={heroStyles.modalHeroSubtitle}>
                 Proceso #{detail.idProceso} · Registro #{detail.idAsistencia}
               </p>
+              <EstatusBadge estatus={detail.estatus} />
             </div>
-            <StatusBadge tone={estatusTone(detail.estatus)}>
-              {formatEtiqueta(detail.estatus, "Sin estatus")}
-            </StatusBadge>
+          </div>
+
+          <dl className={heroStyles.metaList}>
+            <div className={heroStyles.metaRow}>
+              <dt>Fecha del registro</dt>
+              <dd>{formatFecha(detail.fecha) || "Sin fecha registrada"}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Horas registradas</dt>
+              <dd>{formatHorasRegistradas(detail.horasRegistradas)}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Entrada</dt>
+              <dd>{formatHoraValue(detail.horaEntrada)}</dd>
+            </div>
+            <div className={heroStyles.metaRow}>
+              <dt>Salida</dt>
+              <dd>{formatHoraValue(detail.horaSalida)}</dd>
+            </div>
+          </dl>
+
+          <div className={heroStyles.narrativeSection}>
+            <p className={heroStyles.narrativeLabel}>Actividades realizadas</p>
+            <p
+              className={[
+                heroStyles.narrativeValue,
+                !descripcion && heroStyles.narrativeEmpty,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {descripcion || "El alumno no registró una descripción de actividades."}
+            </p>
           </div>
 
           {canReview ? (
-            <section className={styles.section} aria-label="Revisar registro de horas">
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Revisar registro</h3>
-                <p className={styles.sectionDescription}>
-                  Valida, observa o rechaza el registro enviado por el alumno.
+            <section
+              className={adminStyles.contentPanel}
+              aria-labelledby="hora-revision-title"
+            >
+              <div className={adminStyles.panelHeader}>
+                <h3 id="hora-revision-title" className={adminStyles.panelTitle}>
+                  Revisar registro
+                </h3>
+                <p className={adminStyles.panelDescription}>
+                  Valida, observa o rechaza el registro enviado por el alumno. Las acciones se
+                  aplican con el botón correspondiente al pie del modal.
                 </p>
               </div>
-              <div className={formLayoutStyles.formLayout}>
-                <FormField id="hora-comentario" label="Comentario">
-                  <textarea
-                    id="hora-comentario"
-                    className={formStyles.textarea}
-                    rows={3}
-                    value={comentario}
-                    onChange={(event) => setComentario(event.target.value)}
-                  />
-                </FormField>
-                <div className={formLayoutStyles.formActions}>
-                  {canValidateHora(detail.estatus) ? (
-                    <Button type="button" variant="action" disabled={isMutating} onClick={() => void run("validate")}>
-                      Validar
-                    </Button>
-                  ) : null}
-                  {canObserveHora(detail.estatus) ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isMutating}
-                      onClick={() => void run("observe")}
-                    >
-                      Observar
-                    </Button>
-                  ) : null}
-                  {canRejectHora(detail.estatus) ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className={styles.dangerButton}
-                      disabled={isMutating}
-                      onClick={() => void run("reject")}
-                    >
-                      Rechazar
-                    </Button>
-                  ) : null}
-                  {canCancelHora(detail.estatus) ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isMutating}
-                      onClick={() => void run("cancel")}
-                    >
-                      Cancelar
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
+
+              <FormField
+                id="hora-comentario"
+                label="Comentario"
+                hint="Opcional al validar. Recomendado al observar o rechazar."
+              >
+                <textarea
+                  id="hora-comentario"
+                  className={formStyles.textarea}
+                  rows={3}
+                  value={comentario}
+                  onChange={(event) => setComentario(event.target.value)}
+                />
+              </FormField>
             </section>
           ) : (
             <p className={styles.sectionDescription}>

@@ -17,18 +17,19 @@ import {
   formatRoles,
   formatSiNo,
   formatUsername,
-  usuarioActivoLabel,
-  usuarioActivoTone,
+  usuarioActivoEstatus,
 } from "./usuario-labels";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
+import adminStyles from "../shared/AdminDetailContent.module.css";
 import usuarioStyles from "./UsuarioDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { PasswordInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import styles from "@/shared/styles/EntityDetailModal.module.css";
+import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
 
 type UsuarioDetailModalProps = {
   usuarioId: number | null;
@@ -125,6 +126,8 @@ export function UsuarioDetailModal({
   };
 
   const isActive = detail?.activo !== false;
+  const cargo = detail?.cargo?.trim();
+  const username = detail ? formatUsername(detail.username) : "";
 
   return (
     <>
@@ -135,7 +138,7 @@ export function UsuarioDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={styles.footer}>
+            <div className={adminStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -167,64 +170,67 @@ export function UsuarioDetailModal({
 
         {detail ? (
           <div
-            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            className={[
+              styles.layout,
+              heroStyles.modalBody,
+              isReloading && styles.layoutBusy,
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-busy={isReloading}
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
-            <div className={styles.summaryBar}>
-              <div className={styles.avatar} aria-hidden="true">
-                <User size={18} strokeWidth={1.75} />
-              </div>
 
-              <div className={styles.summaryMeta}>
-                <p className={styles.summaryPrimary}>
-                  {detail.cargo?.trim() || formatRoles(detail.roles)}
+            <div className={heroStyles.modalHero}>
+              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+                <User size={22} strokeWidth={1.75} />
+              </span>
+              <div className={heroStyles.modalHeroCopy}>
+                <p className={heroStyles.modalHeroTitle}>
+                  {cargo || formatRoles(detail.roles)}
                 </p>
-                <p className={styles.summarySecondary}>
-                  {formatUsername(detail.username)}
-                </p>
+                <p className={heroStyles.modalHeroSubtitle}>{username}</p>
+                <EstatusBadge estatus={usuarioActivoEstatus(detail.activo)} />
               </div>
-
-              <StatusBadge tone={usuarioActivoTone(detail.activo)}>
-                {usuarioActivoLabel(detail.activo)}
-              </StatusBadge>
             </div>
 
-            <div className={styles.infoPanel}>
-              <dl className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <dt>Usuario de acceso</dt>
-                  <dd>{formatUsername(detail.username)}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Correo electrónico</dt>
-                  <dd>{detail.correo}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Teléfono</dt>
-                  <dd>{detail.telefono?.trim() || "Sin teléfono registrado"}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Escuela vinculada</dt>
-                  <dd>{detail.escuelaNombre?.trim() || "No aplica"}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Puede descargar cartas</dt>
-                  <dd>{formatSiNo(detail.puedeDescargarCartas)}</dd>
-                </div>
-                <div className={`${styles.infoItem} ${styles.infoItemFull}`}>
-                  <dt>Última actualización</dt>
-                  <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
-                </div>
-              </dl>
-            </div>
+            <dl className={heroStyles.metaList}>
+              <div className={heroStyles.metaRow}>
+                <dt>Nombre</dt>
+                <dd>{detail.nombreCompleto}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Usuario de acceso</dt>
+                <dd>{username}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Correo electrónico</dt>
+                <dd>{detail.correo}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Teléfono</dt>
+                <dd>{detail.telefono?.trim() || "Sin teléfono registrado"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Escuela vinculada</dt>
+                <dd>{detail.escuelaNombre?.trim() || "No aplica"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Puede descargar cartas</dt>
+                <dd>{formatSiNo(detail.puedeDescargarCartas)}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Última actualización</dt>
+                <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
+              </div>
+            </dl>
 
-            <section className={styles.section} aria-labelledby="usuario-perfiles-title">
-              <div className={styles.sectionHeader}>
-                <h3 id="usuario-perfiles-title" className={styles.sectionTitle}>
+            <section className={adminStyles.contentPanel} aria-labelledby="usuario-perfiles-title">
+              <div className={adminStyles.panelHeader}>
+                <h3 id="usuario-perfiles-title" className={adminStyles.panelTitle}>
                   Perfiles asignados
                 </h3>
-                <p className={styles.sectionDescription}>
+                <p className={adminStyles.panelDescription}>
                   Roles y permisos asignados a esta cuenta.
                 </p>
               </div>
@@ -244,12 +250,12 @@ export function UsuarioDetailModal({
               )}
             </section>
 
-            <section className={styles.section} aria-labelledby="usuario-password-title">
-              <div className={styles.sectionHeader}>
-                <h3 id="usuario-password-title" className={styles.sectionTitle}>
+            <section className={adminStyles.contentPanel} aria-labelledby="usuario-password-title">
+              <div className={adminStyles.panelHeader}>
+                <h3 id="usuario-password-title" className={adminStyles.panelTitle}>
                   Restablecer contraseña
                 </h3>
-                <p className={styles.sectionDescription}>
+                <p className={adminStyles.panelDescription}>
                   Asigna una contraseña temporal y compártela de forma segura.
                 </p>
               </div>
@@ -257,30 +263,28 @@ export function UsuarioDetailModal({
               {passwordError ? <Alert tone="error">{passwordError}</Alert> : null}
               {passwordSuccess ? <Alert tone="success">{passwordSuccess}</Alert> : null}
 
-              <div className={usuarioStyles.passwordRow}>
-                <div className={usuarioStyles.passwordField}>
-                  <PasswordInput
-                    id="usuario-new-password"
-                    name="newPassword"
-                    label="Nueva contraseña"
-                    value={newPassword}
-                    autoComplete="new-password"
-                    onChange={(value) => {
-                      setNewPassword(value);
-                      setPasswordError(null);
-                      setPasswordSuccess(null);
-                    }}
-                  />
-                </div>
+              <div className={usuarioStyles.passwordPanel}>
+                <PasswordInput
+                  id="usuario-new-password"
+                  name="newPassword"
+                  label="Nueva contraseña"
+                  value={newPassword}
+                  autoComplete="new-password"
+                  onChange={(value) => {
+                    setNewPassword(value);
+                    setPasswordError(null);
+                    setPasswordSuccess(null);
+                  }}
+                />
 
                 <div className={usuarioStyles.passwordActions}>
                   <Button
                     type="button"
-                    variant="action"
+                    variant="success"
                     onClick={() => void handleResetPassword()}
-                    disabled={isMutating}
+                    disabled={isMutating || !newPassword.trim()}
                   >
-                    Actualizar contraseña
+                    {isMutating ? "Actualizando…" : "Actualizar contraseña"}
                   </Button>
                 </div>
               </div>

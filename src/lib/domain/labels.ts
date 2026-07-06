@@ -137,15 +137,15 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "CERRADA" ||
     value === "INACTIVA" ||
     value === "REVOCADO" ||
-    value === "VENCIDO" ||
-    value === "SIN_CONVENIO"
+    value === "VENCIDO"
   ) {
     return "error";
   }
 
   if (
     value === "CANCELADA" ||
-    value === "CANCELADO"
+    value === "CANCELADO" ||
+    value === "SIN_CONVENIO"
   ) {
     return "neutral";
   }
@@ -203,12 +203,13 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     value === "CANCELADO" ||
     value === "BAJA" ||
     value === "CERRADA" ||
-    value === "REVOCADO"
+    value === "REVOCADO" ||
+    value === "VENCIDO"
   ) {
     return "cancelled";
   }
 
-  if (value === "SUSPENDIDO" || value === "INACTIVA" || value === "VENCIDO" || value === "SIN_CONVENIO") {
+  if (value === "SUSPENDIDO" || value === "INACTIVA" || value === "SIN_CONVENIO") {
     return "draft";
   }
 

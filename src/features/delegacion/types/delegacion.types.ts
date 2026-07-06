@@ -60,6 +60,14 @@ export type HoraPendienteResponse = {
   alumnoNombre?: string;
 };
 
+export type HoraPendienteDetail = HoraPendienteResponse & {
+  fecha?: string;
+  horasRegistradas?: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
+};
+
 export type IncidenciaResponse = IncidenciaBase & {
   folioProceso?: string;
 };

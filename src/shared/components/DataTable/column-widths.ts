@@ -1,6 +1,6 @@
 import type { DataTableColumn } from "./DataTable";
 
-const STATUS_WIDTH = "10.25rem";
+const STATUS_WIDTH = "14rem";
 const ACTIONS_WIDTH = "5.5rem";
 
 export function resolveColumnWidths<T>(columns: DataTableColumn<T>[]) {

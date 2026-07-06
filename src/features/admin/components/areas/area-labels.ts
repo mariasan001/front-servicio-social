@@ -8,6 +8,10 @@ export function areaStatusLabel(activa?: boolean) {
   return "Activa";
 }
 
+export function areaActivaEstatus(activa?: boolean) {
+  return activa === false ? "INACTIVA" : "ACTIVA";
+}
+
 export function areaStatusTone(activa?: boolean): StatusBadgeTone {
   if (activa === false) {
     return "neutral";

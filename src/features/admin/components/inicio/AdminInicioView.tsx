@@ -201,42 +201,71 @@ function ConvenioDonut({ convenio }: { convenio: ConvenioBreakdown }) {
   );
 }
 
-function DependenciaAreasChart({ items }: { items: DependenciaAreaCount[] }) {
+function DependenciaAreasChart({
+  items,
+  totalAreas,
+}: {
+  items: DependenciaAreaCount[];
+  totalAreas: number;
+}) {
   if (items.length === 0) {
     return <p className={dashStyles.emptyChart}>Aún no hay áreas registradas.</p>;
   }
 
   const maxCount = Math.max(...items.map((item) => item.count));
-  const barTones = ["vino", "dorado", "verde", "vino", "dorado"] as const;
 
   return (
-    <div className={dashStyles.barList}>
-      {items.map((item, index) => {
-        const width = percent(item.count, maxCount);
+    <div
+      className={dashStyles.depAreasChart}
+      role="img"
+      aria-label={items
+        .map((item, index) => `${index + 1}. ${item.nombre}: ${item.count} áreas`)
+        .join(". ")}
+    >
+      <div className={dashStyles.depAreasList}>
+        {items.map((item, index) => {
+          const width = percent(item.count, maxCount);
+          const share = percent(item.count, totalAreas);
 
-        return (
-        <div
-          key={item.nombre}
-          className={dashStyles.barRow}
-          style={{ ["--row-index" as string]: index }}
-        >
-          <div className={dashStyles.barMeta}>
-            <span className={dashStyles.barLabel}>{item.nombre}</span>
-            <span className={dashStyles.barValue}>{item.count}</span>
-          </div>
-          <div className={dashStyles.barTrack} aria-hidden="true">
+          return (
             <div
-              className={dashStyles.barFill}
-              data-tone={barTones[index % barTones.length]}
-              style={{
-                ["--bar-width" as string]: `${width}%`,
-                ["--bar-delay" as string]: `${0.15 + index * 0.1}s`,
-              }}
-            />
-          </div>
-        </div>
-        );
-      })}
+              key={item.nombre}
+              className={dashStyles.depAreasRow}
+              style={{ ["--row-index" as string]: index }}
+            >
+              <span
+                className={dashStyles.depAreasRank}
+                data-rank={index === 0 ? "top" : "default"}
+              >
+                {index + 1}
+              </span>
+
+              <div className={dashStyles.depAreasBody}>
+                <div className={dashStyles.depAreasHead}>
+                  <p className={dashStyles.depAreasName} title={item.nombre}>
+                    {item.nombre}
+                  </p>
+                  <div className={dashStyles.depAreasMetrics}>
+                    <span className={dashStyles.depAreasCount}>{item.count}</span>
+                    <span className={dashStyles.depAreasShare}>{share}%</span>
+                  </div>
+                </div>
+
+                <div className={dashStyles.depAreasTrack} aria-hidden="true">
+                  <div
+                    className={dashStyles.depAreasFill}
+                    data-rank={index === 0 ? "top" : "default"}
+                    style={{
+                      ["--bar-width" as string]: `${width}%`,
+                      ["--bar-delay" as string]: `${0.18 + index * 0.1}s`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -310,7 +339,10 @@ export function AdminInicioView({ session, dashboard }: AdminInicioViewProps) {
                 Dependencias con mayor número de áreas receptoras.
               </p>
             </header>
-            <DependenciaAreasChart items={areasPorDependencia} />
+            <DependenciaAreasChart
+              items={areasPorDependencia}
+              totalAreas={stats.areas.total}
+            />
           </article>
         </div>
       </div>

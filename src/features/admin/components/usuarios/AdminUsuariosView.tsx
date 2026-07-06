@@ -9,13 +9,12 @@ import { UsuarioDetailModal } from "./UsuarioDetailModal";
 import { UsuarioFormModal } from "./UsuarioFormModal";
 import {
   formatRoles,
-  usuarioActivoLabel,
-  usuarioActivoTone,
+  usuarioActivoEstatus,
 } from "./usuario-labels";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -129,11 +128,7 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
       header: "Estatus",
       variant: "status",
       align: "center",
-      cell: (usuario) => (
-        <StatusBadge variant="dot" tone={usuarioActivoTone(usuario.activo)}>
-          {usuarioActivoLabel(usuario.activo)}
-        </StatusBadge>
-      ),
+      cell: (usuario) => <EstatusBadge estatus={usuarioActivoEstatus(usuario.activo)} />,
     },
     {
       id: "acciones",

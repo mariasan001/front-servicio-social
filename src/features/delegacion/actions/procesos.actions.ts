@@ -38,6 +38,7 @@ import type {
   ProcesoDocumentoResponse,
   ProcesoHoraResponse,
   ProcesoResponse,
+  HoraPendienteDetail,
   RechazarHoraRequest,
   ValidarDocumentoRequest,
   ValidarHoraRequest,
@@ -151,6 +152,38 @@ export async function rejectProcesoDocumentoAction(
   }
 
   return result;
+}
+
+export async function getHoraPendienteDetailAction(
+  idProceso: number,
+  idAsistencia: number,
+): Promise<ActionResult<HoraPendienteDetail>> {
+  return runServerAction(async () => {
+    let horas: Awaited<ReturnType<typeof listProcesoHoras>> = [];
+
+    try {
+      horas = await listProcesoHoras(idProceso);
+    } catch {
+      throw new Error("DETALLE_HORA_NO_DISPONIBLE");
+    }
+
+    const hora = horas.find((item) => item.idAsistencia === idAsistencia);
+
+    if (!hora) {
+      throw new Error("DETALLE_HORA_NO_DISPONIBLE");
+    }
+
+    return {
+      idProceso,
+      idAsistencia: hora.idAsistencia,
+      estatus: hora.estatus,
+      fecha: hora.fecha,
+      horasRegistradas: hora.horasRegistradas,
+      horaEntrada: hora.horaEntrada,
+      horaSalida: hora.horaSalida,
+      descripcionActividades: hora.descripcionActividades,
+    };
+  }, "No pudimos cargar el detalle del registro de horas.");
 }
 
 export async function validateProcesoHoraAction(

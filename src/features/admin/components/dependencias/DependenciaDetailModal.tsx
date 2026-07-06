@@ -10,14 +10,15 @@ import {
 } from "../../actions/dependencias.actions";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaFormModal } from "./DependenciaFormModal";
-import dependenciaStyles from "./DependenciaDetailModal.module.css";
-import { areaStatusLabel, areaStatusTone, formatFecha } from "../areas/area-labels";
+import { areaActivaEstatus, formatFecha } from "../areas/area-labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
+import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
+import adminStyles from "../shared/AdminDetailContent.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DependenciaDetailModalProps = {
@@ -88,7 +89,7 @@ export function DependenciaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={styles.footer}>
+            <div className={adminStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -122,59 +123,67 @@ export function DependenciaDetailModal({
 
         {detail ? (
           <div
-            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            className={[
+              styles.layout,
+              heroStyles.modalBody,
+              isReloading && styles.layoutBusy,
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-busy={isReloading}
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
-            <div className={styles.summaryBar}>
-              <div className={styles.avatar} aria-hidden="true">
-                <Building2 size={18} strokeWidth={1.75} />
-              </div>
 
-              <div className={styles.summaryMeta}>
-                <p className={styles.summaryPrimary}>
+            <div className={heroStyles.modalHero}>
+              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+                <Building2 size={22} strokeWidth={1.75} />
+              </span>
+              <div className={heroStyles.modalHeroCopy}>
+                <p className={heroStyles.modalHeroTitle}>
                   {siglas || clave || detail.nombre}
                 </p>
-                <p className={styles.summarySecondary}>
-                  {clave && siglas
-                    ? `Clave ${clave}`
-                    : clave
-                      ? "Dependencia receptora"
-                      : siglas
-                        ? "Dependencia receptora"
-                        : "Sin clave registrada"}
+                <p className={heroStyles.modalHeroSubtitle}>
+                  {clave ? `Clave ${clave}` : detail.nombre}
                 </p>
+                <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
               </div>
-
-              <StatusBadge tone={areaStatusTone(detail.activa)}>
-                {areaStatusLabel(detail.activa)}
-              </StatusBadge>
             </div>
 
-            <div className={styles.infoPanel}>
-              <dl className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <dt>Fecha de registro</dt>
-                  <dd>{formatFecha(detail.fechaCreacion)}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Última actualización</dt>
-                  <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
-                </div>
-              </dl>
-
-              <div className={dependenciaStyles.descriptionBlock}>
-                <p className={dependenciaStyles.descriptionLabel}>Descripción</p>
-                <p
-                  className={
-                    descripcion
-                      ? dependenciaStyles.descriptionValue
-                      : dependenciaStyles.descriptionEmpty
-                  }
-                >
-                  {descripcion || "Sin descripción registrada."}
-                </p>
+            <dl className={heroStyles.metaList}>
+              <div className={heroStyles.metaRow}>
+                <dt>Nombre oficial</dt>
+                <dd>{detail.nombre}</dd>
               </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Siglas</dt>
+                <dd>{siglas || "Sin siglas registradas"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Clave</dt>
+                <dd>{clave || "Sin clave registrada"}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Fecha de registro</dt>
+                <dd>{formatFecha(detail.fechaCreacion)}</dd>
+              </div>
+              <div className={heroStyles.metaRow}>
+                <dt>Última actualización</dt>
+                <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
+              </div>
+            </dl>
+
+            <div className={heroStyles.narrativeSection}>
+              <p className={heroStyles.narrativeLabel}>Descripción</p>
+              <p
+                className={[
+                  heroStyles.narrativeValue,
+                  !descripcion && heroStyles.narrativeEmpty,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {descripcion || "Sin descripción registrada."}
+              </p>
             </div>
           </div>
         ) : null}

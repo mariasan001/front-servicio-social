@@ -1,14 +1,14 @@
 "use client";
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { createAreaAction, updateAreaAction } from "../../actions/areas.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { AreaResponse } from "../../types/area.types";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
-import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
+import { FormField, SearchableSelect, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import styles from "@/shared/styles/PanelFormModal.module.css";
@@ -43,7 +43,6 @@ const EMPTY_VALUES: FormValues = {
 function buildInitialValues(
   mode: AreaFormModalProps["mode"],
   area: AreaResponse | null | undefined,
-  dependencias: DependenciaResponse[],
 ): FormValues {
   if (mode === "edit" && area) {
     return {
@@ -58,7 +57,6 @@ function buildInitialValues(
 
   return {
     ...EMPTY_VALUES,
-    dependenciaId: dependencias[0] ? String(dependencias[0].idDependencia) : "",
   };
 }
 
@@ -70,12 +68,23 @@ function AreaFormModalContent({
   onSuccess,
 }: Omit<AreaFormModalProps, "open">) {
   const router = usePanelRouter();
-  const [values, setValues] = useState(() => buildInitialValues(mode, area, dependencias));
+  const [values, setValues] = useState(() => buildInitialValues(mode, area));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const dependenciaOptions = useMemo(
+    () =>
+      dependencias
+        .map((dependencia) => ({
+          value: String(dependencia.idDependencia),
+          label: dependencia.nombre,
+        }))
+        .sort((left, right) => left.label.localeCompare(right.label, "es")),
+    [dependencias],
+  );
 
   const updateField = (field: keyof FormValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
@@ -144,7 +153,7 @@ function AreaFormModalContent({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="area-form" variant="action" disabled={isSubmitting}>
+          <Button type="submit" form="area-form" variant="success" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : mode === "create"
@@ -161,21 +170,17 @@ function AreaFormModalContent({
           <p className={styles.formSectionTitle}>Información general</p>
           <div className={styles.formGrid}>
           <div className={styles.formGridFull}>
-            <SelectInput
+            <SearchableSelect
               id="area-dependencia"
               label="Dependencia"
               required
-              placeholder="Selecciona una dependencia"
+              placeholder="Selecciona o busca dependencia"
               value={values.dependenciaId}
               error={fieldErrors.dependenciaId}
-              onChange={(event) => updateField("dependenciaId", event.target.value)}
-            >
-              {dependencias.map((dependencia) => (
-                <option key={dependencia.idDependencia} value={dependencia.idDependencia}>
-                  {dependencia.nombre}
-                </option>
-              ))}
-            </SelectInput>
+              options={dependenciaOptions}
+              emptyMessage="No hay dependencias registradas."
+              onChange={(nextValue) => updateField("dependenciaId", nextValue)}
+            />
           </div>
 
           <div className={styles.formGridFull}>

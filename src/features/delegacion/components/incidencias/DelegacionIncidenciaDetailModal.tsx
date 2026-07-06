@@ -158,7 +158,7 @@ export function DelegacionIncidenciaDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="action"
+                    variant="primary"
                     disabled={isMutating}
                     onClick={async () => {
                       if (!comentario.trim()) {

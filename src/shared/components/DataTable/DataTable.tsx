@@ -102,7 +102,7 @@ export function DataTableToolbarAction({
   ...props
 }: DataTableToolbarActionProps) {
   return (
-    <Button variant="action" className={joinClassNames(styles.toolbarAction, className)} {...props}>
+    <Button variant="primary" className={joinClassNames(styles.toolbarAction, className)} {...props}>
       {children}
     </Button>
   );

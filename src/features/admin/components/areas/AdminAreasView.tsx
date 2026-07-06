@@ -8,13 +8,12 @@ import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { AreaDetailModal } from "./AreaDetailModal";
 import { AreaFormModal } from "./AreaFormModal";
 import {
-  areaStatusLabel,
-  areaStatusTone,
+  areaActivaEstatus,
 } from "./area-labels";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -110,11 +109,7 @@ export function AdminAreasView({
       variant: "status",
       width: "10%",
       align: "center",
-      cell: (area) => (
-        <StatusBadge variant="dot" tone={areaStatusTone(area.activa)}>
-          {areaStatusLabel(area.activa)}
-        </StatusBadge>
-      ),
+      cell: (area) => <EstatusBadge estatus={areaActivaEstatus(area.activa)} />,
     },
     {
       id: "acciones",

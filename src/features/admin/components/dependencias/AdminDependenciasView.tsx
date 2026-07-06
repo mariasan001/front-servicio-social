@@ -5,11 +5,11 @@ import { Building2, CheckCircle2, Eye, Plus, Search } from "lucide-react";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaDetailModal } from "./DependenciaDetailModal";
 import { DependenciaFormModal } from "./DependenciaFormModal";
-import { areaStatusLabel, areaStatusTone } from "../areas/area-labels";
+import { areaActivaEstatus } from "../areas/area-labels";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -78,9 +78,7 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
       variant: "status",
       align: "center",
       cell: (dependencia) => (
-        <StatusBadge variant="dot" tone={areaStatusTone(dependencia.activa)}>
-          {areaStatusLabel(dependencia.activa)}
-        </StatusBadge>
+        <EstatusBadge estatus={areaActivaEstatus(dependencia.activa)} />
       ),
     },
     {

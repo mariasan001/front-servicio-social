@@ -5,11 +5,11 @@ import { CheckCircle2, Eye, GraduationCap, Plus, Search } from "lucide-react";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import { EscuelaDetailModal } from "./EscuelaDetailModal";
 import { EscuelaFormModal } from "./EscuelaFormModal";
-import { escuelaEstatusTone, formatEtiqueta } from "./escuela-labels";
+import { formatEtiqueta } from "./escuela-labels";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, DataTableToolbarAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -107,11 +107,7 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
       header: "Estatus",
       variant: "status",
       align: "center",
-      cell: (escuela) => (
-        <StatusBadge variant="dot" tone={escuelaEstatusTone(escuela.estatus)}>
-          {formatEtiqueta(escuela.estatus, "Sin estatus")}
-        </StatusBadge>
-      ),
+      cell: (escuela) => <EstatusBadge estatus={escuela.estatus} fallback="Sin estatus" />,
     },
     {
       id: "convenio",
@@ -119,9 +115,7 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
       variant: "status",
       align: "center",
       cell: (escuela) => (
-        <StatusBadge variant="dot" tone={escuelaEstatusTone(escuela.convenioEstatus)}>
-          {formatEtiqueta(escuela.convenioEstatus, "Sin convenio")}
-        </StatusBadge>
+        <EstatusBadge estatus={escuela.convenioEstatus} fallback="Sin convenio" />
       ),
     },
     {
