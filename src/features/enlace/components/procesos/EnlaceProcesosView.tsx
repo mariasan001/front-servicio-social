@@ -70,7 +70,7 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       cell: (alumno) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Ver proceso"
+            label="Ver detalle"
             icon={FolderOpen}
             onClick={() => setSelectedProcesoId(alumno.procesoId ?? null)}
             disabled={!alumno.procesoId}

@@ -10,6 +10,8 @@ import {
   Timer,
 } from "lucide-react";
 import type { AuthUser } from "@/lib/api/types";
+import { ChartEmptyState } from "@/shared/components/ChartEmptyState";
+import { DashboardDonut, DashboardRankedBarChart } from "@/shared/components/DashboardChart";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -21,193 +23,70 @@ type TitularInicioViewProps = {
   dashboard: TitularInicioDashboardData;
 };
 
-function percent(value: number, total: number) {
-  if (total <= 0) {
-    return 0;
-  }
-
-  return Math.round((value / total) * 100);
-}
-
-const DONUT_RADIUS = 58;
-const DONUT_STROKE = 18;
-const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
-
-type DonutArc = {
-  color: string;
-  length: number;
-  rotation: number;
-  delay: number;
-};
-
-function buildDonutArcs(values: { value: number; color: string }[]): DonutArc[] {
-  const total = values.reduce((sum, item) => sum + item.value, 0);
-  let rotation = -90;
-
-  return values
-    .map((item, index) => {
-      const length = total > 0 ? (item.value / total) * DONUT_CIRCUMFERENCE : 0;
-      const arc = {
-        color: item.color,
-        length,
-        rotation,
-        delay: 0.12 + index * 0.22,
-      };
-
-      rotation += (length / DONUT_CIRCUMFERENCE) * 360;
-
-      return arc;
-    })
-    .filter((arc) => arc.length > 0.5);
-}
-
 function VacanteEstatusDonut({ breakdown }: { breakdown: VacanteEstatusBreakdown }) {
-  const total =
-    breakdown.enCaptura + breakdown.enRevision + breakdown.publicadas + breakdown.cerradas;
-
-  if (total === 0) {
-    return (
-      <div className={dashStyles.emptyChartState}>
-        <p className={dashStyles.emptyChartTitle}>Sin vacantes registradas</p>
-        <p className={dashStyles.emptyChartHint}>
-          Crea tu primera vacante en la sección Vacantes para comenzar a recibir postulaciones en tu
-          área.
-        </p>
-      </div>
-    );
-  }
-
   const segments = [
     {
       id: "captura",
       label: "En captura",
       count: breakdown.enCaptura,
-      percent: percent(breakdown.enCaptura, total),
       color: "var(--vacante-captura)",
       icon: Briefcase,
-      iconClass: dashStyles.convenioIconVencido,
+      iconTone: "vencido" as const,
+      accentBorder: true,
     },
     {
       id: "revision",
       label: "En revisión",
       count: breakdown.enRevision,
-      percent: percent(breakdown.enRevision, total),
       color: "var(--vacante-revision)",
       icon: Timer,
-      iconClass: dashStyles.convenioIconSin,
+      iconTone: "sin" as const,
+      accentBorder: true,
     },
     {
       id: "publicadas",
       label: "Publicadas",
       count: breakdown.publicadas,
-      percent: percent(breakdown.publicadas, total),
       color: "var(--vacante-publicada)",
       icon: CheckCircle2,
-      iconClass: dashStyles.convenioIconVigente,
+      iconTone: "vigente" as const,
+      accentBorder: true,
     },
     {
       id: "cerradas",
       label: "Cerradas",
       count: breakdown.cerradas,
-      percent: percent(breakdown.cerradas, total),
       color: "var(--vacante-cerrada)",
       icon: CircleOff,
-      iconClass: dashStyles.convenioIconSin,
+      iconTone: "sin" as const,
+      accentBorder: true,
     },
-  ].filter((segment) => segment.count > 0);
-
-  const arcs = buildDonutArcs(
-    segments.map((segment) => ({ value: segment.count, color: segment.color })),
-  );
+  ]
+    .filter((segment) => segment.count > 0)
+    .map((segment) => ({
+      ...segment,
+      countLabel: `${segment.count} ${segment.count === 1 ? "vacante" : "vacantes"}`,
+    }));
 
   return (
-    <div
-      className={dashStyles.convenioChart}
+    <DashboardDonut
+      segments={segments}
+      centerLabel="Vacantes"
+      ariaLabel={`Vacantes: ${breakdown.enCaptura} en captura, ${breakdown.enRevision} en revisión, ${breakdown.publicadas} publicadas y ${breakdown.cerradas} cerradas.`}
+      className={dashStyles.procesoPipelineChart}
       style={{
         ["--vacante-captura" as string]: "#b8956a",
         ["--vacante-revision" as string]: "#6b2340",
         ["--vacante-publicada" as string]: "#3a5c47",
         ["--vacante-cerrada" as string]: "#d4d4d4",
       }}
-    >
-      <div
-        className={dashStyles.convenioVisual}
-        role="img"
-        aria-label={`Vacantes: ${breakdown.enCaptura} en captura, ${breakdown.enRevision} en revisión, ${breakdown.publicadas} publicadas y ${breakdown.cerradas} cerradas.`}
-      >
-        <div className={dashStyles.convenioStage}>
-          <div className={dashStyles.convenioRings} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-
-          <div className={dashStyles.convenioDonutWrap}>
-            <svg className={dashStyles.convenioSvg} viewBox="0 0 160 160" aria-hidden="true">
-              <circle
-                className={dashStyles.donutTrack}
-                cx="80"
-                cy="80"
-                r={DONUT_RADIUS}
-                fill="none"
-                strokeWidth={DONUT_STROKE}
-              />
-              {arcs.map((arc, index) => (
-                <circle
-                  key={index}
-                  className={dashStyles.donutArc}
-                  cx="80"
-                  cy="80"
-                  r={DONUT_RADIUS}
-                  fill="none"
-                  stroke={arc.color}
-                  strokeWidth={DONUT_STROKE}
-                  strokeLinecap="round"
-                  style={{
-                    ["--arc-length" as string]: `${arc.length}`,
-                    ["--arc-delay" as string]: `${arc.delay}s`,
-                    transform: `rotate(${arc.rotation}deg)`,
-                    transformOrigin: "80px 80px",
-                  }}
-                />
-              ))}
-            </svg>
-            <div className={dashStyles.convenioHole}>
-              <span className={dashStyles.convenioTotal}>{total}</span>
-              <span className={dashStyles.convenioTotalLabel}>Vacantes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={`${dashStyles.convenioMetrics} ${dashStyles.convenioMetricsFour}`}>
-        {segments.map((segment, index) => {
-          const Icon = segment.icon;
-
-          return (
-            <div
-              key={segment.id}
-              className={dashStyles.convenioMetric}
-              style={{
-                borderTop: `2px solid ${segment.color}`,
-                ["--metric-index" as string]: index,
-              }}
-            >
-              <div className={dashStyles.convenioMetricHead}>
-                <span className={`${dashStyles.convenioIcon} ${segment.iconClass}`}>
-                  <Icon size={13} strokeWidth={1.75} aria-hidden="true" />
-                </span>
-                <span className={dashStyles.convenioMetricLabel}>{segment.label}</span>
-              </div>
-              <span className={dashStyles.convenioMetricValue}>{segment.percent}%</span>
-              <span className={dashStyles.convenioMetricCount}>
-                {segment.count} {segment.count === 1 ? "vacante" : "vacantes"}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      emptyState={
+        <ChartEmptyState
+          title="Sin vacantes registradas"
+          description="Crea tu primera vacante en la sección Vacantes para comenzar a recibir postulaciones en tu área."
+        />
+      }
+    />
   );
 }
 
@@ -216,50 +95,20 @@ function PostulacionEstatusChart({
 }: {
   items: TitularInicioDashboardData["postulacionesPorEstatus"];
 }) {
-  if (items.length === 0) {
-    return (
-      <div className={dashStyles.emptyChartState}>
-        <p className={dashStyles.emptyChartTitle}>Sin postulaciones aún</p>
-        <p className={dashStyles.emptyChartHint}>
-          Cuando publiques vacantes y los alumnos se postulen, aquí verás cuántas hay en cada
-          estatus.
-        </p>
-      </div>
-    );
-  }
-
-  const maxCount = Math.max(...items.map((item) => item.count));
-  const barTones = ["vino", "dorado", "verde", "vino", "dorado"] as const;
-
   return (
-    <div className={dashStyles.barList}>
-      {items.map((item, index) => {
-        const width = percent(item.count, maxCount);
-
-        return (
-          <div
-            key={item.nombre}
-            className={dashStyles.barRow}
-            style={{ ["--row-index" as string]: index }}
-          >
-            <div className={dashStyles.barMeta}>
-              <span className={dashStyles.barLabel}>{item.nombre}</span>
-              <span className={dashStyles.barValue}>{item.count}</span>
-            </div>
-            <div className={dashStyles.barTrack} aria-hidden="true">
-              <div
-                className={dashStyles.barFill}
-                data-tone={barTones[index % barTones.length]}
-                style={{
-                  ["--bar-width" as string]: `${width}%`,
-                  ["--bar-delay" as string]: `${0.15 + index * 0.1}s`,
-                }}
-              />
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <DashboardRankedBarChart
+      items={items.map((item) => ({
+        id: item.nombre,
+        label: item.nombre,
+        count: item.count,
+      }))}
+      emptyState={
+        <ChartEmptyState
+          title="Sin postulaciones aún"
+          description="Cuando publiques vacantes y los alumnos se postulen, aquí verás cuántas hay en cada estatus."
+        />
+      }
+    />
   );
 }
 

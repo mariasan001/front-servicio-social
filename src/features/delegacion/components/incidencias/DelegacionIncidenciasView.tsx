@@ -48,7 +48,7 @@ export function DelegacionIncidenciasView({
       variant: "actions",
       cell: (incidencia) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver incidencia" icon={Eye} onClick={() => setSelected(incidencia)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(incidencia)} />
         </DataTableActions>
       ),
     },

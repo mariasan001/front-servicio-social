@@ -9,3 +9,7 @@ export {
   type DataTableColumnVariant,
 } from "./DataTable";
 export { DataTablePagination } from "./DataTablePagination";
+export {
+  DataTableRowMenu,
+  type DataTableRowMenuOption,
+} from "./DataTableRowMenu";

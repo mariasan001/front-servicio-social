@@ -1,4 +1,5 @@
 import type { AlumnoBase, ProcesoBase } from "@/lib/domain";
+export type { CartaMetadataResponse, DocumentoEstatusResponse } from "@/lib/domain";
 
 export type DashboardResumenResponse = {
   totalAlumnos?: number;
@@ -52,22 +53,6 @@ export type HorasResumenResponse = {
   horasPendientes?: number;
   porcentajeAvance?: number;
   estatusProceso?: string;
-};
-
-export type DocumentoEstatusResponse = {
-  idProcesoDocumento: number;
-  tipoDocumento?: string;
-  nombreDocumento?: string;
-  estatus?: string;
-  obligatorio?: boolean;
-};
-
-export type CartaMetadataResponse = {
-  idCarta: number;
-  tipoCarta?: string;
-  folio?: string;
-  estatus?: string;
-  fechaEmision?: string;
 };
 
 export type ReporteAlumnoResponse = {

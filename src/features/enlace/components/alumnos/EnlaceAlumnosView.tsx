@@ -94,7 +94,7 @@ export function EnlaceAlumnosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
       align: "center",
       cell: (alumno) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelected(alumno)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(alumno)} />
         </DataTableActions>
       ),
     },

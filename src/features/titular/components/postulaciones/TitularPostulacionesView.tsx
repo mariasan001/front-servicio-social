@@ -92,7 +92,7 @@ export function TitularPostulacionesView({
       cell: (postulacion) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Ver postulación"
+            label="Ver detalle"
             icon={Eye}
             onClick={() => setSelected(postulacion)}
           />

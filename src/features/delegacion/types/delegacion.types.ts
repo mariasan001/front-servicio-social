@@ -218,6 +218,8 @@ export type {
   ObservarHoraRequest,
 } from "@/lib/domain";
 
+export type { CartaMetadataResponse } from "@/lib/domain";
+
 export type NormalizarEscuelaRequest = {
   escuelaId: number;
 };
@@ -227,12 +229,4 @@ export type CrearEscuelaYNormalizarRequest = {
   clave?: string;
   municipio?: string;
   observacion?: string;
-};
-
-export type CartaMetadataResponse = {
-  idCarta: number;
-  tipoCarta?: string;
-  folio?: string;
-  estatus?: string;
-  fechaEmision?: string;
 };

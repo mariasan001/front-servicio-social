@@ -27,8 +27,7 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
-import adminStyles from "../shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type EscuelaDetailModalProps = {
   escuelaId: number | null;
@@ -173,7 +172,7 @@ export function EscuelaDetailModal({
         size="lg"
         footer={
           escuela ? (
-            <div className={adminStyles.footerActions}>
+            <div className={detailStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -196,7 +195,7 @@ export function EscuelaDetailModal({
           <div
             className={[
               styles.layout,
-              heroStyles.modalBody,
+              detailStyles.modalBody,
               isReloading && styles.layoutBusy,
             ]
               .filter(Boolean)
@@ -205,64 +204,64 @@ export function EscuelaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={heroStyles.modalHero}>
-              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+            <div className={detailStyles.modalHero}>
+              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
                 <GraduationCap size={22} strokeWidth={1.75} />
               </span>
-              <div className={heroStyles.modalHeroCopy}>
-                <p className={heroStyles.modalHeroTitle}>
+              <div className={detailStyles.modalHeroCopy}>
+                <p className={detailStyles.modalHeroTitle}>
                   {nombreCorto || escuela.nombreOficial}
                 </p>
-                <p className={heroStyles.modalHeroSubtitle}>
+                <p className={detailStyles.modalHeroSubtitle}>
                   {clave ? `Clave ${clave}` : escuela.municipio?.trim() || "Sin municipio registrado"}
                 </p>
-                <div className={adminStyles.heroBadges}>
+                <div className={detailStyles.heroBadges}>
                   <EstatusBadge estatus={escuela.estatus} fallback="Sin estatus" />
                   <EstatusBadge estatus={escuela.convenioEstatus} fallback="Sin convenio" />
                 </div>
               </div>
             </div>
 
-            <dl className={heroStyles.metaList}>
-              <div className={heroStyles.metaRow}>
+            <dl className={detailStyles.metaList}>
+              <div className={detailStyles.metaRow}>
                 <dt>Institución</dt>
                 <dd>{escuela.nombreOficial}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Municipio</dt>
                 <dd>{escuela.municipio?.trim() || "Sin municipio registrado"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Correo de contacto</dt>
                 <dd>{escuela.correoContacto?.trim() || "Sin correo registrado"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Teléfono</dt>
                 <dd>{escuela.telefono?.trim() || "Sin teléfono registrado"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Clave de registro</dt>
                 <dd>{clave || "Sin clave registrada"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Domicilio</dt>
                 <dd>{escuela.domicilio?.trim() || "Sin domicilio registrado"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Última actualización</dt>
                 <dd>{formatFecha(escuela.fechaActualizacion ?? escuela.fechaCreacion)}</dd>
               </div>
             </dl>
 
             <section
-              className={adminStyles.contentPanel}
+              className={detailStyles.contentPanel}
               aria-labelledby="escuela-invitaciones-title"
             >
-              <div className={adminStyles.panelHeader}>
-                <h3 id="escuela-invitaciones-title" className={adminStyles.panelTitle}>
+              <div className={detailStyles.panelHeader}>
+                <h3 id="escuela-invitaciones-title" className={detailStyles.panelTitle}>
                   Invitaciones de registro
                 </h3>
-                <p className={adminStyles.panelDescription}>
+                <p className={detailStyles.panelDescription}>
                   Enlaces para que los alumnos se registren vinculados a esta institución.
                 </p>
               </div>

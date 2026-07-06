@@ -1,5 +1,11 @@
 import { Building2, CircleOff, FileCheck2, Layers, School, TimerOff, Users } from "lucide-react";
 import type { AuthUser } from "@/lib/api/types";
+import { ChartEmptyState } from "@/shared/components/ChartEmptyState";
+import {
+  DashboardDonut,
+  DashboardRankedBarChart,
+  type DashboardDonutSegment,
+} from "@/shared/components/DashboardChart";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -15,189 +21,53 @@ type AdminInicioViewProps = {
   dashboard: AdminInicioDashboardData;
 };
 
-function percent(value: number, total: number) {
-  if (total <= 0) {
-    return 0;
-  }
-
-  return Math.round((value / total) * 100);
-}
-
-type ConvenioSegment = {
-  id: string;
-  label: string;
-  count: number;
-  percent: number;
-  tone: "sin" | "vigente" | "vencido";
-};
-
-const DONUT_RADIUS = 58;
-const DONUT_STROKE = 18;
-const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
-
-type DonutArc = {
-  color: string;
-  length: number;
-  rotation: number;
-  delay: number;
-};
-
-function buildDonutArcs(
-  sin: number,
-  vigente: number,
-  vencido: number,
-): DonutArc[] {
-  const total = sin + vigente + vencido;
-  const items = [
-    { value: sin, color: "var(--convenio-sin)" },
-    { value: vigente, color: "var(--convenio-vigente)" },
-    { value: vencido, color: "var(--convenio-vencido)" },
-  ];
-
-  let rotation = -90;
-
-  return items
-    .map((item, index) => {
-      const length = total > 0 ? (item.value / total) * DONUT_CIRCUMFERENCE : 0;
-      const arc = {
-        color: item.color,
-        length,
-        rotation,
-        delay: 0.12 + index * 0.22,
-      };
-
-      rotation += (length / DONUT_CIRCUMFERENCE) * 360;
-
-      return arc;
-    })
-    .filter((arc) => arc.length > 0.5);
-}
-
-function ConvenioDonut({ convenio }: { convenio: ConvenioBreakdown }) {
-  const total = convenio.sinConvenio + convenio.vigente + convenio.vencido;
-
-  if (total === 0) {
-    return <p className={dashStyles.emptyChart}>Aún no hay escuelas registradas.</p>;
-  }
-
-  const arcs = buildDonutArcs(convenio.sinConvenio, convenio.vigente, convenio.vencido);
-
-  const segments: ConvenioSegment[] = [
+function buildConvenioSegments(convenio: ConvenioBreakdown): DashboardDonutSegment[] {
+  return [
     {
       id: "sin",
       label: "Sin convenio",
       count: convenio.sinConvenio,
-      percent: percent(convenio.sinConvenio, total),
-      tone: "sin",
+      color: "var(--convenio-sin)",
+      icon: CircleOff,
+      iconTone: "sin",
+      countLabel: `${convenio.sinConvenio} ${convenio.sinConvenio === 1 ? "escuela" : "escuelas"}`,
     },
     {
       id: "vigente",
       label: "Vigente",
       count: convenio.vigente,
-      percent: percent(convenio.vigente, total),
-      tone: "vigente",
+      color: "var(--convenio-vigente)",
+      icon: FileCheck2,
+      iconTone: "vigente",
+      countLabel: `${convenio.vigente} ${convenio.vigente === 1 ? "escuela" : "escuelas"}`,
     },
     {
       id: "vencido",
       label: "Vencido",
       count: convenio.vencido,
-      percent: percent(convenio.vencido, total),
-      tone: "vencido",
+      color: "var(--convenio-vencido)",
+      icon: TimerOff,
+      iconTone: "vencido",
+      countLabel: `${convenio.vencido} ${convenio.vencido === 1 ? "escuela" : "escuelas"}`,
     },
   ];
+}
 
-  const iconToneClass = {
-    sin: dashStyles.convenioIconSin,
-    vigente: dashStyles.convenioIconVigente,
-    vencido: dashStyles.convenioIconVencido,
-  } as const;
-
-  const icons = {
-    sin: CircleOff,
-    vigente: FileCheck2,
-    vencido: TimerOff,
-  } as const;
+function ConvenioDonut({ convenio }: { convenio: ConvenioBreakdown }) {
+  const segments = buildConvenioSegments(convenio);
 
   return (
-    <div className={dashStyles.convenioChart}>
-      <div
-        className={dashStyles.convenioVisual}
-        role="img"
-        aria-label={`Convenios: ${convenio.sinConvenio} sin convenio, ${convenio.vigente} vigentes y ${convenio.vencido} vencidos.`}
-      >
-        <div className={dashStyles.convenioStage}>
-          <div className={dashStyles.convenioRings} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-
-          <div className={dashStyles.convenioDonutWrap}>
-            <svg
-              className={dashStyles.convenioSvg}
-              viewBox="0 0 160 160"
-              aria-hidden="true"
-            >
-              <circle
-                className={dashStyles.donutTrack}
-                cx="80"
-                cy="80"
-                r={DONUT_RADIUS}
-                fill="none"
-                strokeWidth={DONUT_STROKE}
-              />
-              {arcs.map((arc, index) => (
-                <circle
-                  key={index}
-                  className={dashStyles.donutArc}
-                  cx="80"
-                  cy="80"
-                  r={DONUT_RADIUS}
-                  fill="none"
-                  stroke={arc.color}
-                  strokeWidth={DONUT_STROKE}
-                  strokeLinecap="round"
-                  style={{
-                    ["--arc-length" as string]: `${arc.length}`,
-                    ["--arc-delay" as string]: `${arc.delay}s`,
-                    transform: `rotate(${arc.rotation}deg)`,
-                    transformOrigin: "80px 80px",
-                  }}
-                />
-              ))}
-            </svg>
-            <div className={dashStyles.convenioHole}>
-              <span className={dashStyles.convenioTotal}>{total}</span>
-              <span className={dashStyles.convenioTotalLabel}>Escuelas</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={dashStyles.convenioMetrics}>
-        {segments.map((segment, index) => {
-          const Icon = icons[segment.tone];
-
-          return (
-            <div
-              key={segment.id}
-              className={dashStyles.convenioMetric}
-              data-tone={segment.tone}
-              style={{ ["--metric-index" as string]: index }}
-            >
-              <div className={dashStyles.convenioMetricHead}>
-                <span className={`${dashStyles.convenioIcon} ${iconToneClass[segment.tone]}`}>
-                  <Icon size={13} strokeWidth={1.75} aria-hidden="true" />
-                </span>
-                <span className={dashStyles.convenioMetricLabel}>{segment.label}</span>
-              </div>
-              <span className={dashStyles.convenioMetricValue}>{segment.percent}%</span>
-              <span className={dashStyles.convenioMetricCount}>{segment.count} escuelas</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <DashboardDonut
+      segments={segments}
+      centerLabel="Escuelas"
+      ariaLabel={`Convenios: ${convenio.sinConvenio} sin convenio, ${convenio.vigente} vigentes y ${convenio.vencido} vencidos.`}
+      emptyState={
+        <ChartEmptyState
+          title="Sin escuelas registradas"
+          description="Cuando registres instituciones educativas, aquí verás el estado de sus convenios."
+        />
+      }
+    />
   );
 }
 
@@ -208,65 +78,25 @@ function DependenciaAreasChart({
   items: DependenciaAreaCount[];
   totalAreas: number;
 }) {
-  if (items.length === 0) {
-    return <p className={dashStyles.emptyChart}>Aún no hay áreas registradas.</p>;
-  }
-
-  const maxCount = Math.max(...items.map((item) => item.count));
-
   return (
-    <div
-      className={dashStyles.depAreasChart}
-      role="img"
-      aria-label={items
+    <DashboardRankedBarChart
+      items={items.map((item) => ({
+        id: item.nombre,
+        label: item.nombre,
+        count: item.count,
+      }))}
+      totalForShare={totalAreas}
+      showShare
+      ariaLabel={items
         .map((item, index) => `${index + 1}. ${item.nombre}: ${item.count} áreas`)
         .join(". ")}
-    >
-      <div className={dashStyles.depAreasList}>
-        {items.map((item, index) => {
-          const width = percent(item.count, maxCount);
-          const share = percent(item.count, totalAreas);
-
-          return (
-            <div
-              key={item.nombre}
-              className={dashStyles.depAreasRow}
-              style={{ ["--row-index" as string]: index }}
-            >
-              <span
-                className={dashStyles.depAreasRank}
-                data-rank={index === 0 ? "top" : "default"}
-              >
-                {index + 1}
-              </span>
-
-              <div className={dashStyles.depAreasBody}>
-                <div className={dashStyles.depAreasHead}>
-                  <p className={dashStyles.depAreasName} title={item.nombre}>
-                    {item.nombre}
-                  </p>
-                  <div className={dashStyles.depAreasMetrics}>
-                    <span className={dashStyles.depAreasCount}>{item.count}</span>
-                    <span className={dashStyles.depAreasShare}>{share}%</span>
-                  </div>
-                </div>
-
-                <div className={dashStyles.depAreasTrack} aria-hidden="true">
-                  <div
-                    className={dashStyles.depAreasFill}
-                    data-rank={index === 0 ? "top" : "default"}
-                    style={{
-                      ["--bar-width" as string]: `${width}%`,
-                      ["--bar-delay" as string]: `${0.18 + index * 0.1}s`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      emptyState={
+        <ChartEmptyState
+          title="Sin áreas registradas"
+          description="Cuando registres áreas receptoras en las dependencias, aquí verás el ranking por volumen."
+        />
+      }
+    />
   );
 }
 

@@ -72,21 +72,7 @@ export type HorasResumenResponse = {
   porcentajeAvance?: number;
 };
 
-export type DocumentoEstatusResponse = {
-  idProcesoDocumento: number;
-  tipoDocumento?: string;
-  nombreDocumento?: string;
-  estatus?: string;
-  obligatorio?: boolean;
-};
-
-export type CartaMetadataResponse = {
-  idCarta: number;
-  tipoCarta?: string;
-  folio?: string;
-  estatus?: string;
-  fechaEmision?: string;
-};
+export type { CartaMetadataResponse, DocumentoEstatusResponse } from "@/lib/domain";
 
 export type IncidenciaResponse = IncidenciaBase & {
   descripcion?: string;

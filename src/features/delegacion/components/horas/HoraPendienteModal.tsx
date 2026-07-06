@@ -19,7 +19,7 @@ import {
   canValidateHora,
   isHoraPendienteRevision,
 } from "@/lib/domain/horas";
-import adminStyles from "@/features/admin/components/shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
@@ -29,7 +29,6 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
 
 function formatHoraValue(value?: string) {
   if (!value?.trim()) {
@@ -155,7 +154,7 @@ export function HoraPendienteModal({
       size="lg"
       footer={
         detail && canReview ? (
-          <div className={adminStyles.footerActions}>
+          <div className={detailStyles.footerActions}>
             {canValidateHora(detail.estatus) ? (
               <Button
                 type="button"
@@ -206,53 +205,53 @@ export function HoraPendienteModal({
 
       {detail ? (
         <div
-          className={[styles.layout, heroStyles.modalBody, isReloading && styles.layoutBusy]
+          className={[styles.layout, detailStyles.modalBody, isReloading && styles.layoutBusy]
             .filter(Boolean)
             .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={heroStyles.modalHero}>
-            <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+          <div className={detailStyles.modalHero}>
+            <span className={detailStyles.modalHeroIcon} aria-hidden="true">
               <Clock3 size={22} strokeWidth={1.75} />
             </span>
-            <div className={heroStyles.modalHeroCopy}>
-              <p className={heroStyles.modalHeroTitle}>
+            <div className={detailStyles.modalHeroCopy}>
+              <p className={detailStyles.modalHeroTitle}>
                 {alumnoNombre || "Sin alumno registrado"}
               </p>
-              <p className={heroStyles.modalHeroSubtitle}>
+              <p className={detailStyles.modalHeroSubtitle}>
                 Proceso #{detail.idProceso} · Registro #{detail.idAsistencia}
               </p>
               <EstatusBadge estatus={detail.estatus} />
             </div>
           </div>
 
-          <dl className={heroStyles.metaList}>
-            <div className={heroStyles.metaRow}>
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
               <dt>Fecha del registro</dt>
               <dd>{formatFecha(detail.fecha) || "Sin fecha registrada"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Horas registradas</dt>
               <dd>{formatHorasRegistradas(detail.horasRegistradas)}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Entrada</dt>
               <dd>{formatHoraValue(detail.horaEntrada)}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Salida</dt>
               <dd>{formatHoraValue(detail.horaSalida)}</dd>
             </div>
           </dl>
 
-          <div className={heroStyles.narrativeSection}>
-            <p className={heroStyles.narrativeLabel}>Actividades realizadas</p>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Actividades realizadas</p>
             <p
               className={[
-                heroStyles.narrativeValue,
-                !descripcion && heroStyles.narrativeEmpty,
+                detailStyles.narrativeValue,
+                !descripcion && detailStyles.narrativeEmpty,
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -263,14 +262,14 @@ export function HoraPendienteModal({
 
           {canReview ? (
             <section
-              className={adminStyles.contentPanel}
+              className={detailStyles.contentPanel}
               aria-labelledby="hora-revision-title"
             >
-              <div className={adminStyles.panelHeader}>
-                <h3 id="hora-revision-title" className={adminStyles.panelTitle}>
+              <div className={detailStyles.panelHeader}>
+                <h3 id="hora-revision-title" className={detailStyles.panelTitle}>
                   Revisar registro
                 </h3>
-                <p className={adminStyles.panelDescription}>
+                <p className={detailStyles.panelDescription}>
                   Valida, observa o rechaza el registro enviado por el alumno. Las acciones se
                   aplican con el botón correspondiente al pie del modal.
                 </p>

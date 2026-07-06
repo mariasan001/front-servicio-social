@@ -86,7 +86,7 @@ export function DelegacionDocumentosView({
       variant: "actions",
       cell: (documento) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver documento" icon={Eye} onClick={() => setSelected(documento)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(documento)} />
         </DataTableActions>
       ),
     },

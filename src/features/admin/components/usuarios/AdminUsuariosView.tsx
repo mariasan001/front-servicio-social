@@ -138,7 +138,7 @@ export function AdminUsuariosView({ usuarios, escuelas }: AdminUsuariosViewProps
       cell: (usuario) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Ver información"
+            label="Ver detalle"
             icon={Eye}
             onClick={() => setSelectedUsuario(usuario)}
           />

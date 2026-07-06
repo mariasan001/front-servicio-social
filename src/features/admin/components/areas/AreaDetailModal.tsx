@@ -23,8 +23,7 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
-import adminStyles from "../shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { areaActivaEstatus, formatContacto, formatFecha } from "./area-labels";
 
 type AreaDetailModalProps = {
@@ -187,7 +186,7 @@ export function AreaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={adminStyles.footerActions}>
+            <div className={detailStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -221,7 +220,7 @@ export function AreaDetailModal({
           <div
             className={[
               styles.layout,
-              heroStyles.modalBody,
+              detailStyles.modalBody,
               isReloading && styles.layoutBusy,
             ]
               .filter(Boolean)
@@ -230,50 +229,50 @@ export function AreaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={heroStyles.modalHero}>
-              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+            <div className={detailStyles.modalHero}>
+              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
                 <LayoutGrid size={22} strokeWidth={1.75} />
               </span>
-              <div className={heroStyles.modalHeroCopy}>
-                <p className={heroStyles.modalHeroTitle}>
+              <div className={detailStyles.modalHeroCopy}>
+                <p className={detailStyles.modalHeroTitle}>
                   {dependenciaNombre || detail.nombre}
                 </p>
-                <p className={heroStyles.modalHeroSubtitle}>
+                <p className={detailStyles.modalHeroSubtitle}>
                   {ubicacion || "Sin ubicación registrada"}
                 </p>
                 <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
               </div>
             </div>
 
-            <dl className={heroStyles.metaList}>
-              <div className={heroStyles.metaRow}>
+            <dl className={detailStyles.metaList}>
+              <div className={detailStyles.metaRow}>
                 <dt>Área</dt>
                 <dd>{detail.nombre}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Dependencia</dt>
                 <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Ubicación</dt>
                 <dd>{ubicacion || "Sin ubicación registrada"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Contacto</dt>
                 <dd>{formatContacto(detail.correoContacto, detail.telefonoContacto)}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Última actualización</dt>
                 <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
               </div>
             </dl>
 
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Descripción</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Descripción</p>
               <p
                 className={[
-                  heroStyles.narrativeValue,
-                  !descripcion && heroStyles.narrativeEmpty,
+                  detailStyles.narrativeValue,
+                  !descripcion && detailStyles.narrativeEmpty,
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -283,17 +282,17 @@ export function AreaDetailModal({
             </div>
 
             <section
-              className={adminStyles.contentPanel}
+              className={detailStyles.contentPanel}
               aria-labelledby="area-titulares-title"
             >
-              <div className={adminStyles.panelHeader}>
-                <div className={adminStyles.panelTitleRow}>
-                  <h3 id="area-titulares-title" className={adminStyles.panelTitle}>
+              <div className={detailStyles.panelHeader}>
+                <div className={detailStyles.panelTitleRow}>
+                  <h3 id="area-titulares-title" className={detailStyles.panelTitle}>
                     Personas titulares
                   </h3>
-                  <span className={adminStyles.countBadge}>{titularesActivos.length}</span>
+                  <span className={detailStyles.countBadge}>{titularesActivos.length}</span>
                 </div>
-                <p className={adminStyles.panelDescription}>
+                <p className={detailStyles.panelDescription}>
                   Responsables asignados a esta área.
                 </p>
               </div>

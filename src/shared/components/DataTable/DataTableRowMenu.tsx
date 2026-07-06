@@ -3,11 +3,12 @@
 import { EllipsisVertical } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  TITULAR_PROCESO_SECTION_OPTIONS,
-  type TitularProcesoModalSection,
-} from "./titular-proceso-sections";
-import styles from "./TitularProcesoActionMenu.module.css";
+import styles from "./DataTableRowMenu.module.css";
+
+export type DataTableRowMenuOption<T extends string = string> = {
+  id: T;
+  label: string;
+};
 
 type MenuPlacement = "up" | "down";
 
@@ -17,14 +18,18 @@ type MenuPosition = {
   placement: MenuPlacement;
 };
 
-const MENU_ESTIMATED_HEIGHT = TITULAR_PROCESO_SECTION_OPTIONS.length * 36 + 12;
+type DataTableRowMenuProps<T extends string> = {
+  options: DataTableRowMenuOption<T>[];
+  onSelect: (id: T) => void;
+  ariaLabel?: string;
+};
 
-function getMenuPosition(trigger: HTMLButtonElement): MenuPosition {
+function getMenuPosition(trigger: HTMLButtonElement, estimatedHeight: number): MenuPosition {
   const rect = trigger.getBoundingClientRect();
   const spaceBelow = window.innerHeight - rect.bottom;
   const spaceAbove = rect.top;
   const placement =
-    spaceBelow < MENU_ESTIMATED_HEIGHT && spaceAbove > spaceBelow ? "up" : "down";
+    spaceBelow < estimatedHeight && spaceAbove > spaceBelow ? "up" : "down";
 
   return {
     top: placement === "down" ? rect.bottom + 4 : rect.top - 4,
@@ -33,17 +38,18 @@ function getMenuPosition(trigger: HTMLButtonElement): MenuPosition {
   };
 }
 
-export function TitularProcesoActionMenu({
+export function DataTableRowMenu<T extends string>({
+  options,
   onSelect,
-}: {
-  onSelect: (section: TitularProcesoModalSection) => void;
-}) {
+  ariaLabel = "Acciones",
+}: DataTableRowMenuProps<T>) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
+  const estimatedHeight = options.length * 36 + 12;
 
   useEffect(() => {
     setMounted(true);
@@ -60,7 +66,7 @@ export function TitularProcesoActionMenu({
         return;
       }
 
-      setMenuPosition(getMenuPosition(triggerRef.current));
+      setMenuPosition(getMenuPosition(triggerRef.current, estimatedHeight));
     };
 
     updatePosition();
@@ -71,7 +77,7 @@ export function TitularProcesoActionMenu({
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [open]);
+  }, [estimatedHeight, open]);
 
   useEffect(() => {
     if (!open) {
@@ -120,7 +126,7 @@ export function TitularProcesoActionMenu({
           left: menuPosition.left,
         }}
       >
-        {TITULAR_PROCESO_SECTION_OPTIONS.map((option) => (
+        {options.map((option) => (
           <button
             key={option.id}
             type="button"
@@ -143,7 +149,7 @@ export function TitularProcesoActionMenu({
         ref={triggerRef}
         type="button"
         className={styles.trigger}
-        aria-label="Opciones del proceso"
+        aria-label={ariaLabel}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}

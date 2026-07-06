@@ -89,7 +89,7 @@ export function AdminDependenciasView({ dependencias }: AdminDependenciasViewPro
       cell: (dependencia) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Ver información"
+            label="Ver detalle"
             icon={Eye}
             onClick={() => setSelectedDependencia(dependencia)}
           />

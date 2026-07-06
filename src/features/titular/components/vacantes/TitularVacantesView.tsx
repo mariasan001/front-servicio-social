@@ -92,7 +92,7 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
       variant: "actions",
       cell: (vacante) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver vacante" icon={Eye} onClick={() => setSelected(vacante)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(vacante)} />
         </DataTableActions>
       ),
     },

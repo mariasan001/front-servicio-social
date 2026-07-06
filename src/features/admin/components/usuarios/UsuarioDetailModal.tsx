@@ -19,7 +19,7 @@ import {
   formatUsername,
   usuarioActivoEstatus,
 } from "./usuario-labels";
-import adminStyles from "../shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import usuarioStyles from "./UsuarioDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -29,7 +29,6 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
 
 type UsuarioDetailModalProps = {
   usuarioId: number | null;
@@ -138,7 +137,7 @@ export function UsuarioDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={adminStyles.footerActions}>
+            <div className={detailStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -172,7 +171,7 @@ export function UsuarioDetailModal({
           <div
             className={[
               styles.layout,
-              heroStyles.modalBody,
+              detailStyles.modalBody,
               isReloading && styles.layoutBusy,
             ]
               .filter(Boolean)
@@ -181,56 +180,56 @@ export function UsuarioDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={heroStyles.modalHero}>
-              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+            <div className={detailStyles.modalHero}>
+              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
                 <User size={22} strokeWidth={1.75} />
               </span>
-              <div className={heroStyles.modalHeroCopy}>
-                <p className={heroStyles.modalHeroTitle}>
+              <div className={detailStyles.modalHeroCopy}>
+                <p className={detailStyles.modalHeroTitle}>
                   {cargo || formatRoles(detail.roles)}
                 </p>
-                <p className={heroStyles.modalHeroSubtitle}>{username}</p>
+                <p className={detailStyles.modalHeroSubtitle}>{username}</p>
                 <EstatusBadge estatus={usuarioActivoEstatus(detail.activo)} />
               </div>
             </div>
 
-            <dl className={heroStyles.metaList}>
-              <div className={heroStyles.metaRow}>
+            <dl className={detailStyles.metaList}>
+              <div className={detailStyles.metaRow}>
                 <dt>Nombre</dt>
                 <dd>{detail.nombreCompleto}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Usuario de acceso</dt>
                 <dd>{username}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Correo electrónico</dt>
                 <dd>{detail.correo}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Teléfono</dt>
                 <dd>{detail.telefono?.trim() || "Sin teléfono registrado"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Escuela vinculada</dt>
                 <dd>{detail.escuelaNombre?.trim() || "No aplica"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Puede descargar cartas</dt>
                 <dd>{formatSiNo(detail.puedeDescargarCartas)}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Última actualización</dt>
                 <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
               </div>
             </dl>
 
-            <section className={adminStyles.contentPanel} aria-labelledby="usuario-perfiles-title">
-              <div className={adminStyles.panelHeader}>
-                <h3 id="usuario-perfiles-title" className={adminStyles.panelTitle}>
+            <section className={detailStyles.contentPanel} aria-labelledby="usuario-perfiles-title">
+              <div className={detailStyles.panelHeader}>
+                <h3 id="usuario-perfiles-title" className={detailStyles.panelTitle}>
                   Perfiles asignados
                 </h3>
-                <p className={adminStyles.panelDescription}>
+                <p className={detailStyles.panelDescription}>
                   Roles y permisos asignados a esta cuenta.
                 </p>
               </div>
@@ -250,12 +249,12 @@ export function UsuarioDetailModal({
               )}
             </section>
 
-            <section className={adminStyles.contentPanel} aria-labelledby="usuario-password-title">
-              <div className={adminStyles.panelHeader}>
-                <h3 id="usuario-password-title" className={adminStyles.panelTitle}>
+            <section className={detailStyles.contentPanel} aria-labelledby="usuario-password-title">
+              <div className={detailStyles.panelHeader}>
+                <h3 id="usuario-password-title" className={detailStyles.panelTitle}>
                   Restablecer contraseña
                 </h3>
-                <p className={adminStyles.panelDescription}>
+                <p className={detailStyles.panelDescription}>
                   Asigna una contraseña temporal y compártela de forma segura.
                 </p>
               </div>

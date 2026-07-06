@@ -3,12 +3,15 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/titular.types";
-import { TitularProcesoActionMenu } from "./TitularProcesoActionMenu";
 import { TitularProcesoDetailModal } from "./TitularProcesoDetailModal";
-import type { TitularProcesoModalSection } from "./titular-proceso-sections";
+import {
+  TITULAR_PROCESO_SECTION_OPTIONS,
+  type TitularProcesoModalSection,
+} from "./titular-proceso-sections";
 import {
   DataTable,
   DataTableActions,
+  DataTableRowMenu,
   DataTableToolbar,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
@@ -76,7 +79,9 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
       variant: "actions",
       cell: (proceso) => (
         <DataTableActions>
-          <TitularProcesoActionMenu
+          <DataTableRowMenu
+            options={TITULAR_PROCESO_SECTION_OPTIONS}
+            ariaLabel="Opciones del proceso"
             onSelect={(section) => setSelected({ proceso, section })}
           />
         </DataTableActions>

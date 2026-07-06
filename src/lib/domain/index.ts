@@ -6,6 +6,7 @@ export type {
   ProcesoBase,
   VacanteBase,
 } from "./types";
+export type { CartaMetadataResponse, DocumentoEstatusResponse } from "./api-responses";
 export { estatusBadgeIcon, estatusTone, formatEtiqueta, formatFecha, formatSiNo } from "./labels";
 export {
   cartaTipoIncludes,

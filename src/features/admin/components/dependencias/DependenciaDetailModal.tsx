@@ -17,8 +17,7 @@ import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModal
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
-import adminStyles from "../shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
 type DependenciaDetailModalProps = {
@@ -89,7 +88,7 @@ export function DependenciaDetailModal({
         size="lg"
         footer={
           detail ? (
-            <div className={adminStyles.footerActions}>
+            <div className={detailStyles.footerActions}>
               <Button
                 type="button"
                 variant="outline"
@@ -125,7 +124,7 @@ export function DependenciaDetailModal({
           <div
             className={[
               styles.layout,
-              heroStyles.modalBody,
+              detailStyles.modalBody,
               isReloading && styles.layoutBusy,
             ]
               .filter(Boolean)
@@ -134,50 +133,50 @@ export function DependenciaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={heroStyles.modalHero}>
-              <span className={heroStyles.modalHeroIcon} aria-hidden="true">
+            <div className={detailStyles.modalHero}>
+              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
                 <Building2 size={22} strokeWidth={1.75} />
               </span>
-              <div className={heroStyles.modalHeroCopy}>
-                <p className={heroStyles.modalHeroTitle}>
+              <div className={detailStyles.modalHeroCopy}>
+                <p className={detailStyles.modalHeroTitle}>
                   {siglas || clave || detail.nombre}
                 </p>
-                <p className={heroStyles.modalHeroSubtitle}>
+                <p className={detailStyles.modalHeroSubtitle}>
                   {clave ? `Clave ${clave}` : detail.nombre}
                 </p>
                 <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
               </div>
             </div>
 
-            <dl className={heroStyles.metaList}>
-              <div className={heroStyles.metaRow}>
+            <dl className={detailStyles.metaList}>
+              <div className={detailStyles.metaRow}>
                 <dt>Nombre oficial</dt>
                 <dd>{detail.nombre}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Siglas</dt>
                 <dd>{siglas || "Sin siglas registradas"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Clave</dt>
                 <dd>{clave || "Sin clave registrada"}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Fecha de registro</dt>
                 <dd>{formatFecha(detail.fechaCreacion)}</dd>
               </div>
-              <div className={heroStyles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Última actualización</dt>
                 <dd>{formatFecha(detail.fechaActualizacion ?? detail.fechaCreacion)}</dd>
               </div>
             </dl>
 
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Descripción</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Descripción</p>
               <p
                 className={[
-                  heroStyles.narrativeValue,
-                  !descripcion && heroStyles.narrativeEmpty,
+                  detailStyles.narrativeValue,
+                  !descripcion && detailStyles.narrativeEmpty,
                 ]
                   .filter(Boolean)
                   .join(" ")}

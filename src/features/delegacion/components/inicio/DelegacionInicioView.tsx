@@ -17,10 +17,12 @@ import type {
   LiberacionPendienteCartaResponse,
   NotificacionCorreoResponse,
 } from "../../types/delegacion.types";
+import { ChartEmptyState } from "@/shared/components/ChartEmptyState";
+import { DashboardDonut, DashboardRankedBarChart } from "@/shared/components/DashboardChart";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
-import adminStyles from "@/features/admin/components/shared/AdminDetailContent.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import dashStyles from "@/shared/styles/PanelDashboard.module.css";
 import { buildColaOperativa, buildProcesoPipeline } from "./delegacion-inicio.utils";
@@ -31,18 +33,6 @@ type DelegacionInicioViewProps = {
   liberacionesPendientes: LiberacionPendienteCartaResponse[];
   notificacionesRecientes: NotificacionCorreoResponse[];
 };
-
-function percent(value: number, total: number) {
-  if (total <= 0) {
-    return 0;
-  }
-
-  return Math.round((value / total) * 100);
-}
-
-const DONUT_RADIUS = 58;
-const DONUT_STROKE = 18;
-const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
 
 const PROCESO_COLORS: Record<string, string> = {
   activos: "var(--proceso-activo)",
@@ -58,197 +48,67 @@ const PROCESO_ICONS = {
   cerrados: CircleOff,
 } as const;
 
-function buildDonutArcs(values: { value: number; color: string }[]) {
-  const total = values.reduce((sum, item) => sum + item.value, 0);
-  let rotation = -90;
-
-  return values
-    .map((item, index) => {
-      const length = total > 0 ? (item.value / total) * DONUT_CIRCUMFERENCE : 0;
-      const arc = {
-        color: item.color,
-        length,
-        rotation,
-        delay: 0.12 + index * 0.22,
-      };
-
-      rotation += (length / DONUT_CIRCUMFERENCE) * 360;
-
-      return arc;
-    })
-    .filter((arc) => arc.length > 0.5);
-}
-
 function ProcesosPipelineDonut({ dashboard }: { dashboard: DashboardResponse }) {
-  const segments = buildProcesoPipeline(dashboard);
-  const total = segments.reduce((sum, segment) => sum + segment.count, 0);
+  const pipeline = buildProcesoPipeline(dashboard);
+  const segments = pipeline.map((segment) => {
+    const Icon = PROCESO_ICONS[segment.id as keyof typeof PROCESO_ICONS] ?? Activity;
 
-  if (total === 0) {
-    return (
-      <div className={dashStyles.emptyChartState}>
-        <p className={dashStyles.emptyChartTitle}>Sin procesos registrados</p>
-        <p className={dashStyles.emptyChartHint}>
-          Cuando haya alumnos en servicio social activo, aquí verás el avance del programa.
-        </p>
-      </div>
-    );
-  }
-
-  const arcs = buildDonutArcs(
-    segments.map((segment) => ({
-      value: segment.count,
+    return {
+      id: segment.id,
+      label: segment.label,
+      count: segment.count,
       color: PROCESO_COLORS[segment.id] ?? "var(--color-gris-400)",
-    })),
-  );
+      icon: Icon,
+      iconTone:
+        segment.id === "liberados"
+          ? ("vigente" as const)
+          : segment.id === "cerrados"
+            ? ("sin" as const)
+            : ("vencido" as const),
+      countLabel: `${segment.count} ${segment.count === 1 ? "proceso" : "procesos"}`,
+    };
+  });
 
   return (
-    <div
-      className={`${dashStyles.convenioChart} ${dashStyles.procesoPipelineChart}`}
+    <DashboardDonut
+      segments={segments}
+      centerLabel="Procesos"
+      ariaLabel={segments.map((segment) => `${segment.label}: ${segment.count}`).join(". ")}
+      showRings={false}
+      className={dashStyles.procesoPipelineChart}
       style={{
         ["--proceso-activo" as string]: "var(--color-vino)",
         ["--proceso-listo" as string]: "var(--color-dorado-dark)",
         ["--proceso-liberado" as string]: "#3a5c47",
         ["--proceso-cerrado" as string]: "#9ca3af",
       }}
-    >
-      <div
-        className={dashStyles.convenioVisual}
-        role="img"
-        aria-label={segments.map((segment) => `${segment.label}: ${segment.count}`).join(". ")}
-      >
-        <div className={dashStyles.convenioStage}>
-          <div className={dashStyles.convenioDonutWrap}>
-            <svg className={dashStyles.convenioSvg} viewBox="0 0 160 160" aria-hidden="true">
-              <circle
-                className={dashStyles.donutTrack}
-                cx="80"
-                cy="80"
-                r={DONUT_RADIUS}
-                fill="none"
-                strokeWidth={DONUT_STROKE}
-              />
-              {arcs.map((arc, index) => (
-                <circle
-                  key={index}
-                  className={dashStyles.donutArc}
-                  cx="80"
-                  cy="80"
-                  r={DONUT_RADIUS}
-                  fill="none"
-                  stroke={arc.color}
-                  strokeWidth={DONUT_STROKE}
-                  strokeLinecap="round"
-                  style={{
-                    ["--arc-length" as string]: `${arc.length}`,
-                    ["--arc-delay" as string]: `${arc.delay}s`,
-                    transform: `rotate(${arc.rotation}deg)`,
-                    transformOrigin: "80px 80px",
-                  }}
-                />
-              ))}
-            </svg>
-            <div className={dashStyles.convenioHole}>
-              <span className={dashStyles.convenioTotal}>{total}</span>
-              <span className={dashStyles.convenioTotalLabel}>Procesos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={`${dashStyles.convenioMetrics} ${
-          segments.length > 3 ? dashStyles.convenioMetricsFour : ""
-        }`}
-      >
-        {segments.map((segment, index) => {
-          const Icon = PROCESO_ICONS[segment.id as keyof typeof PROCESO_ICONS] ?? Activity;
-
-          return (
-            <div
-              key={segment.id}
-              className={dashStyles.convenioMetric}
-              data-tone={segment.id === "liberados" ? "vigente" : segment.id === "cerrados" ? "sin" : "vencido"}
-              style={{ ["--metric-index" as string]: index }}
-            >
-              <div className={dashStyles.convenioMetricHead}>
-                <span className={`${dashStyles.convenioIcon} ${dashStyles.convenioIconVigente}`}>
-                  <Icon size={13} strokeWidth={1.75} aria-hidden="true" />
-                </span>
-                <span className={dashStyles.convenioMetricLabel}>{segment.label}</span>
-              </div>
-              <span className={dashStyles.convenioMetricValue}>
-                {percent(segment.count, total)}%
-              </span>
-              <span className={dashStyles.convenioMetricCount}>
-                {segment.count} {segment.count === 1 ? "proceso" : "procesos"}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      emptyState={
+        <ChartEmptyState
+          title="Sin procesos registrados"
+          description="Cuando haya alumnos en servicio social activo, aquí verás el avance del programa."
+        />
+      }
+    />
   );
 }
 
 function ColaOperativaChart({ dashboard }: { dashboard: DashboardResponse }) {
   const items = buildColaOperativa(dashboard);
 
-  if (items.length === 0) {
-    return (
-      <div className={dashStyles.emptyChartState}>
-        <p className={dashStyles.emptyChartTitle}>Cola al día</p>
-        <p className={dashStyles.emptyChartHint}>
-          No hay postulaciones, documentos ni liberaciones pendientes de atención en este momento.
-        </p>
-      </div>
-    );
-  }
-
-  const maxCount = Math.max(...items.map((item) => item.count));
-
   return (
-    <div className={dashStyles.depAreasChart}>
-      <div className={dashStyles.depAreasList}>
-        {items.map((item, index) => {
-          const width = percent(item.count, maxCount);
-
-          return (
-            <div
-              key={item.id}
-              className={dashStyles.depAreasRow}
-              style={{ ["--row-index" as string]: index }}
-            >
-              <span
-                className={dashStyles.depAreasRank}
-                data-rank={index === 0 ? "top" : "default"}
-              >
-                {index + 1}
-              </span>
-
-              <div className={dashStyles.depAreasBody}>
-                <div className={dashStyles.depAreasHead}>
-                  <p className={dashStyles.depAreasName}>{item.label}</p>
-                  <div className={dashStyles.depAreasMetrics}>
-                    <span className={dashStyles.depAreasCount}>{item.count}</span>
-                  </div>
-                </div>
-
-                <div className={dashStyles.depAreasTrack} aria-hidden="true">
-                  <div
-                    className={dashStyles.depAreasFill}
-                    data-rank={index === 0 ? "top" : "default"}
-                    style={{
-                      ["--bar-width" as string]: `${width}%`,
-                      ["--bar-delay" as string]: `${0.18 + index * 0.1}s`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <DashboardRankedBarChart
+      items={items.map((item) => ({
+        id: item.id,
+        label: item.label,
+        count: item.count,
+      }))}
+      emptyState={
+        <ChartEmptyState
+          title="Cola al día"
+          description="No hay postulaciones, documentos ni liberaciones pendientes de atención en este momento."
+        />
+      }
+    />
   );
 }
 
@@ -337,17 +197,17 @@ export function DelegacionInicioView({
 
         {liberacionesPendientes.length > 0 ? (
           <section
-            className={adminStyles.contentPanel}
+            className={detailStyles.contentPanel}
             aria-labelledby="liberaciones-pendientes-title"
           >
-            <div className={adminStyles.panelHeader}>
-              <div className={adminStyles.panelTitleRow}>
-                <h2 id="liberaciones-pendientes-title" className={adminStyles.panelTitle}>
+            <div className={detailStyles.panelHeader}>
+              <div className={detailStyles.panelTitleRow}>
+                <h2 id="liberaciones-pendientes-title" className={detailStyles.panelTitle}>
                   Liberaciones pendientes de carta
                 </h2>
-                <span className={adminStyles.countBadge}>{liberacionesPendientes.length}</span>
+                <span className={detailStyles.countBadge}>{liberacionesPendientes.length}</span>
               </div>
-              <p className={adminStyles.panelDescription}>
+              <p className={detailStyles.panelDescription}>
                 Procesos que requieren emisión de carta.{" "}
                 <Link href={`${PANEL_PATHS.delegacion}/procesos`}>Ir a procesos</Link>
               </p>
@@ -379,17 +239,17 @@ export function DelegacionInicioView({
 
         {notificacionesRecientes.length > 0 ? (
           <section
-            className={adminStyles.contentPanel}
+            className={detailStyles.contentPanel}
             aria-labelledby="notificaciones-correo-title"
           >
-            <div className={adminStyles.panelHeader}>
-              <div className={adminStyles.panelTitleRow}>
-                <h2 id="notificaciones-correo-title" className={adminStyles.panelTitle}>
+            <div className={detailStyles.panelHeader}>
+              <div className={detailStyles.panelTitleRow}>
+                <h2 id="notificaciones-correo-title" className={detailStyles.panelTitle}>
                   Notificaciones por correo
                 </h2>
-                <span className={adminStyles.countBadge}>{notificacionesRecientes.length}</span>
+                <span className={detailStyles.countBadge}>{notificacionesRecientes.length}</span>
               </div>
-              <p className={adminStyles.panelDescription}>Últimos envíos registrados en el sistema.</p>
+              <p className={detailStyles.panelDescription}>Últimos envíos registrados en el sistema.</p>
             </div>
 
             <ul className={dashStyles.depAreasList}>

@@ -37,7 +37,7 @@ export function DelegacionHorasView({ horas }: { horas: HoraPendienteResponse[] 
       variant: "actions",
       cell: (hora) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver registro" icon={Eye} onClick={() => setSelected(hora)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(hora)} />
         </DataTableActions>
       ),
     },

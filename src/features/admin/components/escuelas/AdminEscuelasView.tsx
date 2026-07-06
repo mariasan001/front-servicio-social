@@ -126,7 +126,7 @@ export function AdminEscuelasView({ escuelas }: AdminEscuelasViewProps) {
       cell: (escuela) => (
         <DataTableActions>
           <DataTableIconAction
-            label="Ver información"
+            label="Ver detalle"
             icon={Eye}
             onClick={() => setSelectedEscuela(escuela)}
           />

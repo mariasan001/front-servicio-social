@@ -4,10 +4,10 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Eye, Search } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/titular.types";
 import { TitularIncidenciaDetailModal } from "./TitularIncidenciaDetailModal";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatEtiqueta } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
@@ -46,12 +46,10 @@ export function TitularIncidenciasView({
     {
       id: "estatus",
       header: "Estatus",
+      variant: "status",
+      width: "14rem",
       align: "center",
-      cell: (incidencia) => (
-        <StatusBadge variant="dot" tone={estatusTone(incidencia.estatus)}>
-          {formatEtiqueta(incidencia.estatus)}
-        </StatusBadge>
-      ),
+      cell: (incidencia) => <EstatusBadge estatus={incidencia.estatus} />,
     },
     {
       id: "acciones",

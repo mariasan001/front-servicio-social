@@ -4,12 +4,15 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ProcesoResponse } from "../../types/delegacion.types";
 import { formatHorasProceso } from "@/lib/domain/proceso";
-import { DelegacionProcesoActionMenu } from "./DelegacionProcesoActionMenu";
 import { DelegacionProcesoDetailModal } from "./DelegacionProcesoDetailModal";
-import type { DelegacionProcesoModalSection } from "./delegacion-proceso-sections";
+import {
+  DELEGACION_PROCESO_SECTION_OPTIONS,
+  type DelegacionProcesoModalSection,
+} from "./delegacion-proceso-sections";
 import {
   DataTable,
   DataTableActions,
+  DataTableRowMenu,
   DataTableToolbar,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
@@ -83,7 +86,9 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
       variant: "actions",
       cell: (proceso) => (
         <DataTableActions>
-          <DelegacionProcesoActionMenu
+          <DataTableRowMenu
+            options={DELEGACION_PROCESO_SECTION_OPTIONS}
+            ariaLabel="Opciones del proceso"
             onSelect={(section) => setSelected({ proceso, section })}
           />
         </DataTableActions>

@@ -119,7 +119,7 @@ export function AdminAreasView({
       align: "center",
       cell: (area) => (
         <DataTableActions>
-          <DataTableIconAction label="Ver información" icon={Eye} onClick={() => setSelectedArea(area)} />
+          <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelectedArea(area)} />
         </DataTableActions>
       ),
     },
