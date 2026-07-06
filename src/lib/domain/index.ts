@@ -59,7 +59,10 @@ export {
   canPublishVacanteDelegacion,
   canRejectVacanteDelegacion,
   canSendVacanteToReview,
+  getModalidadTrabajoLabel,
   isVacantePendienteRevision,
+  MODALIDAD_TRABAJO_OPTIONS,
+  type ModalidadTrabajoValue,
 } from "./vacante";
 export { normalizeDomainCode, readEntityEstatus } from "./status";
 export type {

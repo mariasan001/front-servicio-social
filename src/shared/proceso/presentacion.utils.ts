@@ -1,11 +1,22 @@
-import type { CartaMetadataResponse, ProcesoDocumentoResponse, ProcesoHoraResponse } from "../../types/delegacion.types";
+import type { CartaMetadataResponse, DocumentoEstatusResponse } from "@/lib/domain";
 import { calcularHorasEntre, formatEtiqueta } from "@/lib/domain";
 
-export function resolveDocumentoNombre(documento: ProcesoDocumentoResponse) {
-  return documento.nombreDocumento?.trim() || formatEtiqueta(documento.tipoDocumento, "Documento");
+type DocumentoLike = Pick<DocumentoEstatusResponse, "nombreDocumento" | "tipoDocumento">;
+
+type HoraRegistradaLike = {
+  horasRegistradas?: number | null;
+  horaEntrada?: string | null;
+  horaSalida?: string | null;
+};
+
+export function resolveDocumentoNombre(documento: DocumentoLike, fallback = "Documento") {
+  return (
+    documento.nombreDocumento?.trim() ||
+    formatEtiqueta(documento.tipoDocumento, fallback)
+  );
 }
 
-export function resolveFileTypeLabel(documento: ProcesoDocumentoResponse) {
+export function resolveFileTypeLabel(documento: DocumentoLike) {
   const haystack = `${documento.nombreDocumento ?? ""} ${documento.tipoDocumento ?? ""}`.toLowerCase();
 
   if (haystack.includes("pdf")) return "PDF";
@@ -15,7 +26,7 @@ export function resolveFileTypeLabel(documento: ProcesoDocumentoResponse) {
   return "DOC";
 }
 
-export function resolveCartaLabel(carta: CartaMetadataResponse) {
+export function resolveCartaLabel(carta: Pick<CartaMetadataResponse, "tipoCarta">) {
   return formatEtiqueta(carta.tipoCarta, "Carta");
 }
 
@@ -27,7 +38,7 @@ export function resolveCartaBadgeLabel(tipoCarta?: string) {
   return "PDF";
 }
 
-export function resolveHorasRegistradas(hora: ProcesoHoraResponse): number | null {
+export function resolveHorasRegistradas(hora: HoraRegistradaLike): number | null {
   if (hora.horasRegistradas != null && Number.isFinite(hora.horasRegistradas)) {
     return hora.horasRegistradas;
   }

@@ -22,11 +22,11 @@ import escuelaStyles from "./EscuelaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, TextInput } from "@/shared/components/Form";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type EscuelaDetailModalProps = {
@@ -194,9 +194,9 @@ export function EscuelaDetailModal({
         {escuela ? (
           <div
             className={[
-              styles.layout,
+              detailStyles.layout,
               detailStyles.modalBody,
-              isReloading && styles.layoutBusy,
+              isReloading && detailStyles.layoutBusy,
             ]
               .filter(Boolean)
               .join(" ")}
@@ -204,23 +204,19 @@ export function EscuelaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={detailStyles.modalHero}>
-              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
-                <GraduationCap size={22} strokeWidth={1.75} />
-              </span>
-              <div className={detailStyles.modalHeroCopy}>
-                <p className={detailStyles.modalHeroTitle}>
-                  {nombreCorto || escuela.nombreOficial}
-                </p>
-                <p className={detailStyles.modalHeroSubtitle}>
-                  {clave ? `Clave ${clave}` : escuela.municipio?.trim() || "Sin municipio registrado"}
-                </p>
-                <div className={detailStyles.heroBadges}>
+            <DetailModalHero
+              icon={GraduationCap}
+              title={nombreCorto || escuela.nombreOficial}
+              subtitle={
+                clave ? `Clave ${clave}` : escuela.municipio?.trim() || "Sin municipio registrado"
+              }
+              badges={
+                <>
                   <EstatusBadge estatus={escuela.estatus} fallback="Sin estatus" />
                   <EstatusBadge estatus={escuela.convenioEstatus} fallback="Sin convenio" />
-                </div>
-              </div>
-            </div>
+                </>
+              }
+            />
 
             <dl className={detailStyles.metaList}>
               <div className={detailStyles.metaRow}>
@@ -405,7 +401,7 @@ export function EscuelaDetailModal({
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  className={styles.dangerButton}
+                                  className={detailStyles.dangerButton}
                                   disabled={isMutating}
                                   onClick={() =>
                                     void handleTokenAction("revoke", invitacion.idToken)

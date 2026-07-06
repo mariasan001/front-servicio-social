@@ -12,30 +12,21 @@ import { canAlumnoSubirDocumento, estatusTone, formatEtiqueta } from "@/lib/doma
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import {
+  DocumentoGestionModal,
+  resolveDocumentoNombre,
+  resolveFileTypeLabel,
+  validateUploadFile,
+} from "@/shared/proceso";
+import fileCardStyles from "@/shared/proceso/ProcesoFileCard.module.css";
 import { AlumnoProcesoLayout } from "./AlumnoProcesoLayout";
 import styles from "./AlumnoProcesoDocumentosView.module.css";
-import { DocumentoGestionModal } from "./DocumentoGestionModal";
-import { validateUploadFile } from "./DocumentoUploadField";
 
 type AlumnoProcesoDocumentosViewProps = {
   proceso: ProcesoDetalleResponse;
   documentos: DocumentoEstatusResponse[];
   firstName: string;
 };
-
-function resolveDocumentoNombre(documento: DocumentoEstatusResponse) {
-  return documento.nombreDocumento?.trim() || documento.tipoDocumento?.trim() || "Documento";
-}
-
-function resolveFileTypeLabel(documento: DocumentoEstatusResponse) {
-  const haystack = `${documento.nombreDocumento ?? ""} ${documento.tipoDocumento ?? ""}`.toLowerCase();
-
-  if (haystack.includes("pdf")) return "PDF";
-  if (haystack.includes("excel") || haystack.includes("xls")) return "XLS";
-  if (haystack.includes("jpg") || haystack.includes("jpeg") || haystack.includes("png")) return "IMG";
-  if (haystack.includes("word") || haystack.includes("doc")) return "DOC";
-  return "DOC";
-}
 
 export function AlumnoProcesoDocumentosView({
   proceso,
@@ -117,7 +108,7 @@ export function AlumnoProcesoDocumentosView({
             <p>No hay documentos pendientes en tu proceso.</p>
           </div>
         ) : (
-          <ul className={styles.fileGrid}>
+          <ul className={fileCardStyles.fileGrid}>
             {documentos.map((documento) => {
               const nombre = resolveDocumentoNombre(documento);
               const tone = estatusTone(documento.estatus);
@@ -129,24 +120,24 @@ export function AlumnoProcesoDocumentosView({
                 <li key={documento.idProcesoDocumento}>
                   <button
                     type="button"
-                    className={styles.fileCard}
+                    className={fileCardStyles.fileCard}
                     data-tone={tone}
                     data-active={isActive || undefined}
                     aria-label={`Gestionar ${nombre}`}
                     onClick={() => openDocumento(documento.idProcesoDocumento)}
                   >
-                    <span className={styles.fileCardMenu} aria-hidden="true">
+                    <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
                       <MoreHorizontal size={16} strokeWidth={2} />
                     </span>
 
-                    <span className={styles.fileTypeBadge}>{fileType}</span>
+                    <span className={fileCardStyles.fileTypeBadge}>{fileType}</span>
 
-                    <span className={styles.fileName}>{nombre}</span>
-                    <span className={styles.fileMeta}>
+                    <span className={fileCardStyles.fileName}>{nombre}</span>
+                    <span className={fileCardStyles.fileMeta}>
                       {documento.obligatorio ? "Obligatorio" : "Opcional"} · {tipoLabel}
                     </span>
 
-                    <span className={styles.fileStatus}>
+                    <span className={fileCardStyles.fileStatus}>
                       <EstatusBadge estatus={documento.estatus} />
                     </span>
                   </button>

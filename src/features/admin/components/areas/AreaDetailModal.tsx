@@ -18,11 +18,11 @@ import areaStyles from "./AreaDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, SearchableSelect } from "@/shared/components/Form";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { areaActivaEstatus, formatContacto, formatFecha } from "./area-labels";
 
@@ -198,7 +198,7 @@ export function AreaDetailModal({
               <Button
                 type="button"
                 variant={isActive ? "outline" : "primary"}
-                className={isActive ? styles.dangerButton : undefined}
+                className={isActive ? detailStyles.dangerButton : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
@@ -219,9 +219,9 @@ export function AreaDetailModal({
         {detail ? (
           <div
             className={[
-              styles.layout,
+              detailStyles.layout,
               detailStyles.modalBody,
-              isReloading && styles.layoutBusy,
+              isReloading && detailStyles.layoutBusy,
             ]
               .filter(Boolean)
               .join(" ")}
@@ -229,20 +229,12 @@ export function AreaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={detailStyles.modalHero}>
-              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
-                <LayoutGrid size={22} strokeWidth={1.75} />
-              </span>
-              <div className={detailStyles.modalHeroCopy}>
-                <p className={detailStyles.modalHeroTitle}>
-                  {dependenciaNombre || detail.nombre}
-                </p>
-                <p className={detailStyles.modalHeroSubtitle}>
-                  {ubicacion || "Sin ubicación registrada"}
-                </p>
-                <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
-              </div>
-            </div>
+            <DetailModalHero
+              icon={LayoutGrid}
+              title={dependenciaNombre || detail.nombre}
+              subtitle={ubicacion || "Sin ubicación registrada"}
+              badges={<EstatusBadge estatus={areaActivaEstatus(detail.activa)} />}
+            />
 
             <dl className={detailStyles.metaList}>
               <div className={detailStyles.metaRow}>
@@ -378,7 +370,7 @@ export function AreaDetailModal({
                         <Button
                           type="button"
                           variant="outline"
-                          className={styles.dangerButton}
+                          className={detailStyles.dangerButton}
                           disabled={isMutating}
                           onClick={() => void handleDeactivateTitular(titular.idAsignacion)}
                         >

@@ -3,11 +3,11 @@
 import { Shield } from "lucide-react";
 import type { IncidenciaResponse } from "../../types/alumno.types";
 import { formatEtiqueta } from "@/lib/domain";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Button } from "@/shared/components/Button";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import styles from "./DocumentoGestionModal.module.css";
-import detailStyles from "./IncidenciaDetalleModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type IncidenciaDetalleModalProps = {
   open: boolean;
@@ -35,42 +35,44 @@ export function IncidenciaDetalleModal({
       onClose={onClose}
       size="md"
       footer={
-        <div className={styles.footerActions}>
+        <div className={detailStyles.footerActions}>
           <Button type="button" variant="outline" onClick={onClose}>
             Cerrar
           </Button>
         </div>
       }
     >
-      <div className={styles.modalBody}>
-        <div className={styles.modalHero}>
-          <span className={detailStyles.modalHeroBadge} aria-hidden="true">
-            <Shield size={22} strokeWidth={1.75} />
-          </span>
-          <div className={styles.modalHeroCopy}>
-            <p className={styles.modalHeroTitle}>{incidenciaLabel}</p>
-            <EstatusBadge estatus={incidencia.estatus} />
-          </div>
-        </div>
+      <div className={detailStyles.modalBody}>
+        <DetailModalHero
+          icon={Shield}
+          iconTone="warning"
+          title={incidenciaLabel}
+          badges={<EstatusBadge estatus={incidencia.estatus} />}
+        />
 
-        <dl className={styles.metaList}>
-          <div className={styles.metaRow}>
+        <dl className={detailStyles.metaList}>
+          <div className={detailStyles.metaRow}>
             <dt>Severidad</dt>
             <dd>{formatEtiqueta(incidencia.severidad, "Sin severidad")}</dd>
           </div>
-          <div className={styles.metaRow}>
+          <div className={detailStyles.metaRow}>
             <dt>Tipo</dt>
             <dd>{formatEtiqueta(incidencia.tipo, "Incidencia")}</dd>
           </div>
         </dl>
 
-        <div className={detailStyles.descriptionBlock}>
-          <p className={detailStyles.descriptionLabel}>Descripción</p>
-          {descripcion ? (
-            <p className={detailStyles.descriptionValue}>{descripcion}</p>
-          ) : (
-            <p className={detailStyles.descriptionMuted}>Sin descripción registrada.</p>
-          )}
+        <div className={detailStyles.narrativeSection}>
+          <p className={detailStyles.narrativeLabel}>Descripción</p>
+          <p
+            className={[
+              detailStyles.narrativeValue,
+              !descripcion && detailStyles.narrativeEmpty,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {descripcion || "Sin descripción registrada."}
+          </p>
         </div>
       </div>
     </Modal>

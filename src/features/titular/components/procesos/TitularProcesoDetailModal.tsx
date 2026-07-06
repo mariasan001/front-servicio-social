@@ -34,9 +34,8 @@ import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModal
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "../vacantes/TitularVacanteDetailModal.module.css";
-import procesoStyles from "./TitularProcesoDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
+import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
 import {
   TITULAR_PROCESO_SECTION_LABELS,
   type TitularProcesoModalSection,
@@ -194,9 +193,9 @@ export function TitularProcesoDetailModal({
       {proceso && section ? (
         <div
           className={[
-            sharedStyles.layout,
-            heroStyles.modalBody,
-            isReloading && sharedStyles.layoutBusy,
+            detailStyles.layout,
+            detailStyles.modalBody,
+            isReloading && detailStyles.layoutBusy,
           ]
             .filter(Boolean)
             .join(" ")}
@@ -204,18 +203,18 @@ export function TitularProcesoDetailModal({
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={procesoStyles.sectionContext}>
-            <div className={procesoStyles.sectionContextMain}>
-              <p className={procesoStyles.sectionContextName}>
+          <div className={sectionStyles.sectionContext}>
+            <div className={sectionStyles.sectionContextMain}>
+              <p className={sectionStyles.sectionContextName}>
                 {alumnoNombre || "Sin alumno registrado"}
               </p>
-              <p className={procesoStyles.sectionContextMeta}>
+              <p className={sectionStyles.sectionContextMeta}>
                 {vacanteNombre || "Sin vacante"}
               </p>
             </div>
             {sectionAside ? (
-              <div className={procesoStyles.sectionContextAside}>
-                <span className={procesoStyles.sectionContextAsideLabel}>
+              <div className={sectionStyles.sectionContextAside}>
+                <span className={sectionStyles.sectionContextAsideLabel}>
                   {sectionAside.label}
                 </span>
                 <strong>{sectionAside.value}</strong>
@@ -226,9 +225,9 @@ export function TitularProcesoDetailModal({
           {section === "horas" ? (
           <>
             {horasRegistradas.length === 0 ? (
-              <p className={procesoStyles.emptyHint}>No hay horas registradas.</p>
+              <p className={sectionStyles.emptyHint}>No hay horas registradas.</p>
             ) : (
-              <ul className={procesoStyles.recordList}>
+              <ul className={sectionStyles.recordList}>
                 {horasRegistradas.map((hora) => {
                   const canAct =
                     canValidateHora(hora.estatus) ||
@@ -236,14 +235,14 @@ export function TitularProcesoDetailModal({
                     canRejectHora(hora.estatus);
 
                   return (
-                    <li key={hora.idAsistencia} className={procesoStyles.horaCard}>
-                      <div className={procesoStyles.horaCardBody}>
-                        <div className={procesoStyles.horaCardMeta}>
-                          <span className={procesoStyles.horaCardDate}>
+                    <li key={hora.idAsistencia} className={sectionStyles.horaCard}>
+                      <div className={sectionStyles.horaCardBody}>
+                        <div className={sectionStyles.horaCardMeta}>
+                          <span className={sectionStyles.horaCardDate}>
                             {hora.fecha ? formatFecha(hora.fecha) : "Sin fecha"}
                           </span>
                           {hora.horasRegistradas !== undefined ? (
-                            <span className={procesoStyles.horaCardHours}>
+                            <span className={sectionStyles.horaCardHours}>
                               {hora.horasRegistradas} h registradas
                             </span>
                           ) : null}
@@ -251,7 +250,7 @@ export function TitularProcesoDetailModal({
                         <EstatusBadge estatus={hora.estatus} />
                       </div>
                       {canAct ? (
-                        <div className={procesoStyles.horaCardActions}>
+                        <div className={sectionStyles.horaCardActions}>
                           {canValidateHora(hora.estatus) ? (
                             <Button
                               type="button"
@@ -276,7 +275,7 @@ export function TitularProcesoDetailModal({
                             <Button
                               type="button"
                               variant="outline"
-                              className={sharedStyles.dangerButton}
+                              className={detailStyles.dangerButton}
                               disabled={isMutating}
                               onClick={() => void runHoraAction("reject", hora.idAsistencia)}
                             >
@@ -309,15 +308,15 @@ export function TitularProcesoDetailModal({
           ) : null}
 
           {section === "horas" && proceso && canRegistrarHoraProceso(proceso.estatus) ? (
-          <div className={procesoStyles.registerPanel} aria-label="Registrar hora interna">
-            <div className={procesoStyles.registerPanelHeader}>
-              <h3 className={procesoStyles.registerPanelTitle}>Registrar hora interna</h3>
-              <p className={procesoStyles.registerPanelDescription}>
+          <div className={sectionStyles.registerPanel} aria-label="Registrar hora interna">
+            <div className={sectionStyles.registerPanelHeader}>
+              <h3 className={sectionStyles.registerPanelTitle}>Registrar hora interna</h3>
+              <p className={sectionStyles.registerPanelDescription}>
                 Captura asistencia directamente desde el área.
               </p>
             </div>
 
-            <div className={procesoStyles.timeGrid}>
+            <div className={sectionStyles.timeGrid}>
               <TextInput
                 id="hora-fecha"
                 label="Fecha"
@@ -360,7 +359,7 @@ export function TitularProcesoDetailModal({
               }
             />
 
-            <div className={procesoStyles.registerPanelActions}>
+            <div className={sectionStyles.registerPanelActions}>
               <Button
                 type="button"
                 variant="success"
@@ -398,19 +397,19 @@ export function TitularProcesoDetailModal({
           {section === "incidencias" ? (
           <>
             {incidenciasRegistradas.length === 0 ? (
-              <p className={procesoStyles.emptyHint}>No hay incidencias registradas.</p>
+              <p className={sectionStyles.emptyHint}>No hay incidencias registradas.</p>
             ) : (
-              <ul className={procesoStyles.recordList}>
+              <ul className={sectionStyles.recordList}>
                 {incidenciasRegistradas.map((incidencia) => (
-                  <li key={incidencia.idIncidencia} className={procesoStyles.recordCard}>
-                    <div className={procesoStyles.recordHeader}>
-                      <span className={procesoStyles.recordTitle}>
+                  <li key={incidencia.idIncidencia} className={sectionStyles.recordCard}>
+                    <div className={sectionStyles.recordHeader}>
+                      <span className={sectionStyles.recordTitle}>
                         {formatEtiqueta(incidencia.tipo, "Incidencia")}
                       </span>
                       <EstatusBadge estatus={incidencia.estatus} />
                     </div>
                     {incidencia.severidad ? (
-                      <div className={procesoStyles.recordDetails}>
+                      <div className={sectionStyles.recordDetails}>
                         <span>Severidad: {formatEtiqueta(incidencia.severidad)}</span>
                       </div>
                     ) : null}
@@ -422,15 +421,15 @@ export function TitularProcesoDetailModal({
           ) : null}
 
           {section === "incidencias" && proceso && canRegistrarIncidenciaProceso(proceso.estatus) ? (
-          <div className={procesoStyles.registerPanel} aria-label="Registrar incidencia">
-            <div className={procesoStyles.registerPanelHeader}>
-              <h3 className={procesoStyles.registerPanelTitle}>Nueva incidencia</h3>
-              <p className={procesoStyles.registerPanelDescription}>
+          <div className={sectionStyles.registerPanel} aria-label="Registrar incidencia">
+            <div className={sectionStyles.registerPanelHeader}>
+              <h3 className={sectionStyles.registerPanelTitle}>Nueva incidencia</h3>
+              <p className={sectionStyles.registerPanelDescription}>
                 Documenta un evento relevante durante el seguimiento.
               </p>
             </div>
 
-            <div className={procesoStyles.fieldGrid}>
+            <div className={sectionStyles.fieldGrid}>
               <TextInput
                 id="inc-tipo"
                 label="Tipo"
@@ -476,7 +475,7 @@ export function TitularProcesoDetailModal({
               />
             </FormField>
 
-            <div className={procesoStyles.registerPanelActions}>
+            <div className={sectionStyles.registerPanelActions}>
               <Button
                 type="button"
                 variant="success"
@@ -519,7 +518,7 @@ export function TitularProcesoDetailModal({
           {section === "liberacion" ? (
           <>
             {detail?.liberacionTecnica ? (
-              <div className={procesoStyles.stateNotice}>
+              <div className={sectionStyles.stateNotice}>
                 <strong>Liberación técnica registrada</strong>
                 <span>Ya existe un registro de liberación técnica para este proceso.</span>
               </div>
@@ -528,10 +527,10 @@ export function TitularProcesoDetailModal({
                 detail?.evaluacionFinal,
                 detail?.liberacionTecnica,
               ) ? (
-              <div className={procesoStyles.registerPanel} aria-label="Emitir liberación técnica">
-                <div className={procesoStyles.registerPanelHeader}>
-                  <h3 className={procesoStyles.registerPanelTitle}>Emitir liberación técnica</h3>
-                  <p className={procesoStyles.registerPanelDescription}>
+              <div className={sectionStyles.registerPanel} aria-label="Emitir liberación técnica">
+                <div className={sectionStyles.registerPanelHeader}>
+                  <h3 className={sectionStyles.registerPanelTitle}>Emitir liberación técnica</h3>
+                  <p className={sectionStyles.registerPanelDescription}>
                     Confirma que el alumno cumple los requisitos del área.
                   </p>
                 </div>
@@ -546,7 +545,7 @@ export function TitularProcesoDetailModal({
                   />
                 </FormField>
 
-                <div className={procesoStyles.registerPanelActions}>
+                <div className={sectionStyles.registerPanelActions}>
                   <Button
                     type="button"
                     variant="success"
@@ -575,7 +574,7 @@ export function TitularProcesoDetailModal({
                 </div>
               </div>
             ) : (
-              <p className={procesoStyles.emptyHint}>
+              <p className={sectionStyles.emptyHint}>
                 Requiere evaluación final aprobada y horas completas del proceso.
               </p>
             )}
@@ -585,20 +584,20 @@ export function TitularProcesoDetailModal({
           {section === "evaluacion" ? (
           <>
             {detail?.evaluacionFinal ? (
-              <div className={procesoStyles.stateNotice}>
+              <div className={sectionStyles.stateNotice}>
                 <strong>Evaluación final registrada</strong>
                 <span>La evaluación final ya fue capturada para este proceso.</span>
               </div>
             ) : canRegistrarEvaluacionFinal(proceso.estatus, detail?.evaluacionFinal) ? (
-              <div className={procesoStyles.registerPanel} aria-label="Registrar evaluación final">
-                <div className={procesoStyles.registerPanelHeader}>
-                  <h3 className={procesoStyles.registerPanelTitle}>Calificación final</h3>
-                  <p className={procesoStyles.registerPanelDescription}>
+              <div className={sectionStyles.registerPanel} aria-label="Registrar evaluación final">
+                <div className={sectionStyles.registerPanelHeader}>
+                  <h3 className={sectionStyles.registerPanelTitle}>Calificación final</h3>
+                  <p className={sectionStyles.registerPanelDescription}>
                     Registra el desempeño del alumno al concluir el servicio.
                   </p>
                 </div>
 
-                <div className={procesoStyles.fieldGrid}>
+                <div className={sectionStyles.fieldGrid}>
                   <FormField id="eval-estatus" label="Estatus de evaluación" required>
                     <select
                       id="eval-estatus"
@@ -643,7 +642,7 @@ export function TitularProcesoDetailModal({
                   />
                 </div>
 
-                <div className={procesoStyles.registerPanelActions}>
+                <div className={sectionStyles.registerPanelActions}>
                   <Button
                     type="button"
                     variant="success"
@@ -687,7 +686,7 @@ export function TitularProcesoDetailModal({
                 </div>
               </div>
             ) : (
-              <p className={procesoStyles.emptyHint}>
+              <p className={sectionStyles.emptyHint}>
                 Disponible cuando el proceso tenga las horas completas.
               </p>
             )}

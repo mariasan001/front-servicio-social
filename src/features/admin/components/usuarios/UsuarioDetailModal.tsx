@@ -23,12 +23,12 @@ import detailStyles from "@/shared/styles/DetailModal.module.css";
 import usuarioStyles from "./UsuarioDetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { PasswordInput } from "@/shared/components/Form";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 type UsuarioDetailModalProps = {
   usuarioId: number | null;
@@ -149,7 +149,7 @@ export function UsuarioDetailModal({
               <Button
                 type="button"
                 variant={isActive ? "outline" : "primary"}
-                className={isActive ? styles.dangerButton : undefined}
+                className={isActive ? detailStyles.dangerButton : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
@@ -170,9 +170,9 @@ export function UsuarioDetailModal({
         {detail ? (
           <div
             className={[
-              styles.layout,
+              detailStyles.layout,
               detailStyles.modalBody,
-              isReloading && styles.layoutBusy,
+              isReloading && detailStyles.layoutBusy,
             ]
               .filter(Boolean)
               .join(" ")}
@@ -180,18 +180,12 @@ export function UsuarioDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={detailStyles.modalHero}>
-              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
-                <User size={22} strokeWidth={1.75} />
-              </span>
-              <div className={detailStyles.modalHeroCopy}>
-                <p className={detailStyles.modalHeroTitle}>
-                  {cargo || formatRoles(detail.roles)}
-                </p>
-                <p className={detailStyles.modalHeroSubtitle}>{username}</p>
-                <EstatusBadge estatus={usuarioActivoEstatus(detail.activo)} />
-              </div>
-            </div>
+            <DetailModalHero
+              icon={User}
+              title={cargo || formatRoles(detail.roles)}
+              subtitle={username}
+              badges={<EstatusBadge estatus={usuarioActivoEstatus(detail.activo)} />}
+            />
 
             <dl className={detailStyles.metaList}>
               <div className={detailStyles.metaRow}>

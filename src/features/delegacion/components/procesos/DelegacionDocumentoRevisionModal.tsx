@@ -12,14 +12,14 @@ import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
-import documentoModalStyles from "@/features/alumno/components/proceso/DocumentoGestionModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import {
   resolveDocumentoNombre,
   resolveFileTypeLabel,
-} from "./delegacion-proceso-presentacion.utils";
+} from "@/shared/proceso";
 
 type DelegacionDocumentoRevisionModalProps = {
   open: boolean;
@@ -66,7 +66,7 @@ export function DelegacionDocumentoRevisionModal({
       onClose={onClose}
       size="md"
       footer={
-        <div className={documentoModalStyles.footerActions}>
+        <div className={detailStyles.footerActions}>
           <Button type="button" variant="outline" disabled={disabled} onClick={onClose}>
             Cerrar
           </Button>
@@ -74,7 +74,7 @@ export function DelegacionDocumentoRevisionModal({
             Descargar
           </Button>
           {canApproveDocumento(documento.estatus) ? (
-            <Button type="button" variant="primary" disabled={disabled} onClick={onApprove}>
+            <Button type="button" variant="success" disabled={disabled} onClick={onApprove}>
               Aprobar
             </Button>
           ) : null}
@@ -87,7 +87,7 @@ export function DelegacionDocumentoRevisionModal({
             <Button
               type="button"
               variant="outline"
-              className={sharedStyles.dangerButton}
+              className={detailStyles.dangerButton}
               disabled={disabled}
               onClick={onReject}
             >
@@ -97,24 +97,22 @@ export function DelegacionDocumentoRevisionModal({
         </div>
       }
     >
-      <div className={documentoModalStyles.modalBody}>
+      <div className={detailStyles.modalBody}>
         {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-        <div className={documentoModalStyles.modalHero}>
-          <span className={documentoModalStyles.modalHeroBadge}>{fileTypeLabel}</span>
-          <div className={documentoModalStyles.modalHeroCopy}>
-            <p className={documentoModalStyles.modalHeroTitle}>{documentoLabel}</p>
-            <EstatusBadge estatus={documento.estatus} />
-          </div>
-        </div>
+        <DetailModalHero
+          badge={fileTypeLabel}
+          title={documentoLabel}
+          badges={<EstatusBadge estatus={documento.estatus} />}
+        />
 
-        <dl className={documentoModalStyles.metaList}>
-          <div className={documentoModalStyles.metaRow}>
+        <dl className={detailStyles.metaList}>
+          <div className={detailStyles.metaRow}>
             <dt>Tipo</dt>
             <dd>{tipoLabel}</dd>
           </div>
           {documento.observacionActual?.trim() ? (
-            <div className={documentoModalStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Observación</dt>
               <dd>{documento.observacionActual.trim()}</dd>
             </div>

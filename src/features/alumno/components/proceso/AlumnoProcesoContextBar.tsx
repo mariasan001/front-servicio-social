@@ -2,9 +2,9 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 import type { HorasResumenResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import { PANEL_PATHS } from "@/lib/auth/constants";
-import { formatEtiqueta } from "@/lib/domain";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import entityStyles from "@/shared/styles/EntityDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import styles from "./AlumnoProcesoShell.module.css";
 
 type AlumnoProcesoContextBarProps = {
@@ -22,68 +22,50 @@ export function AlumnoProcesoContextBar({
   const folio = proceso.folio?.trim();
 
   return (
-    <div className={entityStyles.layout}>
-      <div className={entityStyles.summaryBar}>
-        <div className={entityStyles.avatar} aria-hidden="true">
-          <FileText size={18} strokeWidth={1.75} />
+    <div className={detailStyles.modalBody}>
+      <DetailModalHero
+        icon={FileText}
+        title={vacanteNombre || "Sin vacante asignada"}
+        subtitle={folio || `#${proceso.idProceso}`}
+        badges={<EstatusBadge estatus={proceso.estatus} />}
+      />
+
+      <dl className={detailStyles.metaList}>
+        <div className={detailStyles.metaRow}>
+          <dt>Área</dt>
+          <dd>{proceso.areaNombre?.trim() || "Sin área"}</dd>
         </div>
-
-        <div className={entityStyles.summaryMeta}>
-          <p className={entityStyles.summaryPrimary}>
-            {vacanteNombre || "Sin vacante asignada"}
-          </p>
-          <p className={entityStyles.summarySecondary}>{folio || `#${proceso.idProceso}`}</p>
+        <div className={detailStyles.metaRow}>
+          <dt>Dependencia</dt>
+          <dd>{proceso.dependenciaNombre?.trim() || "Sin dependencia"}</dd>
         </div>
+        <div className={detailStyles.metaRow}>
+          <dt>Titular</dt>
+          <dd>{proceso.titularNombre?.trim() || "Sin titular"}</dd>
+        </div>
+      </dl>
 
-        <EstatusBadge estatus={proceso.estatus} />
-      </div>
-
-      <div className={entityStyles.infoPanel}>
-        <dl className={entityStyles.infoGrid}>
-          <div className={entityStyles.infoItem}>
-            <dt>Vacante</dt>
-            <dd>{vacanteNombre || "Sin vacante"}</dd>
+      {showMetrics && horasResumen ? (
+        <dl className={styles.metricsRow}>
+          <div className={styles.metricItem}>
+            <dt>Horas acumuladas</dt>
+            <dd>{horasResumen.horasAcumuladas ?? 0}</dd>
           </div>
-          <div className={entityStyles.infoItem}>
-            <dt>Área</dt>
-            <dd>{proceso.areaNombre?.trim() || "Sin área"}</dd>
+          <div className={styles.metricItem}>
+            <dt>Horas requeridas</dt>
+            <dd>{horasResumen.horasRequeridas ?? "—"}</dd>
           </div>
-          <div className={entityStyles.infoItem}>
-            <dt>Dependencia</dt>
-            <dd>{proceso.dependenciaNombre?.trim() || "Sin dependencia"}</dd>
-          </div>
-          <div className={entityStyles.infoItem}>
-            <dt>Titular</dt>
-            <dd>{proceso.titularNombre?.trim() || "Sin titular"}</dd>
-          </div>
-          <div className={entityStyles.infoItem}>
-            <dt>Estatus</dt>
-            <dd>{formatEtiqueta(proceso.estatus)}</dd>
+          <div className={styles.metricItem}>
+            <dt>Avance</dt>
+            <dd>
+              {horasResumen.porcentajeAvance !== undefined &&
+              horasResumen.porcentajeAvance !== null
+                ? `${horasResumen.porcentajeAvance}%`
+                : "—"}
+            </dd>
           </div>
         </dl>
-
-        {showMetrics && horasResumen ? (
-          <dl className={styles.metricsRow}>
-            <div className={styles.metricItem}>
-              <dt>Horas acumuladas</dt>
-              <dd>{horasResumen.horasAcumuladas ?? 0}</dd>
-            </div>
-            <div className={styles.metricItem}>
-              <dt>Horas requeridas</dt>
-              <dd>{horasResumen.horasRequeridas ?? "—"}</dd>
-            </div>
-            <div className={styles.metricItem}>
-              <dt>Avance</dt>
-              <dd>
-                {horasResumen.porcentajeAvance !== undefined &&
-                horasResumen.porcentajeAvance !== null
-                  ? `${horasResumen.porcentajeAvance}%`
-                  : "—"}
-              </dd>
-            </div>
-          </dl>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   );
 }

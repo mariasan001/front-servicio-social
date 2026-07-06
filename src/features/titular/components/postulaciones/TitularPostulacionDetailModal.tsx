@@ -20,13 +20,13 @@ import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
-import heroStyles from "../vacantes/TitularVacanteDetailModal.module.css";
 
 export function TitularPostulacionDetailModal({
   postulacionId,
@@ -87,9 +87,9 @@ export function TitularPostulacionDetailModal({
       {detail ? (
         <div
           className={[
-            sharedStyles.layout,
-            heroStyles.modalBody,
-            isReloading && sharedStyles.layoutBusy,
+            detailStyles.layout,
+            detailStyles.modalBody,
+            isReloading && detailStyles.layoutBusy,
           ]
             .filter(Boolean)
             .join(" ")}
@@ -97,35 +97,27 @@ export function TitularPostulacionDetailModal({
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={heroStyles.modalHero}>
-            <span className={heroStyles.modalHeroIcon} aria-hidden="true">
-              <UserRound size={22} strokeWidth={1.75} />
-            </span>
-            <div className={heroStyles.modalHeroCopy}>
-              <p className={heroStyles.modalHeroTitle}>
-                {alumnoNombre || "Sin nombre registrado"}
-              </p>
-              <p className={heroStyles.modalHeroSubtitle}>
-                {folio || `Postulación #${detail.idPostulacion}`}
-              </p>
-              <EstatusBadge estatus={detail.estatus} />
-            </div>
-          </div>
+          <DetailModalHero
+            icon={UserRound}
+            title={alumnoNombre || "Sin nombre registrado"}
+            subtitle={folio || `Postulación #${detail.idPostulacion}`}
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
 
-          <dl className={heroStyles.metaList}>
-            <div className={heroStyles.metaRow}>
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
               <dt>Alumno</dt>
               <dd>{alumnoNombre || "Sin nombre"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Vacante</dt>
               <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Fecha de postulación</dt>
               <dd>{formatFecha(detail.fechaPostulacion)}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Examen</dt>
               <dd>
                 {detail.requiereExamen ? (
@@ -138,38 +130,38 @@ export function TitularPostulacionDetailModal({
           </dl>
 
           {detail.resultadoExamen ? (
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Resultado del examen</p>
-              <p className={heroStyles.narrativeValue}>{detail.resultadoExamen}</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Resultado del examen</p>
+              <p className={detailStyles.narrativeValue}>{detail.resultadoExamen}</p>
             </div>
           ) : null}
 
           {detail.comentarioAlumno ? (
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Comentario del alumno</p>
-              <p className={heroStyles.narrativeValue}>{detail.comentarioAlumno}</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Comentario del alumno</p>
+              <p className={detailStyles.narrativeValue}>{detail.comentarioAlumno}</p>
             </div>
           ) : null}
 
           {detail.comentarioTitular ? (
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Tu comentario previo</p>
-              <p className={heroStyles.narrativeValue}>{detail.comentarioTitular}</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Tu comentario previo</p>
+              <p className={detailStyles.narrativeValue}>{detail.comentarioTitular}</p>
             </div>
           ) : null}
 
           {detail.motivoRechazo ? (
-            <div className={heroStyles.narrativeSection}>
-              <p className={heroStyles.narrativeLabel}>Motivo de rechazo</p>
-              <p className={heroStyles.narrativeValue}>{detail.motivoRechazo}</p>
+            <div className={detailStyles.narrativeSection}>
+              <p className={detailStyles.narrativeLabel}>Motivo de rechazo</p>
+              <p className={detailStyles.narrativeValue}>{detail.motivoRechazo}</p>
             </div>
           ) : null}
 
           {canAccept ? (
-            <section className={sharedStyles.section} aria-label="Aceptar postulación">
-              <div className={sharedStyles.sectionHeader}>
-                <h3 className={sharedStyles.sectionTitle}>Aceptar postulación</h3>
-                <p className={sharedStyles.sectionDescription}>
+            <section className={detailStyles.contentPanel} aria-label="Aceptar postulación">
+              <div className={detailStyles.panelHeader}>
+                <h3 className={detailStyles.panelTitle}>Aceptar postulación</h3>
+                <p className={detailStyles.panelDescription}>
                   {examenListo
                     ? "El examen ya fue registrado. Acepta la postulación para abrir el proceso del alumno."
                     : "Aprueba la solicitud para continuar con el proceso de selección."}
@@ -209,10 +201,10 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canReject ? (
-            <section className={sharedStyles.section} aria-label="Rechazar postulación">
-              <div className={sharedStyles.sectionHeader}>
-                <h3 className={sharedStyles.sectionTitle}>Rechazar postulación</h3>
-                <p className={sharedStyles.sectionDescription}>
+            <section className={detailStyles.contentPanel} aria-label="Rechazar postulación">
+              <div className={detailStyles.panelHeader}>
+                <h3 className={detailStyles.panelTitle}>Rechazar postulación</h3>
+                <p className={detailStyles.panelDescription}>
                   Indica el motivo para notificar al alumno.
                 </p>
               </div>
@@ -230,7 +222,7 @@ export function TitularPostulacionDetailModal({
                   <Button
                     type="button"
                     variant="outline"
-                    className={sharedStyles.dangerButton}
+                    className={detailStyles.dangerButton}
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoRechazo.trim()) {
@@ -258,10 +250,10 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canMarkExam ? (
-            <section className={sharedStyles.section} aria-label="Registrar examen">
-              <div className={sharedStyles.sectionHeader}>
-                <h3 className={sharedStyles.sectionTitle}>Registrar examen</h3>
-                <p className={sharedStyles.sectionDescription}>
+            <section className={detailStyles.contentPanel} aria-label="Registrar examen">
+              <div className={detailStyles.panelHeader}>
+                <h3 className={detailStyles.panelTitle}>Registrar examen</h3>
+                <p className={detailStyles.panelDescription}>
                   Captura el resultado del examen de ingreso del alumno.
                 </p>
               </div>

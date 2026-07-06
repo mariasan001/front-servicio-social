@@ -3,7 +3,7 @@
 import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
-import { getModalidadTrabajoLabel } from "@/features/titular/constants/vacante-form";
+import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import {
   closeVacanteAction,
   getVacanteDetailAction,
@@ -20,12 +20,12 @@ import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
-import heroStyles from "@/features/titular/components/vacantes/TitularVacanteDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import styles from "./DelegacionVacanteDetailModal.module.css";
 
 type DelegacionVacanteDetailModalProps = {
@@ -131,12 +131,12 @@ export function DelegacionVacanteDetailModal({
       size="lg"
       footer={
         detail ? (
-          <div className={heroStyles.footerActions}>
+          <div className={detailStyles.footerActions}>
             {canClose ? (
               <Button
                 type="button"
                 variant="outline"
-                className={sharedStyles.dangerButton}
+                className={detailStyles.dangerButton}
                 onClick={() => void handleClose()}
                 disabled={isMutating}
               >
@@ -163,9 +163,9 @@ export function DelegacionVacanteDetailModal({
       {detail ? (
         <div
           className={[
-            sharedStyles.layout,
-            heroStyles.modalBody,
-            isReloading && sharedStyles.layoutBusy,
+            detailStyles.layout,
+            detailStyles.modalBody,
+            isReloading && detailStyles.layoutBusy,
           ]
             .filter(Boolean)
             .join(" ")}
@@ -173,35 +173,31 @@ export function DelegacionVacanteDetailModal({
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={heroStyles.modalHero}>
-            <span className={heroStyles.modalHeroIcon} aria-hidden="true">
-              <Briefcase size={22} strokeWidth={1.75} />
-            </span>
-            <div className={heroStyles.modalHeroCopy}>
-              <p className={heroStyles.modalHeroTitle}>{areaNombre || "Sin área asignada"}</p>
-              <p className={heroStyles.modalHeroSubtitle}>{folio || "Sin folio registrado"}</p>
-              <EstatusBadge estatus={detail.estatus} />
-            </div>
-          </div>
+          <DetailModalHero
+            icon={Briefcase}
+            title={areaNombre || "Sin área asignada"}
+            subtitle={folio || "Sin folio registrado"}
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
 
-          <dl className={heroStyles.metaList}>
-            <div className={heroStyles.metaRow}>
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
               <dt>Folio</dt>
               <dd>{folio || "Sin folio registrado"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Área</dt>
               <dd>{areaNombre || "Sin área asignada"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Modalidad de trabajo</dt>
               <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Examen requerido</dt>
               <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
             </div>
-            <div className={heroStyles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Cupo</dt>
               <dd>
                 <CupoMeter
@@ -213,10 +209,10 @@ export function DelegacionVacanteDetailModal({
             </div>
           </dl>
 
-          <div className={heroStyles.narrativeSection}>
-            <p className={heroStyles.narrativeLabel}>Descripción</p>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Descripción</p>
             <p
-              className={[heroStyles.narrativeValue, !descripcion && heroStyles.narrativeEmpty]
+              className={[detailStyles.narrativeValue, !descripcion && detailStyles.narrativeEmpty]
                 .filter(Boolean)
                 .join(" ")}
             >
@@ -224,12 +220,12 @@ export function DelegacionVacanteDetailModal({
             </p>
           </div>
 
-          <div className={heroStyles.narrativeSection}>
-            <p className={heroStyles.narrativeLabel}>Perfil requerido</p>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Perfil requerido</p>
             <p
               className={[
-                heroStyles.narrativeValue,
-                !perfilRequerido && heroStyles.narrativeEmpty,
+                detailStyles.narrativeValue,
+                !perfilRequerido && detailStyles.narrativeEmpty,
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -266,7 +262,7 @@ export function DelegacionVacanteDetailModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className={sharedStyles.dangerButton}
+                  className={detailStyles.dangerButton}
                   onClick={() => void handleReject()}
                   disabled={isMutating}
                 >

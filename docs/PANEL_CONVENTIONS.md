@@ -110,66 +110,62 @@ Tokens en `src/styles/variables.css`. Regla general: **~80 % gris/blanco**, marc
 
 ## Modales de detalle (patrón canónico)
 
-### Usar (nuevo)
+### Recursos globales
 
 | Recurso | Ruta |
 |---------|------|
-| Estilos | `@/shared/styles/EntityDetailModal.module.css` |
-| Skeleton | `EntityDetailModalSkeleton` |
+| Estilos shell | `@/shared/styles/DetailModal.module.css` |
+| Secciones proceso | `@/shared/styles/DetailModalSections.module.css` |
+| Hero reutilizable | `DetailModalHero` desde `@/shared/components/DetailModal` |
+| Skeleton | `EntityDetailModalSkeleton` (usa `DetailModal.module.css`) |
 | Hook carga | `useDetailModalLoader` |
+| Modales proceso compartidos | `@/shared/proceso/` (`CartaGestionModal`, `DocumentoGestionModal`, `presentacion.utils`) |
+| Tarjetas documento/carta | `ProcesoFileCard.module.css` en `@/shared/proceso/` |
 | Formularios en modal | `PanelFormModal.module.css` (`formLayout`, `formActions`) |
 | Texto largo / narrativa | `VacanteDetailNarrative.module.css` |
-
-### Evitar (legacy — migrar cuando se toque el archivo)
-
-| Recurso | Ruta |
-|---------|------|
-| Estilos legacy | `PanelDetailView.module.css` |
-| Loading genérico | `LoadingState` dentro de modales con acciones |
 
 ### Anatomía del modal
 
 ```tsx
+import { DetailModalHero } from "@/shared/components/DetailModal";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
+
 export function EjemploDetailModal({ entityId, open, onClose }: Props) {
-  const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [isMutating, setIsMutating] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
-    open,
-    entityId,
-    getEntityDetailAction,
-    {
-      reloadKey,
-      onBeforeLoad: () => {
-        setActionError(null);
-        // resetear campos de formulario
-      },
-    },
-  );
-
-  const refresh = () => {
-    router.refresh();           // invalida RSC del listado
-    setReloadKey((k) => k + 1); // recarga detalle en el modal
-  };
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(/* ... */);
 
   return (
     <Modal open={open} title={...} onClose={onClose} size="lg">
       {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
       {detail ? (
-        <div className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}>
+        <div
+          className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-          <div className={styles.summaryBar}>...</div>
-          <div className={styles.infoPanel}>...</div>
-          <section className={styles.section}>...</section>
+
+          <DetailModalHero icon={UserRound} title={nombre} subtitle={folio} badges={<EstatusBadge estatus={estatus} />} />
+
+          <dl className={detailStyles.metaList}>...</dl>
+
+          <section className={detailStyles.contentPanel}>
+            <div className={detailStyles.panelHeader}>
+              <h3 className={detailStyles.panelTitle}>Acción</h3>
+              <p className={detailStyles.panelDescription}>Descripción breve.</p>
+            </div>
+            {/* formulario o narrativa */}
+          </section>
         </div>
       ) : null}
     </Modal>
   );
 }
 ```
+
+**Hero con badge** (documentos/cartas): `DetailModalHero badge="PDF" title={...} badges={<EstatusBadge ... />} />`
+
+**Modales de proceso por sección** (titular/delegación): cabecera con `DetailModalSections.sectionContext`, listas con `recordList` / `horaCard`, formularios con `registerPanel`.
 
 ### Props del modal
 
@@ -303,7 +299,7 @@ Acciones irreversibles o de rechazo/cancelación:
 <Button
   type="button"
   variant="outline"
-  className={styles.dangerButton}  // desde EntityDetailModal.module.css
+  className={detailStyles.dangerButton}
   disabled={isMutating}
   onClick={...}
 >
@@ -366,39 +362,39 @@ export async function getVacante(idVacante: number) {
 
 ## Checklist al migrar un modal legacy
 
-- [ ] Cambiar `PanelDetailView.module.css` → `EntityDetailModal.module.css`
-- [ ] Cambiar `LoadingState` inicial → `EntityDetailModalSkeleton`
-- [ ] Usar `useDetailModalLoader` con `reloadKey` + `onBeforeLoad`
-- [ ] Añadir `summaryBar` + `infoPanel` + `section` con jerarquía consistente
+- [ ] `DetailModal.module.css` + `DetailModalHero` (no `summaryBar` / `infoPanel`)
+- [ ] `EntityDetailModalSkeleton` + `useDetailModalLoader` con `reloadKey`
+- [ ] `metaList` para datos, `contentPanel` para acciones/formularios
 - [ ] `usePanelRouter().refresh()` tras mutación exitosa
 - [ ] `isReloading` + `layoutBusy` durante recarga
-- [ ] Payloads alineados con tipos `*Request`
+- [ ] Payloads alineados con tipos `*Request` en `lib/domain/requests.ts`
 - [ ] Sin `undefined` en bodies
-- [ ] Botones destructivos con `dangerButton`
-- [ ] Gates de negocio extraídos a `lib/*.utils.ts` si aplica
+- [ ] Botones destructivos con `detailStyles.dangerButton`
+- [ ] Gates en `lib/domain/*.ts`; labels de proceso en `@/shared/proceso/presentacion.utils`
 
 ### Estado de migración por rol (referencia)
 
-| Rol | Migrado | Pendiente legacy |
-|-----|---------|------------------|
-| Admin | Completo | — |
-| Titular | Vacantes, postulaciones, procesos, incidencias | — |
-| Alumno | Vacantes, postulaciones, proceso, notificaciones (lista) | — |
-| Enlace | Alumnos, procesos | — |
-| Delegación | Vacantes, documentos, procesos, horas, incidencias, postulaciones | `AlumnoNormalizarModal` (formulario) |
+| Rol | Estado |
+|-----|--------|
+| Admin | Completo (`DetailModal` + hero) |
+| Titular | Completo |
+| Alumno | Completo (vacantes, postulaciones, proceso) |
+| Enlace | Completo |
+| Delegación | Completo (incl. `AlumnoNormalizarModal`) |
 
-`DelegacionProcesoDetailModal` aún usa `PanelDetailView.module.css` solo para listas internas de documentos/horas; el resto ya está en `EntityDetailModal`.
+Modales de documento/carta/horas compartidos viven en `@/shared/proceso/` — no importar features entre roles.
 
 ---
 
 ## Orden de trabajo recomendado
 
 1. **Baseline + smoke tests** — [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)
-2. **Alinear payloads** — tipos + componentes (Fase 1, completada)
-3. **Convenciones** — este documento (Fase 2)
-4. **Consolidar duplicados** — `lib/domain/horas.ts`, `proceso.ts`, `requests.ts` (Fase 3, completada)
-5. **Gates de negocio** — `lib/domain/*.ts` (Fase 4, completada)
-6. **Migración UI** — `EntityDetailModal` + `EntityDetailRecordList` (Fase 5, completada en modales)
+2. **Alinear payloads** — tipos + componentes
+3. **Dominio** — `lib/domain/` (gates, requests, vacante, proceso)
+4. **Fundamentos UI** — `ChartEmptyState`, `DashboardDonut`, `DashboardRankedBarChart`, `DataTableRowMenu`
+5. **Shell de detalle** — `DetailModal.module.css`, `DetailModalHero`, `DetailModalSections`
+6. **Proceso compartido** — `@/shared/proceso/` (modales documento/carta, `presentacion.utils`, `ProcesoFileCard`)
+7. **Convenciones** — este documento
 
 ---
 
@@ -407,7 +403,8 @@ export async function getVacante(idVacante: number) {
 | Tema | Archivo ejemplo |
 |------|-----------------|
 | Dominio compartido | `lib/domain/` — `horas.ts`, `proceso.ts`, `documento.ts`, `vacante.ts`, `incidencia.ts`, `requests.ts`, `labels.ts` |
-| Listado + modal | `DelegacionVacantesView.tsx`, `DelegacionVacanteDetailModal.tsx` |
+| Modal detalle | `DependenciaDetailModal.tsx`, `DetailModalHero` |
+| Proceso compartido | `@/shared/proceso/CartaGestionModal.tsx`, `presentacion.utils.ts` |
 | Modal con mutaciones complejas | `DelegacionProcesoDetailModal.tsx` |
 | Documento pendiente | `DocumentoPendienteModal.tsx` |
 | Postulación titular | `TitularPostulacionDetailModal.tsx` |

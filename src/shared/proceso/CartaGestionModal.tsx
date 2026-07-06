@@ -1,12 +1,13 @@
 "use client";
 
-import type { CartaMetadataResponse } from "../../types/alumno.types";
+import type { CartaMetadataResponse } from "@/lib/domain";
 import { formatEtiqueta, formatFecha } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import styles from "./DocumentoGestionModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type CartaGestionModalProps = {
   open: boolean;
@@ -42,7 +43,7 @@ export function CartaGestionModal({
       onClose={onClose}
       size="md"
       footer={
-        <div className={styles.footerActions}>
+        <div className={detailStyles.footerActions}>
           <Button type="button" variant="outline" disabled={disabled} onClick={onClose}>
             Cerrar
           </Button>
@@ -54,27 +55,25 @@ export function CartaGestionModal({
         </div>
       }
     >
-      <div className={styles.modalBody}>
+      <div className={detailStyles.modalBody}>
         {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-        <div className={styles.modalHero}>
-          <span className={styles.modalHeroBadge}>{badgeLabel}</span>
-          <div className={styles.modalHeroCopy}>
-            <p className={styles.modalHeroTitle}>{cartaLabel}</p>
-            <EstatusBadge estatus={carta.estatus} />
-          </div>
-        </div>
+        <DetailModalHero
+          badge={badgeLabel}
+          title={cartaLabel}
+          badges={<EstatusBadge estatus={carta.estatus} />}
+        />
 
-        <dl className={styles.metaList}>
-          <div className={styles.metaRow}>
+        <dl className={detailStyles.metaList}>
+          <div className={detailStyles.metaRow}>
             <dt>Folio</dt>
             <dd>{carta.folio?.trim() || "Sin folio"}</dd>
           </div>
-          <div className={styles.metaRow}>
+          <div className={detailStyles.metaRow}>
             <dt>Fecha de emisión</dt>
             <dd>{formatFecha(carta.fechaEmision) || "Sin fecha"}</dd>
           </div>
-          <div className={styles.metaRow}>
+          <div className={detailStyles.metaRow}>
             <dt>Tipo</dt>
             <dd>{formatEtiqueta(carta.tipoCarta, "Carta")}</dd>
           </div>

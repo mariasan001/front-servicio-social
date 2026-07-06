@@ -10,7 +10,7 @@ import {
   rejectProcesoDocumentoAction,
 } from "../../actions/procesos.actions";
 import type { DocumentoPendienteResponse } from "../../types/delegacion.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
+import { formatEtiqueta } from "@/lib/domain/labels";
 import {
   canApproveDocumento,
   canObserveDocumento,
@@ -22,11 +22,11 @@ import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
-import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 export function DocumentoPendienteModal({
   documento,
@@ -114,74 +114,114 @@ export function DocumentoPendienteModal({
       title={tipoDocumento}
       onClose={onClose}
       size="lg"
+      footer={
+        detail && canReview ? (
+          <div className={detailStyles.footerActions}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isMutating || isDownloading}
+              onClick={() => void downloadDocumento()}
+            >
+              {isDownloading ? "Descargando…" : "Descargar archivo"}
+            </Button>
+            {canApproveDocumento(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="success"
+                disabled={isMutating}
+                onClick={() => void run("approve")}
+              >
+                {isMutating ? "Procesando…" : "Aprobar"}
+              </Button>
+            ) : null}
+            {canObserveDocumento(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isMutating}
+                onClick={() => void run("observe")}
+              >
+                Observar
+              </Button>
+            ) : null}
+            {canRejectDocumento(detail.estatus) ? (
+              <Button
+                type="button"
+                variant="outline"
+                className={detailStyles.dangerButton}
+                disabled={isMutating}
+                onClick={() => void run("reject")}
+              >
+                Rechazar
+              </Button>
+            ) : null}
+          </div>
+        ) : detail ? (
+          <div className={detailStyles.footerActions}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isDownloading}
+              onClick={() => void downloadDocumento()}
+            >
+              {isDownloading ? "Descargando…" : "Descargar archivo"}
+            </Button>
+          </div>
+        ) : undefined
+      }
     >
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
       {detail ? (
-        <div className={styles.layout}>
+        <div className={[detailStyles.layout, detailStyles.modalBody].filter(Boolean).join(" ")}>
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <FileText size={18} strokeWidth={1.75} />
+          <DetailModalHero
+            icon={FileText}
+            title={tipoDocumento}
+            subtitle={alumnoNombre || "Sin alumno registrado"}
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
+
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
+              <dt>Alumno</dt>
+              <dd>{alumnoNombre || "Sin nombre"}</dd>
             </div>
-
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>{tipoDocumento}</p>
-              <p className={styles.summarySecondary}>{alumnoNombre || "Sin alumno registrado"}</p>
+            <div className={detailStyles.metaRow}>
+              <dt>Proceso</dt>
+              <dd>{procesoLabel}</dd>
             </div>
-
-            <StatusBadge tone={estatusTone(detail.estatus)}>
-              {formatEtiqueta(detail.estatus, "Sin estatus")}
-            </StatusBadge>
-          </div>
-
-          <div className={styles.infoPanel}>
-            <dl className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <dt>Alumno</dt>
-                <dd>{alumnoNombre || "Sin nombre"}</dd>
+            {vacanteNombre ? (
+              <div className={detailStyles.metaRow}>
+                <dt>Vacante</dt>
+                <dd>{vacanteNombre}</dd>
               </div>
-              <div className={styles.infoItem}>
-                <dt>Proceso</dt>
-                <dd>{procesoLabel}</dd>
-              </div>
-              {vacanteNombre ? (
-                <div className={styles.infoItem}>
-                  <dt>Vacante</dt>
-                  <dd>{vacanteNombre}</dd>
-                </div>
-              ) : null}
-              <div className={styles.infoItem}>
-                <dt>Tipo de documento</dt>
-                <dd>{tipoDocumento}</dd>
-              </div>
-            </dl>
-
-            <div className={formLayoutStyles.formActions}>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isMutating || isDownloading}
-                onClick={() => void downloadDocumento()}
-              >
-                {isDownloading ? "Descargando…" : "Descargar archivo"}
-              </Button>
+            ) : null}
+            <div className={detailStyles.metaRow}>
+              <dt>Tipo de documento</dt>
+              <dd>{tipoDocumento}</dd>
             </div>
-          </div>
+          </dl>
 
           {canReview ? (
-          <section className={styles.section} aria-label="Revisar documento">
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Revisar documento</h3>
-              <p className={styles.sectionDescription}>
-                Aprueba el archivo si cumple los requisitos. Si falta información, observa o rechaza
-                para que el alumno lo corrija. Cuando todos los documentos del proceso estén
-                aprobados, ve a Procesos para capturar las horas y emitir la carta de aceptación.
-              </p>
-            </div>
+            <section
+              className={detailStyles.contentPanel}
+              aria-labelledby="doc-revision-title"
+            >
+              <div className={detailStyles.panelHeader}>
+                <h3 id="doc-revision-title" className={detailStyles.panelTitle}>
+                  Revisar documento
+                </h3>
+                <p className={detailStyles.panelDescription}>
+                  Aprueba el archivo si cumple los requisitos. Si falta información, observa o
+                  rechaza para que el alumno lo corrija. Cuando todos los documentos del proceso
+                  estén aprobados, ve a Procesos para capturar las horas y emitir la carta de
+                  aceptación.
+                </p>
+              </div>
 
-            <div className={formLayoutStyles.formLayout}>
               <FormField
                 id="doc-comentario"
                 label="Comentario u observación"
@@ -195,38 +235,14 @@ export function DocumentoPendienteModal({
                   onChange={(event) => setComentario(event.target.value)}
                 />
               </FormField>
-
-              <div className={formLayoutStyles.formActions}>
-                {canApproveDocumento(detail.estatus) ? (
-                <Button type="button" variant="primary" disabled={isMutating} onClick={() => void run("approve")}>
-                  {isMutating ? "Procesando…" : "Aprobar"}
-                </Button>
-                ) : null}
-                {canObserveDocumento(detail.estatus) ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isMutating}
-                  onClick={() => void run("observe")}
-                >
-                  Observar
-                </Button>
-                ) : null}
-                {canRejectDocumento(detail.estatus) ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={styles.dangerButton}
-                  disabled={isMutating}
-                  onClick={() => void run("reject")}
-                >
-                  Rechazar
-                </Button>
-                ) : null}
-              </div>
-            </div>
-          </section>
-          ) : null}
+            </section>
+          ) : (
+            <section className={detailStyles.contentPanel}>
+              <p className={detailStyles.panelDescription}>
+                Este documento ya fue revisado y no admite más acciones.
+              </p>
+            </section>
+          )}
         </div>
       ) : null}
     </Modal>

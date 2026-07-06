@@ -15,12 +15,12 @@ import { formatFecha } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
-import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 export function AlumnoPostulacionDetailModal({
   postulacionId,
@@ -90,7 +90,7 @@ export function AlumnoPostulacionDetailModal({
         size="lg"
         footer={
           cancelVisible ? (
-            <div className={styles.footer}>
+            <div className={detailStyles.footerActions}>
               <Button
                 type="button"
                 variant="danger"
@@ -103,74 +103,66 @@ export function AlumnoPostulacionDetailModal({
           ) : undefined
         }
       >
-        {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
+        {isLoading && !detail ? <EntityDetailModalSkeleton sections={1} /> : null}
         {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
         {detail ? (
           <div
-            className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+            className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
+              .filter(Boolean)
+              .join(" ")}
             aria-busy={isReloading}
           >
             {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-            <div className={styles.summaryBar}>
-              <div className={styles.avatar} aria-hidden="true">
-                <ClipboardList size={18} strokeWidth={1.75} />
+            <DetailModalHero
+              icon={ClipboardList}
+              title={vacanteNombre || vacanteFolio || "Sin vacante asignada"}
+              subtitle={folio || "Sin folio registrado"}
+              badges={<EstatusBadge estatus={detail.estatus} />}
+            />
+
+            <dl className={detailStyles.metaList}>
+              <div className={detailStyles.metaRow}>
+                <dt>Vacante</dt>
+                <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
               </div>
-
-              <div className={styles.summaryMeta}>
-                <p className={styles.summaryPrimary}>
-                  {vacanteNombre || vacanteFolio || "Sin vacante asignada"}
-                </p>
-                <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
+              <div className={detailStyles.metaRow}>
+                <dt>Fecha de postulación</dt>
+                <dd>{formatFecha(detail.fechaPostulacion)}</dd>
               </div>
+              <div className={detailStyles.metaRow}>
+                <dt>Examen</dt>
+                <dd>
+                  {detail.requiereExamen ? (
+                    <EstatusBadge estatus={detail.examenEstado} fallback="Pendiente" />
+                  ) : (
+                    "No aplica"
+                  )}
+                </dd>
+              </div>
+            </dl>
 
-              <EstatusBadge estatus={detail.estatus} />
-            </div>
+            {detail.comentarioAlumno ? (
+              <div className={detailStyles.narrativeSection}>
+                <p className={detailStyles.narrativeLabel}>Tu comentario</p>
+                <p className={detailStyles.narrativeValue}>{detail.comentarioAlumno}</p>
+              </div>
+            ) : null}
 
-            <div className={styles.infoPanel}>
-              <dl className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <dt>Vacante</dt>
-                  <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Fecha de postulación</dt>
-                  <dd>{formatFecha(detail.fechaPostulacion)}</dd>
-                </div>
-                <div className={styles.infoItem}>
-                  <dt>Examen</dt>
-                  <dd>
-                    {detail.requiereExamen ? (
-                      <EstatusBadge estatus={detail.examenEstado} fallback="Pendiente" />
-                    ) : (
-                      "No aplica"
-                    )}
-                  </dd>
-                </div>
-              </dl>
+            {detail.comentarioTitular ? (
+              <div className={detailStyles.narrativeSection}>
+                <p className={detailStyles.narrativeLabel}>Comentario del titular</p>
+                <p className={detailStyles.narrativeValue}>{detail.comentarioTitular}</p>
+              </div>
+            ) : null}
 
-              {detail.comentarioAlumno ? (
-                <div className={narrativeStyles.narrativeBlock}>
-                  <p className={narrativeStyles.narrativeLabel}>Tu comentario</p>
-                  <p className={narrativeStyles.narrativeValue}>{detail.comentarioAlumno}</p>
-                </div>
-              ) : null}
-
-              {detail.comentarioTitular ? (
-                <div className={narrativeStyles.narrativeBlock}>
-                  <p className={narrativeStyles.narrativeLabel}>Comentario del titular</p>
-                  <p className={narrativeStyles.narrativeValue}>{detail.comentarioTitular}</p>
-                </div>
-              ) : null}
-
-              {detail.motivoRechazo ? (
-                <div className={narrativeStyles.narrativeBlock}>
-                  <p className={narrativeStyles.narrativeLabel}>Motivo de rechazo</p>
-                  <p className={narrativeStyles.narrativeValue}>{detail.motivoRechazo}</p>
-                </div>
-              ) : null}
-            </div>
+            {detail.motivoRechazo ? (
+              <div className={detailStyles.narrativeSection}>
+                <p className={detailStyles.narrativeLabel}>Motivo de rechazo</p>
+                <p className={detailStyles.narrativeValue}>{detail.motivoRechazo}</p>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </Modal>

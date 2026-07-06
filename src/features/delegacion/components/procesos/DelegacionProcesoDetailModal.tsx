@@ -1,9 +1,9 @@
 "use client";
 
-import { CartaGestionModal } from "@/features/alumno/components/proceso/CartaGestionModal";
-import fileCardStyles from "@/features/alumno/components/proceso/AlumnoProcesoDocumentosView.module.css";
+import { CartaGestionModal } from "@/shared/proceso";
+import fileCardStyles from "@/shared/proceso/ProcesoFileCard.module.css";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import titularProcesoStyles from "@/features/titular/components/procesos/TitularProcesoDetailModal.module.css";
+import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
 import { Download, MoreHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -53,7 +53,7 @@ import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModal
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import {
   DELEGACION_PROCESO_SECTION_LABELS,
   type DelegacionProcesoModalSection,
@@ -65,9 +65,7 @@ import {
   resolveDocumentoNombre,
   resolveFileTypeLabel,
   resolveHorasRegistradas,
-} from "./delegacion-proceso-presentacion.utils";
-import styles from "./DelegacionProcesoDetailModal.module.css";
-
+} from "@/shared/proceso";
 type DelegacionProcesoDetailModalProps = {
   procesoId: number | null;
   section: DelegacionProcesoModalSection | null;
@@ -404,9 +402,9 @@ export function DelegacionProcesoDetailModal({
       {proceso && section ? (
         <div
           className={[
-            sharedStyles.layout,
-            styles.modalBody,
-            isReloading && sharedStyles.layoutBusy,
+            detailStyles.layout,
+            detailStyles.modalBody,
+            isReloading && detailStyles.layoutBusy,
           ]
             .filter(Boolean)
             .join(" ")}
@@ -415,18 +413,18 @@ export function DelegacionProcesoDetailModal({
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
           {actionSuccess ? <Alert tone="success">{actionSuccess}</Alert> : null}
 
-          <div className={styles.sectionContext}>
-            <div className={styles.sectionContextMain}>
-              <p className={styles.sectionContextName}>
+          <div className={sectionStyles.sectionContext}>
+            <div className={sectionStyles.sectionContextMain}>
+              <p className={sectionStyles.sectionContextName}>
                 {alumnoNombre || "Sin alumno registrado"}
               </p>
-              <p className={styles.sectionContextMeta}>
+              <p className={sectionStyles.sectionContextMeta}>
                 {vacanteNombre || folio || `Proceso #${proceso.idProceso}`}
               </p>
             </div>
             {sectionAside ? (
-              <div className={styles.sectionContextAside}>
-                <span className={styles.sectionContextAsideLabel}>{sectionAside.label}</span>
+              <div className={sectionStyles.sectionContextAside}>
+                <span className={sectionStyles.sectionContextAsideLabel}>{sectionAside.label}</span>
                 <strong>{sectionAside.value}</strong>
               </div>
             ) : null}
@@ -435,10 +433,10 @@ export function DelegacionProcesoDetailModal({
           {section === "horas-requeridas" ? (
             <>
               {listoParaActivar && !cartaAceptacionEmitida ? (
-                <div className={styles.registerPanel} aria-label="Activar proceso">
-                  <div className={styles.registerPanelHeader}>
-                    <h3 className={styles.registerPanelTitle}>Activar proceso</h3>
-                    <p className={styles.registerPanelDescription}>
+                <div className={sectionStyles.registerPanel} aria-label="Activar proceso">
+                  <div className={sectionStyles.registerPanelHeader}>
+                    <h3 className={sectionStyles.registerPanelTitle}>Activar proceso</h3>
+                    <p className={sectionStyles.registerPanelDescription}>
                       Captura las horas requeridas y emite la carta de aceptación para activar el
                       proceso del alumno.
                     </p>
@@ -477,7 +475,7 @@ export function DelegacionProcesoDetailModal({
                     />
                   </FormField>
 
-                  <div className={styles.registerPanelActions}>
+                  <div className={sectionStyles.registerPanelActions}>
                     <Button
                       type="button"
                       variant="outline"
@@ -510,10 +508,10 @@ export function DelegacionProcesoDetailModal({
                   </div>
                 </div>
               ) : canEditHoras ? (
-                <div className={styles.registerPanel} aria-label="Horas requeridas">
-                  <div className={styles.registerPanelHeader}>
-                    <h3 className={styles.registerPanelTitle}>Horas requeridas</h3>
-                    <p className={styles.registerPanelDescription}>
+                <div className={sectionStyles.registerPanel} aria-label="Horas requeridas">
+                  <div className={sectionStyles.registerPanelHeader}>
+                    <h3 className={sectionStyles.registerPanelTitle}>Horas requeridas</h3>
+                    <p className={sectionStyles.registerPanelDescription}>
                       Actualiza el total de horas que el alumno debe cumplir.
                     </p>
                   </div>
@@ -527,7 +525,7 @@ export function DelegacionProcesoDetailModal({
                     onChange={(event) => setHorasRequeridas(event.target.value)}
                   />
 
-                  <div className={styles.registerPanelActions}>
+                  <div className={sectionStyles.registerPanelActions}>
                     <Button
                       type="button"
                       variant="success"
@@ -539,7 +537,7 @@ export function DelegacionProcesoDetailModal({
                   </div>
                 </div>
               ) : (
-                <p className={styles.emptyHint}>
+                <p className={sectionStyles.emptyHint}>
                   Las horas requeridas ya están definidas o el proceso no admite cambios en este
                   momento.
                 </p>
@@ -550,7 +548,7 @@ export function DelegacionProcesoDetailModal({
           {section === "documentacion" ? (
             <>
               {documentos.length === 0 ? (
-                <p className={styles.emptyHint}>No hay documentos registrados.</p>
+                <p className={sectionStyles.emptyHint}>No hay documentos registrados.</p>
               ) : (
                 <ul className={fileCardStyles.fileGrid}>
                   {documentos.map((doc) => {
@@ -597,9 +595,9 @@ export function DelegacionProcesoDetailModal({
           {section === "registros-horas" ? (
             <>
               {horas.length === 0 ? (
-                <p className={styles.emptyHint}>No hay horas registradas.</p>
+                <p className={sectionStyles.emptyHint}>No hay horas registradas.</p>
               ) : (
-                <ul className={titularProcesoStyles.recordList}>
+                <ul className={sectionStyles.recordList}>
                   {horas.map((hora) => {
                     const horasRegistradas = resolveHorasRegistradas(hora);
                     const canAct =
@@ -609,14 +607,14 @@ export function DelegacionProcesoDetailModal({
                       canCancelHora(hora.estatus);
 
                     return (
-                      <li key={hora.idAsistencia} className={titularProcesoStyles.horaCard}>
-                        <div className={titularProcesoStyles.horaCardBody}>
-                          <div className={titularProcesoStyles.horaCardMeta}>
-                            <span className={titularProcesoStyles.horaCardDate}>
+                      <li key={hora.idAsistencia} className={sectionStyles.horaCard}>
+                        <div className={sectionStyles.horaCardBody}>
+                          <div className={sectionStyles.horaCardMeta}>
+                            <span className={sectionStyles.horaCardDate}>
                               {hora.fecha ? formatFecha(hora.fecha) : "Sin fecha"}
                             </span>
                             {horasRegistradas !== null ? (
-                              <span className={titularProcesoStyles.horaCardHours}>
+                              <span className={sectionStyles.horaCardHours}>
                                 {horasRegistradas} h registradas
                               </span>
                             ) : null}
@@ -624,7 +622,7 @@ export function DelegacionProcesoDetailModal({
                           <EstatusBadge estatus={hora.estatus} />
                         </div>
                         {canAct ? (
-                          <div className={titularProcesoStyles.horaCardActions}>
+                          <div className={sectionStyles.horaCardActions}>
                             {canValidateHora(hora.estatus) ? (
                               <Button
                                 type="button"
@@ -649,7 +647,7 @@ export function DelegacionProcesoDetailModal({
                               <Button
                                 type="button"
                                 variant="outline"
-                                className={sharedStyles.dangerButton}
+                                className={detailStyles.dangerButton}
                                 disabled={isMutating}
                                 onClick={() => void runHoraAction("reject", hora.idAsistencia)}
                               >
@@ -694,10 +692,10 @@ export function DelegacionProcesoDetailModal({
           {section === "cartas" ? (
             <>
               {canEmitCartaLiberacion(estatus, hasCarta("liberacion")) ? (
-                <div className={styles.registerPanel} aria-label="Emitir carta de liberación">
-                  <div className={styles.registerPanelHeader}>
-                    <h3 className={styles.registerPanelTitle}>Carta de liberación</h3>
-                    <p className={styles.registerPanelDescription}>
+                <div className={sectionStyles.registerPanel} aria-label="Emitir carta de liberación">
+                  <div className={sectionStyles.registerPanelHeader}>
+                    <h3 className={sectionStyles.registerPanelTitle}>Carta de liberación</h3>
+                    <p className={sectionStyles.registerPanelDescription}>
                       Emite la carta cuando el alumno haya concluido su servicio social.
                     </p>
                   </div>
@@ -712,7 +710,7 @@ export function DelegacionProcesoDetailModal({
                     />
                   </FormField>
 
-                  <div className={styles.registerPanelActions}>
+                  <div className={sectionStyles.registerPanelActions}>
                     <Button
                       type="button"
                       variant="primary"
@@ -734,7 +732,7 @@ export function DelegacionProcesoDetailModal({
               ) : null}
 
               {cartas.length === 0 ? (
-                <p className={styles.emptyHint}>No hay cartas emitidas todavía.</p>
+                <p className={sectionStyles.emptyHint}>No hay cartas emitidas todavía.</p>
               ) : (
                 <ul className={fileCardStyles.fileGrid}>
                   {cartas.map((carta) => {
@@ -792,10 +790,10 @@ export function DelegacionProcesoDetailModal({
 
           {section === "cancelacion" ? (
             canCancel ? (
-              <div className={styles.registerPanel} aria-label="Cancelar proceso">
-                <div className={styles.registerPanelHeader}>
-                  <h3 className={styles.registerPanelTitle}>Cancelar proceso</h3>
-                  <p className={styles.registerPanelDescription}>
+              <div className={sectionStyles.registerPanel} aria-label="Cancelar proceso">
+                <div className={sectionStyles.registerPanelHeader}>
+                  <h3 className={sectionStyles.registerPanelTitle}>Cancelar proceso</h3>
+                  <p className={sectionStyles.registerPanelDescription}>
                     Esta acción detiene el servicio social del alumno. Indica el motivo.
                   </p>
                 </div>
@@ -810,11 +808,11 @@ export function DelegacionProcesoDetailModal({
                   />
                 </FormField>
 
-                <div className={styles.registerPanelActions}>
+                <div className={sectionStyles.registerPanelActions}>
                   <Button
                     type="button"
                     variant="outline"
-                    className={sharedStyles.dangerButton}
+                    className={detailStyles.dangerButton}
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoCancelacion.trim()) {
@@ -838,7 +836,7 @@ export function DelegacionProcesoDetailModal({
                 </div>
               </div>
             ) : (
-              <p className={styles.emptyHint}>
+              <p className={sectionStyles.emptyHint}>
                 Este proceso no puede cancelarse en su estatus actual.
               </p>
             )

@@ -29,6 +29,64 @@
   box-shadow: 0 4px 14px rgb(45 45 45 / 6%);
 }
 
+.modalHeroBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--color-gris-700);
+  background: var(--color-white);
+  border: 1px solid rgb(230 230 230);
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgb(45 45 45 / 6%);
+}
+
+.modalHeroIconWarning {
+  color: var(--color-badge-warning);
+  border-color: var(--color-badge-warning-border);
+}
+
+.metricsPanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: var(--color-white);
+  border: 1px solid rgb(236 236 236);
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.metricItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem 0.875rem;
+  border-right: 1px solid rgb(244 244 244);
+}
+
+.metricItem:last-child {
+  border-right: none;
+}
+
+.metricItem dt {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.metricItem dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-gris-900);
+}
+
 .modalHeroCopy {
   display: flex;
   flex-direction: column;
@@ -240,4 +298,48 @@
   .metaRow dd {
     text-align: left;
   }
+
+  .metricsPanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metricItem:nth-child(2n) {
+    border-right: none;
+  }
+
+  .metricItem:nth-child(-n + 2) {
+    border-bottom: 1px solid rgb(244 244 244);
+  }
 }
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.layoutBusy {
+  position: relative;
+  pointer-events: none;
+}
+
+.layoutBusy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(255 255 255 / 72%);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+.dangerButton {
+  color: var(--color-badge-error) !important;
+  border-color: rgb(107 35 64 / 28%) !important;
+}
+
+.dangerButton:hover {
+  background-color: rgb(107 35 64 / 5%) !important;
+  border-color: var(--color-badge-error) !important;
+}
+

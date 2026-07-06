@@ -13,10 +13,10 @@ import { DependenciaFormModal } from "./DependenciaFormModal";
 import { areaActivaEstatus, formatFecha } from "../areas/area-labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 
@@ -100,7 +100,7 @@ export function DependenciaDetailModal({
               <Button
                 type="button"
                 variant={isActive ? "outline" : "primary"}
-                className={isActive ? styles.dangerButton : undefined}
+                className={isActive ? detailStyles.dangerButton : undefined}
                 onClick={() => void handleToggleStatus()}
                 disabled={isMutating}
               >
@@ -123,9 +123,9 @@ export function DependenciaDetailModal({
         {detail ? (
           <div
             className={[
-              styles.layout,
+              detailStyles.layout,
               detailStyles.modalBody,
-              isReloading && styles.layoutBusy,
+              isReloading && detailStyles.layoutBusy,
             ]
               .filter(Boolean)
               .join(" ")}
@@ -133,20 +133,12 @@ export function DependenciaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <div className={detailStyles.modalHero}>
-              <span className={detailStyles.modalHeroIcon} aria-hidden="true">
-                <Building2 size={22} strokeWidth={1.75} />
-              </span>
-              <div className={detailStyles.modalHeroCopy}>
-                <p className={detailStyles.modalHeroTitle}>
-                  {siglas || clave || detail.nombre}
-                </p>
-                <p className={detailStyles.modalHeroSubtitle}>
-                  {clave ? `Clave ${clave}` : detail.nombre}
-                </p>
-                <EstatusBadge estatus={areaActivaEstatus(detail.activa)} />
-              </div>
-            </div>
+            <DetailModalHero
+              icon={Building2}
+              title={siglas || clave || detail.nombre}
+              subtitle={clave ? `Clave ${clave}` : detail.nombre}
+              badges={<EstatusBadge estatus={areaActivaEstatus(detail.activa)} />}
+            />
 
             <dl className={detailStyles.metaList}>
               <div className={detailStyles.metaRow}>

@@ -8,7 +8,7 @@ import {
   getVacanteDetailAction,
   sendVacanteToReviewAction,
 } from "../../actions/vacantes.actions";
-import { getModalidadTrabajoLabel } from "../../constants/vacante-form";
+import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import type { VacanteResponse } from "../../types/titular.types";
 import {
   canCancelVacanteTitular,
@@ -18,12 +18,12 @@ import {
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
-import styles from "./TitularVacanteDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type TitularVacanteDetailModalProps = {
   vacanteId: number | null;
@@ -99,7 +99,7 @@ export function TitularVacanteDetailModal({
       size="lg"
       footer={
         detail ? (
-          <div className={styles.footerActions}>
+          <div className={detailStyles.footerActions}>
             {canEdit ? (
               <Button
                 type="button"
@@ -124,7 +124,7 @@ export function TitularVacanteDetailModal({
               <Button
                 type="button"
                 variant="outline"
-                className={sharedStyles.dangerButton}
+                className={detailStyles.dangerButton}
                 disabled={isMutating}
                 onClick={() => void runMutation("cancel")}
               >
@@ -140,42 +140,38 @@ export function TitularVacanteDetailModal({
 
       {detail ? (
         <div
-          className={[sharedStyles.layout, styles.modalBody, isReloading && sharedStyles.layoutBusy]
+          className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
             .filter(Boolean)
             .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={styles.modalHero}>
-            <span className={styles.modalHeroIcon} aria-hidden="true">
-              <Briefcase size={22} strokeWidth={1.75} />
-            </span>
-            <div className={styles.modalHeroCopy}>
-              <p className={styles.modalHeroTitle}>{areaNombre || "Sin área asignada"}</p>
-              <p className={styles.modalHeroSubtitle}>{folio || "Sin folio registrado"}</p>
-              <EstatusBadge estatus={detail.estatus} />
-            </div>
-          </div>
+          <DetailModalHero
+            icon={Briefcase}
+            title={areaNombre || "Sin área asignada"}
+            subtitle={folio || "Sin folio registrado"}
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
 
-          <dl className={styles.metaList}>
-            <div className={styles.metaRow}>
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
               <dt>Folio</dt>
               <dd>{folio || "Sin folio registrado"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Área</dt>
               <dd>{areaNombre || "Sin área asignada"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Modalidad de trabajo</dt>
               <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Examen requerido</dt>
               <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Cupo</dt>
               <dd>
                 <CupoMeter
@@ -187,10 +183,10 @@ export function TitularVacanteDetailModal({
             </div>
           </dl>
 
-          <div className={styles.narrativeSection}>
-            <p className={styles.narrativeLabel}>Descripción</p>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Descripción</p>
             <p
-              className={[styles.narrativeValue, !descripcion && styles.narrativeEmpty]
+              className={[detailStyles.narrativeValue, !descripcion && detailStyles.narrativeEmpty]
                 .filter(Boolean)
                 .join(" ")}
             >
@@ -198,10 +194,10 @@ export function TitularVacanteDetailModal({
             </p>
           </div>
 
-          <div className={styles.narrativeSection}>
-            <p className={styles.narrativeLabel}>Perfil requerido</p>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Perfil requerido</p>
             <p
-              className={[styles.narrativeValue, !perfilRequerido && styles.narrativeEmpty]
+              className={[detailStyles.narrativeValue, !perfilRequerido && detailStyles.narrativeEmpty]
                 .filter(Boolean)
                 .join(" ")}
             >

@@ -21,6 +21,8 @@ import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
+import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
 import styles from "./HoraDiaDetailModal.module.css";
 
 type HoraRegisterDraft = {
@@ -198,7 +200,7 @@ export function HoraDiaDetailModal({
 
   const footer =
     showRegisterForm ? (
-      <div className={styles.footerActions}>
+      <div className={detailStyles.footerActions}>
         <Button type="button" variant="outline" disabled={isMutating} onClick={onClose}>
           Cancelar
         </Button>
@@ -212,7 +214,7 @@ export function HoraDiaDetailModal({
         </Button>
       </div>
     ) : hasBitacoraChanges ? (
-      <div className={styles.footerActions}>
+      <div className={detailStyles.footerActions}>
         <Button type="button" variant="outline" disabled={isMutating} onClick={onClose}>
           Cancelar
         </Button>
@@ -243,15 +245,17 @@ export function HoraDiaDetailModal({
       ) : null}
 
       {showRegisterForm ? (
-        <div className={styles.registerPanel}>
-          <div className={styles.registerPanelHeader}>
-            <h3 className={styles.registerPanelTitle}>Registrar jornada</h3>
-            <p className={styles.registerPanelDescription}>
+        <section className={sectionStyles.registerPanel} aria-labelledby="hora-register-title">
+          <div className={sectionStyles.registerPanelHeader}>
+            <h3 id="hora-register-title" className={sectionStyles.registerPanelTitle}>
+              Registrar jornada
+            </h3>
+            <p className={sectionStyles.registerPanelDescription}>
               Indica tu horario y las actividades del día. Máximo 12 horas por jornada.
             </p>
           </div>
 
-          <div className={styles.timeGrid}>
+          <div className={sectionStyles.timeGrid}>
             <FormField id="hora-entrada-modal" label="Hora de entrada" required>
               <input
                 id="hora-entrada-modal"
@@ -301,7 +305,7 @@ export function HoraDiaDetailModal({
               }
             />
           </FormField>
-        </div>
+        </section>
       ) : !hasHoras ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon} aria-hidden="true">

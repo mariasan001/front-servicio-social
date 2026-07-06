@@ -24,11 +24,11 @@ import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
 
 function formatHoraValue(value?: string) {
   if (!value?.trim()) {
@@ -179,7 +179,7 @@ export function HoraPendienteModal({
               <Button
                 type="button"
                 variant="outline"
-                className={styles.dangerButton}
+                className={detailStyles.dangerButton}
                 disabled={isMutating}
                 onClick={() => void run("reject")}
               >
@@ -205,27 +205,19 @@ export function HoraPendienteModal({
 
       {detail ? (
         <div
-          className={[styles.layout, detailStyles.modalBody, isReloading && styles.layoutBusy]
+          className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
             .filter(Boolean)
             .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={detailStyles.modalHero}>
-            <span className={detailStyles.modalHeroIcon} aria-hidden="true">
-              <Clock3 size={22} strokeWidth={1.75} />
-            </span>
-            <div className={detailStyles.modalHeroCopy}>
-              <p className={detailStyles.modalHeroTitle}>
-                {alumnoNombre || "Sin alumno registrado"}
-              </p>
-              <p className={detailStyles.modalHeroSubtitle}>
-                Proceso #{detail.idProceso} · Registro #{detail.idAsistencia}
-              </p>
-              <EstatusBadge estatus={detail.estatus} />
-            </div>
-          </div>
+          <DetailModalHero
+            icon={Clock3}
+            title={alumnoNombre || "Sin alumno registrado"}
+            subtitle={`Proceso #${detail.idProceso} · Registro #${detail.idAsistencia}`}
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
 
           <dl className={detailStyles.metaList}>
             <div className={detailStyles.metaRow}>
@@ -290,9 +282,11 @@ export function HoraPendienteModal({
               </FormField>
             </section>
           ) : (
-            <p className={styles.sectionDescription}>
-              Este registro ya fue revisado y no admite más acciones.
-            </p>
+            <section className={detailStyles.contentPanel}>
+              <p className={detailStyles.panelDescription}>
+                Este registro ya fue revisado y no admite más acciones.
+              </p>
+            </section>
           )}
         </div>
       ) : null}

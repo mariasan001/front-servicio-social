@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
-import { getModalidadTrabajoLabel } from "@/features/titular/constants/vacante-form";
+import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
@@ -13,12 +13,12 @@ import { puedePostularVacantes } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
-import narrativeStyles from "@/shared/styles/VacanteDetailNarrative.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import alumnoStyles from "./AlumnoVacanteDetailModal.module.css";
 
 function canPostular(estatus?: string, activa?: boolean) {
@@ -93,98 +93,112 @@ export function AlumnoVacanteDetailModal({
       title={detail?.nombre ?? vacanteName ?? "Vacante"}
       onClose={onClose}
       size="lg"
+      footer={
+        postularVisible ? (
+          <div className={detailStyles.footerActions}>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={isMutating}
+              onClick={() => void handlePostular()}
+            >
+              {isMutating ? "Enviando postulación…" : "Postularme"}
+            </Button>
+          </div>
+        ) : undefined
+      }
     >
       {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
       {detail ? (
         <div
-          className={[styles.layout, isReloading && styles.layoutBusy].filter(Boolean).join(" ")}
+          className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
+            .filter(Boolean)
+            .join(" ")}
           aria-busy={isReloading}
         >
           {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-          <div className={styles.summaryBar}>
-            <div className={styles.avatar} aria-hidden="true">
-              <Briefcase size={18} strokeWidth={1.75} />
-            </div>
-
-            <div className={styles.summaryMeta}>
-              <p className={styles.summaryPrimary}>
+          <DetailModalHero
+            icon={Briefcase}
+            title={detail.nombre?.trim() || "Vacante sin nombre"}
+            subtitle={
+              <>
                 {dependenciaNombre || areaNombre || "Sin dependencia asignada"}
-              </p>
-              <p className={styles.summarySecondary}>{folio || "Sin folio registrado"}</p>
-            </div>
+                {folio ? ` · ${folio}` : ""}
+              </>
+            }
+            badges={<EstatusBadge estatus={detail.estatus} />}
+          />
 
-            <EstatusBadge estatus={detail.estatus} />
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
+              <dt>Área</dt>
+              <dd>{areaNombre || "Sin área asignada"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Dependencia</dt>
+              <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Modalidad de trabajo</dt>
+              <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Examen de ingreso</dt>
+              <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Cupo</dt>
+              <dd>
+                <CupoMeter
+                  variant="detail"
+                  disponible={detail.cupoDisponible}
+                  total={detail.cupoTotal ?? detail.cupoDisponible}
+                />
+              </dd>
+            </div>
+          </dl>
+
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Descripción</p>
+            <p
+              className={[
+                detailStyles.narrativeValue,
+                !descripcion && detailStyles.narrativeEmpty,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {descripcion || "Sin descripción registrada."}
+            </p>
           </div>
 
-          <div className={styles.infoPanel}>
-            <dl className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <dt>Área</dt>
-                <dd>{areaNombre || "Sin área asignada"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Dependencia</dt>
-                <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Modalidad de trabajo</dt>
-                <dd>{getModalidadTrabajoLabel(detail.modalidadTrabajo)}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Examen de ingreso</dt>
-                <dd>{detail.requiereExamen ? "Sí" : "No"}</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>Cupo</dt>
-                <dd>
-                  <CupoMeter
-                    variant="detail"
-                    disponible={detail.cupoDisponible}
-                    total={detail.cupoTotal ?? detail.cupoDisponible}
-                  />
-                </dd>
-              </div>
-            </dl>
-
-            <div className={narrativeStyles.narrativeBlock}>
-              <p className={narrativeStyles.narrativeLabel}>Descripción</p>
-              <p
-                className={[
-                  narrativeStyles.narrativeValue,
-                  !descripcion && narrativeStyles.narrativeEmpty,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {descripcion || "Sin descripción registrada."}
-              </p>
-            </div>
-
-            <div className={narrativeStyles.narrativeBlock}>
-              <p className={narrativeStyles.narrativeLabel}>Perfil requerido</p>
-              <p
-                className={[
-                  narrativeStyles.narrativeValue,
-                  !perfilRequerido && narrativeStyles.narrativeEmpty,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {perfilRequerido || "Sin perfil registrado."}
-              </p>
-            </div>
+          <div className={detailStyles.narrativeSection}>
+            <p className={detailStyles.narrativeLabel}>Perfil requerido</p>
+            <p
+              className={[
+                detailStyles.narrativeValue,
+                !perfilRequerido && detailStyles.narrativeEmpty,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {perfilRequerido || "Sin perfil registrado."}
+            </p>
           </div>
 
           {postularVisible ? (
-            <section className={alumnoStyles.postularSection} aria-labelledby="alumno-postulacion-title">
-              <div className={alumnoStyles.postularIntro}>
-                <h3 id="alumno-postulacion-title" className={alumnoStyles.postularTitle}>
+            <section
+              className={detailStyles.contentPanel}
+              aria-labelledby="alumno-postulacion-title"
+            >
+              <div className={detailStyles.panelHeader}>
+                <h3 id="alumno-postulacion-title" className={detailStyles.panelTitle}>
                   {firstName ? `${firstName}, ¿quieres postularte?` : "Tu postulación"}
                 </h3>
-                <p className={alumnoStyles.postularHint}>
+                <p className={detailStyles.panelDescription}>
                   Si lo deseas, agrega un comentario breve sobre tu interés o disponibilidad.
                 </p>
               </div>
@@ -200,12 +214,6 @@ export function AlumnoVacanteDetailModal({
                 placeholder="Ej: Me interesa por mi formación en…"
                 onChange={(event) => setComentario(event.target.value)}
               />
-
-              <div className={alumnoStyles.postularActions}>
-                <Button type="button" variant="primary" disabled={isMutating} onClick={() => void handlePostular()}>
-                  {isMutating ? "Enviando postulación…" : "Postularme"}
-                </Button>
-              </div>
             </section>
           ) : !alumnoPuedePostular ? (
             <Alert tone="warning" title="Postulaciones bloqueadas">

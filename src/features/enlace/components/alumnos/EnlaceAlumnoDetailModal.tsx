@@ -6,12 +6,12 @@ import type { AlumnoDetalleResponse } from "../../types/enlace.types";
 import { formatEtiqueta } from "@/lib/domain/labels";
 import { formatHorasProceso } from "@/lib/domain/proceso";
 import { Alert } from "@/shared/components/Alert";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import sharedStyles from "@/shared/styles/EntityDetailModal.module.css";
-import styles from "../procesos/EnlaceProcesoDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 const CURP_PATTERN = /^[A-Z]{4}\d{6}[A-Z]{6}[A-Z0-9]\d$/;
 
@@ -88,66 +88,62 @@ export function EnlaceAlumnoDetailModal({
 
       {detail ? (
         <div
-          className={[sharedStyles.layout, styles.modalBody, isReloading && sharedStyles.layoutBusy]
+          className={[detailStyles.layout, detailStyles.modalBody, isReloading && detailStyles.layoutBusy]
             .filter(Boolean)
             .join(" ")}
           aria-busy={isReloading}
         >
-          <div className={styles.modalHero}>
-            <span className={styles.modalHeroIcon} aria-hidden="true">
-              <GraduationCap size={22} strokeWidth={1.75} />
-            </span>
-            <div className={styles.modalHeroCopy}>
-              <p className={styles.modalHeroTitle}>{nombreCompleto || "Sin nombre registrado"}</p>
-              <p className={styles.modalHeroSubtitle}>{correo || escuela || "Sin datos de contacto"}</p>
-              <EstatusBadge estatus={detail.estatusProceso} fallback="Sin estatus de proceso" />
-            </div>
-          </div>
+          <DetailModalHero
+            icon={GraduationCap}
+            title={nombreCompleto || "Sin nombre registrado"}
+            subtitle={correo || escuela || "Sin datos de contacto"}
+            badges={<EstatusBadge estatus={detail.estatusProceso} fallback="Sin estatus de proceso" />}
+          />
 
-          <dl className={styles.metaList}>
-            <div className={styles.metaRow}>
+          <dl className={detailStyles.metaList}>
+            <div className={detailStyles.metaRow}>
               <dt>Correo</dt>
               <dd>{correo || "Sin correo"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Teléfono</dt>
               <dd>{detail.telefono?.trim() || "Sin teléfono"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Escuela</dt>
               <dd>{escuela || "Sin escuela"}</dd>
             </div>
             {carrera ? (
-              <div className={styles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Carrera</dt>
                 <dd>{carrera}</dd>
               </div>
             ) : null}
             {curp ? (
-              <div className={styles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>CURP</dt>
                 <dd>{curp}</dd>
               </div>
             ) : null}
             {detail.modalidad ? (
-              <div className={styles.metaRow}>
+              <div className={detailStyles.metaRow}>
                 <dt>Modalidad</dt>
                 <dd>{formatEtiqueta(detail.modalidad)}</dd>
               </div>
             ) : null}
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Proceso</dt>
               <dd>{detail.folioProceso?.trim() || "Sin proceso activo"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Vacante</dt>
               <dd>{detail.vacante?.trim() || "Sin vacante"}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Horas</dt>
               <dd>{formatHorasProceso(detail.horasAcumuladas, detail.horasRequeridas, "detalle")}</dd>
             </div>
-            <div className={styles.metaRow}>
+            <div className={detailStyles.metaRow}>
               <dt>Avance</dt>
               <dd>{formatAvance(detail.porcentajeAvance)}</dd>
             </div>

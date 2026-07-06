@@ -1,5 +1,6 @@
 "use client";
 
+import { GraduationCap } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useEffect, useState } from "react";
 import {
@@ -13,10 +14,11 @@ import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { SelectInput, TextInput } from "@/shared/components/Form";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import styles from "@/shared/styles/EntityDetailModal.module.css";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import formStyles from "@/shared/styles/PanelFormModal.module.css";
 
 function AlumnoNormalizarModalContent({
@@ -99,18 +101,38 @@ function AlumnoNormalizarModalContent({
   };
 
   return (
-    <div className={styles.layout}>
-      <StatusBadge tone={estatusTone(alumno.estatusVinculacionEscuela)}>
-        {formatEtiqueta(alumno.estatusVinculacionEscuela, "Pendiente de vincular")}
-      </StatusBadge>
-      <p className={styles.sectionDescription}>
-        Escuela capturada: <strong>{alumno.escuelaTextoCapturada ?? "Sin dato"}</strong>
-      </p>
+    <div className={[detailStyles.layout, detailStyles.modalBody].join(" ")}>
+      <DetailModalHero
+        icon={GraduationCap}
+        title={alumno.nombreCompleto ?? "Alumno"}
+        subtitle={alumno.escuelaTextoCapturada ?? "Sin escuela capturada"}
+        badges={
+          <StatusBadge tone={estatusTone(alumno.estatusVinculacionEscuela)}>
+            {formatEtiqueta(alumno.estatusVinculacionEscuela, "Pendiente de vincular")}
+          </StatusBadge>
+        }
+      />
+
       {cvLoading ? <LoadingState label="Cargando CV…" /> : null}
-      {!cvLoading && cvSummary ? <p className={styles.sectionBody}>{cvSummary}</p> : null}
+      {!cvLoading && cvSummary ? (
+        <section className={detailStyles.contentPanel}>
+          <div className={detailStyles.panelHeader}>
+            <h3 className={detailStyles.panelTitle}>Perfil profesional</h3>
+          </div>
+          <p className={detailStyles.panelDescription}>{cvSummary}</p>
+        </section>
+      ) : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className={formStyles.formActions}>
+      <section className={detailStyles.contentPanel} aria-label="Vincular escuela">
+        <div className={detailStyles.panelHeader}>
+          <h3 className={detailStyles.panelTitle}>Vincular escuela</h3>
+          <p className={detailStyles.panelDescription}>
+            Asocia al alumno con una escuela existente o registra una nueva.
+          </p>
+        </div>
+
+        <div className={formStyles.formActions}>
         <Button
           type="button"
           variant={mode === "vincular" ? "action" : "outline"}
@@ -174,6 +196,7 @@ function AlumnoNormalizarModalContent({
           </div>
         </div>
       )}
+      </section>
     </div>
   );
 }

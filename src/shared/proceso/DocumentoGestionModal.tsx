@@ -1,13 +1,14 @@
 "use client";
 
-import type { DocumentoEstatusResponse } from "../../types/alumno.types";
+import type { DocumentoEstatusResponse } from "@/lib/domain";
 import { formatEtiqueta } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
+import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { DocumentoUploadField } from "./DocumentoUploadField";
-import styles from "./DocumentoGestionModal.module.css";
 
 type DocumentoGestionModalProps = {
   open: boolean;
@@ -53,7 +54,7 @@ export function DocumentoGestionModal({
       onClose={onClose}
       size="md"
       footer={
-        <div className={styles.footerActions}>
+        <div className={detailStyles.footerActions}>
           <Button type="button" variant="outline" disabled={disabled} onClick={onClose}>
             Cerrar
           </Button>
@@ -73,31 +74,33 @@ export function DocumentoGestionModal({
         </div>
       }
     >
-      <div className={styles.modalBody}>
+      <div className={detailStyles.modalBody}>
         {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
-        <div className={styles.modalHero}>
-          <span className={styles.modalHeroBadge}>{fileTypeLabel}</span>
-          <div className={styles.modalHeroCopy}>
-            <p className={styles.modalHeroTitle}>{documentoLabel}</p>
-            <EstatusBadge estatus={documento.estatus} />
-          </div>
-        </div>
+        <DetailModalHero
+          badge={fileTypeLabel}
+          title={documentoLabel}
+          badges={<EstatusBadge estatus={documento.estatus} />}
+        />
 
-        <dl className={styles.metaList}>
-          <div className={styles.metaRow}>
+        <dl className={detailStyles.metaList}>
+          <div className={detailStyles.metaRow}>
             <dt>Tipo</dt>
             <dd>{tipoLabel}</dd>
           </div>
-          <div className={styles.metaRow}>
+          <div className={detailStyles.metaRow}>
             <dt>Requisito</dt>
             <dd>{documento.obligatorio ? "Obligatorio" : "Opcional"}</dd>
           </div>
         </dl>
 
         {canUpload ? (
-          <div className={styles.uploadSection}>
-            <p className={styles.uploadSectionTitle}>Subir archivo</p>
+          <section className={detailStyles.contentPanel} aria-labelledby="doc-upload-title">
+            <div className={detailStyles.panelHeader}>
+              <h3 id="doc-upload-title" className={detailStyles.panelTitle}>
+                Subir archivo
+              </h3>
+            </div>
             <DocumentoUploadField
               documentoLabel={documentoLabel}
               selectedFile={selectedFile}
@@ -110,7 +113,7 @@ export function DocumentoGestionModal({
               onUpload={onUpload}
               onDownload={onDownload}
             />
-          </div>
+          </section>
         ) : null}
       </div>
     </Modal>

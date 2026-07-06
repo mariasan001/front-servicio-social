@@ -6,15 +6,19 @@ import { downloadCartaArchivoAction } from "../../actions/proceso.actions";
 import type { CartaMetadataResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import {
   estatusTone,
-  formatEtiqueta,
   formatFecha,
   resolveCartaDownloadKind,
 } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import {
+  CartaGestionModal,
+  resolveCartaBadgeLabel,
+  resolveCartaLabel,
+} from "@/shared/proceso";
+import fileCardStyles from "@/shared/proceso/ProcesoFileCard.module.css";
 import { AlumnoProcesoLayout } from "./AlumnoProcesoLayout";
-import { CartaGestionModal } from "./CartaGestionModal";
 import styles from "./AlumnoProcesoDocumentosView.module.css";
 
 type AlumnoProcesoCartasViewProps = {
@@ -22,18 +26,6 @@ type AlumnoProcesoCartasViewProps = {
   cartas: CartaMetadataResponse[];
   firstName: string;
 };
-
-function resolveCartaLabel(carta: CartaMetadataResponse) {
-  return formatEtiqueta(carta.tipoCarta, "Carta");
-}
-
-function resolveCartaBadgeLabel(tipoCarta?: string) {
-  const normalized = tipoCarta?.trim().toUpperCase() ?? "";
-
-  if (normalized.includes("ACEPTACION")) return "ACEP";
-  if (normalized.includes("LIBERACION")) return "LIB";
-  return "PDF";
-}
 
 export function AlumnoProcesoCartasView({
   proceso,
@@ -85,7 +77,7 @@ export function AlumnoProcesoCartasView({
             delegación las generen.
           </Alert>
         ) : (
-          <ul className={styles.fileGrid}>
+          <ul className={fileCardStyles.fileGrid}>
             {cartas.map((carta) => {
               const label = resolveCartaLabel(carta);
               const tone = estatusTone(carta.estatus);
@@ -98,7 +90,7 @@ export function AlumnoProcesoCartasView({
                 <li key={carta.idCarta}>
                   <button
                     type="button"
-                    className={styles.fileCard}
+                    className={fileCardStyles.fileCard}
                     data-tone={tone}
                     data-active={isActive || undefined}
                     aria-label={`Ver ${label}`}
@@ -107,25 +99,25 @@ export function AlumnoProcesoCartasView({
                       setActionError(null);
                     }}
                   >
-                    <span className={styles.fileCardMenu} aria-hidden="true">
+                    <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
                       <MoreHorizontal size={16} strokeWidth={2} />
                     </span>
 
-                    <span className={styles.fileTypeBadge}>
+                    <span className={fileCardStyles.fileTypeBadge}>
                       {resolveCartaBadgeLabel(carta.tipoCarta)}
                     </span>
 
-                    <span className={styles.fileName}>{label}</span>
-                    <span className={styles.fileMeta}>
+                    <span className={fileCardStyles.fileName}>{label}</span>
+                    <span className={fileCardStyles.fileMeta}>
                       {folio} · {fecha}
                     </span>
 
-                    <span className={styles.fileStatus}>
+                    <span className={fileCardStyles.fileStatus}>
                       <EstatusBadge estatus={carta.estatus} />
                     </span>
 
                     {canDownload ? (
-                      <span className={styles.fileActionHint} aria-hidden="true">
+                      <span className={fileCardStyles.fileActionHint} aria-hidden="true">
                         <Download size={12} strokeWidth={2} />
                         PDF
                       </span>

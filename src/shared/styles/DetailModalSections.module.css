@@ -130,6 +130,13 @@
   color: var(--color-gris-800);
 }
 
+.recordMeta {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--color-gris-500);
+}
+
 .recordDetails {
   display: flex;
   flex-wrap: wrap;
