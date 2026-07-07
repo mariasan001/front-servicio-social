@@ -121,7 +121,12 @@
 }
 
 .headerCellStatus,
-.cellStatus,
+.cellStatus {
+  padding-right: 0.375rem;
+  padding-left: 0.375rem;
+  text-align: left;
+}
+
 .headerCellActions,
 .cellActions {
   padding-right: 0.375rem;
@@ -132,11 +137,11 @@
 .headerCellStatus,
 .cellStatus {
   white-space: normal;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .cellStatus > * {
-  max-width: 100%;
+  max-width: none;
 }
 
 .headerCellActions {

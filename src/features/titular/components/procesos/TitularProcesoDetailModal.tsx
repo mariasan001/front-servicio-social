@@ -24,11 +24,20 @@ import {
   canRegistrarEvaluacionFinal,
   canRegistrarHoraProceso,
   canRegistrarIncidenciaProceso,
+  EVALUACION_FINAL_ESTATUS,
+  EVALUACION_FINAL_ESTATUS_LABELS,
   formatHorasProceso,
 } from "@/lib/domain/proceso";
+import {
+  INCIDENCIA_SEVERIDADES,
+  INCIDENCIA_SEVERIDAD_LABELS,
+  INCIDENCIA_TIPOS,
+  INCIDENCIA_TIPO_LABELS,
+} from "@/lib/domain/incidencia";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
-import { FormField, TextInput } from "@/shared/components/Form";
+import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
@@ -72,7 +81,6 @@ export function TitularProcesoDetailModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [comentario, setComentario] = useState("");
@@ -100,7 +108,6 @@ export function TitularProcesoDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
         setComentario("");
         setNuevaHora({
           fecha: "",
@@ -152,7 +159,6 @@ export function TitularProcesoDetailModal({
     }
 
     setIsMutating(true);
-    setActionError(null);
     const idProceso = proceso.idProceso;
     const result =
       action === "validate"
@@ -172,7 +178,7 @@ export function TitularProcesoDetailModal({
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -201,7 +207,6 @@ export function TitularProcesoDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <div className={sectionStyles.sectionContext}>
             <div className={sectionStyles.sectionContextMain}>
@@ -367,12 +372,11 @@ export function TitularProcesoDetailModal({
                 onClick={async () => {
                   const validationError = validarRegistroHoraAlumno(nuevaHora);
                   if (validationError) {
-                    setActionError(validationError);
+                    notify.error(validationError);
                     return;
                   }
 
                   setIsMutating(true);
-                  setActionError(null);
                   const result = await registerProcesoHoraAction(proceso.idProceso, {
                     fecha: nuevaHora.fecha,
                     horaEntrada: nuevaHora.horaEntrada,
@@ -382,7 +386,7 @@ export function TitularProcesoDetailModal({
                   setIsMutating(false);
 
                   if (!result.success) {
-                    setActionError(result.error);
+                    notify.error(result.error);
                     return;
                   }
 
@@ -430,22 +434,38 @@ export function TitularProcesoDetailModal({
             </div>
 
             <div className={sectionStyles.fieldGrid}>
-              <TextInput
+              <SelectInput
                 id="inc-tipo"
                 label="Tipo"
+                required
+                placeholder="Selecciona un tipo"
                 value={nuevaIncidencia.tipo}
                 onChange={(event) =>
                   setNuevaIncidencia((current) => ({ ...current, tipo: event.target.value }))
                 }
-              />
-              <TextInput
+              >
+                {INCIDENCIA_TIPOS.map((tipo) => (
+                  <option key={tipo} value={tipo}>
+                    {INCIDENCIA_TIPO_LABELS[tipo]}
+                  </option>
+                ))}
+              </SelectInput>
+              <SelectInput
                 id="inc-severidad"
                 label="Severidad"
+                required
+                placeholder="Selecciona severidad"
                 value={nuevaIncidencia.severidad}
                 onChange={(event) =>
                   setNuevaIncidencia((current) => ({ ...current, severidad: event.target.value }))
                 }
-              />
+              >
+                {INCIDENCIA_SEVERIDADES.map((severidad) => (
+                  <option key={severidad} value={severidad}>
+                    {INCIDENCIA_SEVERIDAD_LABELS[severidad]}
+                  </option>
+                ))}
+              </SelectInput>
               <TextInput
                 id="inc-fecha"
                 label="Fecha"
@@ -487,12 +507,11 @@ export function TitularProcesoDetailModal({
                     !nuevaIncidencia.descripcion.trim() ||
                     !nuevaIncidencia.fechaIncidencia
                   ) {
-                    setActionError("Completa todos los campos de la incidencia.");
+                    notify.error("Completa todos los campos de la incidencia.");
                     return;
                   }
 
                   setIsMutating(true);
-                  setActionError(null);
                   const result = await registerProcesoIncidenciaAction(proceso.idProceso, {
                     tipo: nuevaIncidencia.tipo.trim(),
                     severidad: nuevaIncidencia.severidad.trim(),
@@ -502,10 +521,16 @@ export function TitularProcesoDetailModal({
                   setIsMutating(false);
 
                   if (!result.success) {
-                    setActionError(result.error);
+                    notify.error(result.error);
                     return;
                   }
 
+                  setNuevaIncidencia({
+                    tipo: "",
+                    severidad: "",
+                    descripcion: "",
+                    fechaIncidencia: "",
+                  });
                   refresh();
                 }}
               >
@@ -552,7 +577,6 @@ export function TitularProcesoDetailModal({
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
-                      setActionError(null);
                       const liberacionPayload =
                         comentario.trim() ? { comentario: comentario.trim() } : {};
                       const result = await emitProcesoLiberacionTecnicaAction(
@@ -562,7 +586,7 @@ export function TitularProcesoDetailModal({
                       setIsMutating(false);
 
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
 
@@ -610,9 +634,11 @@ export function TitularProcesoDetailModal({
                         }))
                       }
                     >
-                      <option value="APROBADA">Aprobada</option>
-                      <option value="NO_APROBADA">No aprobada</option>
-                      <option value="OBSERVADA">Observada</option>
+                      {EVALUACION_FINAL_ESTATUS.map((estatus) => (
+                        <option key={estatus} value={estatus}>
+                          {EVALUACION_FINAL_ESTATUS_LABELS[estatus]}
+                        </option>
+                      ))}
                     </select>
                   </FormField>
                   <TextInput
@@ -650,12 +676,11 @@ export function TitularProcesoDetailModal({
                     onClick={async () => {
                       const calificacion = Number(evaluacion.calificacion);
                       if (!evaluacion.calificacion.trim() || Number.isNaN(calificacion)) {
-                        setActionError("Indica la calificación.");
+                        notify.error("Indica la calificación.");
                         return;
                       }
 
                       setIsMutating(true);
-                      setActionError(null);
                       const evalPayload: {
                         estatus: string;
                         calificacion: number;
@@ -674,7 +699,7 @@ export function TitularProcesoDetailModal({
                       setIsMutating(false);
 
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
 

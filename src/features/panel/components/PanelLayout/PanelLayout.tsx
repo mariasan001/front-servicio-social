@@ -13,9 +13,17 @@ type PanelLayoutProps = {
   user: AuthUser;
   role: UserRole;
   children: ReactNode;
+  disabledNavItemIds?: string[];
+  cvGateMessage?: string;
 };
 
-export function PanelLayout({ user, role, children }: PanelLayoutProps) {
+export function PanelLayout({
+  user,
+  role,
+  children,
+  disabledNavItemIds,
+  cvGateMessage,
+}: PanelLayoutProps) {
   const pathname = usePathname();
   const contentRef = useRef<HTMLDivElement>(null);
   const navigation = getNavigationForRole(role);
@@ -67,6 +75,8 @@ export function PanelLayout({ user, role, children }: PanelLayoutProps) {
             user={user}
             navigation={navigation}
             accessibleNavigations={accessibleNavigations}
+            disabledNavItemIds={disabledNavItemIds}
+            disabledNavMessage={cvGateMessage}
             onNavigate={() => setIsSidebarOpen(false)}
           />
         </div>

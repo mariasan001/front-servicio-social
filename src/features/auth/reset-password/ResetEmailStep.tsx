@@ -10,7 +10,7 @@ import {
   type ResetEmailFormValues,
 } from "../validation/password-reset.validation";
 import { hasFormErrors } from "../validation/auth.validation";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { TextInput } from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
@@ -28,7 +28,6 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof ResetEmailFormValues, string>>
   >({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -41,13 +40,12 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     try {
       await requestPasswordReset({ correo: values.correo.trim() });
       onSuccess(values.correo.trim());
     } catch (error) {
-      setFormError(
+      notify.error(
         getApiErrorMessage(
           error,
           "No fue posible enviar el código de verificación. Intenta de nuevo.",
@@ -64,8 +62,6 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
       subtitle={AUTH_COPY.resetEmailSubtitle}
     >
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
-
         <TextInput
           id="reset-email"
           name="correo"
@@ -80,7 +76,6 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
           onChange={(event) => {
             setValues({ correo: event.target.value });
             setFieldErrors({});
-            setFormError(null);
           }}
         />
 

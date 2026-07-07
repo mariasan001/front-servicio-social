@@ -13,7 +13,7 @@ import {
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
 import { EscuelaFormModal } from "./EscuelaFormModal";
 import { InvitacionGeneradaCard } from "./InvitacionGeneradaCard";
-import { cacheSchoolInvitation, getSchoolInvitation } from "./invitation-cache";
+import { resolveInvitationShareData } from "./invitation-share";
 import {
   formatFecha,
 } from "./escuela-labels";
@@ -37,10 +37,6 @@ type EscuelaDetailModalProps = {
 
 function normalizeEstatus(value?: string) {
   return value?.trim().toUpperCase() ?? "";
-}
-
-function isActiveInvitation(estatus: string) {
-  return estatus === "ACTIVO" || estatus === "VIGENTE" || estatus === "DISPONIBLE";
 }
 
 function formatInviteExpiry(fechaExpiracion?: string) {
@@ -69,6 +65,7 @@ export function EscuelaDetailModal({
     null,
   );
   const [expandedInviteId, setExpandedInviteId] = useState<number | null>(null);
+  const [generatedTokens, setGeneratedTokens] = useState<Record<number, string>>({});
   const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     escuelaId,
@@ -113,12 +110,10 @@ export function EscuelaDetailModal({
     setInvitacionGenerada(result.data);
 
     if (result.data.token?.trim()) {
-      cacheSchoolInvitation(detail.escuela.idEscuela, {
-        idToken: result.data.idToken,
-        token: result.data.token.trim(),
-        urlRegistro: result.data.urlRegistro,
-        fechaExpiracion: result.data.fechaExpiracion,
-      });
+      setGeneratedTokens((current) => ({
+        ...current,
+        [result.data.idToken]: result.data.token!.trim(),
+      }));
       setExpandedInviteId(result.data.idToken);
     }
 
@@ -256,9 +251,6 @@ export function EscuelaDetailModal({
                 <h3 id="escuela-invitaciones-title" className={detailStyles.panelTitle}>
                   Invitaciones de registro
                 </h3>
-                <p className={detailStyles.panelDescription}>
-                  Enlaces para que los alumnos se registren vinculados a esta institución.
-                </p>
               </div>
 
               {invitacionError ? <Alert tone="error">{invitacionError}</Alert> : null}
@@ -327,9 +319,11 @@ export function EscuelaDetailModal({
                   <ul className={escuelaStyles.inviteList}>
                     {invitaciones.map((invitacion) => {
                       const estatus = normalizeEstatus(invitacion.estatus);
-                      const cachedInvitation =
-                        escuela && getSchoolInvitation(escuela.idEscuela, invitacion.idToken);
-                      const canShareLink = isActiveInvitation(estatus);
+                      const shareData = resolveInvitationShareData(
+                        invitacion,
+                        generatedTokens[invitacion.idToken],
+                      );
+                      const canShareLink = Boolean(shareData);
                       const isExpanded = expandedInviteId === invitacion.idToken;
 
                       return (
@@ -346,15 +340,17 @@ export function EscuelaDetailModal({
                                 </span>
                                 <EstatusBadge estatus={invitacion.estatus} />
                               </div>
-                              {formatInviteExpiry(invitacion.fechaExpiracion) ? (
-                                <p className={escuelaStyles.inviteMeta}>
-                                  Vence el {formatInviteExpiry(invitacion.fechaExpiracion)}
-                                </p>
-                              ) : (
-                                <p className={escuelaStyles.inviteMetaMuted}>
-                                  Sin fecha de vencimiento
-                                </p>
-                              )}
+                              <p className={escuelaStyles.inviteMeta}>
+                                {formatInviteExpiry(invitacion.fechaExpiracion)
+                                  ? `Vence el ${formatInviteExpiry(invitacion.fechaExpiracion)}`
+                                  : "Sin fecha de vencimiento"}
+                                {invitacion.fechaCreacion ? (
+                                  <>
+                                    {" · "}
+                                    Creada el {formatFecha(invitacion.fechaCreacion)}
+                                  </>
+                                ) : null}
+                              </p>
                             </div>
 
                             <div className={escuelaStyles.inviteActions}>
@@ -412,20 +408,9 @@ export function EscuelaDetailModal({
                             </div>
                           </div>
 
-                          {isExpanded ? (
+                          {isExpanded && shareData ? (
                             <div className={escuelaStyles.inviteExpanded}>
-                              {cachedInvitation ? (
-                                <InvitacionGeneradaCard
-                                  invitacion={cachedInvitation}
-                                  variant="stored"
-                                />
-                              ) : (
-                                <p className={escuelaStyles.inviteUnavailable}>
-                                  Por seguridad, el enlace completo solo se muestra al generar la
-                                  invitación en esta sesión del navegador. Si lo perdiste, crea una
-                                  nueva invitación o contacta al administrador del sistema.
-                                </p>
-                              )}
+                              <InvitacionGeneradaCard invitacion={shareData} variant="stored" />
                             </div>
                           ) : null}
                         </li>

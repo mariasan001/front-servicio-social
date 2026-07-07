@@ -55,6 +55,17 @@
   color: var(--color-gris-500);
 }
 
+.description a {
+  font-weight: 500;
+  color: var(--color-vino);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.description a:hover {
+  color: var(--color-vino-dark);
+}
+
 .embedded {
   flex: 1;
   align-self: stretch;

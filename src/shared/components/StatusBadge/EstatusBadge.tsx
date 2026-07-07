@@ -14,12 +14,19 @@ export function EstatusBadge({
   variant = "pill",
   fallback = "Sin información",
 }: EstatusBadgeProps) {
+  const hasEstatus = Boolean(estatus?.trim());
   const label = formatEtiqueta(estatus, fallback);
 
   return (
     <StatusBadge
-      tone={estatusTone(estatus)}
-      icon={variant === "pill" ? estatusBadgeIcon(estatus) : undefined}
+      tone={hasEstatus ? estatusTone(estatus) : "neutral"}
+      icon={
+        variant === "pill"
+          ? hasEstatus
+            ? estatusBadgeIcon(estatus)
+            : "draft"
+          : undefined
+      }
       variant={variant === "dot" ? "dot" : "label"}
       className={className}
     >

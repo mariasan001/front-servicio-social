@@ -16,6 +16,7 @@ import {
   canSendVacanteToReview,
 } from "@/lib/domain/vacante";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DetailModalHero } from "@/shared/components/DetailModal";
@@ -45,7 +46,6 @@ export function TitularVacanteDetailModal({
   onEdit,
 }: TitularVacanteDetailModalProps) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
@@ -55,7 +55,6 @@ export function TitularVacanteDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
       },
     },
   );
@@ -73,14 +72,13 @@ export function TitularVacanteDetailModal({
   const runMutation = async (action: "review" | "cancel") => {
     if (!detail) return;
     setIsMutating(true);
-    setActionError(null);
     const result =
       action === "review"
         ? await sendVacanteToReviewAction(detail.idVacante)
         : await cancelVacanteAction(detail.idVacante);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     refresh();
@@ -145,7 +143,6 @@ export function TitularVacanteDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={Briefcase}

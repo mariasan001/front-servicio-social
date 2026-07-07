@@ -15,7 +15,7 @@ import {
   type ResetPasswordFormValues,
 } from "../validation/password-reset.validation";
 import { hasFormErrors } from "../validation/auth.validation";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import {
   FormField,
   PasswordInput,
@@ -41,8 +41,7 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof ResetPasswordFormValues, string>>
   >({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [passwordResetComplete, setPasswordResetComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
@@ -52,7 +51,6 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   ) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -65,7 +63,6 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     try {
       const result = await confirmPasswordReset({
@@ -74,12 +71,13 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
         password: values.password,
       });
 
-      setSuccessMessage(
+      notify.success(
         result.mensaje ??
           "Tu contraseña se restableció correctamente. Ya puedes iniciar sesión.",
       );
+      setPasswordResetComplete(true);
     } catch (error) {
-      setFormError(
+      notify.error(
         getApiErrorMessage(
           error,
           "No fue posible restablecer la contraseña. Verifica el código e intenta de nuevo.",
@@ -92,13 +90,12 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
 
   const handleResend = async () => {
     setIsResending(true);
-    setFormError(null);
 
     try {
       await requestPasswordReset({ correo });
-      setSuccessMessage("Enviamos un nuevo código a tu correo electrónico.");
+      notify.success("Enviamos un nuevo código a tu correo electrónico.");
     } catch (error) {
-      setFormError(
+      notify.error(
         getApiErrorMessage(
           error,
           "No fue posible reenviar el código. Intenta de nuevo.",
@@ -109,14 +106,12 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
     }
   };
 
-  if (successMessage) {
+  if (passwordResetComplete) {
     return (
       <AuthCard
         title="Contraseña actualizada"
         subtitle="Tu acceso quedó restablecido correctamente."
       >
-        <Alert tone="success">{successMessage}</Alert>
-
         <button
           type="button"
           className={formStyles.submitButton}
@@ -138,8 +133,6 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
       </p>
 
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
-
         <FormField
           id="reset-code"
           label="Código de verificación"

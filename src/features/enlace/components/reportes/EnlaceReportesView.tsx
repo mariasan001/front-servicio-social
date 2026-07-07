@@ -1,11 +1,15 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ReporteAlumnoResponse } from "../../types/enlace.types";
+import { buildEnlaceReporteAlumnosExportUrl } from "../../lib/reportes.config";
+import { formatEtiqueta } from "@/lib/domain";
+import { exportClientReportPdf } from "@/lib/export/client-report-pdf";
 import { normalizeText } from "@/lib/utils/search";
 import { DataTable, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { PanelReportExportActions } from "@/shared/components/PanelReportExportActions";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
@@ -30,6 +34,30 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
       return normalizeText(haystack).includes(query);
     });
   }, [deferredSearch, reporte]);
+
+  const handlePdfExport = useCallback(() => {
+    if (filtered.length === 0) {
+      return;
+    }
+
+    const searchQuery = normalizeText(deferredSearch);
+
+    exportClientReportPdf({
+      title: "Reporte de alumnos",
+      subtitle: searchQuery
+        ? "Incluye solo los registros visibles con tu búsqueda."
+        : `${filtered.length} registros.`,
+      headers: ["Alumno", "Correo", "Proceso", "Vacante", "Horas", "Estatus"],
+      rows: filtered.map((row) => [
+        row.nombreCompleto?.trim() || "Sin nombre",
+        row.correo?.trim() || "Sin correo",
+        row.folioProceso?.trim() || "Sin proceso",
+        row.vacante?.trim() || "—",
+        `${row.horasAcumuladas ?? 0} / ${row.horasRequeridas ?? "—"}`,
+        formatEtiqueta(row.estatusProceso, "Sin estatus"),
+      ]),
+    });
+  }, [deferredSearch, filtered]);
 
   const columns: DataTableColumn<ReporteAlumnoResponse>[] = [
     {
@@ -77,7 +105,15 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
       />
       <DataTable
         toolbar={
-          <DataTableToolbar>
+          <DataTableToolbar
+            actions={
+              <PanelReportExportActions
+                excelHref={buildEnlaceReporteAlumnosExportUrl()}
+                onPdfExport={handlePdfExport}
+                pdfDisabled={filtered.length === 0}
+              />
+            }
+          >
             <label className={styles.searchField}>
               <span className={styles.searchLabel}>Buscar en el reporte</span>
               <span className={styles.searchControl}>

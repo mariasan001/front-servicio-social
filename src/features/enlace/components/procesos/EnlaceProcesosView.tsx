@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { FolderOpen, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import type { AlumnoResponse } from "../../types/enlace.types";
 import { EnlaceProcesoDetailModal } from "./EnlaceProcesoDetailModal";
 import { normalizeText } from "@/lib/utils/search";
@@ -71,7 +71,7 @@ export function EnlaceProcesosView({ alumnos }: { alumnos: AlumnoResponse[] }) {
         <DataTableActions>
           <DataTableIconAction
             label="Ver detalle"
-            icon={FolderOpen}
+            icon={Eye}
             onClick={() => setSelectedProcesoId(alumno.procesoId ?? null)}
             disabled={!alumno.procesoId}
           />

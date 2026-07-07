@@ -2,7 +2,6 @@
 
 import type { DocumentoEstatusResponse } from "@/lib/domain";
 import { formatEtiqueta } from "@/lib/domain";
-import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
@@ -18,7 +17,6 @@ type DocumentoGestionModalProps = {
   selectedFile: File | null;
   disabled?: boolean;
   canUpload: boolean;
-  actionError?: string | null;
   onClose: () => void;
   onFileSelect: (file: File | null) => void;
   onInvalidFile?: (message: string) => void;
@@ -34,7 +32,6 @@ export function DocumentoGestionModal({
   selectedFile,
   disabled = false,
   canUpload,
-  actionError,
   onClose,
   onFileSelect,
   onInvalidFile,
@@ -75,8 +72,6 @@ export function DocumentoGestionModal({
       }
     >
       <div className={detailStyles.modalBody}>
-        {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-
         <DetailModalHero
           badge={fileTypeLabel}
           title={documentoLabel}

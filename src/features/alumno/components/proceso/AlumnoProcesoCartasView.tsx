@@ -11,6 +11,7 @@ import {
 } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import {
   CartaGestionModal,
@@ -32,7 +33,6 @@ export function AlumnoProcesoCartasView({
   cartas,
   firstName,
 }: AlumnoProcesoCartasViewProps) {
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [activeCartaId, setActiveCartaId] = useState<number | null>(null);
 
@@ -40,22 +40,19 @@ export function AlumnoProcesoCartasView({
 
   const closeCarta = () => {
     setActiveCartaId(null);
-    setActionError(null);
   };
 
   const downloadCarta = async (carta: CartaMetadataResponse) => {
     const kind = resolveCartaDownloadKind(carta.tipoCarta);
 
     if (!kind) {
-      setActionError("No pudimos identificar el tipo de carta para descargar.");
+      notify.error("No pudimos identificar el tipo de carta para descargar.");
       return;
     }
 
     setIsMutating(true);
-    setActionError(null);
     await runDownloadAction(
-      () => downloadCartaArchivoAction(proceso.idProceso, kind),
-      setActionError,
+      () => downloadCartaArchivoAction(proceso.idProceso, kind), notify.error,
     );
     setIsMutating(false);
   };
@@ -68,7 +65,6 @@ export function AlumnoProcesoCartasView({
       description="Consulta y descarga las cartas emitidas por la dependencia."
       estatus={proceso.estatus}
     >
-      {actionError && !activeCarta ? <Alert tone="error">{actionError}</Alert> : null}
 
       <section className={styles.docSection} aria-label="Cartas del proceso">
         {cartas.length === 0 ? (
@@ -96,7 +92,6 @@ export function AlumnoProcesoCartasView({
                     aria-label={`Ver ${label}`}
                     onClick={() => {
                       setActiveCartaId(carta.idCarta);
-                      setActionError(null);
                     }}
                   >
                     <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
@@ -137,7 +132,6 @@ export function AlumnoProcesoCartasView({
         badgeLabel={activeCarta ? resolveCartaBadgeLabel(activeCarta.tipoCarta) : "PDF"}
         disabled={isMutating}
         canDownload={activeCarta ? Boolean(resolveCartaDownloadKind(activeCarta.tipoCarta)) : false}
-        actionError={activeCarta ? actionError : null}
         onClose={closeCarta}
         onDownload={() => {
           if (!activeCarta) return;

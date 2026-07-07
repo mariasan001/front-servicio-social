@@ -17,6 +17,7 @@ import {
 } from "@/lib/domain";
 import { formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -38,7 +39,6 @@ export function TitularPostulacionDetailModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [comentario, setComentario] = useState("");
@@ -51,7 +51,6 @@ export function TitularPostulacionDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
         setComentario("");
         setMotivoRechazo("");
         setResultadoExamen("");
@@ -95,7 +94,6 @@ export function TitularPostulacionDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={UserRound}
@@ -181,13 +179,12 @@ export function TitularPostulacionDetailModal({
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
-                      setActionError(null);
                       const payload =
                         comentario.trim() ? { comentario: comentario.trim() } : {};
                       const result = await acceptPostulacionAction(detail.idPostulacion, payload);
                       setIsMutating(false);
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
                       refresh();
@@ -226,17 +223,16 @@ export function TitularPostulacionDetailModal({
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoRechazo.trim()) {
-                        setActionError("Escribe el motivo de rechazo.");
+                        notify.error("Escribe el motivo de rechazo.");
                         return;
                       }
                       setIsMutating(true);
-                      setActionError(null);
                       const result = await rejectPostulacionAction(detail.idPostulacion, {
                         motivo: motivoRechazo.trim(),
                       });
                       setIsMutating(false);
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
                       refresh();
@@ -275,11 +271,10 @@ export function TitularPostulacionDetailModal({
                     onClick={async () => {
                       const resultado = Number(resultadoExamen.trim());
                       if (!resultadoExamen.trim() || Number.isNaN(resultado)) {
-                        setActionError("Indica el resultado del examen como número.");
+                        notify.error("Indica el resultado del examen como número.");
                         return;
                       }
                       setIsMutating(true);
-                      setActionError(null);
                       const examPayload: { resultadoExamen: number; comentario?: string } = {
                         resultadoExamen: resultado,
                       };
@@ -292,7 +287,7 @@ export function TitularPostulacionDetailModal({
                       );
                       setIsMutating(false);
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
                       refresh();

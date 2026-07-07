@@ -19,6 +19,7 @@ import {
 } from "@/lib/domain/documento";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -39,7 +40,6 @@ export function DocumentoPendienteModal({
 }) {
   const router = usePanelRouter();
   const [comentario, setComentario] = useState("");
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const { detail, error } = useDetailModalLoader(
@@ -54,7 +54,6 @@ export function DocumentoPendienteModal({
     {
       onBeforeLoad: () => {
         setComentario("");
-        setActionError(null);
       },
     },
   );
@@ -69,15 +68,14 @@ export function DocumentoPendienteModal({
   const run = async (action: "approve" | "observe" | "reject") => {
     if (!detail) return;
     if (action === "observe" && !comentario.trim()) {
-      setActionError("Escribe una observación para el alumno.");
+      notify.error("Escribe una observación para el alumno.");
       return;
     }
     if (action === "reject" && !comentario.trim()) {
-      setActionError("Escribe el motivo del rechazo.");
+      notify.error("Escribe el motivo del rechazo.");
       return;
     }
     setIsMutating(true);
-    setActionError(null);
     const body = { comentario: comentario.trim() };
     const result =
       action === "approve"
@@ -87,7 +85,7 @@ export function DocumentoPendienteModal({
           : await rejectProcesoDocumentoAction(detail.idProceso, detail.idProcesoDocumento, body);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     router.refresh();
@@ -97,10 +95,8 @@ export function DocumentoPendienteModal({
   const downloadDocumento = async () => {
     if (!detail) return;
     setIsDownloading(true);
-    setActionError(null);
     await runDownloadAction(
-      () => downloadProcesoDocumentoArchivoAction(detail.idProceso, detail.idProcesoDocumento),
-      setActionError,
+      () => downloadProcesoDocumentoArchivoAction(detail.idProceso, detail.idProcesoDocumento), notify.error,
     );
     setIsDownloading(false);
   };
@@ -172,7 +168,6 @@ export function DocumentoPendienteModal({
 
       {detail ? (
         <div className={[detailStyles.layout, detailStyles.modalBody].filter(Boolean).join(" ")}>
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={FileText}

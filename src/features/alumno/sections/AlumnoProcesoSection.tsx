@@ -116,7 +116,7 @@ export async function AlumnoProcesoSection({ subSection }: AlumnoProcesoSectionP
           <hr className={styles.procesoDivider} />
         </header>
 
-        <AlumnoProcesoEmptyView firstName={firstName} />
+        <AlumnoProcesoEmptyView />
       </section>
     );
   }

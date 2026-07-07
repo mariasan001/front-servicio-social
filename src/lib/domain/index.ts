@@ -38,6 +38,8 @@ export {
   canRegistrarHoraProceso,
   canRegistrarIncidenciaProceso,
   canSetHorasRequeridas,
+  EVALUACION_FINAL_ESTATUS,
+  EVALUACION_FINAL_ESTATUS_LABELS,
   isProcesoActivo,
   puedePostularVacantes,
   type FormatHorasProcesoStyle,
@@ -57,7 +59,7 @@ export {
   canValidateHora,
   isHoraPendienteRevision,
 } from "./horas";
-export { canCancelIncidencia, canResolveIncidencia } from "./incidencia";
+export { canCancelIncidencia, canResolveIncidencia, INCIDENCIA_TIPOS_RESOLUCION, INCIDENCIA_TIPO_RESOLUCION_LABELS } from "./incidencia";
 export {
   canAcceptPostulacion,
   canCancelPostulacion,
@@ -79,6 +81,12 @@ export {
   MODALIDAD_TRABAJO_OPTIONS,
   type ModalidadTrabajoValue,
 } from "./vacante";
+export {
+  getModalidadCatalogoLabel,
+  isValidModalidadCatalogo,
+  MODALIDAD_CATALOGO_OPTIONS,
+  type ModalidadCatalogoValue,
+} from "./modalidad";
 export { normalizeDomainCode, readEntityEstatus } from "./status";
 export type {
   AceptarPostulacionRequest,

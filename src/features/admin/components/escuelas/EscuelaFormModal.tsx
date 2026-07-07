@@ -9,7 +9,7 @@ import {
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { EscuelaDetalleResponse, EscuelaResponse } from "../../types/escuela.types";
 import { formatEtiqueta, CONVENIO_ESTATUS_OPTIONS, normalizeConvenioEstatus } from "./escuela-labels";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -80,13 +80,11 @@ function EscuelaFormModalContent({
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},
   );
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (field: keyof FormValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -99,7 +97,6 @@ function EscuelaFormModalContent({
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     const payload = {
       nombreOficial,
@@ -121,7 +118,7 @@ function EscuelaFormModalContent({
     setIsSubmitting(false);
 
     if (!result.success) {
-      setFormError(result.error);
+      notify.error(result.error);
       setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       return;
     }
@@ -153,7 +150,6 @@ function EscuelaFormModalContent({
       }
     >
       <form id="escuela-form" className={styles.formLayout} onSubmit={handleSubmit}>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <section className={styles.formSection} aria-label="Información de la escuela">
           <p className={styles.formSectionTitle}>Información general</p>

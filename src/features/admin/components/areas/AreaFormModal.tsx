@@ -6,7 +6,7 @@ import { createAreaAction, updateAreaAction } from "../../actions/areas.actions"
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { AreaResponse } from "../../types/area.types";
 import type { DependenciaResponse } from "../../types/dependencia.types";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, SearchableSelect, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -72,7 +72,6 @@ function AreaFormModalContent({
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},
   );
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dependenciaOptions = useMemo(
@@ -89,7 +88,6 @@ function AreaFormModalContent({
   const updateField = (field: keyof FormValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -113,7 +111,6 @@ function AreaFormModalContent({
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     const payload = {
       dependenciaId,
@@ -132,7 +129,7 @@ function AreaFormModalContent({
     setIsSubmitting(false);
 
     if (!result.success) {
-      setFormError(result.error);
+      notify.error(result.error);
       setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       return;
     }
@@ -164,7 +161,6 @@ function AreaFormModalContent({
       }
     >
       <form id="area-form" className={styles.formLayout} onSubmit={handleSubmit}>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <section className={styles.formSection} aria-label="Información del área">
           <p className={styles.formSectionTitle}>Información general</p>

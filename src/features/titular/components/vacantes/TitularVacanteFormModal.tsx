@@ -8,7 +8,7 @@ import { MODALIDAD_TRABAJO_OPTIONS } from "../../constants/vacante-form";
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { VacanteDetalleResponse, VacanteResponse } from "../../types/titular.types";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -90,7 +90,6 @@ function VacanteFormModalContent({
   const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, vacante));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedModalidad = MODALIDAD_TRABAJO_OPTIONS.find(
@@ -110,7 +109,6 @@ function VacanteFormModalContent({
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -133,7 +131,6 @@ function VacanteFormModalContent({
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     const payload = {
       nombre,
@@ -162,7 +159,7 @@ function VacanteFormModalContent({
     setIsSubmitting(false);
 
     if (!result.success) {
-      setFormError(result.error);
+      notify.error(result.error);
       if ("fieldErrors" in result && result.fieldErrors) {
         setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       }
@@ -200,7 +197,6 @@ function VacanteFormModalContent({
       }
     >
       <form id="titular-vacante-form" className={styles.formBody} onSubmit={handleSubmit}>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         {areaLabel ? (
           <VacanteContextBanner

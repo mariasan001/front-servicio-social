@@ -8,7 +8,7 @@ import {
 } from "../../actions/dependencias.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { DependenciaResponse } from "../../types/dependencia.types";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -62,13 +62,11 @@ function DependenciaFormModalContent({
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>(
     {},
   );
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (field: keyof FormValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -81,7 +79,6 @@ function DependenciaFormModalContent({
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     const payload = {
       nombre,
@@ -98,7 +95,7 @@ function DependenciaFormModalContent({
     setIsSubmitting(false);
 
     if (!result.success) {
-      setFormError(result.error);
+      notify.error(result.error);
       setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       return;
     }
@@ -130,7 +127,6 @@ function DependenciaFormModalContent({
       }
     >
       <form id="dependencia-form" className={styles.formLayout} onSubmit={handleSubmit}>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <section className={styles.formSection} aria-label="Información de la dependencia">
           <p className={styles.formSectionTitle}>Información general</p>

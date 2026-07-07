@@ -9,8 +9,14 @@ import {
   resolveIncidenciaAction,
 } from "../../actions/incidencias.actions";
 import { formatEtiqueta } from "@/lib/domain/labels";
-import { canCancelIncidencia, canResolveIncidencia } from "@/lib/domain/incidencia";
+import {
+  canCancelIncidencia,
+  canResolveIncidencia,
+  INCIDENCIA_TIPOS_RESOLUCION,
+  INCIDENCIA_TIPO_RESOLUCION_LABELS,
+} from "@/lib/domain/incidencia";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -20,16 +26,6 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
-
-const TIPOS_RESOLUCION = [
-  { value: "SIN_ACCION", label: "Sin acción" },
-  { value: "OBSERVACION", label: "Observación" },
-  { value: "ADVERTENCIA", label: "Advertencia" },
-  { value: "REGULARIZACION", label: "Regularización" },
-  { value: "SUSPENSION_TEMPORAL", label: "Suspensión temporal" },
-  { value: "BAJA_PROCESO", label: "Baja del proceso" },
-  { value: "CANCELACION_PROCESO", label: "Cancelación del proceso" },
-] as const;
 
 export function DelegacionIncidenciaDetailModal({
   incidenciaId,
@@ -41,7 +37,6 @@ export function DelegacionIncidenciaDetailModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [tipoResolucion, setTipoResolucion] = useState<string>("REGULARIZACION");
@@ -54,7 +49,6 @@ export function DelegacionIncidenciaDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
         setComentario("");
         setMotivo("");
         setTipoResolucion("REGULARIZACION");
@@ -75,18 +69,17 @@ export function DelegacionIncidenciaDetailModal({
   const handleResolve = async () => {
     if (!detail) return;
     if (!comentario.trim()) {
-      setActionError("Escribe el comentario de resolución.");
+      notify.error("Escribe el comentario de resolución.");
       return;
     }
     setIsMutating(true);
-    setActionError(null);
     const result = await resolveIncidenciaAction(detail.idIncidencia, {
       tipoResolucion,
       comentario: comentario.trim(),
     });
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     refresh();
@@ -95,17 +88,16 @@ export function DelegacionIncidenciaDetailModal({
   const handleCancel = async () => {
     if (!detail) return;
     if (!motivo.trim()) {
-      setActionError("Escribe el motivo de cancelación.");
+      notify.error("Escribe el motivo de cancelación.");
       return;
     }
     setIsMutating(true);
-    setActionError(null);
     const result = await cancelIncidenciaAction(detail.idIncidencia, {
       motivo: motivo.trim(),
     });
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     refresh();
@@ -156,7 +148,6 @@ export function DelegacionIncidenciaDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={AlertTriangle}
@@ -206,9 +197,9 @@ export function DelegacionIncidenciaDetailModal({
                   value={tipoResolucion}
                   onChange={(event) => setTipoResolucion(event.target.value)}
                 >
-                  {TIPOS_RESOLUCION.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  {INCIDENCIA_TIPOS_RESOLUCION.map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {INCIDENCIA_TIPO_RESOLUCION_LABELS[tipo]}
                     </option>
                   ))}
                 </select>

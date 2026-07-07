@@ -2,7 +2,9 @@
 
 import { actionFailure, runServerAction, type ActionResult } from "@/lib/actions";
 import { puedePostularVacantes } from "@/lib/domain";
+import { isCvComplete } from "../components/cv/cv-labels";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
+import { getCv } from "../services/cv.service";
 import { getProcesoActual } from "../services/inicio.service";
 import {
   cancelPostulacion,
@@ -32,6 +34,14 @@ export async function createPostulacionAction(
     return actionFailure(
       "Ya tienes un proceso de servicio social en curso. No puedes postularte a nuevas vacantes mientras esté vigente.",
       { code: "ALUMNO_CON_PROCESO_VIGENTE" },
+    );
+  }
+
+  const cv = await getCv().catch(() => null);
+  if (!isCvComplete(cv)) {
+    return actionFailure(
+      "Completa y guarda tu CV antes de postularte.",
+      { code: "CV_INCOMPLETO" },
     );
   }
 

@@ -3,6 +3,7 @@ import { FileText } from "lucide-react";
 import type { HorasResumenResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { DetailModalHero } from "@/shared/components/DetailModal";
+import { SectionEmptyState } from "@/shared/components/SectionEmptyState";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import styles from "./AlumnoProcesoShell.module.css";
@@ -70,20 +71,19 @@ export function AlumnoProcesoContextBar({
   );
 }
 
-type AlumnoProcesoEmptyViewProps = {
-  firstName: string;
-};
-
-export function AlumnoProcesoEmptyView({ firstName }: AlumnoProcesoEmptyViewProps) {
+export function AlumnoProcesoEmptyView() {
   return (
-    <div className={styles.emptyState}>
-      <p>
-        Hola, <strong>{firstName}</strong>. Aún no tienes un proceso activo. Cuando tu postulación
-        sea aceptada, aquí podrás registrar horas, subir documentos y consultar tu avance.
-      </p>
-      <p>
-        <Link href={`${PANEL_PATHS.alumno}/vacantes`}>Explora las vacantes disponibles</Link> para postularte.
-      </p>
-    </div>
+    <SectionEmptyState
+      icon={FileText}
+      title="Aún no tienes un proceso activo"
+      description={
+        <>
+          Cuando tu postulación sea aceptada, aquí podrás registrar horas, subir documentos y
+          consultar tu avance.{" "}
+          <Link href={`${PANEL_PATHS.alumno}/vacantes`}>Explora las vacantes disponibles</Link>{" "}
+          para postularte.
+        </>
+      }
+    />
   );
 }

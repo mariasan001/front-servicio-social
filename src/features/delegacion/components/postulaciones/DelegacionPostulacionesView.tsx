@@ -83,7 +83,6 @@ export function DelegacionPostulacionesView({
     {
       id: "examen",
       header: "Examen",
-      align: "center",
       width: "9.5rem",
       cell: (postulacion) =>
         postulacion.requiereExamen ? (
@@ -97,7 +96,6 @@ export function DelegacionPostulacionesView({
       header: "Estatus",
       variant: "status",
       width: "12rem",
-      align: "center",
       cell: (postulacion) => <EstatusBadge estatus={postulacion.estatus} />,
     },
   ];

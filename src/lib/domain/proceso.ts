@@ -63,6 +63,16 @@ export function canEmitCartaLiberacion(estatus?: string, tieneCartaLiberacion = 
   return !tieneCartaLiberacion && isProcesoPendienteLiberacion(estatus);
 }
 
+export const EVALUACION_FINAL_ESTATUS = ["APROBADA", "NO_APROBADA", "OBSERVADA"] as const;
+
+export type EvaluacionFinalEstatus = (typeof EVALUACION_FINAL_ESTATUS)[number];
+
+export const EVALUACION_FINAL_ESTATUS_LABELS: Record<EvaluacionFinalEstatus, string> = {
+  APROBADA: "Aprobada",
+  NO_APROBADA: "No aprobada",
+  OBSERVADA: "Observada",
+};
+
 export function canRegistrarEvaluacionFinal(procesoEstatus?: string, evaluacionFinal?: unknown) {
   return isProcesoHorasCompletas(procesoEstatus) && !evaluacionFinal;
 }

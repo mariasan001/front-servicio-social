@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarClock, Clock, Shield } from "lucide-react";
+import { CalendarClock, Clock, FileText, Shield } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { HoraResponse, NotificacionResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import type { AuthUser } from "@/lib/api/types";
@@ -12,8 +12,8 @@ import {
   formatFecha,
 } from "@/lib/domain";
 import { horasEnFecha, parseDateKey } from "../../lib/horas-calendar.utils";
-import { Alert } from "@/shared/components/Alert";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
+import { SectionEmptyState } from "@/shared/components/SectionEmptyState";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { HoraDiaDetailModal } from "../proceso/HoraDiaDetailModal";
@@ -40,7 +40,6 @@ export function AlumnoInicioView({
   totalNotificaciones,
   unreadCount,
 }: AlumnoInicioViewProps) {
-  const [actionError, setActionError] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState<HorasCalendarView>("month");
   const [calendarAnchor, setCalendarAnchor] = useState(() => new Date());
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
@@ -86,7 +85,12 @@ export function AlumnoInicioView({
   };
 
   return (
-    <section className={styles.page} aria-labelledby="alumno-inicio-title">
+    <section
+      className={[styles.page, !procesoActual && headerStyles.inicioNoProceso]
+        .filter(Boolean)
+        .join(" ")}
+      aria-labelledby="alumno-inicio-title"
+    >
       <PageHeader
         className={headerStyles.inicioHeader}
         titleId="alumno-inicio-title"
@@ -101,7 +105,6 @@ export function AlumnoInicioView({
         }
       />
 
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       <StatCards>
         <StatCard
@@ -139,11 +142,18 @@ export function AlumnoInicioView({
         />
         </div>
       ) : (
-        <p className={headerStyles.emptyCalendar}>
-          Aún no tienes un proceso activo. Cuando tu postulación sea aceptada, aquí verás el
-          calendario de tus horas.{" "}
-          <Link href={`${PANEL_PATHS.alumno}/vacantes`}>Explora vacantes disponibles</Link>.
-        </p>
+        <div className={headerStyles.calendarSection}>
+          <SectionEmptyState
+            icon={FileText}
+            title="Aún no tienes un proceso activo"
+            description={
+              <>
+                Cuando tu postulación sea aceptada, aquí verás el calendario de tus horas.{" "}
+                <Link href={`${PANEL_PATHS.alumno}/vacantes`}>Explora vacantes disponibles</Link>.
+              </>
+            }
+          />
+        </div>
       )}
 
       <HoraDiaDetailModal

@@ -44,3 +44,43 @@ export function countCvProgress(values: Record<CvTrackedField, string>) {
 export function getMissingCvFields(values: Record<CvTrackedField, string>) {
   return CV_REQUIRED_FIELDS.filter((field) => !values[field].trim()).map(formatCvFieldLabel);
 }
+
+export function isCvComplete(cv?: {
+  completo?: boolean;
+  camposFaltantes?: string[];
+  perfilProfesional?: string;
+  experienciaLaboral?: string;
+  habilidades?: string;
+} | null) {
+  if (cv?.completo === true) {
+    return true;
+  }
+
+  if (cv?.completo === false) {
+    return false;
+  }
+
+  if (!cv) {
+    return false;
+  }
+
+  const values: Record<CvTrackedField, string> = {
+    perfilProfesional: cv.perfilProfesional ?? "",
+    experienciaLaboral: cv.experienciaLaboral ?? "",
+    habilidades: cv.habilidades ?? "",
+    idiomas: "",
+    certificaciones: "",
+  };
+
+  return countCvProgress(values).requiredComplete;
+}
+
+/** Secciones del panel alumno bloqueadas hasta completar el CV. */
+export const ALUMNO_NAV_IDS_BLOCKED_WITHOUT_CV = [
+  "inicio",
+  "vacantes",
+  "postulaciones",
+  "proceso",
+] as const;
+
+export const ALUMNO_CV_NAV_ID = "cv" as const;

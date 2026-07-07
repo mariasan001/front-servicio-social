@@ -1,11 +1,11 @@
-export const MODALIDAD_INTERES_OPTIONS = [
-  { value: "SERVICIO_SOCIAL", label: "Servicio social" },
-  { value: "PRACTICAS", label: "Prácticas profesionales" },
-  { value: "RESIDENCIAS", label: "Residencias profesionales" },
-] as const;
+import {
+  MODALIDAD_CATALOGO_OPTIONS,
+  type ModalidadCatalogoValue,
+} from "@/lib/domain/modalidad";
 
-export type ModalidadInteresValue =
-  (typeof MODALIDAD_INTERES_OPTIONS)[number]["value"];
+export const MODALIDAD_INTERES_OPTIONS = MODALIDAD_CATALOGO_OPTIONS;
+
+export type ModalidadInteresValue = ModalidadCatalogoValue;
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const USERNAME_MAX_LENGTH = 100;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AuthUser } from "@/lib/api/types";
 import { LogoutButton } from "@/features/auth/components/LogoutButton/LogoutButton";
+import { notify } from "@/shared/notifications";
 import type { PanelNavGroup } from "../../constants/navigation";
 import styles from "./PanelSidebar.module.css";
 
@@ -12,6 +13,8 @@ type PanelSidebarProps = {
   user: AuthUser;
   navigation: PanelNavGroup;
   accessibleNavigations: PanelNavGroup[];
+  disabledNavItemIds?: string[];
+  disabledNavMessage?: string;
   onNavigate?: () => void;
 };
 
@@ -45,9 +48,18 @@ export function PanelSidebar({
   user,
   navigation,
   accessibleNavigations,
+  disabledNavItemIds,
+  disabledNavMessage,
   onNavigate,
 }: PanelSidebarProps) {
   const pathname = usePathname();
+  const disabledIds = new Set(disabledNavItemIds ?? []);
+
+  const handleDisabledNavClick = () => {
+    notify.warning(
+      disabledNavMessage ?? "Esta sección no está disponible por ahora.",
+    );
+  };
 
   return (
     <aside className={styles.sidebar} aria-label="Menú del panel">
@@ -108,6 +120,24 @@ export function PanelSidebar({
         {navigation.items.map((item) => {
           const active = matchNavItem(pathname, item.href, navigation.basePath);
           const Icon = item.icon;
+          const isDisabled = disabledIds.has(item.id);
+
+          if (isDisabled) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={[styles.navLink, styles.navLinkDisabled].join(" ")}
+                aria-disabled="true"
+                onClick={handleDisabledNavClick}
+              >
+                <span className={styles.navIconWrap} aria-hidden="true">
+                  <Icon className={styles.navIcon} size={17} strokeWidth={2} />
+                </span>
+                <span className={styles.navLabel}>{item.label}</span>
+              </button>
+            );
+          }
 
           return (
             <Link

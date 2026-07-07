@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
-import { RolePanelLayout } from "@/features/panel";
-import { USER_ROLES } from "@/lib/auth/constants";
+import { AlumnoPanelLayout } from "@/features/alumno/components/AlumnoPanelLayout";
 
 type LayoutProps = {
   children: ReactNode;
 };
 
-export default function AlumnoPanelLayout({ children }: LayoutProps) {
-  return <RolePanelLayout role={USER_ROLES.ALUMNO}>{children}</RolePanelLayout>;
+export default function Layout({ children }: LayoutProps) {
+  return <AlumnoPanelLayout>{children}</AlumnoPanelLayout>;
 }

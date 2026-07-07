@@ -16,6 +16,7 @@ import {
 } from "../../lib/horas-calendar.utils";
 import { canAlumnoActualizarBitacora, validarRegistroHoraAlumno } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -65,8 +66,6 @@ export function HoraDiaDetailModal({
   onRegistered,
 }: HoraDiaDetailModalProps) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [registerDraft, setRegisterDraft] = useState<HoraRegisterDraft>(EMPTY_REGISTER);
   const [bitacoraDrafts, setBitacoraDrafts] = useState<Record<number, string>>({});
@@ -76,8 +75,6 @@ export function HoraDiaDetailModal({
       return;
     }
 
-    setActionError(null);
-    setActionSuccess(null);
     setRegisterDraft({
       horaEntrada: initialRegister?.horaEntrada ?? "",
       horaSalida: initialRegister?.horaSalida ?? "",
@@ -125,12 +122,11 @@ export function HoraDiaDetailModal({
     const validationError = validarRegistroHoraAlumno(payload);
 
     if (validationError) {
-      setActionError(validationError);
+      notify.error(validationError);
       return;
     }
 
     setIsMutating(true);
-    setActionError(null);
     const result = await registerProcesoHoraAction(idProceso, {
       fecha: payload.fecha,
       horaEntrada: payload.horaEntrada,
@@ -140,7 +136,7 @@ export function HoraDiaDetailModal({
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -169,13 +165,11 @@ export function HoraDiaDetailModal({
       (hora) => !(bitacoraDrafts[hora.idAsistencia]?.trim() ?? ""),
     );
     if (invalidUpdate) {
-      setActionError("La descripción de actividades es obligatoria.");
+      notify.error("La descripción de actividades es obligatoria.");
       return;
     }
 
     setIsMutating(true);
-    setActionError(null);
-    setActionSuccess(null);
 
     const results = await Promise.all(
       pendingUpdates.map((hora) =>
@@ -189,11 +183,11 @@ export function HoraDiaDetailModal({
 
     const failed = results.find((result) => !result.success);
     if (failed && !failed.success) {
-      setActionError(failed.error);
+      notify.error(failed.error);
       return;
     }
 
-    setActionSuccess("La bitácora se actualizó correctamente.");
+    notify.success("La bitácora se actualizó correctamente.");
     onRegistered?.();
     router.refresh();
   };
@@ -237,12 +231,6 @@ export function HoraDiaDetailModal({
       size="lg"
       footer={footer}
     >
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-      {actionSuccess ? (
-        <Alert tone="success" title="Cambios guardados">
-          {actionSuccess}
-        </Alert>
-      ) : null}
 
       {showRegisterForm ? (
         <section className={sectionStyles.registerPanel} aria-labelledby="hora-register-title">

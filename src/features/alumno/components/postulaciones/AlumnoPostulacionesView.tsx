@@ -12,7 +12,7 @@ import {
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { normalizeText } from "@/lib/utils/search";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import {
   DataTable,
@@ -35,7 +35,6 @@ export function AlumnoPostulacionesView({
   const [selected, setSelected] = useState<PostulacionResponse | null>(null);
   const [cancelTarget, setCancelTarget] = useState<PostulacionResponse | null>(null);
   const [cancelingId, setCancelingId] = useState<number | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const filtered = useMemo(() => {
@@ -61,14 +60,13 @@ export function AlumnoPostulacionesView({
     }
 
     setCancelingId(cancelTarget.idPostulacion);
-    setActionError(null);
 
     const result = await cancelPostulacionAction(cancelTarget.idPostulacion);
 
     setCancelingId(null);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -109,7 +107,6 @@ export function AlumnoPostulacionesView({
     {
       id: "examen",
       header: "Examen",
-      align: "center",
       width: "10.25rem",
       cell: (postulacion) =>
         postulacion.requiereExamen ? (
@@ -121,8 +118,7 @@ export function AlumnoPostulacionesView({
     {
       id: "estatus",
       header: "Estatus",
-      align: "center",
-      width: "10.25rem",
+      width: "11.5rem",
       cell: (postulacion) => <EstatusBadge estatus={postulacion.estatus} />,
     },
     {
@@ -154,7 +150,6 @@ export function AlumnoPostulacionesView({
         description="Consulta el estatus de tus postulaciones a vacantes."
       />
 
-      {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
       <DataTable
         toolbar={

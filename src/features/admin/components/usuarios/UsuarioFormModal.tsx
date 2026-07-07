@@ -11,7 +11,7 @@ import { mapActionFieldErrors } from "@/lib/actions/form-errors";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { formatRol } from "./usuario-labels";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import {
   CheckboxField,
@@ -105,7 +105,6 @@ function UsuarioFormModalContent({
   const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, usuario));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const requiresEscuela = values.roles.includes(USER_ROLES.ENLACE_ESCOLAR);
@@ -121,7 +120,6 @@ function UsuarioFormModalContent({
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const toggleRole = (role: UserRole, checked: boolean) => {
@@ -137,7 +135,6 @@ function UsuarioFormModalContent({
       };
     });
     setFieldErrors((current) => ({ ...current, roles: undefined, escuelaId: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -177,7 +174,6 @@ function UsuarioFormModalContent({
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     const sharedPayload = {
       nombreCompleto,
@@ -201,7 +197,7 @@ function UsuarioFormModalContent({
     setIsSubmitting(false);
 
     if (!result.success) {
-      setFormError(result.error);
+      notify.error(result.error);
       setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       return;
     }
@@ -233,7 +229,6 @@ function UsuarioFormModalContent({
       }
     >
       <form id="usuario-form" className={styles.formLayout} onSubmit={handleSubmit}>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         {mode === "create" ? (
           <section className={styles.formSection} aria-label="Acceso">

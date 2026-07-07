@@ -8,7 +8,6 @@ import {
   canReviewDocumento,
   formatEtiqueta,
 } from "@/lib/domain";
-import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -25,7 +24,6 @@ type DelegacionDocumentoRevisionModalProps = {
   open: boolean;
   documento: ProcesoDocumentoResponse | null;
   disabled?: boolean;
-  actionError?: string | null;
   comentario: string;
   onComentarioChange: (value: string) => void;
   onClose: () => void;
@@ -39,7 +37,6 @@ export function DelegacionDocumentoRevisionModal({
   open,
   documento,
   disabled = false,
-  actionError,
   comentario,
   onComentarioChange,
   onClose,
@@ -98,8 +95,6 @@ export function DelegacionDocumentoRevisionModal({
       }
     >
       <div className={detailStyles.modalBody}>
-        {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-
         <DetailModalHero
           badge={fileTypeLabel}
           title={documentoLabel}

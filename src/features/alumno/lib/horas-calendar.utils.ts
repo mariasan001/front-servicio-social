@@ -2,7 +2,7 @@ import type { HoraResponse } from "../types/alumno.types";
 
 export const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
 
-export const WEEK_GRID_START_HOUR = 7;
+export const WEEK_GRID_START_HOUR = 5;
 export const WEEK_GRID_END_HOUR = 21;
 export const WEEK_GRID_SLOT_HEIGHT = 2.75;
 
@@ -184,11 +184,23 @@ export function formatHoraRange(entrada?: string, salida?: string) {
 }
 
 export function getEventBlockPosition(entrada?: string, salida?: string) {
-  const startMinutes = timeToMinutes(entrada) ?? 9 * 60;
-  const endMinutes = timeToMinutes(salida) ?? startMinutes + 60;
+  const rawStart = timeToMinutes(entrada) ?? 9 * 60;
+  const rawEnd = timeToMinutes(salida) ?? rawStart + 60;
   const gridStart = WEEK_GRID_START_HOUR * 60;
-  const topHours = (startMinutes - gridStart) / 60;
-  const durationHours = Math.max((endMinutes - startMinutes) / 60, 0.5);
+  const gridEnd = (WEEK_GRID_END_HOUR + 1) * 60;
+
+  const effectiveStart = Math.max(rawStart, gridStart);
+  const effectiveEnd = Math.min(Math.max(rawEnd, effectiveStart + 30), gridEnd);
+
+  if (effectiveEnd <= effectiveStart) {
+    return {
+      top: "0rem",
+      height: `${0.75 * WEEK_GRID_SLOT_HEIGHT}rem`,
+    };
+  }
+
+  const topHours = (effectiveStart - gridStart) / 60;
+  const durationHours = Math.max((effectiveEnd - effectiveStart) / 60, 0.75);
 
   return {
     top: `${topHours * WEEK_GRID_SLOT_HEIGHT}rem`,

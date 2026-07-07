@@ -10,7 +10,7 @@ import {
 import type { DocumentoEstatusResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import { canAlumnoSubirDocumento, estatusTone, formatEtiqueta } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import {
   DocumentoGestionModal,
@@ -34,7 +34,6 @@ export function AlumnoProcesoDocumentosView({
   firstName,
 }: AlumnoProcesoDocumentosViewProps) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<number, File | null>>({});
   const [activeDocumentoId, setActiveDocumentoId] = useState<number | null>(null);
@@ -44,12 +43,10 @@ export function AlumnoProcesoDocumentosView({
 
   const openDocumento = (idProcesoDocumento: number) => {
     setActiveDocumentoId(idProcesoDocumento);
-    setActionError(null);
   };
 
   const closeDocumento = () => {
     setActiveDocumentoId(null);
-    setActionError(null);
   };
 
   const submitDocumento = async (idProcesoDocumento: number) => {
@@ -57,14 +54,13 @@ export function AlumnoProcesoDocumentosView({
     const validationError = validateUploadFile(file);
 
     if (validationError) {
-      setActionError(validationError);
+      notify.error(validationError);
       return;
     }
 
     const formData = new FormData();
     formData.append("archivo", file as File);
     setIsMutating(true);
-    setActionError(null);
     const result = await uploadDocumentoArchivoAction(
       proceso.idProceso,
       idProcesoDocumento,
@@ -73,7 +69,7 @@ export function AlumnoProcesoDocumentosView({
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -84,10 +80,8 @@ export function AlumnoProcesoDocumentosView({
 
   const downloadDocumento = async (idProcesoDocumento: number) => {
     setIsMutating(true);
-    setActionError(null);
     await runDownloadAction(
-      () => downloadDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento),
-      setActionError,
+      () => downloadDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento), notify.error,
     );
     setIsMutating(false);
   };
@@ -100,7 +94,6 @@ export function AlumnoProcesoDocumentosView({
       description="Sube los archivos solicitados para continuar con tu proceso."
       estatus={proceso.estatus}
     >
-      {actionError && !activeDocumento ? <Alert tone="error">{actionError}</Alert> : null}
 
       <section className={styles.docSection} aria-label="Documentos del proceso">
         {documentos.length === 0 ? (
@@ -160,7 +153,6 @@ export function AlumnoProcesoDocumentosView({
         }
         disabled={isMutating}
         canUpload={activeDocumento ? canAlumnoSubirDocumento(activeDocumento.estatus) : false}
-        actionError={activeDocumento ? actionError : null}
         onClose={closeDocumento}
         onFileSelect={(file) => {
           if (!activeDocumento) return;
@@ -169,7 +161,7 @@ export function AlumnoProcesoDocumentosView({
             [activeDocumento.idProcesoDocumento]: file,
           }));
         }}
-        onInvalidFile={setActionError}
+        onInvalidFile={notify.error}
         onUpload={() => {
           if (!activeDocumento) return;
           void submitDocumento(activeDocumento.idProcesoDocumento);

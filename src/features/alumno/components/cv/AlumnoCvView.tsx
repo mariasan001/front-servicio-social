@@ -4,7 +4,7 @@ import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
 import type { CvResponse } from "../../types/alumno.types";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -59,8 +59,6 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
   const [certificacionesItems, setCertificacionesItems] = useState(() =>
     parseListItems(cv.certificaciones ?? ""),
   );
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -111,39 +109,27 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
 
   const updateField = (field: keyof CvFormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
-    setSuccess(null);
-    setError(null);
   };
 
   const updateHabilidades = (items: string[]) => {
     setHabilidadesItems(items);
-    setSuccess(null);
-    setError(null);
   };
 
   const updateExperiencia = (items: string[]) => {
     setExperienciaItems(items);
-    setSuccess(null);
-    setError(null);
   };
 
   const updateIdiomas = (items: string[]) => {
     setIdiomasItems(items);
-    setSuccess(null);
-    setError(null);
   };
 
   const updateCertificaciones = (items: string[]) => {
     setCertificacionesItems(items);
-    setSuccess(null);
-    setError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSaving(true);
-    setError(null);
-    setSuccess(null);
 
     const result = await updateCvAction({
       perfilProfesional: effectiveForm.perfilProfesional.trim() || undefined,
@@ -157,11 +143,11 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
     setIsSaving(false);
 
     if (!result.success) {
-      setError(result.error);
+      notify.error(result.error);
       return;
     }
 
-    setSuccess("Tu CV se actualizó correctamente.");
+    notify.success("Tu CV se actualizó correctamente.");
     router.refresh();
   };
 
@@ -171,8 +157,6 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
     setExperienciaItems(parseListItems(savedSnapshot.experienciaLaboral));
     setIdiomasItems(parseListItems(savedSnapshot.idiomas));
     setCertificacionesItems(parseListItems(savedSnapshot.certificaciones));
-    setError(null);
-    setSuccess(null);
   };
 
   return (
@@ -184,8 +168,9 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
               <PageGreeting name={firstName} />
             </h1>
             <p className={styles.cvDescription}>
-              Actualiza tu perfil profesional. Las áreas lo consultan al revisar tus
-              postulaciones.
+              {isComplete
+                ? "Actualiza tu perfil profesional. Las áreas lo consultan al revisar tus postulaciones."
+                : "Para empezar, completa y guarda tu CV. El resto del panel se activará cuando esté listo."}
             </p>
           </div>
 
@@ -208,13 +193,6 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
 
       <div className={styles.layout}>
         <article className={styles.formCard}>
-          {error ? <Alert tone="error">{error}</Alert> : null}
-          {success ? (
-            <Alert tone="success" title="Cambios guardados">
-              {success}
-            </Alert>
-          ) : null}
-
           <form className={formLayoutStyles.formLayout} onSubmit={(event) => void handleSubmit(event)}>
             <section className={formLayoutStyles.formSection} aria-label="Perfil profesional">
               <p className={formLayoutStyles.formSectionTitle}>Perfil profesional</p>

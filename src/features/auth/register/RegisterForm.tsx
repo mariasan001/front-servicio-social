@@ -18,6 +18,7 @@ import {
   validateRegisterForm,
   type RegisterFormValues,
 } from "../validation/auth.validation";
+import { notify } from "@/shared/notifications";
 import { Alert } from "@/shared/components/Alert";
 import {
   CheckboxField,
@@ -54,8 +55,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof RegisterFormValues, string>>
   >({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenStatus, setTokenStatus] = useState<
     "idle" | "loading" | "valid" | "invalid"
@@ -82,14 +81,14 @@ export function RegisterForm({ token }: RegisterFormProps) {
         }
 
         setTokenStatus("invalid");
-        setFormError(
+        notify.error(
           result?.mensaje ??
             "El enlace de registro no es válido o ya expiró. Solicita uno nuevo en tu institución.",
         );
       } catch (error) {
         if (cancelled) return;
         setTokenStatus("invalid");
-        setFormError(
+        notify.error(
           getApiErrorMessage(
             error,
             "No fue posible validar el enlace de registro.",
@@ -111,8 +110,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
   ) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
-    setSuccessMessage(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -129,8 +126,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
     }
 
     setIsSubmitting(true);
-    setFormError(null);
-    setSuccessMessage(null);
 
     const semestre = values.semestreCuatrimestre.trim();
     const sharedPayload = {
@@ -159,7 +154,7 @@ export function RegisterForm({ token }: RegisterFormProps) {
             escuelaTextoCapturada: values.escuelaTextoCapturada.trim(),
           });
 
-      setSuccessMessage(
+      notify.success(
         response.mensaje ??
           (response.requiereNormalizacionEscuela
             ? "Tu cuenta fue creada. Tu escuela será validada por la delegación antes de que puedas postularte."
@@ -167,7 +162,7 @@ export function RegisterForm({ token }: RegisterFormProps) {
       );
       setValues(INITIAL_VALUES);
     } catch (error) {
-      setFormError(
+      notify.error(
         getApiErrorMessage(
           error,
           "No fue posible completar el registro. Intenta nuevamente.",
@@ -198,11 +193,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
         <Alert tone="info">
           Institución vinculada: <strong>{tokenSchoolName}</strong>
         </Alert>
-      ) : null}
-
-      {formError ? <Alert tone="error">{formError}</Alert> : null}
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
       ) : null}
 
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>

@@ -12,7 +12,7 @@ import {
   validateLoginForm,
   type LoginFormValues,
 } from "../validation/auth.validation";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import {
   PasswordInput,
   TextInput,
@@ -35,7 +35,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof LoginFormValues, string>>
   >({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = <K extends keyof LoginFormValues>(
@@ -44,7 +43,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   ) => {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setFormError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -57,7 +55,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     }
 
     setIsSubmitting(true);
-    setFormError(null);
 
     try {
       const user = await login({
@@ -72,7 +69,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
       router.push(destination);
       router.refresh();
     } catch (error) {
-      setFormError(
+      notify.error(
         getApiErrorMessage(
           error,
           "No fue posible iniciar sesión. Verifica tus credenciales.",
@@ -89,8 +86,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
       subtitle={AUTH_COPY.loginSubtitle}
     >
       <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
-        {formError ? <Alert tone="error">{formError}</Alert> : null}
-
         <TextInput
           id="login-username"
           name="username"

@@ -46,6 +46,7 @@ import {
 } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -116,8 +117,6 @@ export function DelegacionProcesoDetailModal({
   onClose,
 }: DelegacionProcesoDetailModalProps) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
@@ -139,8 +138,6 @@ export function DelegacionProcesoDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
-        setActionSuccess(null);
         setMotivoCancelacion("");
         setComentario("");
         setDocumentoComentario("");
@@ -221,19 +218,17 @@ export function DelegacionProcesoDetailModal({
     if (!proceso) return false;
     const horas = Number(horasRequeridas);
     if (!horasRequeridas.trim() || Number.isNaN(horas) || horas <= 0) {
-      setActionError("Indica un número válido de horas requeridas.");
+      notify.error("Indica un número válido de horas requeridas.");
       return false;
     }
     setIsMutating(true);
-    setActionError(null);
-    setActionSuccess(null);
     const result = await setProcesoHorasRequeridasAction(proceso.idProceso, horas);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return false;
     }
-    setActionSuccess("Horas requeridas guardadas. Emite la carta de aceptación para activar el proceso.");
+    notify.success("Horas requeridas guardadas. Emite la carta de aceptación para activar el proceso.");
     refresh();
     return true;
   };
@@ -257,8 +252,6 @@ export function DelegacionProcesoDetailModal({
 
   const activarProceso = async (withFile = false) => {
     if (!proceso) return;
-    setActionError(null);
-    setActionSuccess(null);
 
     const horasGuardadas = await guardarHorasSiFaltan();
     if (!horasGuardadas) return;
@@ -272,11 +265,11 @@ export function DelegacionProcesoDetailModal({
     const result = await emitProcesoCartaAction(proceso.idProceso, "aceptacion");
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
-    setActionSuccess("Proceso activado. Se emitió la carta de aceptación y el alumno ya puede registrar horas.");
+    notify.success("Proceso activado. Se emitió la carta de aceptación y el alumno ya puede registrar horas.");
     refresh();
   };
 
@@ -287,15 +280,14 @@ export function DelegacionProcesoDetailModal({
   ) => {
     if (!proceso) return;
     if (action === "observe" && !comentarioValue.trim()) {
-      setActionError("Escribe una observación para el alumno.");
+      notify.error("Escribe una observación para el alumno.");
       return;
     }
     if (action === "reject" && !comentarioValue.trim()) {
-      setActionError("Escribe el motivo del rechazo.");
+      notify.error("Escribe el motivo del rechazo.");
       return;
     }
     setIsMutating(true);
-    setActionError(null);
     const body = { comentario: comentarioValue.trim() };
     const result =
       action === "approve"
@@ -305,7 +297,7 @@ export function DelegacionProcesoDetailModal({
           : await rejectProcesoDocumentoAction(proceso.idProceso, idProcesoDocumento, body);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     setDocumentoComentario("");
@@ -319,7 +311,6 @@ export function DelegacionProcesoDetailModal({
   ) => {
     if (!proceso) return;
     setIsMutating(true);
-    setActionError(null);
     const result =
       action === "validate"
         ? await validateProcesoHoraAction(
@@ -340,7 +331,7 @@ export function DelegacionProcesoDetailModal({
               });
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     setComentario("");
@@ -353,10 +344,8 @@ export function DelegacionProcesoDetailModal({
   const downloadDocumento = async (idProcesoDocumento: number) => {
     if (!proceso) return;
     setIsMutating(true);
-    setActionError(null);
     await runDownloadAction(
-      () => downloadProcesoDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento),
-      setActionError,
+      () => downloadProcesoDocumentoArchivoAction(proceso.idProceso, idProcesoDocumento), notify.error,
     );
     setIsMutating(false);
   };
@@ -364,10 +353,8 @@ export function DelegacionProcesoDetailModal({
   const downloadCarta = async (kind: CartaDownloadKind) => {
     if (!proceso) return;
     setIsMutating(true);
-    setActionError(null);
     await runDownloadAction(
-      () => downloadProcesoCartaArchivoAction(proceso.idProceso, kind),
-      setActionError,
+      () => downloadProcesoCartaArchivoAction(proceso.idProceso, kind), notify.error,
     );
     setIsMutating(false);
   };
@@ -379,13 +366,11 @@ export function DelegacionProcesoDetailModal({
     const file = withFile ? input?.files?.[0] : undefined;
 
     if (withFile && !file) {
-      setActionError("Selecciona un archivo PDF para emitir la carta.");
+      notify.error("Selecciona un archivo PDF para emitir la carta.");
       return;
     }
 
     setIsMutating(true);
-    setActionError(null);
-    setActionSuccess(null);
     const result = withFile
       ? await (() => {
           const formData = new FormData();
@@ -396,15 +381,15 @@ export function DelegacionProcesoDetailModal({
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
     if (input) input.value = "";
     if (kind === "aceptacion") {
-      setActionSuccess("Proceso activado. Se emitió la carta de aceptación y el alumno ya puede registrar horas.");
+      notify.success("Proceso activado. Se emitió la carta de aceptación y el alumno ya puede registrar horas.");
     } else {
-      setActionSuccess("Carta de liberación emitida correctamente.");
+      notify.success("Carta de liberación emitida correctamente.");
     }
     refresh();
   };
@@ -425,8 +410,6 @@ export function DelegacionProcesoDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-          {actionSuccess ? <Alert tone="success">{actionSuccess}</Alert> : null}
 
           <div className={sectionStyles.sectionContext}>
             <div className={sectionStyles.sectionContextMain}>
@@ -584,7 +567,6 @@ export function DelegacionProcesoDetailModal({
                           onClick={() => {
                             setActiveDocumentoId(doc.idProcesoDocumento);
                             setDocumentoComentario("");
-                            setActionError(null);
                           }}
                         >
                           <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
@@ -768,7 +750,6 @@ export function DelegacionProcesoDetailModal({
                           aria-label={`Ver ${label}`}
                           onClick={() => {
                             setActiveCartaId(carta.idCarta);
-                            setActionError(null);
                           }}
                         >
                           <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
@@ -831,7 +812,7 @@ export function DelegacionProcesoDetailModal({
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoCancelacion.trim()) {
-                        setActionError("Escribe el motivo de cancelación.");
+                        notify.error("Escribe el motivo de cancelación.");
                         return;
                       }
                       setIsMutating(true);
@@ -840,7 +821,7 @@ export function DelegacionProcesoDetailModal({
                       });
                       setIsMutating(false);
                       if (!result.success) {
-                        setActionError(result.error);
+                        notify.error(result.error);
                         return;
                       }
                       refresh();
@@ -863,13 +844,11 @@ export function DelegacionProcesoDetailModal({
         open={activeDocumento !== null}
         documento={activeDocumento}
         disabled={isMutating}
-        actionError={activeDocumento ? actionError : null}
         comentario={documentoComentario}
         onComentarioChange={setDocumentoComentario}
         onClose={() => {
           setActiveDocumentoId(null);
           setDocumentoComentario("");
-          setActionError(null);
         }}
         onDownload={() => {
           if (!activeDocumento) return;
@@ -896,10 +875,8 @@ export function DelegacionProcesoDetailModal({
         badgeLabel={activeCarta ? resolveCartaBadgeLabel(activeCarta.tipoCarta) : "PDF"}
         disabled={isMutating}
         canDownload={activeCarta ? Boolean(resolveCartaDownloadKind(activeCarta.tipoCarta)) : false}
-        actionError={activeCarta ? actionError : null}
         onClose={() => {
           setActiveCartaId(null);
-          setActionError(null);
         }}
         onDownload={() => {
           if (!activeCarta) return;

@@ -178,6 +178,14 @@
   color: var(--color-gris-500);
 }
 
+.inviteRef {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-gris-600);
+}
+
 .inviteMetaMuted {
   margin: 0;
   font-size: 0.75rem;

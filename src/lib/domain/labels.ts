@@ -32,15 +32,31 @@ const STATUS_LABELS: Record<string, string> = {
   RESUELTO: "Resuelto",
   ABIERTA: "Abierta",
   EN_REVISION: "En revisión",
-  PENDIENTE_EVALUACION: "Pendiente de evaluación",
+  PENDIENTE_EVALUACION: "Por evaluar",
   PENDIENTE_DOCUMENTACION: "Pendiente de documentación",
   LISTO_PARA_ACTIVACION: "Listo para activación",
   FINALIZADO: "Finalizado",
   FINALIZADA: "Finalizada",
+  EMITIDA: "Emitida",
   EN_EXAMEN: "En examen",
   ACEPTADA: "Aceptada",
   LIBERADO: "Liberado",
   BAJA: "Baja",
+  SERVICIO_SOCIAL: "Servicio social",
+  PRACTICAS_PROFESIONALES: "Prácticas profesionales",
+  RESIDENCIAS: "Residencias profesionales",
+  AUSENCIA: "Ausencia",
+  RETARDO: "Retardo",
+  INCUMPLIMIENTO: "Incumplimiento",
+  ABANDONO: "Abandono",
+  DOCUMENTAL: "Documental",
+  CONDUCTA: "Conducta inapropiada",
+  SUSPENSION: "Suspensión",
+  CANCELACION_ADMINISTRATIVA: "Cancelación administrativa",
+  OTRO: "Otro",
+  MEDIA: "Media",
+  ALTA: "Alta",
+  CRITICA: "Crítica",
 };
 
 export function formatFecha(value?: string) {
@@ -107,7 +123,8 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "LIBERADO" ||
     value === "ACEPTADA" ||
     value === "FINALIZADO" ||
-    value === "FINALIZADA"
+    value === "FINALIZADA" ||
+    value === "EMITIDA"
   ) {
     return "success";
   }
@@ -115,7 +132,6 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
   if (
     value === "PENDIENTE" ||
     value === "EN_REVISION" ||
-    value === "EN_EXAMEN" ||
     value === "OBSERVADO" ||
     value === "OBSERVADA" ||
     value === "SUSPENDIDO" ||
@@ -130,6 +146,10 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     return "warning";
   }
 
+  if (value === "EN_EXAMEN") {
+    return "info";
+  }
+
   if (
     value === "RECHAZADA" ||
     value === "RECHAZADO" ||
@@ -137,17 +157,14 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "CERRADA" ||
     value === "INACTIVA" ||
     value === "REVOCADO" ||
-    value === "VENCIDO"
+    value === "VENCIDO" ||
+    value === "CANCELADA" ||
+    value === "CANCELADO"
   ) {
     return "error";
   }
 
-  if (
-    value === "CANCELADA" ||
-    value === "CANCELADO" ||
-    value === "SIN_CONVENIO" ||
-    value === "NO_APLICA"
-  ) {
+  if (value === "SIN_CONVENIO" || value === "NO_APLICA") {
     return "neutral";
   }
 
@@ -171,7 +188,8 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     value === "LIBERADO" ||
     value === "ACEPTADA" ||
     value === "FINALIZADO" ||
-    value === "FINALIZADA"
+    value === "FINALIZADA" ||
+    value === "EMITIDA"
   ) {
     return "done";
   }

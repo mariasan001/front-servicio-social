@@ -16,7 +16,6 @@ type CartaGestionModalProps = {
   badgeLabel: string;
   disabled?: boolean;
   canDownload: boolean;
-  actionError?: string | null;
   onClose: () => void;
   onDownload: () => void;
 };
@@ -28,7 +27,6 @@ export function CartaGestionModal({
   badgeLabel,
   disabled = false,
   canDownload,
-  actionError,
   onClose,
   onDownload,
 }: CartaGestionModalProps) {
@@ -56,8 +54,6 @@ export function CartaGestionModal({
       }
     >
       <div className={detailStyles.modalBody}>
-        {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-
         <DetailModalHero
           badge={badgeLabel}
           title={cartaLabel}

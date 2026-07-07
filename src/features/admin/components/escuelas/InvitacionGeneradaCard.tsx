@@ -8,7 +8,7 @@ import { formatFecha } from "./escuela-labels";
 import { buildRegistrationUrl } from "./invitation-link";
 import styles from "./InvitacionGeneradaCard.module.css";
 
-type InvitationShareData = Pick<TokenGeneradoResponse, "token" | "urlRegistro" | "fechaExpiracion">;
+type InvitationShareData = Pick<TokenGeneradoResponse, "token" | "fechaExpiracion">;
 
 type CopyFieldProps = {
   label: string;
@@ -77,7 +77,7 @@ export function InvitacionGeneradaCard({
   variant = "created",
 }: InvitacionGeneradaCardProps) {
   const token = invitacion.token?.trim();
-  const registrationUrl = buildRegistrationUrl(invitacion.urlRegistro, token);
+  const registrationUrl = buildRegistrationUrl(undefined, token);
   const isStored = variant === "stored";
 
   return (
@@ -102,8 +102,8 @@ export function InvitacionGeneradaCard({
           </p>
           <p className={styles.subtitle}>
             {isStored
-              ? "Recuperado de esta sesión del navegador. Por seguridad, el enlace completo no se guarda en el servidor."
-              : "El alumno debe abrir el enlace de registro para crear su cuenta vinculada a esta escuela. Quedará disponible en esta sesión con «Ver enlace»."}
+              ? "Enlace de registro para compartir con el alumno."
+              : "Comparte el enlace o el código con el alumno vinculado a esta escuela."}
           </p>
         </div>
       </div>

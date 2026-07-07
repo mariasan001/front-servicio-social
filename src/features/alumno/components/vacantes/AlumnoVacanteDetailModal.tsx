@@ -10,6 +10,7 @@ import { getVacanteDetailAction } from "../../actions/vacantes.actions";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { puedePostularVacantes } from "@/lib/domain";
+import { notify } from "@/shared/notifications";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
@@ -43,7 +44,6 @@ export function AlumnoVacanteDetailModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [comentario, setComentario] = useState("");
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
@@ -52,7 +52,6 @@ export function AlumnoVacanteDetailModal({
     getVacanteDetailAction,
     {
       onBeforeLoad: () => {
-        setActionError(null);
         setComentario("");
       },
     },
@@ -67,16 +66,24 @@ export function AlumnoVacanteDetailModal({
   const handlePostular = async () => {
     if (!detail) return;
     setIsMutating(true);
-    setActionError(null);
     const result = await createPostulacionAction({
       vacanteId: detail.idVacante,
       comentarioAlumno: comentario.trim() || undefined,
     });
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      if (result.code === "CV_INCOMPLETO") {
+        notify.warning(result.error, {
+          description: "Completa tu perfil en Mi CV y vuelve a intentarlo.",
+        });
+        router.push(`${PANEL_PATHS.alumno}/cv`);
+        onClose();
+        return;
+      }
+      notify.error(result.error);
       return;
     }
+    notify.success("Tu postulación se registró correctamente.");
     router.refresh();
     onClose();
   };
@@ -118,8 +125,6 @@ export function AlumnoVacanteDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
-
           <DetailModalHero
             icon={Briefcase}
             title={detail.nombre?.trim() || "Vacante sin nombre"}

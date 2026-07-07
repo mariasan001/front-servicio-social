@@ -1,0 +1,30 @@
+.wrapper {
+  min-width: 0;
+  overflow: hidden;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-stat-card-border);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 2px var(--color-stat-card-shadow),
+    0 4px 16px rgb(45 45 45 / 4%);
+}
+
+.wrapperFill {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.body {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.bodyFill {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: clamp(22rem, 52vh, 38rem);
+  overflow: auto;
+}

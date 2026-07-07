@@ -398,7 +398,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   position: relative;
-  min-height: calc(2.75rem * 14);
+  min-height: calc(2.75rem * 17);
   background:
     linear-gradient(to bottom, rgb(244 244 244 / 70%) 1px, transparent 1px) 0 0 / 100% 2.75rem;
 }
@@ -432,7 +432,9 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.0625rem;
+  justify-content: flex-start;
+  gap: 0.125rem;
+  min-height: 2rem;
   padding: 0.25rem 0.3125rem;
   overflow: hidden;
   text-align: left;
@@ -443,12 +445,13 @@
 }
 
 .weekEventTitle {
+  display: -webkit-box;
   overflow: hidden;
   font-size: 0.625rem;
   font-weight: 600;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .weekEventTime {

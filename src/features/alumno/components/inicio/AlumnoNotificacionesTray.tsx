@@ -12,7 +12,7 @@ import {
   getNotificacionPresentation,
 } from "../../lib/notificacion.utils";
 import type { NotificacionResponse } from "../../types/alumno.types";
-import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import styles from "./AlumnoNotificacionesTray.module.css";
 
 type AlumnoNotificacionesTrayProps = {
@@ -38,7 +38,6 @@ export function AlumnoNotificacionesTray({
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [items, setItems] = useState(notificaciones);
   const [localUnreadCount, setLocalUnreadCount] = useState(unreadCount);
   const [pendingIds, setPendingIds] = useState<Set<number>>(() => new Set());
@@ -82,7 +81,6 @@ export function AlumnoNotificacionesTray({
       return;
     }
 
-    setActionError(null);
     setPendingIds((current) => new Set(current).add(notificacion.id));
 
     setItems((current) =>
@@ -107,7 +105,7 @@ export function AlumnoNotificacionesTray({
         ),
       );
       setLocalUnreadCount((current) => current + 1);
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -123,7 +121,6 @@ export function AlumnoNotificacionesTray({
     const previousUnreadCount = localUnreadCount;
 
     setIsMarkingAll(true);
-    setActionError(null);
     setItems((current) => current.map((item) => ({ ...item, leida: true })));
     setLocalUnreadCount(0);
 
@@ -133,7 +130,7 @@ export function AlumnoNotificacionesTray({
     if (!result.success) {
       setItems(previousItems);
       setLocalUnreadCount(previousUnreadCount);
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -148,7 +145,6 @@ export function AlumnoNotificacionesTray({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => {
-          setActionError(null);
           setOpen((current) => !current);
         }}
         aria-label={
@@ -186,11 +182,6 @@ export function AlumnoNotificacionesTray({
             ) : null}
           </div>
 
-          {actionError ? (
-            <div className={styles.panelAlert}>
-              <Alert tone="error">{actionError}</Alert>
-            </div>
-          ) : null}
 
           {items.length === 0 ? (
             <div className={styles.emptyState}>

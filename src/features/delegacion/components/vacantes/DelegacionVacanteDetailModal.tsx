@@ -16,6 +16,7 @@ import {
   canRejectVacanteDelegacion,
 } from "@/lib/domain/vacante";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { FormField } from "@/shared/components/Form";
@@ -49,7 +50,6 @@ export function DelegacionVacanteDetailModal({
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoRechazo, setMotivoRechazo] = useState("");
-  const [actionError, setActionError] = useState<string | null>(null);
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     vacanteId,
@@ -57,7 +57,6 @@ export function DelegacionVacanteDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
         setMotivoRechazo("");
       },
     },
@@ -71,11 +70,10 @@ export function DelegacionVacanteDetailModal({
   const handlePublish = async () => {
     if (!detail) return;
     setIsMutating(true);
-    setActionError(null);
     const result = await publishVacanteAction(detail.idVacante);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     handleMutationSuccess();
@@ -84,11 +82,10 @@ export function DelegacionVacanteDetailModal({
   const handleClose = async () => {
     if (!detail) return;
     setIsMutating(true);
-    setActionError(null);
     const result = await closeVacanteAction(detail.idVacante);
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     handleMutationSuccess();
@@ -97,17 +94,16 @@ export function DelegacionVacanteDetailModal({
   const handleReject = async () => {
     if (!detail) return;
     if (!motivoRechazo.trim()) {
-      setActionError("Escribe el motivo del rechazo.");
+      notify.error("Escribe el motivo del rechazo.");
       return;
     }
     setIsMutating(true);
-    setActionError(null);
     const result = await rejectVacanteAction(detail.idVacante, {
       motivo: motivoRechazo.trim(),
     });
     setIsMutating(false);
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
     handleMutationSuccess();
@@ -171,7 +167,6 @@ export function DelegacionVacanteDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={Briefcase}
@@ -253,7 +248,6 @@ export function DelegacionVacanteDetailModal({
                   value={motivoRechazo}
                   onChange={(event) => {
                     setMotivoRechazo(event.target.value);
-                    setActionError(null);
                   }}
                 />
               </FormField>

@@ -13,6 +13,7 @@ import {
   getCancelPostulacionConfirmMessage,
 } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DetailModalHero } from "@/shared/components/DetailModal";
@@ -32,7 +33,6 @@ export function AlumnoPostulacionDetailModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -43,7 +43,6 @@ export function AlumnoPostulacionDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setActionError(null);
         setConfirmCancelOpen(false);
       },
     },
@@ -65,14 +64,13 @@ export function AlumnoPostulacionDetailModal({
     }
 
     setIsMutating(true);
-    setActionError(null);
 
     const result = await cancelPostulacionAction(detail.idPostulacion);
 
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -113,7 +111,6 @@ export function AlumnoPostulacionDetailModal({
               .join(" ")}
             aria-busy={isReloading}
           >
-            {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
             <DetailModalHero
               icon={ClipboardList}

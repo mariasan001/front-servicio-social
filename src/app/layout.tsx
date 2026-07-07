@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { gotham } from "@/lib/fonts";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SkipLink } from "@/shared/components/SkipLink";
+import { AppToaster } from "@/shared/notifications";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -82,6 +83,7 @@ export default function RootLayout({
       </head>
       <body className={gotham.variable}>
         <SkipLink />
+        <AppToaster />
         {children}
       </body>
     </html>

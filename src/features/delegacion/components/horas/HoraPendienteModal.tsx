@@ -21,6 +21,7 @@ import {
 } from "@/lib/domain/horas";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import { Alert } from "@/shared/components/Alert";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { FormField } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -66,7 +67,6 @@ export function HoraPendienteModal({
 }) {
   const router = usePanelRouter();
   const [comentario, setComentario] = useState("");
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
@@ -95,7 +95,6 @@ export function HoraPendienteModal({
     {
       onBeforeLoad: () => {
         setComentario("");
-        setActionError(null);
       },
     },
   );
@@ -106,7 +105,6 @@ export function HoraPendienteModal({
     }
 
     setIsMutating(true);
-    setActionError(null);
 
     const result =
       action === "validate"
@@ -130,7 +128,7 @@ export function HoraPendienteModal({
     setIsMutating(false);
 
     if (!result.success) {
-      setActionError(result.error);
+      notify.error(result.error);
       return;
     }
 
@@ -206,7 +204,6 @@ export function HoraPendienteModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-          {actionError ? <Alert tone="error">{actionError}</Alert> : null}
 
           <DetailModalHero
             icon={Clock3}

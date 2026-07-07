@@ -36,6 +36,7 @@ export type ListEscuelasFilters = {
 export type EscuelaTokenResponse = {
   idToken: number;
   escuelaId: number;
+  token?: string;
   tokenReferencia?: string;
   nombre?: string;
   estatus?: string;
