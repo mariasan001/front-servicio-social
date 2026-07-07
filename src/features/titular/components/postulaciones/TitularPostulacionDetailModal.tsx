@@ -14,7 +14,7 @@ import {
   canMarkPostulacionExam,
   canRejectPostulacion,
   isExamenFinalizado,
-} from "../../lib/postulacion.utils";
+} from "@/lib/domain";
 import { formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";

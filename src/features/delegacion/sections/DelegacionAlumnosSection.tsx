@@ -1,5 +1,5 @@
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { listEscuelas } from "@/features/admin/services/escuelas.service";
+import { listEscuelas } from "@/lib/services/escuelas-catalog.service";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { DelegacionAlumnosView } from "../components/alumnos/DelegacionAlumnosView";

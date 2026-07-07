@@ -122,7 +122,7 @@ Tokens en `src/styles/variables.css`. Regla general: **~80 % gris/blanco**, marc
 | Modales proceso compartidos | `@/shared/proceso/` (`CartaGestionModal`, `DocumentoGestionModal`, `presentacion.utils`) |
 | Tarjetas documento/carta | `ProcesoFileCard.module.css` en `@/shared/proceso/` |
 | Formularios en modal | `PanelFormModal.module.css` (`formLayout`, `formActions`) |
-| Texto largo / narrativa | `VacanteDetailNarrative.module.css` |
+| Texto largo / narrativa | `DetailModal.module.css` (`narrativeSection`, `narrativeLabel`) |
 
 ### Anatomía del modal
 

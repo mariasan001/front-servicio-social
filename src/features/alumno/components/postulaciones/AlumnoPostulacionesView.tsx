@@ -6,11 +6,11 @@ import { CircleX, Eye, Search } from "lucide-react";
 import { cancelPostulacionAction } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
+  formatFecha,
   getCancelPostulacionConfirmMessage,
-} from "../../lib/postulacion.utils";
+} from "@/lib/domain";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
-import { formatFecha } from "@/lib/domain";
 import { normalizeText } from "@/lib/utils/search";
 import { Alert } from "@/shared/components/Alert";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";

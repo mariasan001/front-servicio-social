@@ -6,7 +6,13 @@ export type {
   ProcesoBase,
   VacanteBase,
 } from "./types";
-export type { CartaMetadataResponse, DocumentoEstatusResponse } from "./api-responses";
+export type {
+  AreaCatalogResponse,
+  CartaMetadataResponse,
+  DocumentoEstatusResponse,
+  EscuelaResponse,
+  TitularAreaCatalogResponse,
+} from "./api-responses";
 export { estatusBadgeIcon, estatusTone, formatEtiqueta, formatFecha, formatSiNo } from "./labels";
 export {
   cartaTipoIncludes,
@@ -52,6 +58,15 @@ export {
   isHoraPendienteRevision,
 } from "./horas";
 export { canCancelIncidencia, canResolveIncidencia } from "./incidencia";
+export {
+  canAcceptPostulacion,
+  canCancelPostulacion,
+  canMarkPostulacionExam,
+  canRejectPostulacion,
+  getCancelPostulacionConfirmMessage,
+  isExamenFinalizado,
+  isPostulacionResuelta,
+} from "./postulacion";
 export {
   canCancelVacanteTitular,
   canCloseVacanteDelegacion,

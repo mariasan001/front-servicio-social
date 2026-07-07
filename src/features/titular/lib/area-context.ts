@@ -1,4 +1,4 @@
-import { listAreaTitulares, listAreas } from "@/features/admin/services/areas.service";
+import { listAreaTitulares, listAreas } from "@/lib/services/areas-catalog.service";
 import { listTitularAreas } from "../services/areas.service";
 import { listPostulaciones } from "../services/postulaciones.service";
 import { listProcesos } from "../services/procesos.service";

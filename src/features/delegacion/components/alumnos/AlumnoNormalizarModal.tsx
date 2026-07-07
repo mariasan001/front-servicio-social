@@ -9,7 +9,7 @@ import {
   normalizeAlumnoEscuelaAction,
 } from "../../actions/alumnos.actions";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
-import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
+import type { EscuelaResponse } from "@/lib/domain";
 import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";

@@ -1,13 +1,5 @@
-export type EscuelaResponse = {
-  idEscuela: number;
-  clave?: string;
-  nombreOficial: string;
-  nombreCorto?: string;
-  estatus?: string;
-  convenioEstatus?: string;
-  correoContacto?: string;
-  municipio?: string;
-};
+export type { EscuelaResponse } from "@/lib/domain/api-responses";
+import type { EscuelaResponse } from "@/lib/domain/api-responses";
 
 export type EscuelaDetalleResponse = EscuelaResponse & {
   nombreNormalizado?: string;

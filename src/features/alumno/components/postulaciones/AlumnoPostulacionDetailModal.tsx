@@ -9,9 +9,9 @@ import {
 } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
+  formatFecha,
   getCancelPostulacionConfirmMessage,
-} from "../../lib/postulacion.utils";
-import { formatFecha } from "@/lib/domain";
+} from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";

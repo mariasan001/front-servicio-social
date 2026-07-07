@@ -7,7 +7,7 @@ import { estatusTone, formatEtiqueta } from "@/lib/domain";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { AlumnoProcesoLayout } from "./AlumnoProcesoLayout";
 import styles from "./AlumnoProcesoDocumentosView.module.css";
-import detailStyles from "./IncidenciaDetalleModal.module.css";
+import incidenciaStyles from "./AlumnoProcesoIncidenciasView.module.css";
 import { IncidenciaDetalleModal } from "./IncidenciaDetalleModal";
 
 type AlumnoProcesoIncidenciasViewProps = {
@@ -40,12 +40,12 @@ export function AlumnoProcesoIncidenciasView({
     >
       <section className={styles.docSection} aria-label="Incidencias del proceso">
         {incidencias.length === 0 ? (
-          <div className={detailStyles.emptyWrap}>
-            <span className={detailStyles.emptyIcon} aria-hidden="true">
+          <div className={incidenciaStyles.emptyWrap}>
+            <span className={incidenciaStyles.emptyIcon} aria-hidden="true">
               <Shield size={22} strokeWidth={1.75} />
             </span>
-            <p className={detailStyles.emptyTitle}>Sin incidencias</p>
-            <p className={detailStyles.emptyHint}>
+            <p className={incidenciaStyles.emptyTitle}>Sin incidencias</p>
+            <p className={incidenciaStyles.emptyHint}>
               No hay incidencias registradas en tu proceso. ¡Sigue así!
             </p>
           </div>
@@ -72,7 +72,7 @@ export function AlumnoProcesoIncidenciasView({
                       <MoreHorizontal size={16} strokeWidth={2} />
                     </span>
 
-                    <span className={detailStyles.cardBadge} aria-hidden="true">
+                    <span className={incidenciaStyles.cardBadge} aria-hidden="true">
                       <Shield size={18} strokeWidth={1.75} />
                     </span>
 

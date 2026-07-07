@@ -1,5 +1,8 @@
-import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
+import {
+  listAreaTitulares as listAreaTitularesCatalog,
+  listAreas as listAreasCatalog,
+} from "@/lib/services/areas-catalog.service";
 import type {
   ActualizarAreaRequest,
   AreaDetalleResponse,
@@ -13,12 +16,7 @@ import type {
 } from "../types/titular.types";
 
 export async function listAreas(filters?: ListAreasFilters) {
-  const response = await serverApiRequest<AreaResponse[]>(
-    `/api/areas${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data ?? [];
+  return listAreasCatalog(filters) as Promise<AreaResponse[]>;
 }
 
 export async function getArea(idArea: number) {
@@ -87,12 +85,7 @@ export async function deactivateArea(idArea: number) {
 }
 
 export async function listAreaTitulares(idArea: number) {
-  const response = await serverApiRequest<TitularAreaResponse[]>(
-    `/api/areas/${idArea}/titulares`,
-    { method: "GET" },
-  );
-
-  return response.data ?? [];
+  return listAreaTitularesCatalog(idArea) as Promise<TitularAreaResponse[]>;
 }
 
 export async function assignAreaTitular(

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { GraduationCap } from "lucide-react";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
-import type { EscuelaResponse } from "@/features/admin/types/escuela.types";
+import type { EscuelaResponse } from "@/lib/domain";
 import { AlumnoNormalizarModal } from "./AlumnoNormalizarModal";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";

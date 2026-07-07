@@ -1,10 +1,9 @@
-import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
+import { listEscuelas as listEscuelasCatalog } from "@/lib/services/escuelas-catalog.service";
 import type {
   ActualizarEscuelaRequest,
   CrearEscuelaRequest,
   EscuelaDetalleResponse,
-  EscuelaResponse,
   EscuelaTokenResponse,
   GenerarTokenRequest,
   ListEscuelasFilters,
@@ -12,12 +11,7 @@ import type {
 } from "../types/escuela.types";
 
 export async function listEscuelas(filters?: ListEscuelasFilters) {
-  const response = await serverApiRequest<EscuelaResponse[]>(
-    `/api/escuelas${buildQuery(filters)}`,
-    { method: "GET" },
-  );
-
-  return response.data ?? [];
+  return listEscuelasCatalog(filters);
 }
 
 export async function getEscuela(idEscuela: number) {

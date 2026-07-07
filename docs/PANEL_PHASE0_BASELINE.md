@@ -1,12 +1,12 @@
 # Fase 0 — Línea base del panel
 
-Documento de referencia antes de Fase 1 (alinear API) y mejoras de UI por rol.
+Documento de referencia para smoke tests end-to-end. Los payloads salientes del frontend están alineados con `lib/domain/requests.ts` desde la migración UI (commits `5f0f359`+). Las filas 🔧 pasan a ⬜ pendientes de validación E2E con backend activo.
 
 ## Punto de partida
 
 | Campo | Valor |
 |-------|--------|
-| **Commit** | `d91d631` — `feat(panel): mejorar activacion de procesos y registro de horas del alumno` |
+| **Commit** | `3c87a1f` — `fix(panel): corregir avisos de React y lint en modales delegacion.` |
 | **Rama** | `feature/setup-inicial` |
 | **Frontend** | `http://localhost:3000` (`npm run dev`) |
 | **Backend** | `http://localhost:8080` (`API_PROXY_TARGET` en `.env.local`) |
@@ -29,7 +29,7 @@ En la tabla de abajo, actualiza la columna **Estado**:
 | ⚠️ | Probado parcialmente o con workaround conocido |
 | ❌ | Falla confirmada (anotar error en Notas) |
 | ⬜ | No probado aún |
-| 🔧 | Previsto roto por desalineación API (Fase 1) |
+| 🔧 | Desalineación API sospechada — validar E2E (código ya usa `motivo`/`comentario`) |
 
 ---
 
@@ -48,7 +48,7 @@ Postulación (titular) → Proceso creado → Alumno sube docs
 ## Inventario: probado en sesión vs pendiente
 
 Lo marcado ✅ en esta tabla refleja lo ejercitado durante el desarrollo reciente.  
-Lo marcado 🔧 viene de la auditoría de payloads (Fase 1).
+Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; quedan ⬜ hasta smoke test con backend.
 
 ### Alumno
 
@@ -72,12 +72,12 @@ Lo marcado 🔧 viene de la auditoría de payloads (Fase 1).
 | Dashboard inicio | `/panel/titular` | ⬜ | |
 | CRUD vacante / enviar a revisión | `/panel/titular/vacantes` | ⬜ | |
 | Registrar examen finalizado | `/panel/titular/postulaciones` | ⚠️ | UI corregida; validar con backend |
-| Aceptar postulación | `/panel/titular/postulaciones` | ⚠️ | 🔧 payload `comentario` vs `comentarioTitular` |
-| Rechazar postulación | `/panel/titular/postulaciones` | 🔧 | payload `motivo` vs `motivoRechazo` |
+| Aceptar postulación | `/panel/titular/postulaciones` | ⬜ | payload `comentario` vía `AceptarPostulacionRequest` |
+| Rechazar postulación | `/panel/titular/postulaciones` | ⬜ | payload `motivo` vía `RechazarPostulacionRequest` |
 | Registrar horas manual | `/panel/titular/procesos` | ⬜ | |
-| Validar / observar / rechazar hora | `/panel/titular/procesos` | 🔧 | `comentario` vs `comentarioDelegacion` |
-| Liberación técnica | `/panel/titular/procesos` | 🔧 | |
-| Evaluación final | `/panel/titular/procesos` | 🔧 | falta `estatus` en request |
+| Validar / observar / rechazar hora | `/panel/titular/procesos` | ⬜ | `comentario` vía requests de dominio |
+| Liberación técnica | `/panel/titular/procesos` | ⬜ | |
+| Evaluación final | `/panel/titular/procesos` | ⬜ | incluye `estatus` en `CrearEvaluacionFinalRequest` |
 | Ver incidencias | `/panel/titular/incidencias` | ⬜ | solo lectura |
 
 ### Delegación
@@ -86,14 +86,14 @@ Lo marcado 🔧 viene de la auditoría de payloads (Fase 1).
 |-------|------|--------|-------|
 | Dashboard inicio | `/panel/delegacion` | ⬜ | |
 | Publicar / cerrar vacante | `/panel/delegacion/vacantes` | ⬜ | |
-| Rechazar vacante | `/panel/delegacion/vacantes` | 🔧 | `motivo` vs `motivoRechazo` |
+| Rechazar vacante | `/panel/delegacion/vacantes` | ⬜ | `motivo` vía `RechazarVacanteRequest` |
 | Ver postulación | `/panel/delegacion/postulaciones` | ⬜ | solo lectura |
-| Aprobar / observar / rechazar documento | `/panel/delegacion/documentos` | ✅ | observar/rechazar 🔧 si `observacion` ≠ `comentario` |
+| Aprobar / observar / rechazar documento | `/panel/delegacion/documentos` | ✅ | observar/rechazar usan `comentario` |
 | Capturar horas requeridas | `/panel/delegacion/procesos` | ✅ | no activa solo; guarda horas |
 | Activar proceso (carta aceptación) | `/panel/delegacion/procesos` | ✅ | emisión carta → ACTIVO |
-| Cancelar proceso | `/panel/delegacion/procesos` | 🔧 | `motivo` vs `motivoCancelacion` |
-| Validar / observar / rechazar hora | `/panel/delegacion/horas` | 🔧 | campos comentario |
-| Resolver / cancelar incidencia | `/panel/delegacion/incidencias` | 🔧 | shape resolver incidencia |
+| Cancelar proceso | `/panel/delegacion/procesos` | ⬜ | `motivo` vía `CancelarProcesoRequest` |
+| Validar / observar / rechazar hora | `/panel/delegacion/horas` | ⬜ | requests de dominio |
+| Resolver / cancelar incidencia | `/panel/delegacion/incidencias` | ⬜ | `ResolverIncidenciaRequest` |
 | Normalizar alumno escuela | `/panel/delegacion/alumnos` | ⬜ | |
 | Exportar reporte | `/panel/delegacion/reportes` | ⬜ | |
 
@@ -120,7 +120,7 @@ Lo marcado 🔧 viene de la auditoría de payloads (Fase 1).
 
 | Flujo | Ruta | Estado | Notas |
 |-------|------|--------|-------|
-| Login | `/login` | ⬜ | |
+| Login | `/login` | ⬜ | diseño pendiente (fuera de alcance producción panel) |
 | Registro alumno con token | `/registro` | ⬜ | |
 | Recuperar contraseña | auth público | ❌ | endpoints no existen en backend |
 
@@ -154,14 +154,12 @@ Ejecutar en orden cuando sea posible (un flujo completo de punta a punta).
 
 Fase 0 está **completa** cuando:
 
-1. Este documento tiene la columna **Estado** actualizada para los 15 casos smoke (aunque algunos sean ❌ o 🔧).
-2. Cada ❌/🔧 tiene **Notas** con mensaje de error o código API (`VALIDATION_ERROR`, etc.).
-3. El equipo acuerda que **no se toca UI** hasta cerrar Fase 1 para los casos 🔧.
+1. Este documento tiene la columna **Estado** actualizada para los 15 casos smoke (aunque algunos sean ❌ o ⬜).
+2. Cada ❌ tiene **Notas** con mensaje de error o código API (`VALIDATION_ERROR`, etc.).
+3. El panel usa un único shell de modales (`DetailModal.module.css`) y catálogos compartidos en `lib/services/*-catalog.service.ts`.
 
 ---
 
 ## Siguiente paso
 
-**Fase 1 — Alinear payloads** con DTOs en `Back_end/dgp-servicio-social-service/src/main/java/.../dto/*Request.java`.
-
-Prioridad: filas marcadas 🔧 en las tablas de arriba.
+Ejecutar los 15 smoke tests con backend en `:8080` y actualizar estados. Excepción conocida: rediseño visual de `/login`.
