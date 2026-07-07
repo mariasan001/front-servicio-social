@@ -19,7 +19,7 @@ export const DELEGACION_VALIDACION_NAV_TABS: readonly DelegacionValidacionSubSec
     id: "documentos",
     label: "Documentos",
     description:
-      "Valida la documentación enviada por los alumnos. Cuando todo esté aprobado, continúa la activación en Procesos.",
+      "Valida la documentación enviada por los alumnos. Cuando todo esté aprobado, continúa la activación en Alumnos.",
     href: `${DELEGACION_VALIDACION_BASE_PATH}/documentos`,
     icon: FileText,
   },

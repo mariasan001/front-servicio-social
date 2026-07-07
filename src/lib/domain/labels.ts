@@ -10,6 +10,7 @@ const STATUS_LABELS: Record<string, string> = {
   VIGENTE: "Vigente",
   NO_APLICA: "No aplica",
   PENDIENTE: "Pendiente",
+  POR_NORMALIZAR: "Por normalizar",
   VENCIDO: "Vencido",
   SIN_CONVENIO: "Sin convenio",
   PUBLICADA: "Publicada",
@@ -32,9 +33,12 @@ const STATUS_LABELS: Record<string, string> = {
   RESUELTO: "Resuelto",
   ABIERTA: "Abierta",
   EN_REVISION: "En revisión",
+  SUBIDO: "Subido",
   PENDIENTE_EVALUACION: "Por evaluar",
   PENDIENTE_DOCUMENTACION: "Pendiente de documentación",
   LISTO_PARA_ACTIVACION: "Listo para activación",
+  HORAS_COMPLETAS: "Horas completas",
+  PENDIENTE_LIBERACION: "Pendiente de liberación",
   FINALIZADO: "Finalizado",
   FINALIZADA: "Finalizada",
   EMITIDA: "Emitida",
@@ -131,22 +135,27 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
 
   if (
     value === "PENDIENTE" ||
-    value === "EN_REVISION" ||
     value === "OBSERVADO" ||
     value === "OBSERVADA" ||
     value === "SUSPENDIDO" ||
     value === "LISTO_PARA_ACTIVACION" ||
     value === "PENDIENTE_DOCUMENTACION" ||
     value === "PENDIENTE_EVALUACION" ||
-    value === "PENDIENTE_REVISION" ||
     value === "BORRADOR" ||
-    value === "REGISTRADA" ||
-    value === "REGISTRADO"
+    value === "POR_NORMALIZAR"
   ) {
     return "warning";
   }
 
-  if (value === "EN_EXAMEN") {
+  if (
+    value === "EN_REVISION" ||
+    value === "SUBIDO" ||
+    value === "PENDIENTE_REVISION" ||
+    value === "EN_EXAMEN" ||
+    value === "REGISTRADA" ||
+    value === "REGISTRADO" ||
+    value === "ABIERTA"
+  ) {
     return "info";
   }
 
@@ -194,19 +203,25 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     return "done";
   }
 
-  if (value === "REGISTRADA" || value === "REGISTRADO" || value === "EN_EXAMEN") {
+  if (
+    value === "REGISTRADA" ||
+    value === "REGISTRADO" ||
+    value === "EN_EXAMEN" ||
+    value === "EN_REVISION" ||
+    value === "SUBIDO" ||
+    value === "PENDIENTE_REVISION" ||
+    value === "ABIERTA"
+  ) {
     return "progress";
   }
 
   if (
     value === "PENDIENTE" ||
-    value === "EN_REVISION" ||
     value === "OBSERVADO" ||
     value === "OBSERVADA" ||
     value === "LISTO_PARA_ACTIVACION" ||
     value === "PENDIENTE_DOCUMENTACION" ||
-    value === "PENDIENTE_EVALUACION" ||
-    value === "PENDIENTE_REVISION"
+    value === "PENDIENTE_EVALUACION"
   ) {
     return "review";
   }

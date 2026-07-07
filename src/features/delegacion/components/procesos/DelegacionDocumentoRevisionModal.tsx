@@ -77,7 +77,7 @@ export function DelegacionDocumentoRevisionModal({
           ) : null}
           {canObserveDocumento(documento.estatus) ? (
             <Button type="button" variant="outline" disabled={disabled} onClick={onObserve}>
-              Observar
+              Pedir corrección
             </Button>
           ) : null}
           {canRejectDocumento(documento.estatus) ? (

@@ -121,8 +121,7 @@ export function TitularVacanteDetailModal({
             {canCancel ? (
               <Button
                 type="button"
-                variant="outline"
-                className={detailStyles.dangerButton}
+                variant="danger"
                 disabled={isMutating}
                 onClick={() => void runMutation("cancel")}
               >

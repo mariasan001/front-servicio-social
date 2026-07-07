@@ -17,6 +17,7 @@ import {
   canObserveHora,
   canRejectHora,
   canValidateHora,
+  HORA_OBSERVAR_SOLO_ACTIVIDADES_DELEGACION,
   isHoraPendienteRevision,
 } from "@/lib/domain/horas";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
@@ -53,7 +54,23 @@ function buildBaseDetail(hora: HoraPendienteResponse): HoraPendienteDetail {
     idProceso: hora.idProceso,
     estatus: hora.estatus,
     alumnoNombre: hora.alumnoNombre,
+    folioProceso: hora.folioProceso,
+    fecha: hora.fecha,
+    horasRegistradas: hora.horasRegistradas,
+    horaEntrada: hora.horaEntrada,
+    horaSalida: hora.horaSalida,
+    descripcionActividades: hora.descripcionActividades,
   };
+}
+
+function hasHoraDetalle(hora: HoraPendienteResponse) {
+  return Boolean(
+    hora.fecha?.trim() ||
+      hora.horaEntrada?.trim() ||
+      hora.horaSalida?.trim() ||
+      hora.descripcionActividades?.trim() ||
+      hora.horasRegistradas != null,
+  );
 }
 
 export function HoraPendienteModal({
@@ -76,11 +93,19 @@ export function HoraPendienteModal({
         return { success: false as const, error: "No se encontró el registro de horas." };
       }
 
-      const baseDetail = buildBaseDetail(hora);
-      const result = await getHoraPendienteDetailAction(hora.idProceso, idAsistencia);
+      if (!hora.idProceso) {
+        return { success: false as const, error: "No se pudo identificar el proceso del registro." };
+      }
 
-      if (!result.success) {
+      const baseDetail = buildBaseDetail(hora);
+
+      if (hasHoraDetalle(hora)) {
         return { success: true as const, data: baseDetail };
+      }
+
+      const result = await getHoraPendienteDetailAction(hora.idProceso, idAsistencia);
+      if (!result.success) {
+        return result;
       }
 
       return {
@@ -89,6 +114,7 @@ export function HoraPendienteModal({
           ...baseDetail,
           ...result.data,
           alumnoNombre: hora.alumnoNombre ?? result.data.alumnoNombre,
+          folioProceso: hora.folioProceso ?? result.data.folioProceso,
         },
       };
     },
@@ -100,7 +126,17 @@ export function HoraPendienteModal({
   );
 
   const run = async (action: "validate" | "observe" | "reject" | "cancel") => {
-    if (!detail) {
+    if (!detail?.idProceso || !detail.idAsistencia) {
+      notify.error("No se pudo identificar el registro para actualizar.");
+      return;
+    }
+
+    if ((action === "observe" || action === "reject") && !comentario.trim()) {
+      notify.error(
+        action === "observe"
+          ? "Escribe qué debe corregir el alumno."
+          : "Escribe el motivo del rechazo.",
+      );
       return;
     }
 
@@ -115,11 +151,11 @@ export function HoraPendienteModal({
           )
         : action === "observe"
           ? await observeProcesoHoraAction(detail.idProceso, detail.idAsistencia, {
-              comentario: comentario.trim() || "Observación registrada.",
+              comentario: comentario.trim(),
             })
           : action === "reject"
             ? await rejectProcesoHoraAction(detail.idProceso, detail.idAsistencia, {
-                comentario: comentario.trim() || "Registro rechazado.",
+                comentario: comentario.trim(),
               })
             : await cancelProcesoHoraAction(detail.idProceso, detail.idAsistencia, {
                 motivo: comentario.trim() || "Cancelado por delegación.",
@@ -132,11 +168,24 @@ export function HoraPendienteModal({
       return;
     }
 
+    notify.success(
+      action === "validate"
+        ? "Registro validado. Si el alumno ya completó las horas requeridas, el titular podrá registrar la evaluación final."
+        : action === "observe"
+          ? "Se solicitó corrección al alumno. Solo podrá ajustar las actividades realizadas, no el horario."
+          : action === "reject"
+            ? "Registro rechazado."
+            : "Registro cancelado.",
+    );
     router.refresh();
     onClose();
   };
 
   const alumnoNombre = detail?.alumnoNombre?.trim() || hora?.alumnoNombre?.trim();
+  const procesoLabel =
+    detail?.folioProceso?.trim() ||
+    hora?.folioProceso?.trim() ||
+    (detail?.idProceso ? `Proceso #${detail.idProceso}` : "Sin proceso");
   const canReview = detail ? isHoraPendienteRevision(detail.estatus) : false;
   const descripcion = detail?.descripcionActividades?.trim();
 
@@ -166,7 +215,7 @@ export function HoraPendienteModal({
                 disabled={isMutating}
                 onClick={() => void run("observe")}
               >
-                Observar
+                Pedir corrección
               </Button>
             ) : null}
             {canRejectHora(detail.estatus) ? (
@@ -184,6 +233,7 @@ export function HoraPendienteModal({
               <Button
                 type="button"
                 variant="outline"
+                className={detailStyles.neutralButton}
                 disabled={isMutating}
                 onClick={() => void run("cancel")}
               >
@@ -204,11 +254,10 @@ export function HoraPendienteModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-
           <DetailModalHero
             icon={Clock3}
             title={alumnoNombre || "Sin alumno registrado"}
-            subtitle={`Proceso #${detail.idProceso} · Registro #${detail.idAsistencia}`}
+            subtitle={`${procesoLabel} · ${formatFecha(detail.fecha) || "Sin fecha registrada"}`}
             badges={<EstatusBadge estatus={detail.estatus} />}
           />
 
@@ -255,15 +304,16 @@ export function HoraPendienteModal({
                   Revisar registro
                 </h3>
                 <p className={detailStyles.panelDescription}>
-                  Valida, observa o rechaza el registro enviado por el alumno. Las acciones se
-                  aplican con el botón correspondiente al pie del modal.
+                  Valida el registro si es correcto. Si falta información en las actividades, pide
+                  corrección para que el alumno las ajuste. Rechaza solo si no procede.{" "}
+                  {HORA_OBSERVAR_SOLO_ACTIVIDADES_DELEGACION}
                 </p>
               </div>
 
               <FormField
                 id="hora-comentario"
                 label="Comentario"
-                hint="Opcional al validar. Recomendado al observar o rechazar."
+                hint="Opcional al validar. Obligatorio al pedir corrección o rechazar. Indica qué debe corregir en las actividades."
               >
                 <textarea
                   id="hora-comentario"

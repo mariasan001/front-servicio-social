@@ -20,7 +20,13 @@ import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
 
-export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] }) {
+export function TitularProcesosView({
+  procesos,
+  embedded = false,
+}: {
+  procesos: ProcesoResponse[];
+  embedded?: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<{
     proceso: ProcesoResponse;
@@ -43,7 +49,7 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
   const columns: DataTableColumn<ProcesoResponse>[] = [
     {
       id: "proceso",
-      header: "Proceso",
+      header: "Alumno",
       width: "32%",
       cell: (proceso) => (
         <div className={styles.nameCell}>
@@ -90,12 +96,17 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
   ];
 
   return (
-    <section className={styles.page} aria-labelledby="titular-procesos-title">
-      <PageHeader
-        titleId="titular-procesos-title"
-        title="Procesos"
-        description="Supervisa horas, incidencias, liberación técnica y evaluación final."
-      />
+    <section
+      className={embedded ? undefined : styles.page}
+      aria-labelledby={embedded ? undefined : "titular-procesos-title"}
+    >
+      {!embedded ? (
+        <PageHeader
+          titleId="titular-procesos-title"
+          title="Alumnos"
+          description="Registra horas e incidencias, y da seguimiento a liberación técnica y evaluación final."
+        />
+      ) : null}
       <DataTable
         toolbar={
           <DataTableToolbar>
@@ -117,9 +128,9 @@ export function TitularProcesosView({ procesos }: { procesos: ProcesoResponse[] 
         columns={columns}
         rows={filtered}
         rowKey={(proceso) => proceso.idProceso}
-        caption="Procesos"
-        emptyTitle="No hay procesos"
-        emptyDescription="Los procesos activos de tu área aparecerán aquí."
+        caption="Alumnos en servicio"
+        emptyTitle="No hay alumnos en servicio"
+        emptyDescription="Cuando aceptes postulaciones, los alumnos activos aparecerán aquí."
       />
       <TitularProcesoDetailModal
         open={selected !== null}

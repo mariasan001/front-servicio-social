@@ -185,9 +185,17 @@
   gap: 0.5rem 0.75rem;
 }
 
+.fieldGridTwo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+}
+
 .registerPanelActions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .stateNotice {
@@ -234,7 +242,8 @@
   }
 
   .timeGrid,
-  .fieldGrid {
+  .fieldGrid,
+  .fieldGridTwo {
     grid-template-columns: 1fr;
   }
 }

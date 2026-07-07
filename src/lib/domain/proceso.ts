@@ -28,6 +28,43 @@ export function isProcesoHorasCompletas(estatus?: string) {
   return normalizeDomainCode(estatus) === "HORAS_COMPLETAS";
 }
 
+export function procesoHorasNumericamenteCompletas(
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  if (!tieneHorasRequeridas(horasRequeridas)) {
+    return false;
+  }
+
+  return (horasAcumuladas ?? 0) >= horasRequeridas!;
+}
+
+export function procesoPendienteEstatusHorasCompletas(
+  procesoEstatus?: string,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  return (
+    isProcesoActivo(procesoEstatus) &&
+    procesoHorasNumericamenteCompletas(horasAcumuladas, horasRequeridas)
+  );
+}
+
+export function procesoEfectivamenteHorasCompletas(
+  procesoEstatus?: string,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  if (isProcesoHorasCompletas(procesoEstatus) || isProcesoPendienteLiberacion(procesoEstatus)) {
+    return true;
+  }
+
+  return (
+    isProcesoActivo(procesoEstatus) &&
+    procesoHorasNumericamenteCompletas(horasAcumuladas, horasRequeridas)
+  );
+}
+
 export function isProcesoPendienteLiberacion(estatus?: string) {
   return normalizeDomainCode(estatus) === "PENDIENTE_LIBERACION";
 }
@@ -73,24 +110,77 @@ export const EVALUACION_FINAL_ESTATUS_LABELS: Record<EvaluacionFinalEstatus, str
   OBSERVADA: "Observada",
 };
 
-export function canRegistrarEvaluacionFinal(procesoEstatus?: string, evaluacionFinal?: unknown) {
-  return isProcesoHorasCompletas(procesoEstatus) && !evaluacionFinal;
+export function canRegistrarEvaluacionFinal(
+  procesoEstatus?: string,
+  evaluacionFinal?: unknown,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  return (
+    procesoEfectivamenteHorasCompletas(procesoEstatus, horasAcumuladas, horasRequeridas) &&
+    !evaluacionFinal
+  );
 }
 
 export function canEmitirLiberacionTecnica(
   procesoEstatus?: string,
   evaluacionFinal?: unknown,
   liberacionTecnica?: unknown,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
 ) {
   if (liberacionTecnica) {
     return false;
   }
 
-  if (!isProcesoHorasCompletas(procesoEstatus)) {
+  if (!procesoEfectivamenteHorasCompletas(procesoEstatus, horasAcumuladas, horasRequeridas)) {
     return false;
   }
 
   return normalizeDomainCode(readEntityEstatus(evaluacionFinal)) === "APROBADA";
+}
+
+export function mensajeBloqueoEvaluacionFinal(
+  procesoEstatus?: string,
+  evaluacionFinal?: unknown,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  if (evaluacionFinal) {
+    return "La evaluación final ya fue capturada para este proceso.";
+  }
+
+  if (canRegistrarEvaluacionFinal(procesoEstatus, evaluacionFinal, horasAcumuladas, horasRequeridas)) {
+    return "No se puede registrar la evaluación final en este momento.";
+  }
+
+  return "Disponible cuando las horas validadas alcancen el total requerido.";
+}
+
+export function mensajeBloqueoLiberacionTecnica(
+  procesoEstatus?: string,
+  evaluacionFinal?: unknown,
+  liberacionTecnica?: unknown,
+  horasAcumuladas?: number | null,
+  horasRequeridas?: number | null,
+) {
+  if (liberacionTecnica) {
+    return "Ya existe un registro de liberación técnica para este proceso.";
+  }
+
+  if (!procesoEfectivamenteHorasCompletas(procesoEstatus, horasAcumuladas, horasRequeridas)) {
+    return "Requiere que las horas validadas alcancen el total requerido.";
+  }
+
+  if (!evaluacionFinal) {
+    return "Registra primero la evaluación final con estatus aprobada.";
+  }
+
+  if (normalizeDomainCode(readEntityEstatus(evaluacionFinal)) !== "APROBADA") {
+    return "La evaluación final debe estar aprobada para emitir la liberación técnica.";
+  }
+
+  return "No se puede emitir la liberación técnica en este momento.";
 }
 
 export type FormatHorasProcesoStyle = "tabla" | "detalle";

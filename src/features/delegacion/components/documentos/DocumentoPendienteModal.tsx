@@ -66,9 +66,12 @@ export function DocumentoPendienteModal({
   const canReview = detail ? canReviewDocumento(detail.estatus) : false;
 
   const run = async (action: "approve" | "observe" | "reject") => {
-    if (!detail) return;
+    if (!detail?.idProceso || !detail.idProcesoDocumento) {
+      notify.error("No se pudo identificar el documento para actualizar.");
+      return;
+    }
     if (action === "observe" && !comentario.trim()) {
-      notify.error("Escribe una observación para el alumno.");
+      notify.error("Escribe qué debe corregir el alumno.");
       return;
     }
     if (action === "reject" && !comentario.trim()) {
@@ -88,12 +91,22 @@ export function DocumentoPendienteModal({
       notify.error(result.error);
       return;
     }
+    notify.success(
+      action === "approve"
+        ? "Documento aprobado correctamente."
+        : action === "observe"
+          ? "Se solicitó corrección al alumno."
+          : "Documento rechazado.",
+    );
     router.refresh();
     onClose();
   };
 
   const downloadDocumento = async () => {
-    if (!detail) return;
+    if (!detail?.idProceso || !detail.idProcesoDocumento) {
+      notify.error("No se pudo identificar el archivo para descargar.");
+      return;
+    }
     setIsDownloading(true);
     await runDownloadAction(
       () => downloadProcesoDocumentoArchivoAction(detail.idProceso, detail.idProcesoDocumento), notify.error,
@@ -135,7 +148,7 @@ export function DocumentoPendienteModal({
                 disabled={isMutating}
                 onClick={() => void run("observe")}
               >
-                Observar
+                Pedir corrección
               </Button>
             ) : null}
             {canRejectDocumento(detail.estatus) ? (
@@ -207,17 +220,17 @@ export function DocumentoPendienteModal({
                   Revisar documento
                 </h3>
                 <p className={detailStyles.panelDescription}>
-                  Aprueba el archivo si cumple los requisitos. Si falta información, observa o
-                  rechaza para que el alumno lo corrija. Cuando todos los documentos del proceso
-                  estén aprobados, ve a Procesos para capturar las horas y emitir la carta de
-                  aceptación.
+                  Aprueba el archivo si cumple los requisitos. Si falta información, pide
+                  corrección o rechaza para que el alumno lo corrija. Cuando todos los documentos
+                  del proceso estén aprobados, ve a Alumnos para capturar las horas y emitir la
+                  carta de aceptación.
                 </p>
               </div>
 
               <FormField
                 id="doc-comentario"
-                label="Comentario u observación"
-                hint="Obligatorio al observar o rechazar."
+                label="Comentario para el alumno"
+                hint="Obligatorio al pedir corrección o rechazar."
               >
                 <textarea
                   id="doc-comentario"

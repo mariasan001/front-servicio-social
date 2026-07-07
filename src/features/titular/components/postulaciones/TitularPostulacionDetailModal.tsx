@@ -94,7 +94,6 @@ export function TitularPostulacionDetailModal({
             .join(" ")}
           aria-busy={isReloading}
         >
-
           <DetailModalHero
             icon={UserRound}
             title={alumnoNombre || "Sin nombre registrado"}
@@ -175,7 +174,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="primary"
+                    variant="success"
                     disabled={isMutating}
                     onClick={async () => {
                       setIsMutating(true);
@@ -218,8 +217,7 @@ export function TitularPostulacionDetailModal({
                 <div className={formLayoutStyles.formActions}>
                   <Button
                     type="button"
-                    variant="outline"
-                    className={detailStyles.dangerButton}
+                    variant="danger"
                     disabled={isMutating}
                     onClick={async () => {
                       if (!motivoRechazo.trim()) {

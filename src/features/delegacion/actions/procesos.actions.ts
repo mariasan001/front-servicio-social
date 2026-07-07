@@ -4,6 +4,7 @@ import type { DownloadedFile } from "@/lib/api/download";
 import { runServerAction, type ActionResult } from "@/lib/actions";
 import type { CartaDownloadKind } from "@/lib/domain/cartas";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
+import { revalidateTitularSection } from "@/features/titular/lib/revalidate-titular";
 import {
   approveProcesoDocumento,
   cancelProceso,
@@ -199,6 +200,7 @@ export async function validateProcesoHoraAction(
   if (result.success) {
     revalidateDelegacionSection("procesos");
     revalidateDelegacionSection("horas");
+    revalidateTitularSection("procesos");
   }
 
   return result;

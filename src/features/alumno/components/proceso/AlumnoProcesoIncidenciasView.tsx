@@ -1,13 +1,20 @@
 "use client";
 
-import { MoreHorizontal, Shield } from "lucide-react";
-import { useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
+import { Eye, Search } from "lucide-react";
 import type { IncidenciaResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
-import { estatusTone, formatEtiqueta } from "@/lib/domain";
+import { formatEtiqueta } from "@/lib/domain";
+import { normalizeText } from "@/lib/utils/search";
+import {
+  DataTable,
+  DataTableActions,
+  DataTableIconAction,
+  DataTableToolbar,
+  type DataTableColumn,
+} from "@/shared/components/DataTable";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import styles from "@/shared/styles/PanelSectionView.module.css";
 import { AlumnoProcesoLayout } from "./AlumnoProcesoLayout";
-import styles from "./AlumnoProcesoDocumentosView.module.css";
-import incidenciaStyles from "./AlumnoProcesoIncidenciasView.module.css";
 import { IncidenciaDetalleModal } from "./IncidenciaDetalleModal";
 
 type AlumnoProcesoIncidenciasViewProps = {
@@ -25,10 +32,73 @@ export function AlumnoProcesoIncidenciasView({
   incidencias,
   firstName,
 }: AlumnoProcesoIncidenciasViewProps) {
-  const [activeIncidenciaId, setActiveIncidenciaId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<IncidenciaResponse | null>(null);
+  const deferredSearch = useDeferredValue(search);
 
-  const activeIncidencia =
-    incidencias.find((incidencia) => incidencia.idIncidencia === activeIncidenciaId) ?? null;
+  const filtered = useMemo(() => {
+    const query = normalizeText(deferredSearch);
+    if (!query) return incidencias;
+    return incidencias.filter((incidencia) =>
+      normalizeText(
+        [
+          incidencia.tipo,
+          incidencia.severidad,
+          incidencia.estatus,
+          incidencia.descripcion,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ).includes(query),
+    );
+  }, [deferredSearch, incidencias]);
+
+  const columns: DataTableColumn<IncidenciaResponse>[] = [
+    {
+      id: "tipo",
+      header: "Tipo",
+      width: "34%",
+      cell: (incidencia) => {
+        const descripcion = incidencia.descripcion?.trim();
+        return (
+          <div className={styles.nameCell}>
+            <strong>{resolveIncidenciaLabel(incidencia)}</strong>
+            <span className={styles.nameHint}>
+              {descripcion || "Sin descripción registrada."}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "severidad",
+      header: "Severidad",
+      width: "18%",
+      cell: (incidencia) => formatEtiqueta(incidencia.severidad, "Sin severidad"),
+    },
+    {
+      id: "estatus",
+      header: "Estatus",
+      variant: "status",
+      width: "14rem",
+      align: "center",
+      cell: (incidencia) => <EstatusBadge estatus={incidencia.estatus} />,
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      align: "right",
+      cell: (incidencia) => (
+        <DataTableActions>
+          <DataTableIconAction
+            label="Ver detalle"
+            icon={Eye}
+            onClick={() => setSelected(incidencia)}
+          />
+        </DataTableActions>
+      ),
+    },
+  ];
 
   return (
     <AlumnoProcesoLayout
@@ -38,64 +108,37 @@ export function AlumnoProcesoIncidenciasView({
       description="Consulta los eventos registrados durante tu proceso de servicio social."
       estatus={proceso.estatus}
     >
-      <section className={styles.docSection} aria-label="Incidencias del proceso">
-        {incidencias.length === 0 ? (
-          <div className={incidenciaStyles.emptyWrap}>
-            <span className={incidenciaStyles.emptyIcon} aria-hidden="true">
-              <Shield size={22} strokeWidth={1.75} />
-            </span>
-            <p className={incidenciaStyles.emptyTitle}>Sin incidencias</p>
-            <p className={incidenciaStyles.emptyHint}>
-              No hay incidencias registradas en tu proceso. ¡Sigue así!
-            </p>
-          </div>
-        ) : (
-          <ul className={styles.fileGrid}>
-            {incidencias.map((incidencia) => {
-              const label = resolveIncidenciaLabel(incidencia);
-              const tone = estatusTone(incidencia.estatus);
-              const isActive = activeIncidenciaId === incidencia.idIncidencia;
-              const severidad = formatEtiqueta(incidencia.severidad, "Sin severidad");
-              const preview = incidencia.descripcion?.trim() || "Sin descripción registrada.";
-
-              return (
-                <li key={incidencia.idIncidencia}>
-                  <button
-                    type="button"
-                    className={styles.fileCard}
-                    data-tone={tone}
-                    data-active={isActive || undefined}
-                    aria-label={`Ver incidencia ${label}`}
-                    onClick={() => setActiveIncidenciaId(incidencia.idIncidencia)}
-                  >
-                    <span className={styles.fileCardMenu} aria-hidden="true">
-                      <MoreHorizontal size={16} strokeWidth={2} />
-                    </span>
-
-                    <span className={incidenciaStyles.cardBadge} aria-hidden="true">
-                      <Shield size={18} strokeWidth={1.75} />
-                    </span>
-
-                    <span className={styles.fileName}>{label}</span>
-                    <span className={styles.fileMeta}>{severidad}</span>
-                    <span className={styles.fileMeta}>{preview}</span>
-
-                    <span className={styles.fileStatus}>
-                      <EstatusBadge estatus={incidencia.estatus} />
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+      <DataTable
+        toolbar={
+          <DataTableToolbar>
+            <label className={styles.searchField}>
+              <span className={styles.searchLabel}>Buscar</span>
+              <span className={styles.searchControl}>
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Tipo, severidad o estatus"
+                />
+              </span>
+            </label>
+          </DataTableToolbar>
+        }
+        columns={columns}
+        rows={filtered}
+        rowKey={(incidencia) => incidencia.idIncidencia}
+        caption="Incidencias del proceso"
+        emptyTitle="Sin incidencias"
+        emptyDescription="No hay incidencias registradas en tu proceso. ¡Sigue así!"
+      />
 
       <IncidenciaDetalleModal
-        open={activeIncidencia !== null}
-        incidencia={activeIncidencia}
-        incidenciaLabel={activeIncidencia ? resolveIncidenciaLabel(activeIncidencia) : ""}
-        onClose={() => setActiveIncidenciaId(null)}
+        open={selected !== null}
+        incidencia={selected}
+        incidenciaLabel={selected ? resolveIncidenciaLabel(selected) : ""}
+        onClose={() => setSelected(null)}
       />
     </AlumnoProcesoLayout>
   );

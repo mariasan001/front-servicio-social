@@ -14,7 +14,11 @@ import {
   formatHorasDia,
   isDateKeyToday,
 } from "../../lib/horas-calendar.utils";
-import { canAlumnoActualizarBitacora, validarRegistroHoraAlumno } from "@/lib/domain";
+import {
+  canAlumnoActualizarBitacora,
+  HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO,
+  validarRegistroHoraAlumno,
+} from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
@@ -363,7 +367,7 @@ export function HoraDiaDetailModal({
                           }
                         />
                         <p className={styles.horaEditHint}>
-                          Puedes actualizar la descripción mientras el registro esté en revisión.
+                          {HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO}
                         </p>
                       </>
                     ) : descripcion ? (

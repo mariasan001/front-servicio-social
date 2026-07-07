@@ -16,14 +16,8 @@ export function resolveDocumentoNombre(documento: DocumentoLike, fallback = "Doc
   );
 }
 
-export function resolveFileTypeLabel(documento: DocumentoLike) {
-  const haystack = `${documento.nombreDocumento ?? ""} ${documento.tipoDocumento ?? ""}`.toLowerCase();
-
-  if (haystack.includes("pdf")) return "PDF";
-  if (haystack.includes("excel") || haystack.includes("xls")) return "XLS";
-  if (haystack.includes("jpg") || haystack.includes("jpeg") || haystack.includes("png")) return "IMG";
-  if (haystack.includes("word") || haystack.includes("doc")) return "DOC";
-  return "DOC";
+export function resolveFileTypeLabel(_documento?: DocumentoLike) {
+  return "PDF";
 }
 
 export function resolveCartaLabel(carta: Pick<CartaMetadataResponse, "tipoCarta">) {

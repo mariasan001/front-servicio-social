@@ -1,10 +1,11 @@
 "use client";
 
-import { Upload } from "lucide-react";
-import { useId, useRef } from "react";
+import { UploadCloud } from "lucide-react";
+import { useId, useRef, useState } from "react";
 import {
-  ACCEPTED_UPLOAD_MIME,
+  ACCEPTED_PDF_MIME,
   formatFileSize,
+  isPdfFile,
   MAX_UPLOAD_SIZE_BYTES,
   MAX_UPLOAD_SIZE_MB,
 } from "@/lib/constants/upload";
@@ -38,10 +39,20 @@ export function DocumentoUploadField({
 }: DocumentoUploadFieldProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleChange = (file: File | null) => {
     if (!file) {
       onFileSelect(null);
+      return;
+    }
+
+    if (!isPdfFile(file)) {
+      onFileSelect(null);
+      onInvalidFile?.("Solo se permiten archivos PDF.");
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
       return;
     }
 
@@ -57,23 +68,69 @@ export function DocumentoUploadField({
     onFileSelect(file);
   };
 
+  const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    if (!disabled) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    if (disabled) return;
+    handleChange(event.dataTransfer.files?.[0] ?? null);
+  };
+
   return (
     <div className={styles.uploadBlock}>
       {canUpload ? (
         <>
-          <label htmlFor={inputId} className={styles.dropzone}>
+          <label
+            htmlFor={inputId}
+            className={[
+              styles.dropzone,
+              isDragging && styles.dropzoneDragging,
+              selectedFile && styles.dropzoneReady,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             <span className={styles.dropzoneIcon} aria-hidden="true">
-              <Upload size={16} strokeWidth={1.75} />
+              <UploadCloud size={28} strokeWidth={1.5} />
             </span>
+
             <span className={styles.dropzoneCopy}>
               <span className={styles.dropzoneTitle}>
-                {selectedFile ? selectedFile.name : "Selecciona un archivo"}
+                {selectedFile
+                  ? selectedFile.name
+                  : "Elige un archivo o arrástralo aquí"}
               </span>
               <span className={styles.dropzoneHint}>
-                PDF, JPG, PNG o Word · máximo {MAX_UPLOAD_SIZE_MB} MB
+                PDF · máximo {MAX_UPLOAD_SIZE_MB} MB
               </span>
             </span>
-            <span className={styles.dropzoneAction}>Examinar</span>
+
+            <Button
+              type="button"
+              variant="outline"
+              className={styles.browseButton}
+              disabled={disabled}
+              onClick={(event) => {
+                event.preventDefault();
+                inputRef.current?.click();
+              }}
+            >
+              Examinar archivos
+            </Button>
           </label>
 
           <input
@@ -81,9 +138,9 @@ export function DocumentoUploadField({
             id={inputId}
             className={styles.fileInput}
             type="file"
-            accept={ACCEPTED_UPLOAD_MIME}
+            accept={ACCEPTED_PDF_MIME}
             disabled={disabled}
-            aria-label={`Archivo para ${documentoLabel}`}
+            aria-label={`Archivo PDF para ${documentoLabel}`}
             onChange={(event) => handleChange(event.target.files?.[0] ?? null)}
           />
 
@@ -104,7 +161,7 @@ export function DocumentoUploadField({
               disabled={disabled || !selectedFile}
               onClick={onUpload}
             >
-              Subir archivo
+              Subir PDF
             </Button>
           ) : null}
           {canDownload ? (
@@ -120,7 +177,11 @@ export function DocumentoUploadField({
 
 export function validateUploadFile(file: File | null): string | null {
   if (!file) {
-    return "Selecciona un archivo para subir.";
+    return "Selecciona un archivo PDF para subir.";
+  }
+
+  if (!isPdfFile(file)) {
+    return "Solo se permiten archivos PDF.";
   }
 
   if (file.size > MAX_UPLOAD_SIZE_BYTES) {

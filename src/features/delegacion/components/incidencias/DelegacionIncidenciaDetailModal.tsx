@@ -103,10 +103,12 @@ export function DelegacionIncidenciaDetailModal({
     refresh();
   };
 
+  const incidenciaLabel = detail ? formatEtiqueta(detail.tipo, "Incidencia") : "Incidencia";
+
   return (
     <Modal
       open={open}
-      title={detail ? `Incidencia #${detail.idIncidencia}` : `Incidencia #${incidenciaId ?? ""}`}
+      title={incidenciaLabel}
       onClose={onClose}
       size="lg"
       footer={
@@ -152,7 +154,7 @@ export function DelegacionIncidenciaDetailModal({
           <DetailModalHero
             icon={AlertTriangle}
             iconTone="warning"
-            title={formatEtiqueta(detail.tipo, "Incidencia")}
+            title={incidenciaLabel}
             subtitle={folioProceso || "Sin proceso asociado"}
             badges={<EstatusBadge estatus={detail.estatus} />}
           />
@@ -169,10 +171,6 @@ export function DelegacionIncidenciaDetailModal({
             <div className={detailStyles.metaRow}>
               <dt>Proceso</dt>
               <dd>{folioProceso || "Sin folio"}</dd>
-            </div>
-            <div className={detailStyles.metaRow}>
-              <dt>Identificador</dt>
-              <dd>#{detail.idIncidencia}</dd>
             </div>
           </dl>
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Eye } from "lucide-react";
 import type { HoraPendienteResponse } from "../../types/delegacion.types";
 import { HoraPendienteModal } from "./HoraPendienteModal";
+import { formatFecha } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
@@ -19,6 +20,10 @@ export function DelegacionHorasView({ horas }: { horas: HoraPendienteResponse[] 
       cell: (hora) => (
         <div className={styles.nameCell}>
           <strong>{hora.alumnoNombre ?? "Sin nombre"}</strong>
+          <span className={styles.nameHint}>
+            {hora.folioProceso?.trim() ||
+              (hora.fecha ? formatFecha(hora.fecha) : `Proceso #${hora.idProceso}`)}
+          </span>
         </div>
       ),
     },

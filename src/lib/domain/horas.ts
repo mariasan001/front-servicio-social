@@ -2,6 +2,14 @@ import { matchesDomainCode, normalizeDomainCode } from "./status";
 
 export const MAX_HORAS_ALUMNO_POR_DIA = 12;
 
+/** Alumno: qué puede corregir en un registro observado o en revisión. */
+export const HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO =
+  "Solo puedes corregir las actividades realizadas. El horario de entrada y salida no se puede modificar.";
+
+/** Delegación: alcance de la corrección al observar un registro de horas. */
+export const HORA_OBSERVAR_SOLO_ACTIVIDADES_DELEGACION =
+  "Si observas el registro, el alumno solo podrá corregir las actividades realizadas; no podrá modificar el horario.";
+
 export function calcularHorasEntre(horaEntrada: string, horaSalida: string) {
   const entrada = /^(\d{2}):(\d{2})$/.exec(horaEntrada);
   const salida = /^(\d{2}):(\d{2})$/.exec(horaSalida);

@@ -20,6 +20,8 @@ export {
   type CartaDownloadKind,
 } from "./cartas";
 export {
+  HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO,
+  HORA_OBSERVAR_SOLO_ACTIVIDADES_DELEGACION,
   MAX_HORAS_ALUMNO_POR_DIA,
   calcularHorasEntre,
   isFechaRegistroHoy,
@@ -35,6 +37,11 @@ export {
   canEmitCartaLiberacion,
   canEmitirLiberacionTecnica,
   canRegistrarEvaluacionFinal,
+  mensajeBloqueoEvaluacionFinal,
+  mensajeBloqueoLiberacionTecnica,
+  procesoEfectivamenteHorasCompletas,
+  procesoHorasNumericamenteCompletas,
+  procesoPendienteEstatusHorasCompletas,
   canRegistrarHoraProceso,
   canRegistrarIncidenciaProceso,
   canSetHorasRequeridas,
@@ -46,6 +53,7 @@ export {
 } from "./proceso";
 export {
   canAlumnoActualizarBitacora,
+  canAlumnoDescargarDocumento,
   canAlumnoSubirDocumento,
   canApproveDocumento,
   canObserveDocumento,

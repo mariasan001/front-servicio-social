@@ -343,3 +343,13 @@
   border-color: var(--color-badge-error) !important;
 }
 
+.neutralButton {
+  color: var(--color-gris-700) !important;
+  border-color: var(--color-gris-300) !important;
+}
+
+.neutralButton:hover {
+  background-color: var(--color-gris-50) !important;
+  border-color: var(--color-gris-400) !important;
+}
+

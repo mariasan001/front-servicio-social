@@ -68,6 +68,12 @@ export type HoraPendienteResponse = {
   idProceso: number;
   estatus?: string;
   alumnoNombre?: string;
+  folioProceso?: string;
+  fecha?: string;
+  horasRegistradas?: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
 };
 
 export type HoraPendienteDetail = HoraPendienteResponse & {
@@ -235,8 +241,8 @@ export type NormalizarEscuelaRequest = {
 };
 
 export type CrearEscuelaYNormalizarRequest = {
-  nombre: string;
-  clave?: string;
-  municipio?: string;
+  nombreOficial: string;
+  nombreCorto?: string;
+  correoContacto?: string;
   observacion?: string;
 };

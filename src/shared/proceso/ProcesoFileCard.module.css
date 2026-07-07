@@ -43,6 +43,10 @@
   border-color: var(--color-badge-warning-border);
 }
 
+.fileCard[data-tone="info"] {
+  border-color: var(--color-badge-info-border);
+}
+
 .fileCard[data-tone="error"] {
   border-color: var(--color-badge-error-border);
 }

@@ -8,8 +8,7 @@ export type TitularSectionSlug =
   | "inicio"
   | "vacantes"
   | "postulaciones"
-  | "procesos"
-  | "incidencias";
+  | "procesos";
 
 export const TITULAR_SECTIONS = getRoleSectionSlugs(
   USER_ROLES.TITULAR_AREA,

@@ -86,8 +86,8 @@ export function TitularIncidenciaDetailModal({
 
           <section className={detailStyles.contentPanel} aria-label="Información">
             <p className={detailStyles.panelDescription}>
-              Esta sección es de consulta. Las incidencias se gestionan desde el detalle del
-              proceso o por delegación cuando aplique.
+              Esta vista es de consulta. Para registrar una incidencia, ve a Alumnos, abre el menú
+              del alumno y elige Incidencias.
             </p>
           </section>
         </div>

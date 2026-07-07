@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   CircleOff,
   ClipboardList,
-  FileText,
+  GraduationCap,
   Shield,
   Timer,
 } from "lucide-react";
@@ -95,6 +95,8 @@ function PostulacionEstatusChart({
 }: {
   items: TitularInicioDashboardData["postulacionesPorEstatus"];
 }) {
+  const total = items.reduce((sum, item) => sum + item.count, 0);
+
   return (
     <DashboardRankedBarChart
       items={items.map((item) => ({
@@ -102,6 +104,10 @@ function PostulacionEstatusChart({
         label: item.nombre,
         count: item.count,
       }))}
+      totalForShare={total}
+      showShare
+      maxItems={6}
+      overflowItemLabel="estatus"
       emptyState={
         <ChartEmptyState
           title="Sin postulaciones aún"
@@ -153,13 +159,13 @@ export function TitularInicioView({ session, dashboard }: TitularInicioViewProps
           />
           <StatCard
             tone="success"
-            icon={FileText}
+            icon={GraduationCap}
             value={stats.procesos.total}
-            label="Procesos"
+            label="Alumnos activos"
             hint={
               stats.procesos.total === 0
                 ? "Inician al aceptar postulaciones de alumnos"
-                : `${stats.procesos.activos} activos`
+                : `${stats.procesos.activos} en servicio`
             }
           />
           <StatCard
@@ -200,7 +206,7 @@ export function TitularInicioView({ session, dashboard }: TitularInicioViewProps
                 Postulaciones por estatus
               </h2>
               <p className={dashStyles.chartDescription}>
-                Estatus con mayor volumen de postulaciones recibidas.
+                Top 5 estatus con más postulaciones recibidas.
               </p>
             </header>
             <PostulacionEstatusChart items={postulacionesPorEstatus} />

@@ -209,7 +209,7 @@ export function DelegacionInicioView({
               </div>
               <p className={detailStyles.panelDescription}>
                 Procesos que requieren emisión de carta.{" "}
-                <Link href={`${PANEL_PATHS.delegacion}/procesos`}>Ir a procesos</Link>
+                <Link href={`${PANEL_PATHS.delegacion}/procesos`}>Ir a alumnos</Link>
               </p>
             </div>
 

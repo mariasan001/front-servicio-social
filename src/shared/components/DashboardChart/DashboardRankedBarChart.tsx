@@ -14,7 +14,17 @@ type DashboardRankedBarChartProps = {
   ariaLabel?: string;
   emptyState?: ReactNode;
   showShare?: boolean;
+  /** Máximo de filas visibles; el resto se resume en pie de lista. */
+  maxItems?: number;
+  /** A partir de cuántas filas la lista hace scroll dentro de la tarjeta. */
+  scrollAfter?: number;
+  /** Etiqueta para el pie cuando hay filas ocultas por `maxItems`. */
+  overflowItemLabel?: string;
 };
+
+function joinClassNames(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export function DashboardRankedBarChart({
   items,
@@ -22,12 +32,20 @@ export function DashboardRankedBarChart({
   ariaLabel,
   emptyState,
   showShare = false,
+  maxItems,
+  scrollAfter = 6,
+  overflowItemLabel = "elementos",
 }: DashboardRankedBarChartProps) {
   if (items.length === 0) {
     return emptyState ?? null;
   }
 
-  const maxCount = Math.max(...items.map((item) => item.count));
+  const visibleItems = maxItems ? items.slice(0, maxItems) : items;
+  const hiddenCount = maxItems ? Math.max(0, items.length - maxItems) : 0;
+  const maxCount = Math.max(...visibleItems.map((item) => item.count));
+  const shareTotal =
+    totalForShare ?? visibleItems.reduce((sum, item) => sum + item.count, 0);
+  const isScrollable = visibleItems.length > scrollAfter;
 
   return (
     <div
@@ -35,13 +53,16 @@ export function DashboardRankedBarChart({
       role={ariaLabel ? "img" : undefined}
       aria-label={ariaLabel}
     >
-      <div className={dashStyles.depAreasList}>
-        {items.map((item, index) => {
+      <div
+        className={joinClassNames(
+          dashStyles.depAreasList,
+          isScrollable && dashStyles.depAreasListScrollable,
+        )}
+      >
+        {visibleItems.map((item, index) => {
           const width = percent(item.count, maxCount);
           const share =
-            showShare && totalForShare && totalForShare > 0
-              ? percent(item.count, totalForShare)
-              : undefined;
+            showShare && shareTotal > 0 ? percent(item.count, shareTotal) : undefined;
 
           return (
             <div
@@ -84,6 +105,12 @@ export function DashboardRankedBarChart({
           );
         })}
       </div>
+
+      {hiddenCount > 0 ? (
+        <p className={dashStyles.depAreasOverflow}>
+          +{hiddenCount} {overflowItemLabel} más sin mostrar
+        </p>
+      ) : null}
     </div>
   );
 }

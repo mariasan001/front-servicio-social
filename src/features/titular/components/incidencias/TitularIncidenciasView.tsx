@@ -13,8 +13,10 @@ import { normalizeText } from "@/lib/utils/search";
 
 export function TitularIncidenciasView({
   incidencias,
+  embedded = false,
 }: {
   incidencias: IncidenciaResponse[];
+  embedded?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<IncidenciaResponse | null>(null);
@@ -25,7 +27,13 @@ export function TitularIncidenciasView({
     if (!query) return incidencias;
     return incidencias.filter((incidencia) =>
       normalizeText(
-        [incidencia.folioProceso, incidencia.tipo, incidencia.estatus, incidencia.severidad]
+        [
+          incidencia.alumnoNombre,
+          incidencia.folioProceso,
+          incidencia.tipo,
+          incidencia.estatus,
+          incidencia.severidad,
+        ]
           .filter(Boolean)
           .join(" "),
       ).includes(query),
@@ -34,9 +42,18 @@ export function TitularIncidenciasView({
 
   const columns: DataTableColumn<IncidenciaResponse>[] = [
     {
-      id: "folio",
-      header: "Proceso",
-      cell: (incidencia) => incidencia.folioProceso ?? `#${incidencia.idIncidencia}`,
+      id: "alumno",
+      header: "Alumno",
+      width: "32%",
+      cell: (incidencia) => (
+        <div className={styles.nameCell}>
+          <strong>{incidencia.alumnoNombre?.trim() || "Sin alumno"}</strong>
+          <span className={styles.nameHint}>
+            {incidencia.folioProceso?.trim() ||
+              (incidencia.procesoId ? `Proceso #${incidencia.procesoId}` : "Sin proceso")}
+          </span>
+        </div>
+      ),
     },
     {
       id: "tipo",
@@ -64,12 +81,17 @@ export function TitularIncidenciasView({
   ];
 
   return (
-    <section className={styles.page} aria-labelledby="titular-incidencias-title">
-      <PageHeader
-        titleId="titular-incidencias-title"
-        title="Incidencias"
-        description="Consulta las incidencias reportadas en los procesos de tu área."
-      />
+    <section
+      className={embedded ? undefined : styles.page}
+      aria-labelledby={embedded ? undefined : "titular-incidencias-title"}
+    >
+      {!embedded ? (
+        <PageHeader
+          titleId="titular-incidencias-title"
+          title="Bandeja de incidencias"
+          description="Consulta las incidencias reportadas. Para registrar una nueva, abre el alumno en la pestaña Alumnos."
+        />
+      ) : null}
       <DataTable
         toolbar={
           <DataTableToolbar>
@@ -82,7 +104,7 @@ export function TitularIncidenciasView({
                   className={styles.searchInput}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Proceso, tipo o estatus"
+                  placeholder="Alumno, proceso, tipo o estatus"
                 />
               </span>
             </label>
@@ -93,7 +115,7 @@ export function TitularIncidenciasView({
         rowKey={(incidencia) => incidencia.idIncidencia}
         caption="Incidencias"
         emptyTitle="No hay incidencias"
-        emptyDescription="Las incidencias registradas aparecerán aquí."
+        emptyDescription="Las incidencias que registres desde un alumno aparecerán en esta bandeja."
       />
       <TitularIncidenciaDetailModal
         open={selected !== null}

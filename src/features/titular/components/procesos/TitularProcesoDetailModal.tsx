@@ -5,20 +5,10 @@ import { useState } from "react";
 import {
   emitProcesoLiberacionTecnicaAction,
   getProcesoDetailAction,
-  observeProcesoHoraAction,
   registerProcesoEvaluacionFinalAction,
-  registerProcesoHoraAction,
   registerProcesoIncidenciaAction,
-  rejectProcesoHoraAction,
-  validateProcesoHoraAction,
 } from "../../actions/procesos.actions";
 import { formatEtiqueta, formatFecha } from "@/lib/domain/labels";
-import {
-  canObserveHora,
-  canRejectHora,
-  canValidateHora,
-  validarRegistroHoraAlumno,
-} from "@/lib/domain/horas";
 import {
   canEmitirLiberacionTecnica,
   canRegistrarEvaluacionFinal,
@@ -27,6 +17,8 @@ import {
   EVALUACION_FINAL_ESTATUS,
   EVALUACION_FINAL_ESTATUS_LABELS,
   formatHorasProceso,
+  mensajeBloqueoEvaluacionFinal,
+  mensajeBloqueoLiberacionTecnica,
 } from "@/lib/domain/proceso";
 import {
   INCIDENCIA_SEVERIDADES,
@@ -49,6 +41,7 @@ import {
   TITULAR_PROCESO_SECTION_LABELS,
   type TitularProcesoModalSection,
 } from "./titular-proceso-sections";
+import { TitularProcesoHorasPanel } from "./TitularProcesoHorasPanel";
 
 function getSectionAside(
   section: TitularProcesoModalSection,
@@ -83,13 +76,7 @@ export function TitularProcesoDetailModal({
   const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [comentario, setComentario] = useState("");
-  const [nuevaHora, setNuevaHora] = useState({
-    fecha: "",
-    horaEntrada: "",
-    horaSalida: "",
-    descripcionActividades: "",
-  });
+  const [liberacionComentario, setLiberacionComentario] = useState("");
   const [nuevaIncidencia, setNuevaIncidencia] = useState({
     tipo: "",
     severidad: "",
@@ -108,13 +95,7 @@ export function TitularProcesoDetailModal({
     {
       reloadKey,
       onBeforeLoad: () => {
-        setComentario("");
-        setNuevaHora({
-          fecha: "",
-          horaEntrada: "",
-          horaSalida: "",
-          descripcionActividades: "",
-        });
+        setLiberacionComentario("");
         setNuevaIncidencia({
           tipo: "",
           severidad: "",
@@ -140,51 +121,9 @@ export function TitularProcesoDetailModal({
   const sectionLabel = section ? TITULAR_PROCESO_SECTION_LABELS[section] : "Proceso";
   const horasRegistradas = detail?.horas ?? [];
   const incidenciasRegistradas = detail?.incidencias ?? [];
-  const hasActionableHoras = horasRegistradas.some(
-    (hora) =>
-      canValidateHora(hora.estatus) ||
-      canObserveHora(hora.estatus) ||
-      canRejectHora(hora.estatus),
-  );
   const sectionAside = section
     ? getSectionAside(section, incidenciasRegistradas.length, horasLabel)
     : null;
-
-  const runHoraAction = async (
-    action: "validate" | "observe" | "reject",
-    idAsistencia: number,
-  ) => {
-    if (!proceso) {
-      return;
-    }
-
-    setIsMutating(true);
-    const idProceso = proceso.idProceso;
-    const result =
-      action === "validate"
-        ? await validateProcesoHoraAction(
-            idProceso,
-            idAsistencia,
-            comentario.trim() ? { comentario: comentario.trim() } : {},
-          )
-        : action === "observe"
-          ? await observeProcesoHoraAction(idProceso, idAsistencia, {
-              comentario: comentario.trim() || "Observación registrada.",
-            })
-          : await rejectProcesoHoraAction(idProceso, idAsistencia, {
-              comentario: comentario.trim() || "Registro rechazado.",
-            });
-
-    setIsMutating(false);
-
-    if (!result.success) {
-      notify.error(result.error);
-      return;
-    }
-
-    setComentario("");
-    refresh();
-  };
 
   return (
     <Modal
@@ -227,177 +166,15 @@ export function TitularProcesoDetailModal({
             ) : null}
           </div>
 
-          {section === "horas" ? (
-          <>
-            {horasRegistradas.length === 0 ? (
-              <p className={sectionStyles.emptyHint}>No hay horas registradas.</p>
-            ) : (
-              <ul className={sectionStyles.recordList}>
-                {horasRegistradas.map((hora) => {
-                  const canAct =
-                    canValidateHora(hora.estatus) ||
-                    canObserveHora(hora.estatus) ||
-                    canRejectHora(hora.estatus);
-
-                  return (
-                    <li key={hora.idAsistencia} className={sectionStyles.horaCard}>
-                      <div className={sectionStyles.horaCardBody}>
-                        <div className={sectionStyles.horaCardMeta}>
-                          <span className={sectionStyles.horaCardDate}>
-                            {hora.fecha ? formatFecha(hora.fecha) : "Sin fecha"}
-                          </span>
-                          {hora.horasRegistradas !== undefined ? (
-                            <span className={sectionStyles.horaCardHours}>
-                              {hora.horasRegistradas} h registradas
-                            </span>
-                          ) : null}
-                        </div>
-                        <EstatusBadge estatus={hora.estatus} />
-                      </div>
-                      {canAct ? (
-                        <div className={sectionStyles.horaCardActions}>
-                          {canValidateHora(hora.estatus) ? (
-                            <Button
-                              type="button"
-                              variant="primary"
-                              disabled={isMutating}
-                              onClick={() => void runHoraAction("validate", hora.idAsistencia)}
-                            >
-                              Validar
-                            </Button>
-                          ) : null}
-                          {canObserveHora(hora.estatus) ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              disabled={isMutating}
-                              onClick={() => void runHoraAction("observe", hora.idAsistencia)}
-                            >
-                              Observar
-                            </Button>
-                          ) : null}
-                          {canRejectHora(hora.estatus) ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className={detailStyles.dangerButton}
-                              disabled={isMutating}
-                              onClick={() => void runHoraAction("reject", hora.idAsistencia)}
-                            >
-                              Rechazar
-                            </Button>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
-            {hasActionableHoras ? (
-              <FormField
-                id="comentario-hora"
-                label="Comentario (opcional para validar, observar o rechazar)"
-              >
-                <textarea
-                  id="comentario-hora"
-                  className={formStyles.textarea}
-                  rows={2}
-                  value={comentario}
-                  onChange={(event) => setComentario(event.target.value)}
-                />
-              </FormField>
-            ) : null}
-          </>
-          ) : null}
-
-          {section === "horas" && proceso && canRegistrarHoraProceso(proceso.estatus) ? (
-          <div className={sectionStyles.registerPanel} aria-label="Registrar hora interna">
-            <div className={sectionStyles.registerPanelHeader}>
-              <h3 className={sectionStyles.registerPanelTitle}>Registrar hora interna</h3>
-              <p className={sectionStyles.registerPanelDescription}>
-                Captura asistencia directamente desde el área.
-              </p>
-            </div>
-
-            <div className={sectionStyles.timeGrid}>
-              <TextInput
-                id="hora-fecha"
-                label="Fecha"
-                type="date"
-                value={nuevaHora.fecha}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, fecha: event.target.value }))
-                }
-              />
-              <TextInput
-                id="hora-entrada"
-                label="Hora entrada"
-                type="time"
-                value={nuevaHora.horaEntrada}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, horaEntrada: event.target.value }))
-                }
-              />
-              <TextInput
-                id="hora-salida"
-                label="Hora salida"
-                type="time"
-                value={nuevaHora.horaSalida}
-                onChange={(event) =>
-                  setNuevaHora((current) => ({ ...current, horaSalida: event.target.value }))
-                }
-              />
-            </div>
-
-            <TextInput
-              id="hora-actividades"
-              label="Actividades realizadas"
-              required
-              value={nuevaHora.descripcionActividades}
-              onChange={(event) =>
-                setNuevaHora((current) => ({
-                  ...current,
-                  descripcionActividades: event.target.value,
-                }))
-              }
+          {section === "horas" && proceso ? (
+            <TitularProcesoHorasPanel
+              horas={horasRegistradas}
+              idProceso={proceso.idProceso}
+              canRegister={canRegistrarHoraProceso(proceso.estatus)}
+              onUpdated={refresh}
             />
-
-            <div className={sectionStyles.registerPanelActions}>
-              <Button
-                type="button"
-                variant="success"
-                disabled={isMutating}
-                onClick={async () => {
-                  const validationError = validarRegistroHoraAlumno(nuevaHora);
-                  if (validationError) {
-                    notify.error(validationError);
-                    return;
-                  }
-
-                  setIsMutating(true);
-                  const result = await registerProcesoHoraAction(proceso.idProceso, {
-                    fecha: nuevaHora.fecha,
-                    horaEntrada: nuevaHora.horaEntrada,
-                    horaSalida: nuevaHora.horaSalida,
-                    descripcionActividades: nuevaHora.descripcionActividades.trim(),
-                  });
-                  setIsMutating(false);
-
-                  if (!result.success) {
-                    notify.error(result.error);
-                    return;
-                  }
-
-                  refresh();
-                }}
-              >
-                Registrar hora
-              </Button>
-            </div>
-          </div>
           ) : null}
+
           {section === "incidencias" ? (
           <>
             {incidenciasRegistradas.length === 0 ? (
@@ -551,6 +328,8 @@ export function TitularProcesoDetailModal({
                 proceso.estatus,
                 detail?.evaluacionFinal,
                 detail?.liberacionTecnica,
+                proceso.horasAcumuladas,
+                proceso.horasRequeridas,
               ) ? (
               <div className={sectionStyles.registerPanel} aria-label="Emitir liberación técnica">
                 <div className={sectionStyles.registerPanelHeader}>
@@ -565,8 +344,8 @@ export function TitularProcesoDetailModal({
                     id="comentario-liberacion"
                     className={formStyles.textarea}
                     rows={2}
-                    value={comentario}
-                    onChange={(event) => setComentario(event.target.value)}
+                    value={liberacionComentario}
+                    onChange={(event) => setLiberacionComentario(event.target.value)}
                   />
                 </FormField>
 
@@ -578,7 +357,9 @@ export function TitularProcesoDetailModal({
                     onClick={async () => {
                       setIsMutating(true);
                       const liberacionPayload =
-                        comentario.trim() ? { comentario: comentario.trim() } : {};
+                        liberacionComentario.trim()
+                          ? { comentario: liberacionComentario.trim() }
+                          : {};
                       const result = await emitProcesoLiberacionTecnicaAction(
                         proceso.idProceso,
                         liberacionPayload,
@@ -599,7 +380,13 @@ export function TitularProcesoDetailModal({
               </div>
             ) : (
               <p className={sectionStyles.emptyHint}>
-                Requiere evaluación final aprobada y horas completas del proceso.
+                {mensajeBloqueoLiberacionTecnica(
+                  proceso.estatus,
+                  detail?.evaluacionFinal,
+                  detail?.liberacionTecnica,
+                  proceso.horasAcumuladas,
+                  proceso.horasRequeridas,
+                )}
               </p>
             )}
           </>
@@ -612,7 +399,12 @@ export function TitularProcesoDetailModal({
                 <strong>Evaluación final registrada</strong>
                 <span>La evaluación final ya fue capturada para este proceso.</span>
               </div>
-            ) : canRegistrarEvaluacionFinal(proceso.estatus, detail?.evaluacionFinal) ? (
+            ) : canRegistrarEvaluacionFinal(
+                proceso.estatus,
+                detail?.evaluacionFinal,
+                proceso.horasAcumuladas,
+                proceso.horasRequeridas,
+              ) ? (
               <div className={sectionStyles.registerPanel} aria-label="Registrar evaluación final">
                 <div className={sectionStyles.registerPanelHeader}>
                   <h3 className={sectionStyles.registerPanelTitle}>Calificación final</h3>
@@ -621,7 +413,7 @@ export function TitularProcesoDetailModal({
                   </p>
                 </div>
 
-                <div className={sectionStyles.fieldGrid}>
+                <div className={sectionStyles.fieldGridTwo}>
                   <FormField id="eval-estatus" label="Estatus de evaluación" required>
                     <select
                       id="eval-estatus"
@@ -655,9 +447,13 @@ export function TitularProcesoDetailModal({
                       }))
                     }
                   />
-                  <TextInput
+                </div>
+
+                <FormField id="eval-comentario" label="Comentario (opcional)">
+                  <textarea
                     id="eval-comentario"
-                    label="Comentario (opcional)"
+                    className={formStyles.textarea}
+                    rows={3}
                     value={evaluacion.comentario}
                     onChange={(event) =>
                       setEvaluacion((current) => ({
@@ -666,7 +462,7 @@ export function TitularProcesoDetailModal({
                       }))
                     }
                   />
-                </div>
+                </FormField>
 
                 <div className={sectionStyles.registerPanelActions}>
                   <Button
@@ -712,7 +508,12 @@ export function TitularProcesoDetailModal({
               </div>
             ) : (
               <p className={sectionStyles.emptyHint}>
-                Disponible cuando el proceso tenga las horas completas.
+                {mensajeBloqueoEvaluacionFinal(
+                  proceso.estatus,
+                  detail?.evaluacionFinal,
+                  proceso.horasAcumuladas,
+                  proceso.horasRequeridas,
+                )}
               </p>
             )}
           </>

@@ -1,15 +1,18 @@
 import { buildQuery } from "@/lib/api/query";
 import { serverApiRequest } from "@/lib/api/server-request";
+import { normalizeHoraPendiente } from "../lib/normalize-pendientes";
 import type {
   HoraPendienteResponse,
   ListHorasPendientesFilters,
 } from "../types/delegacion.types";
 
 export async function listHorasPendientes(filters?: ListHorasPendientesFilters) {
-  const response = await serverApiRequest<HoraPendienteResponse[]>(
+  const response = await serverApiRequest<unknown[]>(
     `/api/delegacion/horas/pendientes${buildQuery(filters)}`,
     { method: "GET" },
   );
 
-  return response.data ?? [];
+  return (response.data ?? [])
+    .map((row) => normalizeHoraPendiente(row))
+    .filter((row): row is HoraPendienteResponse => row !== null);
 }

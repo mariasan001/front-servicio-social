@@ -10,16 +10,32 @@ import {
 } from "../../actions/alumnos.actions";
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/lib/domain";
-import { estatusTone, formatEtiqueta } from "@/lib/domain/labels";
-import { Alert } from "@/shared/components/Alert";
+import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { SelectInput, TextInput } from "@/shared/components/Form";
 import { DetailModalHero } from "@/shared/components/DetailModal";
 import { Modal } from "@/shared/components/Modal";
 import { LoadingState } from "@/shared/components/LoadingState";
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import formStyles from "@/shared/styles/PanelFormModal.module.css";
+
+type NuevaEscuelaForm = {
+  nombreOficial: string;
+  nombreCorto: string;
+  correoContacto: string;
+};
+
+type FieldErrors = Partial<Record<"escuelaId" | keyof NuevaEscuelaForm, string>>;
+
+function buildNuevaEscuelaInitial(alumno: AlumnoPorNormalizarResponse): NuevaEscuelaForm {
+  return {
+    nombreOficial: alumno.escuelaTextoCapturada?.trim() ?? "",
+    nombreCorto: "",
+    correoContacto: "",
+  };
+}
 
 function AlumnoNormalizarModalContent({
   alumno,
@@ -34,8 +50,8 @@ function AlumnoNormalizarModalContent({
   const [cvLoading, setCvLoading] = useState(true);
   const [cvSummary, setCvSummary] = useState<string | null>(null);
   const [escuelaId, setEscuelaId] = useState(escuelas[0] ? String(escuelas[0].idEscuela) : "");
-  const [nuevaEscuela, setNuevaEscuela] = useState({ nombre: "", clave: "", municipio: "" });
-  const [error, setError] = useState<string | null>(null);
+  const [nuevaEscuela, setNuevaEscuela] = useState(() => buildNuevaEscuelaInitial(alumno));
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isMutating, setIsMutating] = useState(false);
   const [mode, setMode] = useState<"vincular" | "crear">("vincular");
 
@@ -63,39 +79,80 @@ function AlumnoNormalizarModalContent({
     };
   }, [alumno.idAlumno]);
 
+  const clearFieldError = (field: keyof FieldErrors) => {
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const applyActionFailure = (error: string, actionFieldErrors?: Record<string, string[]>) => {
+    const mapped = mapActionFieldErrors(actionFieldErrors);
+    setFieldErrors(mapped);
+
+    const firstFieldError = Object.values(mapped)[0];
+    notify.error(firstFieldError ?? error);
+  };
+
+  const switchMode = (next: "vincular" | "crear") => {
+    setMode(next);
+    setFieldErrors({});
+  };
+
+  const updateNuevaEscuela = (field: keyof NuevaEscuelaForm, value: string) => {
+    setNuevaEscuela((current) => ({ ...current, [field]: value }));
+    clearFieldError(field);
+  };
+
   const handleVincular = async () => {
-    if (!escuelaId) return;
+    if (!escuelaId) {
+      const message =
+        escuelas.length === 0
+          ? "No hay escuelas registradas. Usa «Registrar escuela nueva»."
+          : "Selecciona la escuela a vincular.";
+      setFieldErrors({ escuelaId: message });
+      notify.error(message);
+      return;
+    }
+
     setIsMutating(true);
-    setError(null);
+    setFieldErrors({});
     const result = await normalizeAlumnoEscuelaAction(alumno.idAlumno, {
       escuelaId: Number(escuelaId),
     });
     setIsMutating(false);
+
     if (!result.success) {
-      setError(result.error);
+      applyActionFailure(result.error, result.fieldErrors);
       return;
     }
+
+    notify.success("Escuela vinculada correctamente.");
     router.refresh();
     onClose();
   };
 
   const handleCrear = async () => {
-    if (!nuevaEscuela.nombre.trim()) {
-      setError("Escribe el nombre de la escuela.");
+    const nombreOficial = nuevaEscuela.nombreOficial.trim();
+    if (!nombreOficial) {
+      const message = "Escribe el nombre oficial de la escuela.";
+      setFieldErrors({ nombreOficial: message });
+      notify.error(message);
       return;
     }
+
     setIsMutating(true);
-    setError(null);
+    setFieldErrors({});
     const result = await createEscuelaAndNormalizeAlumnoAction(alumno.idAlumno, {
-      nombre: nuevaEscuela.nombre.trim(),
-      clave: nuevaEscuela.clave.trim() || undefined,
-      municipio: nuevaEscuela.municipio.trim() || undefined,
+      nombreOficial,
+      nombreCorto: nuevaEscuela.nombreCorto.trim() || undefined,
+      correoContacto: nuevaEscuela.correoContacto.trim() || undefined,
     });
     setIsMutating(false);
+
     if (!result.success) {
-      setError(result.error);
+      applyActionFailure(result.error, result.fieldErrors);
       return;
     }
+
+    notify.success("Escuela registrada y vinculada al alumno.");
     router.refresh();
     onClose();
   };
@@ -107,9 +164,11 @@ function AlumnoNormalizarModalContent({
         title={alumno.nombreCompleto ?? "Alumno"}
         subtitle={alumno.escuelaTextoCapturada ?? "Sin escuela capturada"}
         badges={
-          <StatusBadge tone={estatusTone(alumno.estatusVinculacionEscuela)}>
-            {formatEtiqueta(alumno.estatusVinculacionEscuela, "Pendiente de vincular")}
-          </StatusBadge>
+          <EstatusBadge
+            estatus={alumno.estatusVinculacionEscuela}
+            fallback="Pendiente de vincular"
+            variant="label"
+          />
         }
       />
 
@@ -122,7 +181,6 @@ function AlumnoNormalizarModalContent({
           <p className={detailStyles.panelDescription}>{cvSummary}</p>
         </section>
       ) : null}
-      {error ? <Alert tone="error">{error}</Alert> : null}
 
       <section className={detailStyles.contentPanel} aria-label="Vincular escuela">
         <div className={detailStyles.panelHeader}>
@@ -133,69 +191,92 @@ function AlumnoNormalizarModalContent({
         </div>
 
         <div className={formStyles.formActions}>
-        <Button
-          type="button"
-          variant={mode === "vincular" ? "action" : "outline"}
-          onClick={() => setMode("vincular")}
-        >
-          Vincular escuela existente
-        </Button>
-        <Button
-          type="button"
-          variant={mode === "crear" ? "action" : "outline"}
-          onClick={() => setMode("crear")}
-        >
-          Registrar escuela nueva
-        </Button>
-      </div>
-
-      {mode === "vincular" ? (
-        <div className={formStyles.formLayout}>
-          <SelectInput
-            id="escuela-id"
-            label="Escuela"
-            value={escuelaId}
-            onChange={(e) => setEscuelaId(e.target.value)}
+          <Button
+            type="button"
+            variant={mode === "vincular" ? "action" : "outline"}
+            onClick={() => switchMode("vincular")}
           >
-            {escuelas.map((escuela) => (
-              <option key={escuela.idEscuela} value={escuela.idEscuela}>
-                {escuela.nombreOficial}
-              </option>
-            ))}
-          </SelectInput>
-          <div className={formStyles.formActions}>
-            <Button type="button" variant="primary" disabled={isMutating} onClick={() => void handleVincular()}>
-              Vincular escuela
-            </Button>
-          </div>
+            Vincular escuela existente
+          </Button>
+          <Button
+            type="button"
+            variant={mode === "crear" ? "action" : "outline"}
+            onClick={() => switchMode("crear")}
+          >
+            Registrar escuela nueva
+          </Button>
         </div>
-      ) : (
-        <div className={formStyles.formLayout}>
-          <TextInput
-            id="esc-nombre"
-            label="Nombre de la escuela"
-            value={nuevaEscuela.nombre}
-            onChange={(e) => setNuevaEscuela((c) => ({ ...c, nombre: e.target.value }))}
-          />
-          <TextInput
-            id="esc-clave"
-            label="Clave"
-            value={nuevaEscuela.clave}
-            onChange={(e) => setNuevaEscuela((c) => ({ ...c, clave: e.target.value }))}
-          />
-          <TextInput
-            id="esc-mun"
-            label="Municipio"
-            value={nuevaEscuela.municipio}
-            onChange={(e) => setNuevaEscuela((c) => ({ ...c, municipio: e.target.value }))}
-          />
-          <div className={formStyles.formActions}>
-            <Button type="button" variant="primary" disabled={isMutating} onClick={() => void handleCrear()}>
-              Registrar y vincular
-            </Button>
+
+        {mode === "vincular" ? (
+          <div className={formStyles.formLayout}>
+            <SelectInput
+              id="escuela-id"
+              label="Escuela"
+              value={escuelaId}
+              error={fieldErrors.escuelaId}
+              onChange={(event) => {
+                setEscuelaId(event.target.value);
+                clearFieldError("escuelaId");
+              }}
+            >
+              {escuelas.length === 0 ? (
+                <option value="">Sin escuelas disponibles</option>
+              ) : null}
+              {escuelas.map((escuela) => (
+                <option key={escuela.idEscuela} value={escuela.idEscuela}>
+                  {escuela.nombreOficial}
+                </option>
+              ))}
+            </SelectInput>
+            <div className={formStyles.formActions}>
+              <Button
+                type="button"
+                variant="primary"
+                disabled={isMutating}
+                onClick={() => void handleVincular()}
+              >
+                Vincular escuela
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className={formStyles.formLayout}>
+            <TextInput
+              id="esc-nombre-oficial"
+              label="Nombre oficial"
+              required
+              value={nuevaEscuela.nombreOficial}
+              error={fieldErrors.nombreOficial}
+              hint="Tal como aparece en la credencial o documentación oficial."
+              onChange={(event) => updateNuevaEscuela("nombreOficial", event.target.value)}
+            />
+            <TextInput
+              id="esc-nombre-corto"
+              label="Nombre corto"
+              value={nuevaEscuela.nombreCorto}
+              error={fieldErrors.nombreCorto}
+              onChange={(event) => updateNuevaEscuela("nombreCorto", event.target.value)}
+            />
+            <TextInput
+              id="esc-correo"
+              label="Correo de contacto"
+              type="email"
+              value={nuevaEscuela.correoContacto}
+              error={fieldErrors.correoContacto}
+              onChange={(event) => updateNuevaEscuela("correoContacto", event.target.value)}
+            />
+            <div className={formStyles.formActions}>
+              <Button
+                type="button"
+                variant="primary"
+                disabled={isMutating}
+                onClick={() => void handleCrear()}
+              >
+                Registrar y vincular
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

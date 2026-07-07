@@ -49,13 +49,13 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
 
   const columns: DataTableColumn<ProcesoResponse>[] = [
     {
-      id: "proceso",
-      header: "Proceso",
+      id: "alumno",
+      header: "Alumno",
       width: "32%",
       cell: (proceso) => (
         <div className={styles.nameCell}>
-          <strong>{proceso.alumnoNombre ?? "Sin alumno"}</strong>
-          <span className={styles.nameHint}>{proceso.folio ?? `#${proceso.idProceso}`}</span>
+          <strong>{proceso.alumnoNombre?.trim() || "Sin alumno"}</strong>
+          <span className={styles.nameHint}>{proceso.folio?.trim() || `Proceso #${proceso.idProceso}`}</span>
         </div>
       ),
     },
@@ -88,7 +88,7 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
         <DataTableActions>
           <DataTableRowMenu
             options={DELEGACION_PROCESO_SECTION_OPTIONS}
-            ariaLabel="Opciones del proceso"
+            ariaLabel="Opciones del alumno"
             onSelect={(section) => setSelected({ proceso, section })}
           />
         </DataTableActions>
@@ -100,8 +100,8 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
     <section className={styles.page} aria-labelledby="delegacion-procesos-title">
       <PageHeader
         titleId="delegacion-procesos-title"
-        title="Procesos"
-        description="Supervisa procesos activos. Si un proceso está listo para activación, captura las horas y emite la carta de aceptación para activarlo."
+        title="Alumnos"
+        description="Supervisa el servicio social de cada alumno. Si está listo para activación, captura las horas y emite la carta de aceptación."
       />
       <DataTable
         toolbar={
@@ -124,9 +124,9 @@ export function DelegacionProcesosView({ procesos }: { procesos: ProcesoResponse
         columns={columns}
         rows={filtered}
         rowKey={(proceso) => proceso.idProceso}
-        caption="Procesos"
-        emptyTitle="No hay procesos"
-        emptyDescription="Los procesos activos aparecerán aquí."
+        caption="Alumnos en proceso"
+        emptyTitle="No hay alumnos en proceso"
+        emptyDescription="Los alumnos con proceso activo aparecerán aquí."
       />
       <DelegacionProcesoDetailModal
         open={selected !== null}

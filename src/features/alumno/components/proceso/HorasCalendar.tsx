@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
-import type { HoraResponse } from "../../types/alumno.types";
+import type { HoraCalendarEntry } from "../../lib/horas-calendar.utils";
 import { estatusTone } from "@/lib/domain";
 import {
   WEEKDAY_LABELS,
@@ -28,11 +28,13 @@ export type HorasCalendarView = "month" | "week";
 export type HorasCalendarLayout = "default" | "tall";
 
 type HorasCalendarProps = {
-  horas: HoraResponse[];
+  horas: HoraCalendarEntry[];
   view: HorasCalendarView;
   anchorDate: Date;
   selectedDateKey: string | null;
   layout?: HorasCalendarLayout;
+  monthOnly?: boolean;
+  emptyMessage?: string;
   onViewChange: (view: HorasCalendarView) => void;
   onAnchorChange: (date: Date) => void;
   onSelectDate: (dateKey: string) => void;
@@ -65,7 +67,7 @@ function MonthView({
   onSelectDate,
 }: {
   cells: CalendarCell[];
-  horasByDate: Map<string, HoraResponse[]>;
+  horasByDate: Map<string, HoraCalendarEntry[]>;
   selectedDateKey: string | null;
   layout: HorasCalendarLayout;
   onSelectDate: (dateKey: string) => void;
@@ -141,7 +143,7 @@ function WeekView({
   onSelectDate,
 }: {
   days: CalendarCell[];
-  horasByDate: Map<string, HoraResponse[]>;
+  horasByDate: Map<string, HoraCalendarEntry[]>;
   selectedDateKey: string | null;
   onSelectDate: (dateKey: string) => void;
 }) {
@@ -243,10 +245,13 @@ export function HorasCalendar({
   anchorDate,
   selectedDateKey,
   layout = "default",
+  monthOnly = false,
+  emptyMessage,
   onViewChange,
   onAnchorChange,
   onSelectDate,
 }: HorasCalendarProps) {
+  const calendarView = monthOnly ? "month" : view;
   const horasByDate = groupHorasByDateKey(horas);
   const monthCells = buildMonthGrid(anchorDate);
   const weekDays = buildWeekDays(anchorDate);
@@ -258,7 +263,9 @@ export function HorasCalendar({
   };
 
   const navigate = (delta: number) => {
-    onAnchorChange(view === "month" ? shiftMonth(anchorDate, delta) : shiftWeek(anchorDate, delta));
+    onAnchorChange(
+      calendarView === "month" ? shiftMonth(anchorDate, delta) : shiftWeek(anchorDate, delta),
+    );
   };
 
   return (
@@ -295,39 +302,43 @@ export function HorasCalendar({
         </div>
 
         <div className={styles.viewToggle} role="tablist" aria-label="Vista del calendario">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === "month"}
-            className={[styles.viewButton, view === "month" && styles.viewButtonActive]
-              .filter(Boolean)
-              .join(" ")}
-            onClick={() => onViewChange("month")}
-          >
-            Mes
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === "week"}
-            className={[styles.viewButton, view === "week" && styles.viewButtonActive]
-              .filter(Boolean)
-              .join(" ")}
-            onClick={() => onViewChange("week")}
-          >
-            Semana
-          </button>
+          {!monthOnly ? (
+            <>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={calendarView === "month"}
+                className={[styles.viewButton, calendarView === "month" && styles.viewButtonActive]
+                  .filter(Boolean)
+                  .join(" ")}
+                onClick={() => onViewChange("month")}
+              >
+                Mes
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={calendarView === "week"}
+                className={[styles.viewButton, calendarView === "week" && styles.viewButtonActive]
+                  .filter(Boolean)
+                  .join(" ")}
+                onClick={() => onViewChange("week")}
+              >
+                Semana
+              </button>
+            </>
+          ) : null}
         </div>
       </div>
 
       {horas.length === 0 ? (
         <p className={styles.emptyState}>
-          Aún no tienes horas registradas. Usa el formulario para capturar tu primera jornada y
-          verla reflejada en el calendario.
+          {emptyMessage ??
+            "Aún no tienes horas registradas. Usa el formulario para capturar tu primera jornada y verla reflejada en el calendario."}
         </p>
       ) : null}
 
-      {view === "month" ? (
+      {calendarView === "month" ? (
         <MonthView
           cells={monthCells}
           horasByDate={horasByDate}

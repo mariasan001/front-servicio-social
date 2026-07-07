@@ -4,7 +4,7 @@ export const TITULAR_PROCESO_SECTION_OPTIONS: {
   id: TitularProcesoModalSection;
   label: string;
 }[] = [
-  { id: "horas", label: "Registros de horas" },
+  { id: "horas", label: "Registro de horas" },
   { id: "incidencias", label: "Incidencias" },
   { id: "liberacion", label: "Liberación técnica" },
   { id: "evaluacion", label: "Evaluación final" },

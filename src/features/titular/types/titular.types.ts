@@ -61,11 +61,15 @@ export type HoraResponse = {
   fecha?: string;
   estatus?: string;
   horasRegistradas?: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
 };
 
 export type IncidenciaResponse = IncidenciaBase & {
   procesoId?: number;
   folioProceso?: string;
+  alumnoNombre?: string;
 };
 
 export type IncidenciaDetalleResponse = IncidenciaResponse & {

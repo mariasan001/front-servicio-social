@@ -12,7 +12,7 @@ export async function DelegacionProcesosSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-proc-error" title="Procesos" description="Procesos activos de alumnos." />
+        <PageHeader titleId="delegacion-proc-error" title="Alumnos" description="Seguimiento de alumnos en servicio social." />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );

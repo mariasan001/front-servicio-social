@@ -17,6 +17,7 @@ type DocumentoGestionModalProps = {
   selectedFile: File | null;
   disabled?: boolean;
   canUpload: boolean;
+  canDownload: boolean;
   onClose: () => void;
   onFileSelect: (file: File | null) => void;
   onInvalidFile?: (message: string) => void;
@@ -32,6 +33,7 @@ export function DocumentoGestionModal({
   selectedFile,
   disabled = false,
   canUpload,
+  canDownload,
   onClose,
   onFileSelect,
   onInvalidFile,
@@ -49,15 +51,17 @@ export function DocumentoGestionModal({
       open
       title={documentoLabel}
       onClose={onClose}
-      size="md"
+      size={canUpload ? "lg" : "md"}
       footer={
         <div className={detailStyles.footerActions}>
           <Button type="button" variant="outline" disabled={disabled} onClick={onClose}>
             Cerrar
           </Button>
-          <Button type="button" variant="outline" disabled={disabled} onClick={onDownload}>
-            Descargar
-          </Button>
+          {canDownload ? (
+            <Button type="button" variant="outline" disabled={disabled} onClick={onDownload}>
+              Descargar PDF
+            </Button>
+          ) : null}
           {canUpload ? (
             <Button
               type="button"
@@ -65,7 +69,7 @@ export function DocumentoGestionModal({
               disabled={disabled || !selectedFile}
               onClick={onUpload}
             >
-              Subir archivo
+              Subir PDF
             </Button>
           ) : null}
         </div>
@@ -87,14 +91,21 @@ export function DocumentoGestionModal({
             <dt>Requisito</dt>
             <dd>{documento.obligatorio ? "Obligatorio" : "Opcional"}</dd>
           </div>
+          <div className={detailStyles.metaRow}>
+            <dt>Formato</dt>
+            <dd>PDF</dd>
+          </div>
         </dl>
 
         {canUpload ? (
           <section className={detailStyles.contentPanel} aria-labelledby="doc-upload-title">
             <div className={detailStyles.panelHeader}>
               <h3 id="doc-upload-title" className={detailStyles.panelTitle}>
-                Subir archivo
+                Subir documento
               </h3>
+              <p className={detailStyles.panelDescription}>
+                Selecciona o arrastra tu archivo en formato PDF para enviarlo a revisión.
+              </p>
             </div>
             <DocumentoUploadField
               documentoLabel={documentoLabel}

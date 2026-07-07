@@ -69,7 +69,7 @@ export const PANEL_NAVIGATION: PanelNavGroup[] = [
       item(PANEL_PATHS.delegacion, "inicio", "Inicio", Home, "Resumen operativo del programa."),
       item(PANEL_PATHS.delegacion, "vacantes", "Vacantes", Briefcase, "Gestión y revisión de vacantes."),
       item(PANEL_PATHS.delegacion, "postulaciones", "Postulaciones", ClipboardList, "Seguimiento de postulaciones."),
-      item(PANEL_PATHS.delegacion, "procesos", "Procesos", FileText, "Procesos activos de alumnos."),
+      item(PANEL_PATHS.delegacion, "procesos", "Alumnos", FileText, "Seguimiento de alumnos en servicio social."),
       item(
         PANEL_PATHS.delegacion,
         "validacion",
@@ -95,8 +95,13 @@ export const PANEL_NAVIGATION: PanelNavGroup[] = [
       item(PANEL_PATHS.titular, "inicio", "Inicio", Home, "Resumen de tu área."),
       item(PANEL_PATHS.titular, "vacantes", "Vacantes", Briefcase, "Vacantes de tu dependencia."),
       item(PANEL_PATHS.titular, "postulaciones", "Postulaciones", ClipboardList, "Revisión de candidatos."),
-      item(PANEL_PATHS.titular, "procesos", "Procesos", FileText, "Seguimiento de procesos activos."),
-      item(PANEL_PATHS.titular, "incidencias", "Incidencias", Shield, "Incidencias reportadas."),
+      item(
+        PANEL_PATHS.titular,
+        "procesos",
+        "Alumnos",
+        GraduationCap,
+        "Horas, incidencias, liberación y evaluación.",
+      ),
     ],
   },
   {

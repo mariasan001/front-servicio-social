@@ -132,7 +132,6 @@ export async function registerProcesoIncidenciaAction(
 
   if (result.success) {
     revalidateTitularSection("procesos");
-    revalidateTitularSection("incidencias");
   }
 
   return result;
@@ -162,6 +161,14 @@ export async function registerProcesoEvaluacionFinalAction(
     () => registerProcesoEvaluacionFinal(idProceso, request),
     "No pudimos registrar la evaluación final.",
   );
+
+  if (!result.success && result.error.includes("HORAS_COMPLETAS")) {
+    return {
+      success: false,
+      error:
+        "El servidor aún no registró el estatus «Horas completas» para este proceso. Pide a delegación que valide de nuevo las horas o que revise el caso con soporte.",
+    };
+  }
 
   if (result.success) {
     revalidateTitularSection("procesos");

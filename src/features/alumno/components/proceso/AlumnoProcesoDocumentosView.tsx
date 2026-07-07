@@ -8,7 +8,7 @@ import {
   uploadDocumentoArchivoAction,
 } from "../../actions/proceso.actions";
 import type { DocumentoEstatusResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
-import { canAlumnoSubirDocumento, estatusTone, formatEtiqueta } from "@/lib/domain";
+import { canAlumnoDescargarDocumento, canAlumnoSubirDocumento, estatusTone, formatEtiqueta } from "@/lib/domain";
 import { runDownloadAction } from "@/lib/utils/download-file";
 import { notify } from "@/shared/notifications";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
@@ -91,7 +91,7 @@ export function AlumnoProcesoDocumentosView({
       titleId="alumno-proceso-documentos-title"
       firstName={firstName}
       title="Mi documentación"
-      description="Sube los archivos solicitados para continuar con tu proceso."
+      description="Sube tus documentos en PDF para continuar con tu proceso."
       estatus={proceso.estatus}
     >
 
@@ -107,6 +107,7 @@ export function AlumnoProcesoDocumentosView({
               const tone = estatusTone(documento.estatus);
               const isActive = activeDocumentoId === documento.idProcesoDocumento;
               const fileType = resolveFileTypeLabel(documento);
+              const canUpload = canAlumnoSubirDocumento(documento.estatus);
               const tipoLabel = formatEtiqueta(documento.tipoDocumento, "Documento");
 
               return (
@@ -116,7 +117,7 @@ export function AlumnoProcesoDocumentosView({
                     className={fileCardStyles.fileCard}
                     data-tone={tone}
                     data-active={isActive || undefined}
-                    aria-label={`Gestionar ${nombre}`}
+                    aria-label={canUpload ? `Subir PDF de ${nombre}` : `Ver ${nombre}`}
                     onClick={() => openDocumento(documento.idProcesoDocumento)}
                   >
                     <span className={fileCardStyles.fileCardMenu} aria-hidden="true">
@@ -129,6 +130,10 @@ export function AlumnoProcesoDocumentosView({
                     <span className={fileCardStyles.fileMeta}>
                       {documento.obligatorio ? "Obligatorio" : "Opcional"} · {tipoLabel}
                     </span>
+
+                    {canUpload ? (
+                      <span className={fileCardStyles.fileActionHint}>Subir PDF</span>
+                    ) : null}
 
                     <span className={fileCardStyles.fileStatus}>
                       <EstatusBadge estatus={documento.estatus} />
@@ -153,6 +158,9 @@ export function AlumnoProcesoDocumentosView({
         }
         disabled={isMutating}
         canUpload={activeDocumento ? canAlumnoSubirDocumento(activeDocumento.estatus) : false}
+        canDownload={
+          activeDocumento ? canAlumnoDescargarDocumento(activeDocumento.estatus) : false
+        }
         onClose={closeDocumento}
         onFileSelect={(file) => {
           if (!activeDocumento) return;

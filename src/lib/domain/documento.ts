@@ -22,6 +22,12 @@ export function canAlumnoSubirDocumento(estatus?: string) {
   return matchesDomainCode(estatus, "PENDIENTE", "OBSERVADO", "RECHAZADO");
 }
 
+/** Alumno puede descargar un archivo ya cargado en el proceso. */
+export function canAlumnoDescargarDocumento(estatus?: string) {
+  const normalized = normalizeDomainCode(estatus);
+  return Boolean(normalized && normalized !== "PENDIENTE");
+}
+
 export function canAlumnoActualizarBitacora(estatus?: string) {
   return matchesDomainCode(estatus, "REGISTRADA", "OBSERVADA");
 }

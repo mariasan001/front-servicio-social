@@ -1,6 +1,7 @@
 import { buildQuery } from "@/lib/api/query";
 import { serverDownloadRequest } from "@/lib/api/download";
 import { serverApiRequest } from "@/lib/api/server-request";
+import { normalizeProcesoHora } from "../lib/normalize-pendientes";
 import type {
   CancelarHoraRequest,
   CancelarProcesoRequest,
@@ -116,12 +117,14 @@ export async function rejectProcesoDocumento(
 }
 
 export async function listProcesoHoras(idProceso: number) {
-  const response = await serverApiRequest<ProcesoHoraResponse[]>(
+  const response = await serverApiRequest<unknown[]>(
     `/api/delegacion/procesos/${idProceso}/horas`,
     { method: "GET" },
   );
 
-  return response.data ?? [];
+  return (response.data ?? [])
+    .map((row) => normalizeProcesoHora(row))
+    .filter((row): row is ProcesoHoraResponse => row !== null);
 }
 
 export async function registerProcesoHora(

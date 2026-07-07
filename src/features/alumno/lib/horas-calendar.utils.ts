@@ -1,5 +1,16 @@
 import type { HoraResponse } from "../types/alumno.types";
 
+export type HoraCalendarEntry = Pick<
+  HoraResponse,
+  | "idAsistencia"
+  | "fecha"
+  | "estatus"
+  | "horasRegistradas"
+  | "horaEntrada"
+  | "horaSalida"
+  | "descripcionActividades"
+>;
+
 export const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
 
 export const WEEK_GRID_START_HOUR = 5;
@@ -121,18 +132,18 @@ export function resolveHoraFechaKey(value?: string | null) {
   return match?.[1] ?? null;
 }
 
-export function horasEnFecha(horas: HoraResponse[], dateKey: string) {
+export function horasEnFecha(horas: HoraCalendarEntry[], dateKey: string) {
   return horas.filter((hora) => resolveHoraFechaKey(hora.fecha) === dateKey);
 }
 
-export function sumHorasRegistradas(entries: HoraResponse[]) {
+export function sumHorasRegistradas(entries: HoraCalendarEntry[]) {
   return entries.reduce((sum, hora) => {
     const value = Number(hora.horasRegistradas ?? 0);
     return sum + (Number.isFinite(value) ? value : 0);
   }, 0);
 }
 
-export function formatHorasDia(entries: HoraResponse[]) {
+export function formatHorasDia(entries: HoraCalendarEntry[]) {
   const total = sumHorasRegistradas(entries);
 
   if (total <= 0) {
@@ -143,8 +154,8 @@ export function formatHorasDia(entries: HoraResponse[]) {
   return Number.isInteger(rounded) ? `${rounded} h` : `${rounded.toFixed(1)} h`;
 }
 
-export function groupHorasByDateKey(horas: HoraResponse[]) {
-  const map = new Map<string, HoraResponse[]>();
+export function groupHorasByDateKey(horas: HoraCalendarEntry[]) {
+  const map = new Map<string, HoraCalendarEntry[]>();
 
   for (const hora of horas) {
     const key = resolveHoraFechaKey(hora.fecha);
@@ -208,7 +219,7 @@ export function getEventBlockPosition(entrada?: string, salida?: string) {
   };
 }
 
-export function horaEventLabel(hora: HoraResponse) {
+export function horaEventLabel(hora: HoraCalendarEntry) {
   const range = formatHoraRange(hora.horaEntrada, hora.horaSalida);
   const descripcion = hora.descripcionActividades?.trim();
 

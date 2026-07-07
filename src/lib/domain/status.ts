@@ -1,5 +1,12 @@
 export function normalizeDomainCode(value?: string | null) {
-  return value?.trim().toUpperCase() ?? "";
+  return (
+    value
+      ?.trim()
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toUpperCase()
+      .replace(/\s+/g, "_") ?? ""
+  );
 }
 
 export function matchesDomainCode(value: string | undefined | null, ...codes: string[]) {
