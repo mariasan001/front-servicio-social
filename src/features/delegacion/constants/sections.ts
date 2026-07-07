@@ -9,9 +9,7 @@ export type DelegacionSectionSlug =
   | "vacantes"
   | "postulaciones"
   | "procesos"
-  | "documentos"
-  | "horas"
-  | "incidencias"
+  | "validacion"
   | "alumnos"
   | "reportes";
 

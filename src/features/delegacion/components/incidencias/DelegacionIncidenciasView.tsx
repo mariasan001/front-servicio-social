@@ -6,7 +6,6 @@ import type { IncidenciaResponse } from "../../types/delegacion.types";
 import { DelegacionIncidenciaDetailModal } from "./DelegacionIncidenciaDetailModal";
 import { formatEtiqueta } from "@/lib/domain/labels";
 import { DataTable, DataTableActions, DataTableIconAction, type DataTableColumn } from "@/shared/components/DataTable";
-import { PageHeader } from "@/shared/components/PageHeader";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
@@ -55,10 +54,9 @@ export function DelegacionIncidenciasView({
   ];
 
   return (
-    <section className={styles.page} aria-labelledby="delegacion-incidencias-title">
-      <PageHeader titleId="delegacion-incidencias-title" title="Incidencias" description="Consulta y resuelve incidencias reportadas en el programa." />
+    <>
       <DataTable columns={columns} rows={incidencias} rowKey={(i) => i.idIncidencia} caption="Incidencias" emptyTitle="No hay incidencias" emptyDescription="Las incidencias reportadas aparecerán aquí." />
       <DelegacionIncidenciaDetailModal open={selected !== null} incidenciaId={selected?.idIncidencia ?? null} onClose={() => setSelected(null)} />
-    </section>
+    </>
   );
 }

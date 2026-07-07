@@ -12,7 +12,6 @@ import {
   DataTableToolbar,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
-import { PageHeader } from "@/shared/components/PageHeader";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { normalizeText } from "@/lib/utils/search";
@@ -93,12 +92,7 @@ export function DelegacionDocumentosView({
   ];
 
   return (
-    <section className={styles.page} aria-labelledby="delegacion-documentos-title">
-      <PageHeader
-        titleId="delegacion-documentos-title"
-        title="Documentos"
-        description="Valida la documentación enviada por los alumnos. Cuando todos los documentos de un proceso estén aprobados, actívalo en Procesos capturando las horas y emitiendo la carta de aceptación."
-      />
+    <>
       <DataTable
         toolbar={
           <DataTableToolbar>
@@ -125,6 +119,6 @@ export function DelegacionDocumentosView({
         emptyDescription="Cuando haya documentos por revisar, aparecerán aquí."
       />
       <DocumentoPendienteModal documento={selected} open={selected !== null} onClose={() => setSelected(null)} />
-    </section>
+    </>
   );
 }

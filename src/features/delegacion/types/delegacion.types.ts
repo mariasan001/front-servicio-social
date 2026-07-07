@@ -34,7 +34,17 @@ export type VacanteDetalleResponse = VacanteResponse & {
   requiereExamen?: boolean;
 };
 
-export type PostulacionResponse = PostulacionBase;
+export type PostulacionResponse = PostulacionBase & {
+  alumnoNombre?: string;
+  vacanteFolio?: string;
+  vacanteNombre?: string;
+  areaNombre?: string;
+  titularNombre?: string;
+  modalidadId?: string;
+  fechaPostulacion?: string;
+  requiereExamen?: boolean;
+  examenEstado?: string;
+};
 
 export type ProcesoResponse = ProcesoBase & {
   alumnoNombre?: string;

@@ -64,8 +64,19 @@ export function DelegacionAlumnosView({
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-alumnos-title">
-      <PageHeader titleId="delegacion-alumnos-title" title="Alumnos" description="Vincula o registra la escuela de alumnos con datos pendientes de normalizar." />
-      <DataTable columns={columns} rows={alumnos} rowKey={(a) => a.idAlumno} caption="Alumnos por normalizar" emptyTitle="No hay alumnos pendientes" emptyDescription="Todos los alumnos tienen su escuela vinculada correctamente." />
+      <PageHeader
+        titleId="delegacion-alumnos-title"
+        title="Vinculaciones"
+        description="Asigna la escuela correcta a alumnos con datos pendientes de normalizar."
+      />
+      <DataTable
+        columns={columns}
+        rows={alumnos}
+        rowKey={(a) => a.idAlumno}
+        caption="Alumnos por vincular"
+        emptyTitle="No hay alumnos pendientes"
+        emptyDescription="Todos los alumnos tienen su escuela vinculada correctamente."
+      />
       <AlumnoNormalizarModal alumno={selected} escuelas={escuelas} open={selected !== null} onClose={() => setSelected(null)} />
     </section>
   );

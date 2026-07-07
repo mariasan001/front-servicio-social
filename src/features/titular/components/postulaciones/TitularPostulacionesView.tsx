@@ -74,7 +74,7 @@ export function TitularPostulacionesView({
         postulacion.requiereExamen ? (
           <EstatusBadge estatus={postulacion.examenEstado} fallback="Pendiente" />
         ) : (
-          <span className={styles.cellEmpty}>No aplica</span>
+          <EstatusBadge estatus="NO_APLICA" />
         ),
     },
     {

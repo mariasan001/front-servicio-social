@@ -145,7 +145,8 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
   if (
     value === "CANCELADA" ||
     value === "CANCELADO" ||
-    value === "SIN_CONVENIO"
+    value === "SIN_CONVENIO" ||
+    value === "NO_APLICA"
   ) {
     return "neutral";
   }
@@ -209,7 +210,7 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     return "cancelled";
   }
 
-  if (value === "SUSPENDIDO" || value === "INACTIVA" || value === "SIN_CONVENIO") {
+  if (value === "SUSPENDIDO" || value === "INACTIVA" || value === "SIN_CONVENIO" || value === "NO_APLICA") {
     return "draft";
   }
 

@@ -13,7 +13,11 @@ export async function DelegacionAlumnosSection() {
   if ("error" in result) {
     return (
       <section>
-        <PageHeader titleId="delegacion-alu-error" title="Alumnos" description="Normalización de escuelas." />
+        <PageHeader
+          titleId="delegacion-alu-error"
+          title="Vinculaciones"
+          description="Asigna la escuela correcta a alumnos registrados."
+        />
         <Alert tone="error">{result.error}</Alert>
       </section>
     );
