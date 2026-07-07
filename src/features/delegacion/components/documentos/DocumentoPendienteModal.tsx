@@ -2,7 +2,7 @@
 
 import { FileText } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   approveProcesoDocumentoAction,
   downloadProcesoDocumentoArchivoAction,
@@ -38,8 +38,6 @@ export function DocumentoPendienteModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const documentoRef = useRef(documento);
-  documentoRef.current = documento;
   const [comentario, setComentario] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
@@ -48,11 +46,10 @@ export function DocumentoPendienteModal({
     open,
     documento?.idProcesoDocumento ?? null,
     async (id) => {
-      const current = documentoRef.current;
-      if (!current || current.idProcesoDocumento !== id) {
+      if (!documento || documento.idProcesoDocumento !== id) {
         return { success: false as const, error: "No se encontró el documento." };
       }
-      return { success: true as const, data: current };
+      return { success: true as const, data: documento };
     },
     {
       onBeforeLoad: () => {

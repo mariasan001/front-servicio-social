@@ -5,7 +5,7 @@ import fileCardStyles from "@/shared/proceso/ProcesoFileCard.module.css";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
 import { Download, MoreHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   approveProcesoDocumentoAction,
   cancelProcesoAction,
@@ -122,6 +122,10 @@ export function DelegacionProcesoDetailModal({
   const [reloadKey, setReloadKey] = useState(0);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [horasRequeridas, setHorasRequeridas] = useState("");
+  const [horasRequeridasSource, setHorasRequeridasSource] = useState<{
+    procesoId: number;
+    horasRequeridas: number | null | undefined;
+  } | null>(null);
   const [comentario, setComentario] = useState("");
   const [documentoComentario, setDocumentoComentario] = useState("");
   const [activeDocumentoId, setActiveDocumentoId] = useState<number | null>(null);
@@ -137,7 +141,6 @@ export function DelegacionProcesoDetailModal({
       onBeforeLoad: () => {
         setActionError(null);
         setActionSuccess(null);
-        setHorasRequeridas("");
         setMotivoCancelacion("");
         setComentario("");
         setDocumentoComentario("");
@@ -191,11 +194,23 @@ export function DelegacionProcesoDetailModal({
         )
       : null;
 
-  useEffect(() => {
-    if (proceso?.horasRequeridas != null && proceso.horasRequeridas > 0) {
-      setHorasRequeridas(String(proceso.horasRequeridas));
-    }
-  }, [proceso?.horasRequeridas, proceso?.idProceso]);
+  const horasSource =
+    proceso != null
+      ? { procesoId: proceso.idProceso, horasRequeridas: proceso.horasRequeridas }
+      : null;
+
+  if (
+    horasSource &&
+    (horasRequeridasSource?.procesoId !== horasSource.procesoId ||
+      horasRequeridasSource?.horasRequeridas !== horasSource.horasRequeridas)
+  ) {
+    setHorasRequeridasSource(horasSource);
+    setHorasRequeridas(
+      horasSource.horasRequeridas != null && horasSource.horasRequeridas > 0
+        ? String(horasSource.horasRequeridas)
+        : "",
+    );
+  }
 
   const refresh = () => {
     router.refresh();

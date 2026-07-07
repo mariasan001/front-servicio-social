@@ -9,7 +9,6 @@ import {
   getUsuarioDetailAction,
   resetUsuarioInternoPasswordAction,
 } from "../../actions/usuarios.actions";
-import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { UsuarioFormModal } from "./UsuarioFormModal";
 import {
   formatFecha,

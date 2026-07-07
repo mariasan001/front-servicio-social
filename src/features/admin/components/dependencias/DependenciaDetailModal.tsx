@@ -8,7 +8,6 @@ import {
   deactivateDependenciaAction,
   getDependenciaDetailAction,
 } from "../../actions/dependencias.actions";
-import type { DependenciaResponse } from "../../types/dependencia.types";
 import { DependenciaFormModal } from "./DependenciaFormModal";
 import { areaActivaEstatus, formatFecha } from "../areas/area-labels";
 import { Alert } from "@/shared/components/Alert";

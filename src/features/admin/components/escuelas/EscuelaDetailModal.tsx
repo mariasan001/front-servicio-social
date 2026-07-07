@@ -15,7 +15,6 @@ import { EscuelaFormModal } from "./EscuelaFormModal";
 import { InvitacionGeneradaCard } from "./InvitacionGeneradaCard";
 import { cacheSchoolInvitation, getSchoolInvitation } from "./invitation-cache";
 import {
-  formatEtiqueta,
   formatFecha,
 } from "./escuela-labels";
 import escuelaStyles from "./EscuelaDetailModal.module.css";

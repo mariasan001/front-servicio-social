@@ -67,7 +67,7 @@ export function DelegacionReportesView({
         header: formatColumnHeader(key),
         cell: (row) => String(row[key] ?? "—"),
       }));
-  }, [rows]);
+  }, [active, report]);
 
   return (
     <section className={styles.page} aria-labelledby="delegacion-reportes-title">

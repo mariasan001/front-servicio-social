@@ -2,7 +2,7 @@
 
 import { Clock3 } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   cancelProcesoHoraAction,
   getHoraPendienteDetailAction,
@@ -65,8 +65,6 @@ export function HoraPendienteModal({
   onClose: () => void;
 }) {
   const router = usePanelRouter();
-  const horaRef = useRef(hora);
-  horaRef.current = hora;
   const [comentario, setComentario] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
@@ -74,14 +72,12 @@ export function HoraPendienteModal({
     open,
     hora?.idAsistencia ?? null,
     async (idAsistencia) => {
-      const current = horaRef.current;
-
-      if (!current || current.idAsistencia !== idAsistencia) {
+      if (!hora || hora.idAsistencia !== idAsistencia) {
         return { success: false as const, error: "No se encontró el registro de horas." };
       }
 
-      const baseDetail = buildBaseDetail(current);
-      const result = await getHoraPendienteDetailAction(current.idProceso, idAsistencia);
+      const baseDetail = buildBaseDetail(hora);
+      const result = await getHoraPendienteDetailAction(hora.idProceso, idAsistencia);
 
       if (!result.success) {
         return { success: true as const, data: baseDetail };
@@ -92,7 +88,7 @@ export function HoraPendienteModal({
         data: {
           ...baseDetail,
           ...result.data,
-          alumnoNombre: current.alumnoNombre ?? result.data.alumnoNombre,
+          alumnoNombre: hora.alumnoNombre ?? result.data.alumnoNombre,
         },
       };
     },
