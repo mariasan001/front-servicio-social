@@ -1,3 +1,8 @@
+import {
+  mapPublicListResult,
+  PUBLIC_LOAD_ERRORS,
+  type LandingFetchResult,
+} from "./public-data";
 import { listPublicTestimonios } from "../services/public-testimonios.service";
 import type {
   LandingTestimonial,
@@ -36,7 +41,17 @@ export function mapLandingTestimonials(
     .filter((item): item is LandingTestimonial => item !== null);
 }
 
-export async function getLandingTestimonials() {
-  const testimonios = await listPublicTestimonios();
-  return mapLandingTestimonials(testimonios);
+export async function getLandingTestimonials(): Promise<
+  LandingFetchResult<LandingTestimonial[]>
+> {
+  const result = mapPublicListResult(
+    await listPublicTestimonios(),
+    PUBLIC_LOAD_ERRORS.testimonios,
+  );
+
+  if (result.loadError) {
+    return { data: [], loadError: result.loadError };
+  }
+
+  return { data: mapLandingTestimonials(result.data) };
 }

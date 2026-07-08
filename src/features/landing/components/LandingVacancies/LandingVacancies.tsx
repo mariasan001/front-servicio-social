@@ -2,6 +2,7 @@ import { Button } from "@/shared/components/Button";
 import { ArrowRight, Briefcase } from "@/shared/icons";
 import { PUBLIC_VACANTES_ROUTES } from "../../constants/routes";
 import type { PublicVacanteResponse } from "../../types/public-vacante.types";
+import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingVacancyPreviewCard } from "./LandingVacancyPreviewCard";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import sectionStyles from "../../styles/LandingSection.module.css";
@@ -11,9 +12,10 @@ import styles from "./LandingVacancies.module.css";
 
 type LandingVacanciesProps = {
   vacantes: PublicVacanteResponse[];
+  loadError?: string;
 };
 
-export function LandingVacancies({ vacantes }: LandingVacanciesProps) {
+export function LandingVacancies({ vacantes, loadError }: LandingVacanciesProps) {
   const hasVacantes = vacantes.length > 0;
 
   return (
@@ -59,7 +61,9 @@ export function LandingVacancies({ vacantes }: LandingVacanciesProps) {
           ) : null}
         </div>
 
-        {!hasVacantes ? (
+        {loadError ? (
+          <LandingPublicLoadAlert message={loadError} />
+        ) : !hasVacantes ? (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon} aria-hidden>
               <Briefcase size={28} strokeWidth={1.75} />

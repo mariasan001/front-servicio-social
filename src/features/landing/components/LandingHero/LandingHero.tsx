@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AUTH_PATHS } from "@/lib/auth/constants";
 import { Button } from "@/shared/components/Button";
 import { Briefcase, UserPlus } from "@/shared/icons";
 import headerStyles from "../LandingSectionHeader/LandingSectionHeader.module.css";
@@ -42,7 +43,7 @@ export function LandingHero() {
           </p>
 
           <div id="registrarme" className={styles.actions}>
-            <Button href="#registrarme" variant="primary">
+            <Button href={AUTH_PATHS.register} variant="primary">
               <UserPlus className={styles.actionIcon} size={18} strokeWidth={2} />
               Registrarme
             </Button>

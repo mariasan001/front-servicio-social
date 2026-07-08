@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AUTH_ROUTES } from "@/features/auth/constants/routes";
+import { AUTH_PATHS, PANEL_PATHS } from "@/lib/auth/constants";
 import { Button } from "@/shared/components/Button";
 import {
   ArrowLeft,
@@ -17,8 +17,8 @@ import { PublicVacanteSummary } from "../PublicVacanteSummary/PublicVacanteSumma
 import cardStyles from "../LandingVacancies/LandingVacancyPreviewCard.module.css";
 import styles from "./PublicVacanteDetailView.module.css";
 
-const ALUMNO_VACANTES_PATH = "/panel/alumno/vacantes";
-const LOGIN_POSTULAR_HREF = `${AUTH_ROUTES.login}?next=${encodeURIComponent(ALUMNO_VACANTES_PATH)}`;
+const ALUMNO_VACANTES_PATH = `${PANEL_PATHS.alumno}/vacantes`;
+const LOGIN_POSTULAR_HREF = `${AUTH_PATHS.login}?next=${encodeURIComponent(ALUMNO_VACANTES_PATH)}`;
 
 type PublicVacanteDetailViewProps = {
   vacante: PublicVacanteDetalleResponse;

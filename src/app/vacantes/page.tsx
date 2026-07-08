@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import { LandingFooter } from "@/features/landing/components/LandingFooter/LandingFooter";
-import { LandingHeader } from "@/features/landing/components/LandingHeader/LandingHeader";
-import { PublicVacantesDirectory } from "@/features/landing/components/PublicVacantesDirectory/PublicVacantesDirectory";
-import { listPublishedPublicVacantes } from "@/features/landing/lib/public-vacantes";
-import type { PublicVacanteResponse } from "@/features/landing/types/public-vacante.types";
-import styles from "./PublicVacantesLayout.module.css";
+import { PublicVacantesDirectoryPage } from "@/features/landing/pages/PublicVacantesDirectoryPage";
 
 export const metadata: Metadata = {
   title: "Directorio de vacantes",
@@ -15,22 +10,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function VacantesPage() {
-  let vacantes: PublicVacanteResponse[] = [];
-
-  try {
-    vacantes = await listPublishedPublicVacantes();
-  } catch {
-    vacantes = [];
-  }
-
-  return (
-    <div className={styles.page}>
-      <LandingHeader />
-      <main id="main" className={styles.main}>
-        <PublicVacantesDirectory vacantes={vacantes} />
-      </main>
-      <LandingFooter />
-    </div>
-  );
+export default function VacantesPage() {
+  return <PublicVacantesDirectoryPage />;
 }

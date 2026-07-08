@@ -15,6 +15,7 @@ import {
   hasActivePublicVacantesFilters,
 } from "../../lib/public-vacantes-filter";
 import type { PublicVacanteResponse } from "../../types/public-vacante.types";
+import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingVacancyPreviewCard } from "../LandingVacancies/LandingVacancyPreviewCard";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import headerStyles from "../LandingSectionHeader/LandingSectionHeader.module.css";
@@ -22,9 +23,13 @@ import styles from "./PublicVacantesDirectory.module.css";
 
 type PublicVacantesDirectoryProps = {
   vacantes: PublicVacanteResponse[];
+  loadError?: string;
 };
 
-export function PublicVacantesDirectory({ vacantes }: PublicVacantesDirectoryProps) {
+export function PublicVacantesDirectory({
+  vacantes,
+  loadError,
+}: PublicVacantesDirectoryProps) {
   const [filters, setFilters] = useState(EMPTY_PUBLIC_VACANTES_FILTERS);
   const deferredQuery = useDeferredValue(filters.query);
   const deferredFilters = useMemo(
@@ -190,7 +195,9 @@ export function PublicVacantesDirectory({ vacantes }: PublicVacantesDirectoryPro
           </div>
         ) : null}
 
-        {totalCount === 0 ? (
+        {loadError ? (
+          <LandingPublicLoadAlert message={loadError} />
+        ) : totalCount === 0 ? (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon} aria-hidden>
               <Briefcase size={28} strokeWidth={1.75} />

@@ -1,6 +1,7 @@
 import { Building2, Briefcase, ClipboardList, Users } from "@/shared/icons";
 import { getLandingAccent } from "../../constants/accents";
 import type { PublicEscuelaEstadisticasResponse } from "../../types/public-escuela.types";
+import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import sectionStyles from "../../styles/LandingSection.module.css";
 import scrollStyles from "../../styles/LandingScrollRegion.module.css";
@@ -9,9 +10,10 @@ import styles from "./LandingInstitutions.module.css";
 
 type LandingInstitutionsProps = {
   escuelas: PublicEscuelaEstadisticasResponse[];
+  loadError?: string;
 };
 
-export function LandingInstitutions({ escuelas }: LandingInstitutionsProps) {
+export function LandingInstitutions({ escuelas, loadError }: LandingInstitutionsProps) {
   const hasEscuelas = escuelas.length > 0;
 
   return (
@@ -43,7 +45,9 @@ export function LandingInstitutions({ escuelas }: LandingInstitutionsProps) {
           </p>
         ) : null}
 
-        {!hasEscuelas ? (
+        {loadError ? (
+          <LandingPublicLoadAlert message={loadError} />
+        ) : !hasEscuelas ? (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon} aria-hidden>
               <Building2 size={28} strokeWidth={1.75} />

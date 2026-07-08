@@ -1,3 +1,8 @@
+import {
+  mapPublicListResult,
+  PUBLIC_LOAD_ERRORS,
+  type LandingFetchResult,
+} from "./public-data";
 import { listPublicEscuelaEstadisticas } from "../services/public-escuelas.service";
 import type { PublicEscuelaEstadisticasResponse } from "../types/public-escuela.types";
 
@@ -13,7 +18,17 @@ export function sortPublicEscuelas(
   });
 }
 
-export async function getLandingInstitutionStats() {
-  const escuelas = await listPublicEscuelaEstadisticas();
-  return sortPublicEscuelas(escuelas);
+export async function getLandingInstitutionStats(): Promise<
+  LandingFetchResult<PublicEscuelaEstadisticasResponse[]>
+> {
+  const result = mapPublicListResult(
+    await listPublicEscuelaEstadisticas(),
+    PUBLIC_LOAD_ERRORS.escuelas,
+  );
+
+  if (result.loadError) {
+    return result;
+  }
+
+  return { data: sortPublicEscuelas(result.data) };
 }

@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LandingFooter } from "@/features/landing/components/LandingFooter/LandingFooter";
-import { LandingHeader } from "@/features/landing/components/LandingHeader/LandingHeader";
-import { PublicVacanteDetailView } from "@/features/landing/components/PublicVacanteDetailView/PublicVacanteDetailView";
-import { isPublishedVacante } from "@/features/landing/lib/public-vacantes";
+import { PublicVacanteDetailPage } from "@/features/landing/pages/PublicVacanteDetailPage";
 import { getPublicVacanteDetail } from "@/features/landing/services/public-vacantes.service";
-import styles from "../PublicVacantesLayout.module.css";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -19,8 +15,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Vacante no encontrada" };
   }
 
-  const vacante = await getPublicVacanteDetail(idVacante);
-  const nombre = vacante?.nombre?.trim();
+  const result = await getPublicVacanteDetail(idVacante);
+  const nombre = result.ok ? result.data.nombre?.trim() : undefined;
 
   return {
     title: nombre ? nombre : "Detalle de vacante",
@@ -38,19 +34,5 @@ export default async function VacanteDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const vacante = await getPublicVacanteDetail(idVacante);
-
-  if (!vacante || !isPublishedVacante(vacante)) {
-    notFound();
-  }
-
-  return (
-    <div className={styles.page}>
-      <LandingHeader />
-      <main id="main" className={styles.main}>
-        <PublicVacanteDetailView vacante={vacante} />
-      </main>
-      <LandingFooter />
-    </div>
-  );
+  return <PublicVacanteDetailPage idVacante={idVacante} />;
 }

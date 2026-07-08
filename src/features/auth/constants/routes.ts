@@ -1,9 +1,8 @@
+import { AUTH_PATHS, PANEL_PATHS } from "@/lib/auth/constants";
+
 export const AUTH_ROUTES = {
-  login: "/login",
-  register: "/registro",
-  resetPassword: "/recuperar-contrasena",
-  home: "/",
-  panel: "/panel",
+  ...AUTH_PATHS,
+  panel: PANEL_PATHS.root,
 } as const;
 
 export const AUTH_FOOTER_COPY =

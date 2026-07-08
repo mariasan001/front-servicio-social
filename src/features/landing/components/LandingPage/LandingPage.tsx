@@ -32,27 +32,11 @@ const organizationJsonLd = {
 };
 
 export async function LandingPage() {
-  let vacantes: Awaited<ReturnType<typeof getLandingVacancyPreview>> = [];
-  let escuelas: Awaited<ReturnType<typeof getLandingInstitutionStats>> = [];
-  let testimonials: Awaited<ReturnType<typeof getLandingTestimonials>> = [];
-
-  try {
-    vacantes = await getLandingVacancyPreview();
-  } catch {
-    vacantes = [];
-  }
-
-  try {
-    escuelas = await getLandingInstitutionStats();
-  } catch {
-    escuelas = [];
-  }
-
-  try {
-    testimonials = await getLandingTestimonials();
-  } catch {
-    testimonials = [];
-  }
+  const [vacantesResult, escuelasResult, testimonialsResult] = await Promise.all([
+    getLandingVacancyPreview(),
+    getLandingInstitutionStats(),
+    getLandingTestimonials(),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -74,15 +58,24 @@ export async function LandingPage() {
         <LandingTimeline />
 
         <ScrollReveal delay={80}>
-          <LandingVacancies vacantes={vacantes} />
+          <LandingVacancies
+            vacantes={vacantesResult.data}
+            loadError={vacantesResult.loadError}
+          />
         </ScrollReveal>
 
         <ScrollReveal delay={100}>
-          <LandingTestimonials testimonials={testimonials} />
+          <LandingTestimonials
+            testimonials={testimonialsResult.data}
+            loadError={testimonialsResult.loadError}
+          />
         </ScrollReveal>
 
         <ScrollReveal delay={120}>
-          <LandingInstitutions escuelas={escuelas} />
+          <LandingInstitutions
+            escuelas={escuelasResult.data}
+            loadError={escuelasResult.loadError}
+          />
         </ScrollReveal>
 
         <ScrollReveal delay={80}>

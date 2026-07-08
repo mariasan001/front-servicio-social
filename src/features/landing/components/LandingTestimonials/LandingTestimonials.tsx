@@ -1,6 +1,7 @@
 import { Quote } from "@/shared/icons";
 import { getLandingAccent } from "../../constants/accents";
 import type { LandingTestimonial } from "../../types/public-testimonial.types";
+import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import sectionStyles from "../../styles/LandingSection.module.css";
 import scrollStyles from "../../styles/LandingScrollRegion.module.css";
@@ -9,6 +10,7 @@ import styles from "./LandingTestimonials.module.css";
 
 type LandingTestimonialsProps = {
   testimonials: LandingTestimonial[];
+  loadError?: string;
 };
 
 function getInitials(name: string) {
@@ -20,7 +22,10 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function LandingTestimonials({ testimonials }: LandingTestimonialsProps) {
+export function LandingTestimonials({
+  testimonials,
+  loadError,
+}: LandingTestimonialsProps) {
   const hasTestimonials = testimonials.length > 0;
 
   return (
@@ -55,7 +60,9 @@ export function LandingTestimonials({ testimonials }: LandingTestimonialsProps) 
           ) : null}
         </div>
 
-        {!hasTestimonials ? (
+        {loadError ? (
+          <LandingPublicLoadAlert message={loadError} />
+        ) : !hasTestimonials ? (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon} aria-hidden>
               <Quote size={28} strokeWidth={1.75} />

@@ -1,3 +1,8 @@
+import {
+  mapPublicListResult,
+  PUBLIC_LOAD_ERRORS,
+  type LandingFetchResult,
+} from "./public-data";
 import { listPublicVacantes } from "../services/public-vacantes.service";
 import type { PublicVacanteResponse } from "../types/public-vacante.types";
 
@@ -19,14 +24,35 @@ export function sortPublicVacantes(vacantes: PublicVacanteResponse[]) {
   });
 }
 
-export async function listPublishedPublicVacantes() {
-  const vacantes = await listPublicVacantes();
-  return sortPublicVacantes(vacantes.filter(isPublishedVacante));
+export async function listPublishedPublicVacantes(): Promise<
+  LandingFetchResult<PublicVacanteResponse[]>
+> {
+  const result = mapPublicListResult(
+    await listPublicVacantes(),
+    PUBLIC_LOAD_ERRORS.vacantes,
+  );
+
+  if (result.loadError) {
+    return result;
+  }
+
+  return {
+    data: sortPublicVacantes(result.data.filter(isPublishedVacante)),
+  };
 }
 
-export async function getLandingVacancyPreview() {
-  const published = await listPublishedPublicVacantes();
-  return published.slice(0, LANDING_VACANCY_PREVIEW_LIMIT);
+export async function getLandingVacancyPreview(): Promise<
+  LandingFetchResult<PublicVacanteResponse[]>
+> {
+  const result = await listPublishedPublicVacantes();
+
+  if (result.loadError) {
+    return result;
+  }
+
+  return {
+    data: result.data.slice(0, LANDING_VACANCY_PREVIEW_LIMIT),
+  };
 }
 
 export function formatPublicVacanteDate(value?: string) {
