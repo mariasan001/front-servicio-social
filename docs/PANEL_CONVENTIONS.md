@@ -1,7 +1,7 @@
 # Convenciones del panel
 
 Guía de referencia para desarrollar y migrar pantallas del panel (`/panel/*`).  
-Complementa [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md) (línea base y smoke tests).
+Complementa [ARQUITECTURA.md](./ARQUITECTURA.md) (mapa general) y [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md) (línea base y smoke tests).
 
 ---
 

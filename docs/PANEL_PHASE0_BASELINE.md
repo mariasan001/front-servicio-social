@@ -1,6 +1,6 @@
 # Fase 0 — Línea base del panel
 
-Documento de referencia para smoke tests end-to-end. Los payloads salientes del frontend están alineados con `lib/domain/requests.ts` desde la migración UI (commits `5f0f359`+). Las filas 🔧 pasan a ⬜ pendientes de validación E2E con backend activo.
+Documento de referencia para smoke tests end-to-end. Ver también [ARQUITECTURA.md](./ARQUITECTURA.md) para el mapa completo del sistema.
 
 ## Punto de partida
 
