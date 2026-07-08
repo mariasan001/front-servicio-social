@@ -6,8 +6,8 @@ import type { ResultadoExamenResponse } from "../../types/titular.types";
 import { formatEtiqueta, formatFecha } from "@/lib/domain/labels";
 import { Alert } from "@/shared/components/Alert";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import { examenBuilderStyles as styles } from "@/shared/components/examen";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
-import styles from "../examenes/TitularExamen.module.css";
 
 type TitularPostulacionExamenResultadoProps = {
   idPostulacion: number;

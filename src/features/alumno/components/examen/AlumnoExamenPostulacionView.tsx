@@ -23,12 +23,13 @@ import {
   getExamenPostulacionAction,
   iniciarExamenPostulacionAction,
 } from "../../actions/examen.actions";
-import type {
-  AlumnoExamenDisponibleResponse,
-  AlumnoExamenPreguntaResponse,
-  FinalizarExamenResponse,
+import {
+  formatPreguntaTipo,
+  formatTiempoLimite,
+  type AlumnoExamenDisponibleResponse,
+  type AlumnoExamenPreguntaResponse,
+  type FinalizarExamenResponse,
 } from "@/lib/domain";
-import { formatEtiqueta } from "@/lib/domain/labels";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { notify } from "@/shared/notifications";
 import { Alert } from "@/shared/components/Alert";
@@ -292,9 +293,7 @@ export function AlumnoExamenPostulacionView({
         {index + 1}. {pregunta.texto}
       </legend>
       {pregunta.tipo ? (
-        <p className={styles.preguntaTipo}>
-          {formatEtiqueta(pregunta.tipo, "Opción única")}
-        </p>
+        <p className={styles.preguntaTipo}>{formatPreguntaTipo(pregunta.tipo)}</p>
       ) : null}
       <div className={styles.opcionesGroup}>
         {(pregunta.opciones ?? []).map((opcion) => (
@@ -349,7 +348,7 @@ export function AlumnoExamenPostulacionView({
           size="md"
           onClose={() => router.push(`${PANEL_PATHS.alumno}/postulaciones`)}
           footer={
-            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+            <div className={styles.introFooter}>
               <Button
                 type="button"
                 variant="outline"
@@ -435,11 +434,7 @@ export function AlumnoExamenPostulacionView({
             </span>
             <span className={styles.introMetaChip}>
               Tiempo límite
-              <strong>
-                {examen.tiempoLimiteMinutos
-                  ? `${examen.tiempoLimiteMinutos} min`
-                  : "Sin límite"}
-              </strong>
+              <strong>{formatTiempoLimite(examen.tiempoLimiteMinutos)}</strong>
             </span>
           </div>
 

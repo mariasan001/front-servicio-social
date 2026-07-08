@@ -186,18 +186,48 @@ export function preguntaTieneRespuestaValida(pregunta: ExamenPreguntaResponse) {
   return opciones.length >= 2 && correctas === 1;
 }
 
+/** Devuelve solo las preguntas activas (excluye las marcadas como inactivas). */
+export function getPreguntasActivas(
+  preguntas?: ExamenPreguntaResponse[],
+): ExamenPreguntaResponse[] {
+  return (preguntas ?? []).filter((pregunta) => pregunta.activa !== false);
+}
+
 export function puedeActivarExamen(examen: ExamenDiagnosticoDetalleResponse) {
   if (isExamenActivo(examen.estatus)) {
     return false;
   }
 
-  const preguntas = (examen.preguntas ?? []).filter(
-    (pregunta) => pregunta.activa !== false,
-  );
+  const preguntas = getPreguntasActivas(examen.preguntas);
 
   if (preguntas.length === 0) {
     return false;
   }
 
   return preguntas.every(preguntaTieneRespuestaValida);
+}
+
+const PREGUNTA_TIPO_LABELS: Record<string, string> = Object.fromEntries(
+  PREGUNTA_TIPO_OPTIONS.map((option) => [option.value, option.label]),
+);
+
+/** Etiqueta legible del tipo de pregunta (con respaldo "Opción única"). */
+export function formatPreguntaTipo(tipo?: string, fallback = "Opción única") {
+  if (!tipo?.trim()) {
+    return fallback;
+  }
+  return PREGUNTA_TIPO_LABELS[tipo.trim().toUpperCase()] ?? fallback;
+}
+
+/** Formatea el puntaje mínimo aprobatorio como porcentaje ("70%" / "—"). */
+export function formatPuntajeMinimo(value?: number | null, fallback = "—") {
+  return value !== undefined && value !== null ? `${value}%` : fallback;
+}
+
+/** Formatea el tiempo límite en minutos ("30 min" / "Sin límite"). */
+export function formatTiempoLimite(
+  minutos?: number | null,
+  fallback = "Sin límite",
+) {
+  return minutos ? `${minutos} min` : fallback;
 }

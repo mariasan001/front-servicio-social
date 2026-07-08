@@ -18,8 +18,8 @@ import {
   DataTableToolbar,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
+import { buildExamenResumenColumns } from "@/shared/components/examen";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { EstatusBadge } from "@/shared/components/StatusBadge";
 import tableStyles from "@/shared/components/DataTable/DataTable.module.css";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
@@ -63,55 +63,7 @@ export function TitularExamenesView({
   }, [deferredSearch, estatusFilter, examenes]);
 
   const columns: DataTableColumn<ExamenDiagnosticoResumenResponse>[] = [
-    {
-      id: "titulo",
-      header: "Examen",
-      width: "34%",
-      cell: (examen) => (
-        <div className={styles.nameCell}>
-          <strong>{examen.titulo?.trim() || "Sin título"}</strong>
-          <span className={styles.nameHint}>
-            {examen.areaNombre?.trim() || "Sin área"}
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: "estatus",
-      header: "Estatus",
-      variant: "status",
-      width: "10rem",
-      align: "center",
-      cell: (examen) => <EstatusBadge estatus={examen.estatus} />,
-    },
-    {
-      id: "preguntas",
-      header: "Preguntas",
-      align: "center",
-      width: "7rem",
-      cell: (examen) => examen.totalPreguntas ?? 0,
-    },
-    {
-      id: "puntaje",
-      header: "Mín. aprob.",
-      align: "center",
-      width: "7rem",
-      cell: (examen) =>
-        examen.puntajeMinimoAprobatorio !== undefined &&
-        examen.puntajeMinimoAprobatorio !== null
-          ? `${examen.puntajeMinimoAprobatorio}%`
-          : "—",
-    },
-    {
-      id: "tiempo",
-      header: "Tiempo",
-      align: "center",
-      width: "7rem",
-      cell: (examen) =>
-        examen.tiempoLimiteMinutos
-          ? `${examen.tiempoLimiteMinutos} min`
-          : "Sin límite",
-    },
+    ...buildExamenResumenColumns(),
     {
       id: "acciones",
       header: "Acciones",

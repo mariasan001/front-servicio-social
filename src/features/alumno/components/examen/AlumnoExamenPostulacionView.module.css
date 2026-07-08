@@ -243,6 +243,12 @@
   border-radius: 0.5rem;
 }
 
+.introFooter {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 @media (max-width: 640px) {
   .introMeta {
     grid-template-columns: 1fr;

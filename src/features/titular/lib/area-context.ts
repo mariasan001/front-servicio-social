@@ -55,6 +55,15 @@ async function resolveFromTitularAreasEndpoint(): Promise<TitularAreaContext | n
   return pickAssignedArea(assignments);
 }
 
+/**
+ * Área asignada al titular según el endpoint de asignaciones (prefiere la
+ * principal). Reutilizado por flujos que solo necesitan el área, como la
+ * creación de exámenes.
+ */
+export async function resolveTitularAssignedAreaContext(): Promise<TitularAreaContext | null> {
+  return resolveFromTitularAreasEndpoint();
+}
+
 async function resolveFromAreaCatalog(
   idUsuario: number,
 ): Promise<TitularAreaContext | null> {

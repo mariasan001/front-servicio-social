@@ -3,7 +3,6 @@ import { serverApiRequest } from "@/lib/api/server-request";
 import type {
   ExamenDiagnosticoDetalleResponse,
   ExamenDiagnosticoResumenResponse,
-  ResultadoExamenResponse,
 } from "@/lib/domain";
 
 export type ListExamenesMonitorFilters = {
@@ -28,19 +27,6 @@ export async function getExamenMonitor(idExamen: number) {
 
   if (!response.data) {
     throw new Error("No se recibió el detalle del examen.");
-  }
-
-  return response.data;
-}
-
-export async function getResultadoExamenMonitor(idPostulacion: number) {
-  const response = await serverApiRequest<ResultadoExamenResponse>(
-    `/api/delegacion/postulaciones/${idPostulacion}/examen/resultado`,
-    { method: "GET" },
-  );
-
-  if (!response.data) {
-    throw new Error("No se recibió el resultado del examen.");
   }
 
   return response.data;

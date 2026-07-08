@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  AlertTriangle,
-  FileQuestion,
-  Pencil,
-  Plus,
-  Settings2,
-  Trash2,
-} from "lucide-react";
+import { Pencil, Settings2, Trash2 } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import {
-  formatEtiqueta,
+  formatPreguntaTipo,
+  getPreguntasActivas,
   isExamenActivo,
   preguntaTieneRespuestaValida,
   puedeActivarExamen,
@@ -39,8 +33,21 @@ import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModal
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { Alert } from "@/shared/components/Alert";
+import {
+  ExamenBuilder,
+  ExamenBuilderAddButton,
+  ExamenBuilderEmpty,
+  ExamenBuilderEmptyItem,
+  ExamenBuilderItem,
+  ExamenBuilderMain,
+  ExamenBuilderPanelTitle,
+  ExamenBuilderSettingsButton,
+  ExamenBuilderSidebar,
+  ExamenPreguntaPreview,
+  ExamenStatChips,
+  examenBuilderStyles,
+} from "@/shared/components/examen";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
-import styles from "./TitularExamen.module.css";
 
 type TitularExamenManageModalProps = {
   open: boolean;
@@ -73,9 +80,7 @@ export function TitularExamenManageModal({
     null,
   );
 
-  const preguntas = (detail?.preguntas ?? []).filter(
-    (pregunta) => pregunta.activa !== false,
-  );
+  const preguntas = getPreguntasActivas(detail?.preguntas);
   const activo = isExamenActivo(detail?.estatus);
   const canActivate = detail ? puedeActivarExamen(detail) : false;
 
@@ -117,9 +122,7 @@ export function TitularExamenManageModal({
     }
 
     applyDetail(result.data);
-    const nuevas = (result.data.preguntas ?? []).filter(
-      (pregunta) => pregunta.activa !== false,
-    );
+    const nuevas = getPreguntasActivas(result.data.preguntas);
     const ultima = nuevas[nuevas.length - 1];
     setSelected(ultima ? { type: "pregunta", id: ultima.idPregunta } : { type: "settings" });
     notify.success("Pregunta agregada.");
@@ -157,9 +160,7 @@ export function TitularExamenManageModal({
     }
 
     applyDetail(result.data);
-    const restantes = (result.data.preguntas ?? []).filter(
-      (pregunta) => pregunta.activa !== false,
-    );
+    const restantes = getPreguntasActivas(result.data.preguntas);
     setSelected(
       restantes[0]
         ? { type: "pregunta", id: restantes[0].idPregunta }
@@ -201,10 +202,10 @@ export function TitularExamenManageModal({
   const renderSettingsPanel = (exam: ExamenDiagnosticoDetalleResponse) => (
     <>
       <div className={detailStyles.panelHeader}>
-        <h3 className={styles.builderPanelTitle}>
+        <ExamenBuilderPanelTitle>
           <Settings2 size={16} aria-hidden="true" />
           Datos del examen
-        </h3>
+        </ExamenBuilderPanelTitle>
         <Button
           type="button"
           variant="outline"
@@ -223,33 +224,12 @@ export function TitularExamenManageModal({
         </Alert>
       ) : null}
 
-      <div className={styles.statChips}>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Preguntas</span>
-          <span className={styles.statChipValue}>{preguntas.length}</span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Puntaje mínimo</span>
-          <span className={styles.statChipValue}>
-            {exam.puntajeMinimoAprobatorio !== undefined &&
-            exam.puntajeMinimoAprobatorio !== null
-              ? `${exam.puntajeMinimoAprobatorio}%`
-              : "—"}
-          </span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Tiempo límite</span>
-          <span className={styles.statChipValue}>
-            {exam.tiempoLimiteMinutos ? `${exam.tiempoLimiteMinutos} min` : "Sin límite"}
-          </span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Estatus</span>
-          <span className={styles.statChipValue}>
-            {formatEtiqueta(exam.estatus, "—")}
-          </span>
-        </div>
-      </div>
+      <ExamenStatChips
+        totalPreguntas={preguntas.length}
+        puntajeMinimoAprobatorio={exam.puntajeMinimoAprobatorio}
+        tiempoLimiteMinutos={exam.tiempoLimiteMinutos}
+        estatus={exam.estatus}
+      />
 
       {exam.descripcion ? (
         <section className={detailStyles.contentPanel}>
@@ -274,33 +254,10 @@ export function TitularExamenManageModal({
   const renderPreguntaPreview = (pregunta: ExamenPreguntaResponse, index: number) => (
     <>
       <div className={detailStyles.panelHeader}>
-        <h3 className={styles.builderPanelTitle}>Pregunta {index + 1}</h3>
+        <ExamenBuilderPanelTitle>Pregunta {index + 1}</ExamenBuilderPanelTitle>
       </div>
-      <div className={styles.preguntaCard}>
-        <div className={styles.preguntaCardHead}>
-          <span className={styles.preguntaNumber}>{index + 1}</span>
-          <div className={styles.preguntaCardInfo}>
-            <p className={styles.preguntaCardTitle}>{pregunta.texto}</p>
-            <p className={styles.preguntaCardMeta}>
-              {formatEtiqueta(pregunta.tipo, "Opción única")}
-              {" · "}
-              {pregunta.puntaje ?? 1} pts
-            </p>
-          </div>
-        </div>
-        <ul className={styles.preguntaOpciones}>
-          {(pregunta.opciones ?? []).map((opcion) => (
-            <li
-              key={opcion.idOpcion}
-              className={opcion.correcta ? styles.opcionCorrecta : styles.opcionNormal}
-            >
-              {opcion.texto}
-              {opcion.correcta ? " ✓" : ""}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <p className={styles.lockedHint}>
+      <ExamenPreguntaPreview pregunta={pregunta} index={index} />
+      <p className={examenBuilderStyles.lockedHint}>
         Desactiva el examen para editar sus preguntas.
       </p>
     </>
@@ -350,10 +307,9 @@ export function TitularExamenManageModal({
     }
 
     return (
-      <div className={styles.builderMainEmpty}>
-        <FileQuestion size={30} aria-hidden="true" />
-        <p>Selecciona una pregunta o agrega una nueva.</p>
-      </div>
+      <ExamenBuilderEmpty>
+        Selecciona una pregunta o agrega una nueva.
+      </ExamenBuilderEmpty>
     );
   };
 
@@ -396,120 +352,64 @@ export function TitularExamenManageModal({
         ) : error ? (
           <Alert tone="error">{error}</Alert>
         ) : detail ? (
-          <div className={styles.builder}>
-            <aside className={styles.builderSidebar}>
-              <div className={styles.builderSidebarHeader}>
-                <p className={styles.builderSidebarTitle}>
-                  Preguntas ({preguntas.length})
-                </p>
-                <button
-                  type="button"
-                  className={styles.builderAddButton}
-                  aria-label="Agregar pregunta"
+          <ExamenBuilder>
+            <ExamenBuilderSidebar
+              title={`Preguntas (${preguntas.length})`}
+              action={
+                <ExamenBuilderAddButton
+                  label="Agregar pregunta"
                   disabled={isSubmitting || activo}
                   onClick={() => setSelected({ type: "new" })}
-                >
-                  <Plus size={16} aria-hidden="true" />
-                </button>
-              </div>
-
-              <ul className={styles.builderList}>
-                {preguntas.length === 0 && selected?.type !== "new" ? (
-                  <li>
-                    <p className={styles.builderItemMeta}>
-                      Aún no hay preguntas.
-                    </p>
-                  </li>
-                ) : null}
-
-                {selected?.type === "new" ? (
-                  <li>
-                    <button
-                      type="button"
-                      className={[styles.builderItem, styles.builderItemActive].join(
-                        " ",
-                      )}
-                    >
-                      <span className={styles.builderItemNumber}>
-                        {preguntas.length + 1}
-                      </span>
-                      <span className={styles.builderItemBody}>
-                        <span className={styles.builderItemText}>Nueva pregunta…</span>
-                      </span>
-                    </button>
-                  </li>
-                ) : null}
-
-                {preguntas.map((pregunta, index) => {
-                  const incompleta = !preguntaTieneRespuestaValida(pregunta);
-                  const isActive =
-                    selected?.type === "pregunta" &&
-                    selected.id === pregunta.idPregunta;
-                  return (
-                    <li key={pregunta.idPregunta}>
-                      <button
-                        type="button"
-                        className={[
-                          styles.builderItem,
-                          isActive ? styles.builderItemActive : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                        onClick={() =>
-                          setSelected({ type: "pregunta", id: pregunta.idPregunta })
-                        }
-                      >
-                        <span className={styles.builderItemNumber}>{index + 1}</span>
-                        <span className={styles.builderItemBody}>
-                          <span className={styles.builderItemText}>
-                            {pregunta.texto || "Sin texto"}
-                          </span>
-                          <span className={styles.builderItemMeta}>
-                            {formatEtiqueta(pregunta.tipo, "Opción única")}
-                            {" · "}
-                            {pregunta.puntaje ?? 1} pts
-                            {incompleta ? (
-                              <AlertTriangle
-                                size={13}
-                                aria-label="Configuración incompleta"
-                                className={styles.builderItemWarn}
-                              />
-                            ) : null}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className={styles.builderSidebarFooter}>
-                <button
-                  type="button"
-                  className={styles.builderSettingsButton}
+                />
+              }
+              footer={
+                <ExamenBuilderSettingsButton
                   onClick={() => setSelected({ type: "settings" })}
-                >
-                  <span className={styles.builderSettingsIcon}>
-                    <Settings2 size={16} aria-hidden="true" />
-                  </span>
-                  <span className={styles.builderSettingsText}>
-                    <span className={styles.builderSettingsTitle}>
-                      Datos del examen
-                    </span>
-                    <span className={styles.builderSettingsHint}>
-                      Título, puntaje y tiempo
-                    </span>
-                  </span>
-                </button>
-              </div>
-            </aside>
+                />
+              }
+            >
+              {preguntas.length === 0 && selected?.type !== "new" ? (
+                <ExamenBuilderEmptyItem>
+                  Aún no hay preguntas.
+                </ExamenBuilderEmptyItem>
+              ) : null}
 
-            <div className={styles.builderMain}>
+              {selected?.type === "new" ? (
+                <ExamenBuilderItem
+                  number={preguntas.length + 1}
+                  text="Nueva pregunta…"
+                  active
+                />
+              ) : null}
+
+              {preguntas.map((pregunta, index) => (
+                <ExamenBuilderItem
+                  key={pregunta.idPregunta}
+                  number={index + 1}
+                  text={pregunta.texto || "Sin texto"}
+                  meta={
+                    <>
+                      {formatPreguntaTipo(pregunta.tipo)}
+                      {" · "}
+                      {pregunta.puntaje ?? 1} pts
+                    </>
+                  }
+                  warn={!preguntaTieneRespuestaValida(pregunta)}
+                  active={
+                    selected?.type === "pregunta" &&
+                    selected.id === pregunta.idPregunta
+                  }
+                  onClick={() =>
+                    setSelected({ type: "pregunta", id: pregunta.idPregunta })
+                  }
+                />
+              ))}
+            </ExamenBuilderSidebar>
+
+            <ExamenBuilderMain>
               <EstatusBadge estatus={detail.estatus} />
               {renderMain()}
-              {!activo &&
-              selectedPregunta &&
-              selected?.type === "pregunta" ? (
+              {!activo && selectedPregunta && selected?.type === "pregunta" ? (
                 <div className={detailStyles.footerActions}>
                   <Button
                     type="button"
@@ -523,8 +423,8 @@ export function TitularExamenManageModal({
                   </Button>
                 </div>
               ) : null}
-            </div>
-          </div>
+            </ExamenBuilderMain>
+          </ExamenBuilder>
         ) : null}
       </Modal>
 

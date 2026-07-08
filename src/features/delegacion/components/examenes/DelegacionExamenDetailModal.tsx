@@ -3,18 +3,29 @@
 import { useEffect, useState } from "react";
 import { FileQuestion, Settings2 } from "lucide-react";
 import { getExamenMonitorAction } from "../../actions/examenes.actions";
-import { formatEtiqueta } from "@/lib/domain/labels";
-import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
-import type {
-  ExamenDiagnosticoDetalleResponse,
-  ExamenPreguntaResponse,
+import {
+  formatPreguntaTipo,
+  getPreguntasActivas,
+  type ExamenDiagnosticoDetalleResponse,
+  type ExamenPreguntaResponse,
 } from "@/lib/domain";
+import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import { Alert } from "@/shared/components/Alert";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
+import {
+  ExamenBuilder,
+  ExamenBuilderEmptyItem,
+  ExamenBuilderItem,
+  ExamenBuilderMain,
+  ExamenBuilderPanelTitle,
+  ExamenBuilderSettingsButton,
+  ExamenBuilderSidebar,
+  ExamenPreguntaPreview,
+  ExamenStatChips,
+} from "@/shared/components/examen";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
-import styles from "@/features/titular/components/examenes/TitularExamen.module.css";
 
 type DelegacionExamenDetailModalProps = {
   open: boolean;
@@ -38,9 +49,7 @@ export function DelegacionExamenDetailModal({
 
   const [selected, setSelected] = useState<Selection | null>(null);
 
-  const preguntas = (detail?.preguntas ?? []).filter(
-    (pregunta) => pregunta.activa !== false,
-  );
+  const preguntas = getPreguntasActivas(detail?.preguntas);
 
   useEffect(() => {
     if (!open) {
@@ -65,38 +74,17 @@ export function DelegacionExamenDetailModal({
 
   const renderSettingsPanel = (exam: ExamenDiagnosticoDetalleResponse) => (
     <>
-      <h3 className={styles.builderPanelTitle}>
+      <ExamenBuilderPanelTitle>
         <Settings2 size={16} aria-hidden="true" />
         Datos del examen
-      </h3>
+      </ExamenBuilderPanelTitle>
 
-      <div className={styles.statChips}>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Preguntas</span>
-          <span className={styles.statChipValue}>{preguntas.length}</span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Puntaje mínimo</span>
-          <span className={styles.statChipValue}>
-            {exam.puntajeMinimoAprobatorio !== undefined &&
-            exam.puntajeMinimoAprobatorio !== null
-              ? `${exam.puntajeMinimoAprobatorio}%`
-              : "—"}
-          </span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Tiempo límite</span>
-          <span className={styles.statChipValue}>
-            {exam.tiempoLimiteMinutos ? `${exam.tiempoLimiteMinutos} min` : "Sin límite"}
-          </span>
-        </div>
-        <div className={styles.statChip}>
-          <span className={styles.statChipLabel}>Estatus</span>
-          <span className={styles.statChipValue}>
-            {formatEtiqueta(exam.estatus, "—")}
-          </span>
-        </div>
-      </div>
+      <ExamenStatChips
+        totalPreguntas={preguntas.length}
+        puntajeMinimoAprobatorio={exam.puntajeMinimoAprobatorio}
+        tiempoLimiteMinutos={exam.tiempoLimiteMinutos}
+        estatus={exam.estatus}
+      />
 
       {exam.areaNombre ? (
         <dl className={detailStyles.metaList}>
@@ -132,31 +120,8 @@ export function DelegacionExamenDetailModal({
     index: number,
   ) => (
     <>
-      <h3 className={styles.builderPanelTitle}>Pregunta {index + 1}</h3>
-      <div className={styles.preguntaCard}>
-        <div className={styles.preguntaCardHead}>
-          <span className={styles.preguntaNumber}>{index + 1}</span>
-          <div className={styles.preguntaCardInfo}>
-            <p className={styles.preguntaCardTitle}>{pregunta.texto}</p>
-            <p className={styles.preguntaCardMeta}>
-              {formatEtiqueta(pregunta.tipo, "Opción única")}
-              {" · "}
-              {pregunta.puntaje ?? 1} pts
-            </p>
-          </div>
-        </div>
-        <ul className={styles.preguntaOpciones}>
-          {(pregunta.opciones ?? []).map((opcion) => (
-            <li
-              key={opcion.idOpcion}
-              className={opcion.correcta ? styles.opcionCorrecta : styles.opcionNormal}
-            >
-              {opcion.texto}
-              {opcion.correcta ? " ✓" : ""}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ExamenBuilderPanelTitle>Pregunta {index + 1}</ExamenBuilderPanelTitle>
+      <ExamenPreguntaPreview pregunta={pregunta} index={index} />
     </>
   );
 
@@ -179,84 +144,53 @@ export function DelegacionExamenDetailModal({
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
       {detail ? (
-        <div className={styles.builder}>
-          <aside className={styles.builderSidebar}>
-            <div className={styles.builderSidebarHeader}>
-              <p className={styles.builderSidebarTitle}>
-                Preguntas ({preguntas.length})
-              </p>
-            </div>
-
-            <ul className={styles.builderList}>
-              {preguntas.length === 0 ? (
-                <li>
-                  <p className={styles.builderItemMeta}>Sin preguntas activas.</p>
-                </li>
-              ) : null}
-
-              {preguntas.map((pregunta, index) => {
-                const isActive =
-                  selected?.type === "pregunta" &&
-                  selected.id === pregunta.idPregunta;
-                return (
-                  <li key={pregunta.idPregunta}>
-                    <button
-                      type="button"
-                      className={[
-                        styles.builderItem,
-                        isActive ? styles.builderItemActive : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      onClick={() =>
-                        setSelected({ type: "pregunta", id: pregunta.idPregunta })
-                      }
-                    >
-                      <span className={styles.builderItemNumber}>{index + 1}</span>
-                      <span className={styles.builderItemBody}>
-                        <span className={styles.builderItemText}>
-                          {pregunta.texto || "Sin texto"}
-                        </span>
-                        <span className={styles.builderItemMeta}>
-                          {formatEtiqueta(pregunta.tipo, "Opción única")}
-                          {" · "}
-                          {pregunta.puntaje ?? 1} pts
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className={styles.builderSidebarFooter}>
-              <button
-                type="button"
-                className={styles.builderSettingsButton}
+        <ExamenBuilder>
+          <ExamenBuilderSidebar
+            title={`Preguntas (${preguntas.length})`}
+            footer={
+              <ExamenBuilderSettingsButton
                 onClick={() => setSelected({ type: "settings" })}
-              >
-                <span className={styles.builderSettingsIcon}>
-                  <Settings2 size={16} aria-hidden="true" />
-                </span>
-                <span className={styles.builderSettingsText}>
-                  <span className={styles.builderSettingsTitle}>Datos del examen</span>
-                  <span className={styles.builderSettingsHint}>
-                    Título, puntaje y tiempo
-                  </span>
-                </span>
-              </button>
-            </div>
-          </aside>
+              />
+            }
+          >
+            {preguntas.length === 0 ? (
+              <ExamenBuilderEmptyItem>
+                Sin preguntas activas.
+              </ExamenBuilderEmptyItem>
+            ) : null}
 
-          <div className={styles.builderMain}>
-            <div className={styles.builderPanelTitle}>
+            {preguntas.map((pregunta, index) => (
+              <ExamenBuilderItem
+                key={pregunta.idPregunta}
+                number={index + 1}
+                text={pregunta.texto || "Sin texto"}
+                meta={
+                  <>
+                    {formatPreguntaTipo(pregunta.tipo)}
+                    {" · "}
+                    {pregunta.puntaje ?? 1} pts
+                  </>
+                }
+                active={
+                  selected?.type === "pregunta" &&
+                  selected.id === pregunta.idPregunta
+                }
+                onClick={() =>
+                  setSelected({ type: "pregunta", id: pregunta.idPregunta })
+                }
+              />
+            ))}
+          </ExamenBuilderSidebar>
+
+          <ExamenBuilderMain>
+            <ExamenBuilderPanelTitle>
               <FileQuestion size={16} aria-hidden="true" />
               <span>{detail.areaNombre ?? "Examen diagnóstico"}</span>
               <EstatusBadge estatus={detail.estatus} />
-            </div>
+            </ExamenBuilderPanelTitle>
             {renderMain()}
-          </div>
-        </div>
+          </ExamenBuilderMain>
+        </ExamenBuilder>
       ) : null}
     </Modal>
   );

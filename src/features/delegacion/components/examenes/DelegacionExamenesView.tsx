@@ -10,8 +10,8 @@ import {
   DataTableIconAction,
   type DataTableColumn,
 } from "@/shared/components/DataTable";
+import { buildExamenResumenColumns } from "@/shared/components/examen";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
 type ExamenesMonitorViewProps = {
@@ -31,45 +31,7 @@ export function DelegacionExamenesView({
     useState<ExamenDiagnosticoResumenResponse | null>(null);
 
   const columns: DataTableColumn<ExamenDiagnosticoResumenResponse>[] = [
-    {
-      id: "titulo",
-      header: "Examen",
-      width: "34%",
-      cell: (examen) => (
-        <div className={styles.nameCell}>
-          <strong>{examen.titulo}</strong>
-          <span className={styles.nameHint}>
-            {examen.areaNombre?.trim() || "Sin área"}
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: "estatus",
-      header: "Estatus",
-      variant: "status",
-      width: "10rem",
-      align: "center",
-      cell: (examen) => <EstatusBadge estatus={examen.estatus} />,
-    },
-    {
-      id: "preguntas",
-      header: "Preguntas",
-      align: "center",
-      width: "7rem",
-      cell: (examen) => examen.totalPreguntas ?? 0,
-    },
-    {
-      id: "puntaje",
-      header: "Mín. aprob.",
-      align: "center",
-      width: "7rem",
-      cell: (examen) =>
-        examen.puntajeMinimoAprobatorio !== undefined &&
-        examen.puntajeMinimoAprobatorio !== null
-          ? `${examen.puntajeMinimoAprobatorio}%`
-          : "—",
-    },
+    ...buildExamenResumenColumns(),
     {
       id: "acciones",
       header: "Acciones",

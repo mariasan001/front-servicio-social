@@ -33,9 +33,3 @@
   flex: 1;
   min-width: 9rem;
 }
-
-.helper {
-  margin: 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-gris-500);
-}

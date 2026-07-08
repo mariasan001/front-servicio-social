@@ -2,8 +2,8 @@
 
 import { runServerAction, type ActionResult } from "@/lib/actions";
 import { normalizeOptionalNumber } from "@/lib/actions/normalize-server-args";
+import { resolveTitularAssignedAreaContext } from "../lib/area-context";
 import { revalidateTitularSection } from "../lib/revalidate-titular";
-import { listTitularAreas } from "../services/areas.service";
 import {
   activarExamen,
   addExamenPregunta,
@@ -40,9 +40,8 @@ async function resolveAreaId(preferred?: number) {
     return normalized;
   }
 
-  const areas = await listTitularAreas();
-  const vigente = areas.find((area) => area.vigente !== false) ?? areas[0];
-  return vigente?.idArea;
+  const context = await resolveTitularAssignedAreaContext();
+  return context?.areaId;
 }
 
 export async function listExamenesAction(): Promise<
