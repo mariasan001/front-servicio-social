@@ -1,6 +1,6 @@
-import { Building2, Briefcase, ClipboardList, Users } from "@/shared/icons";
+import { Building2, Users } from "@/shared/icons";
 import { getLandingAccent } from "../../constants/accents";
-import type { PublicEscuelaEstadisticasResponse } from "../../types/public-escuela.types";
+import type { PublicInstitucionRegistradaResponse } from "../../types/public-escuela.types";
 import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import sectionStyles from "../../styles/LandingSection.module.css";
@@ -9,12 +9,15 @@ import headerStyles from "../LandingSectionHeader/LandingSectionHeader.module.cs
 import styles from "./LandingInstitutions.module.css";
 
 type LandingInstitutionsProps = {
-  escuelas: PublicEscuelaEstadisticasResponse[];
+  instituciones: PublicInstitucionRegistradaResponse[];
   loadError?: string;
 };
 
-export function LandingInstitutions({ escuelas, loadError }: LandingInstitutionsProps) {
-  const hasEscuelas = escuelas.length > 0;
+export function LandingInstitutions({
+  instituciones,
+  loadError,
+}: LandingInstitutionsProps) {
+  const hasInstituciones = instituciones.length > 0;
 
   return (
     <section
@@ -36,7 +39,7 @@ export function LandingInstitutions({ escuelas, loadError }: LandingInstitutions
           intro="Universidades e instituciones educativas del Estado de México que participan en la plataforma y concentran a estudiantes en servicio social, prácticas y residencias profesionales."
         />
 
-        {hasEscuelas ? (
+        {hasInstituciones ? (
           <p
             id="institutions-scroll-hint"
             className={`${scrollStyles.scrollHint} ${scrollStyles.scrollHintAlways}`}
@@ -47,7 +50,7 @@ export function LandingInstitutions({ escuelas, loadError }: LandingInstitutions
 
         {loadError ? (
           <LandingPublicLoadAlert message={loadError} />
-        ) : !hasEscuelas ? (
+        ) : !hasInstituciones ? (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon} aria-hidden>
               <Building2 size={28} strokeWidth={1.75} />
@@ -61,12 +64,12 @@ export function LandingInstitutions({ escuelas, loadError }: LandingInstitutions
             aria-describedby="institutions-scroll-hint"
             tabIndex={0}
           >
-            {escuelas.map((escuela, index) => {
+            {instituciones.map((institucion, index) => {
               const accent = getLandingAccent(index);
 
               return (
                 <li
-                  key={escuela.idEscuela}
+                  key={institucion.idInstitucion}
                   className={styles.card}
                   data-accent={accent}
                 >
@@ -74,37 +77,17 @@ export function LandingInstitutions({ escuelas, loadError }: LandingInstitutions
                     <span className={styles.iconWrap} aria-hidden="true">
                       <Building2 size={20} strokeWidth={2} />
                     </span>
-                    <h3 className={styles.cardTitle}>{escuela.nombreOficial}</h3>
+                    <h3 className={styles.cardTitle}>{institucion.nombre}</h3>
                   </div>
 
                   <dl className={styles.stats}>
                     <div className={styles.stat}>
                       <dt className={styles.statLabel}>
                         <Users size={14} strokeWidth={2} />
-                        Participantes
+                        Alumnos participantes
                       </dt>
                       <dd className={styles.statValue}>
-                        {escuela.totalParticipantes}
-                      </dd>
-                    </div>
-
-                    <div className={styles.stat}>
-                      <dt className={styles.statLabel}>
-                        <Briefcase size={14} strokeWidth={2} />
-                        Prácticas y residencias
-                      </dt>
-                      <dd className={styles.statValue}>
-                        {escuela.practicasResidencias}
-                      </dd>
-                    </div>
-
-                    <div className={styles.stat}>
-                      <dt className={styles.statLabel}>
-                        <ClipboardList size={14} strokeWidth={2} />
-                        Servicio social
-                      </dt>
-                      <dd className={styles.statValue}>
-                        {escuela.servicioSocial}
+                        {institucion.totalAlumnos}
                       </dd>
                     </div>
                   </dl>

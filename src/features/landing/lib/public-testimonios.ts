@@ -3,41 +3,39 @@ import {
   PUBLIC_LOAD_ERRORS,
   type LandingFetchResult,
 } from "./public-data";
-import { listPublicTestimonios } from "../services/public-testimonios.service";
+import { listPublicEncuestasSatisfaccion } from "../services/public-encuestas.service";
 import type {
+  EncuestaSatisfaccionResponse,
   LandingTestimonial,
-  PublicTestimonioResponse,
-} from "../types/public-testimonial.types";
+} from "../types/public-encuesta.types";
 
-function mapPublicTestimonio(
-  testimonio: PublicTestimonioResponse,
+function mapPublicEncuesta(
+  encuesta: EncuestaSatisfaccionResponse,
 ): LandingTestimonial | null {
-  const quote = testimonio.comentario?.trim();
-  const name = testimonio.nombreEstudiante?.trim();
+  const quote = encuesta.comentario?.trim();
+  const name = encuesta.nombre?.trim();
 
   if (!quote || !name) {
     return null;
   }
 
-  const programParts = [
-    testimonio.programaEstudios?.trim(),
-    testimonio.escuela?.trim(),
-  ].filter(Boolean);
+  const carrera = encuesta.carrera?.trim();
+  const escuela = encuesta.escuela?.trim();
 
   return {
-    id: String(testimonio.idTestimonio),
+    id: String(encuesta.idEncuesta),
     quote,
     name,
-    program: programParts.join(" · "),
-    institution: testimonio.dependencia?.trim() ?? "",
+    program: carrera ?? "",
+    institution: escuela ?? "",
   };
 }
 
 export function mapLandingTestimonials(
-  testimonios: PublicTestimonioResponse[],
+  encuestas: EncuestaSatisfaccionResponse[],
 ): LandingTestimonial[] {
-  return testimonios
-    .map(mapPublicTestimonio)
+  return encuestas
+    .map(mapPublicEncuesta)
     .filter((item): item is LandingTestimonial => item !== null);
 }
 
@@ -45,7 +43,7 @@ export async function getLandingTestimonials(): Promise<
   LandingFetchResult<LandingTestimonial[]>
 > {
   const result = mapPublicListResult(
-    await listPublicTestimonios(),
+    await listPublicEncuestasSatisfaccion(),
     PUBLIC_LOAD_ERRORS.testimonios,
   );
 

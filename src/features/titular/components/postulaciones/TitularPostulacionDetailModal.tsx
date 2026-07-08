@@ -27,6 +27,7 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
+import { TitularPostulacionExamenResultado } from "./TitularPostulacionExamenResultado";
 import formLayoutStyles from "@/shared/styles/PanelFormModal.module.css";
 
 export function TitularPostulacionDetailModal({
@@ -66,7 +67,11 @@ export function TitularPostulacionDetailModal({
   const estatus = detail?.estatus;
   const canAccept = canAcceptPostulacion(estatus);
   const canReject = canRejectPostulacion(estatus);
-  const canMarkExam = canMarkPostulacionExam(estatus, detail?.requiereExamen, detail?.examenEstado);
+  const canMarkExam = canMarkPostulacionExam(
+    estatus,
+    detail?.requiereExamen,
+    detail?.examenEstado,
+  );
   const examenListo = isExamenFinalizado(detail?.examenEstado);
   const alumnoNombre = detail?.alumnoNombre?.trim();
   const vacanteFolio = detail?.vacanteFolio?.trim();
@@ -76,7 +81,7 @@ export function TitularPostulacionDetailModal({
   return (
     <Modal
       open={open}
-      title={alumnoNombre || (folio ? `Postulación ${folio}` : "Postulación")}
+      title={alumnoNombre || (folio ? `Postulaci\u00f3n ${folio}` : "Postulaci\u00f3n")}
       onClose={onClose}
       size="lg"
     >
@@ -97,7 +102,7 @@ export function TitularPostulacionDetailModal({
           <DetailModalHero
             icon={UserRound}
             title={alumnoNombre || "Sin nombre registrado"}
-            subtitle={folio || `Postulación #${detail.idPostulacion}`}
+            subtitle={folio || `Postulaci\u00f3n #${detail.idPostulacion}`}
             badges={<EstatusBadge estatus={detail.estatus} />}
           />
 
@@ -111,7 +116,7 @@ export function TitularPostulacionDetailModal({
               <dd>{vacanteNombre || vacanteFolio || "Sin vacante"}</dd>
             </div>
             <div className={detailStyles.metaRow}>
-              <dt>Fecha de postulación</dt>
+              <dt>{"Fecha de postulaci\u00f3n"}</dt>
               <dd>{formatFecha(detail.fechaPostulacion)}</dd>
             </div>
             <div className={detailStyles.metaRow}>
@@ -132,6 +137,11 @@ export function TitularPostulacionDetailModal({
               <p className={detailStyles.narrativeValue}>{detail.resultadoExamen}</p>
             </div>
           ) : null}
+
+          <TitularPostulacionExamenResultado
+            idPostulacion={detail.idPostulacion}
+            enabled={Boolean(detail.requiereExamen && examenListo)}
+          />
 
           {detail.comentarioAlumno ? (
             <div className={detailStyles.narrativeSection}>
@@ -155,13 +165,13 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canAccept ? (
-            <section className={detailStyles.contentPanel} aria-label="Aceptar postulación">
+            <section className={detailStyles.contentPanel} aria-label="Aceptar postulaci\u00f3n">
               <div className={detailStyles.panelHeader}>
-                <h3 className={detailStyles.panelTitle}>Aceptar postulación</h3>
+                <h3 className={detailStyles.panelTitle}>{"Aceptar postulaci\u00f3n"}</h3>
                 <p className={detailStyles.panelDescription}>
                   {examenListo
-                    ? "El examen ya fue registrado. Acepta la postulación para abrir el proceso del alumno."
-                    : "Aprueba la solicitud para continuar con el proceso de selección."}
+                    ? "El examen ya fue registrado. Acepta la postulaci\u00f3n para abrir el proceso del alumno."
+                    : "Aprueba la solicitud para continuar con el proceso de selecci\u00f3n."}
                 </p>
               </div>
               <div className={formLayoutStyles.formLayout}>
@@ -180,7 +190,10 @@ export function TitularPostulacionDetailModal({
                       setIsMutating(true);
                       const payload =
                         comentario.trim() ? { comentario: comentario.trim() } : {};
-                      const result = await acceptPostulacionAction(detail.idPostulacion, payload);
+                      const result = await acceptPostulacionAction(
+                        detail.idPostulacion,
+                        payload,
+                      );
                       setIsMutating(false);
                       if (!result.success) {
                         notify.error(result.error);
@@ -189,7 +202,7 @@ export function TitularPostulacionDetailModal({
                       refresh();
                     }}
                   >
-                    {isMutating ? "Procesando…" : "Aceptar postulación"}
+                    {isMutating ? "Procesando\u2026" : "Aceptar postulaci\u00f3n"}
                   </Button>
                 </div>
               </div>
@@ -197,9 +210,9 @@ export function TitularPostulacionDetailModal({
           ) : null}
 
           {canReject ? (
-            <section className={detailStyles.contentPanel} aria-label="Rechazar postulación">
+            <section className={detailStyles.contentPanel} aria-label="Rechazar postulaci\u00f3n">
               <div className={detailStyles.panelHeader}>
-                <h3 className={detailStyles.panelTitle}>Rechazar postulación</h3>
+                <h3 className={detailStyles.panelTitle}>{"Rechazar postulaci\u00f3n"}</h3>
                 <p className={detailStyles.panelDescription}>
                   Indica el motivo para notificar al alumno.
                 </p>
@@ -236,7 +249,7 @@ export function TitularPostulacionDetailModal({
                       refresh();
                     }}
                   >
-                    Rechazar postulación
+                    {"Rechazar postulaci\u00f3n"}
                   </Button>
                 </div>
               </div>
@@ -269,7 +282,7 @@ export function TitularPostulacionDetailModal({
                     onClick={async () => {
                       const resultado = Number(resultadoExamen.trim());
                       if (!resultadoExamen.trim() || Number.isNaN(resultado)) {
-                        notify.error("Indica el resultado del examen como número.");
+                        notify.error("Indica el resultado del examen como n\u00famero.");
                         return;
                       }
                       setIsMutating(true);

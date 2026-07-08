@@ -11,6 +11,8 @@ export type DelegacionSectionSlug =
   | "procesos"
   | "validacion"
   | "alumnos"
+  | "encuestas"
+  | "examenes"
   | "reportes";
 
 export const DELEGACION_SECTIONS = getRoleSectionSlugs(

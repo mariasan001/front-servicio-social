@@ -117,6 +117,11 @@ export type ListIncidenciasFilters = {
   fechaHasta?: string;
 };
 
+export type ListExamenesFilters = {
+  estatus?: string;
+  areaId?: number;
+};
+
 export type CrearVacanteRequest = {
   areaId: number;
   modalidadId: string;
@@ -152,4 +157,18 @@ export type {
   RechazarPostulacionRequest,
   RegistrarHoraInternaRequest,
   ValidarHoraRequest,
+} from "@/lib/domain";
+
+export type {
+  ExamenDiagnosticoResumenResponse,
+  ExamenDiagnosticoDetalleResponse,
+  ExamenPreguntaResponse,
+  ExamenOpcionResponse,
+  CrearExamenDiagnosticoRequest,
+  ActualizarExamenDiagnosticoRequest,
+  ExamenPreguntaRequest,
+  ExamenOpcionRequest,
+  AsociarExamenVacanteRequest,
+  ResultadoExamenResponse,
+  ResultadoExamenRespuestaResponse,
 } from "@/lib/domain";

@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { isAdminSectionSlug, type AdminSectionSlug } from "./constants/sections";
 import { AdminAreasSection } from "./sections/AdminAreasSection";
 import { AdminDependenciasSection } from "./sections/AdminDependenciasSection";
+import { AdminExamenesSection } from "./sections/AdminExamenesSection";
 import { AdminEscuelasSection } from "./sections/AdminEscuelasSection";
 import { AdminInicioSection } from "./sections/AdminInicioSection";
 import { AdminUsuariosSection } from "./sections/AdminUsuariosSection";
@@ -12,6 +13,7 @@ const ADMIN_SECTION_COMPONENTS: Record<AdminSectionSlug, () => Promise<ReactElem
   dependencias: AdminDependenciasSection,
   escuelas: AdminEscuelasSection,
   areas: AdminAreasSection,
+  examenes: AdminExamenesSection,
   usuarios: AdminUsuariosSection,
 };
 

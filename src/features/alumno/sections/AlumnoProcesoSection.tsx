@@ -130,6 +130,7 @@ export async function AlumnoProcesoSection({ subSection }: AlumnoProcesoSectionP
           proceso={proceso}
           horasResumen={result.horasResumen ?? null}
           firstName={firstName}
+          alumnoNombre={sessionResult?.nombreCompleto}
         />
       );
     case "horas":

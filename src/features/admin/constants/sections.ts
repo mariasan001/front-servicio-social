@@ -9,6 +9,7 @@ export type AdminSectionSlug =
   | "dependencias"
   | "escuelas"
   | "areas"
+  | "examenes"
   | "usuarios";
 
 export const ADMIN_SECTIONS = getRoleSectionSlugs(

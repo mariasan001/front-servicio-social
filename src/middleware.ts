@@ -60,5 +60,6 @@ export const config = {
     "/login",
     "/registro",
     "/recuperar-contrasena",
+    "/restablecer-contrasena",
   ],
 };

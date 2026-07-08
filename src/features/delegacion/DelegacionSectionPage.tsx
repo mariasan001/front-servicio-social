@@ -7,6 +7,8 @@ import {
   type DelegacionValidacionSubSlug,
 } from "./constants/validacion-sections";
 import { DelegacionAlumnosSection } from "./sections/DelegacionAlumnosSection";
+import { DelegacionEncuestasSection } from "./sections/DelegacionEncuestasSection";
+import { DelegacionExamenesSection } from "./sections/DelegacionExamenesSection";
 import { DelegacionInicioSection } from "./sections/DelegacionInicioSection";
 import { DelegacionPostulacionesSection } from "./sections/DelegacionPostulacionesSection";
 import { DelegacionProcesosSection } from "./sections/DelegacionProcesosSection";
@@ -23,6 +25,8 @@ const DELEGACION_SECTION_COMPONENTS: Record<
   postulaciones: DelegacionPostulacionesSection,
   procesos: DelegacionProcesosSection,
   alumnos: DelegacionAlumnosSection,
+  encuestas: DelegacionEncuestasSection,
+  examenes: DelegacionExamenesSection,
   reportes: DelegacionReportesSection,
 };
 

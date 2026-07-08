@@ -23,12 +23,20 @@
     0 12px 32px rgb(45 45 45 / 12%);
 }
 
+.dialog.xl {
+  max-height: min(94vh, 52rem);
+}
+
 .md {
   width: min(100%, 32rem);
 }
 
 .lg {
   width: min(100%, 40rem);
+}
+
+.xl {
+  width: min(100%, 68rem);
 }
 
 .header {

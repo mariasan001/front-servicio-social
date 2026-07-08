@@ -4,6 +4,7 @@ import type { StatusBadgeIconKind } from "@/shared/components/StatusBadge/Status
 const STATUS_LABELS: Record<string, string> = {
   ACTIVA: "Activa",
   INACTIVA: "Inactiva",
+  INACTIVO: "Inactivo",
   ACTIVO: "Activo",
   SUSPENDIDO: "Suspendido",
   REVOCADO: "Cancelado",
@@ -14,6 +15,7 @@ const STATUS_LABELS: Record<string, string> = {
   VENCIDO: "Vencido",
   SIN_CONVENIO: "Sin convenio",
   PUBLICADA: "Publicada",
+  OCULTA: "Oculta",
   BORRADOR: "Borrador",
   PENDIENTE_REVISION: "Pendiente de revisión",
   CERRADA: "Cerrada",
@@ -41,6 +43,10 @@ const STATUS_LABELS: Record<string, string> = {
   PENDIENTE_LIBERACION: "Pendiente de liberación",
   FINALIZADO: "Finalizado",
   FINALIZADA: "Finalizada",
+  EN_PROGRESO: "En progreso",
+  EXPIRADO: "Expirado",
+  OPCION_UNICA: "Opción única",
+  VERDADERO_FALSO: "Verdadero / Falso",
   EMITIDA: "Emitida",
   EN_EXAMEN: "En examen",
   ACEPTADA: "Aceptada",
@@ -153,6 +159,7 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "SUBIDO" ||
     value === "PENDIENTE_REVISION" ||
     value === "EN_EXAMEN" ||
+    value === "EN_PROGRESO" ||
     value === "REGISTRADA" ||
     value === "REGISTRADO" ||
     value === "ABIERTA"
@@ -169,12 +176,18 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "REVOCADO" ||
     value === "VENCIDO" ||
     value === "CANCELADA" ||
-    value === "CANCELADO"
+    value === "CANCELADO" ||
+    value === "EXPIRADO"
   ) {
     return "error";
   }
 
-  if (value === "SIN_CONVENIO" || value === "NO_APLICA") {
+  if (
+    value === "SIN_CONVENIO" ||
+    value === "NO_APLICA" ||
+    value === "OCULTA" ||
+    value === "INACTIVO"
+  ) {
     return "neutral";
   }
 
@@ -209,6 +222,7 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     value === "REGISTRADA" ||
     value === "REGISTRADO" ||
     value === "EN_EXAMEN" ||
+    value === "EN_PROGRESO" ||
     value === "EN_REVISION" ||
     value === "SUBIDO" ||
     value === "PENDIENTE_REVISION" ||
@@ -240,12 +254,19 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     value === "BAJA" ||
     value === "CERRADA" ||
     value === "REVOCADO" ||
-    value === "VENCIDO"
+    value === "VENCIDO" ||
+    value === "EXPIRADO"
   ) {
     return "cancelled";
   }
 
-  if (value === "SUSPENDIDO" || value === "INACTIVA" || value === "SIN_CONVENIO" || value === "NO_APLICA") {
+  if (
+    value === "SUSPENDIDO" ||
+    value === "INACTIVA" ||
+    value === "INACTIVO" ||
+    value === "SIN_CONVENIO" ||
+    value === "NO_APLICA"
+  ) {
     return "draft";
   }
 

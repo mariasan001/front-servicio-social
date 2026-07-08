@@ -24,6 +24,7 @@ import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModal
 import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import { TitularVacanteExamenPanel } from "./TitularVacanteExamenPanel";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type TitularVacanteDetailModalProps = {
@@ -200,6 +201,10 @@ export function TitularVacanteDetailModal({
               {perfilRequerido || "Sin perfil registrado."}
             </p>
           </div>
+
+          {canEdit ? (
+            <TitularVacanteExamenPanel vacante={detail} onChanged={refresh} />
+          ) : null}
         </div>
       ) : null}
     </Modal>

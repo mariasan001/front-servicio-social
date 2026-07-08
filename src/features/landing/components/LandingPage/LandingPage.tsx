@@ -73,7 +73,7 @@ export async function LandingPage() {
 
         <ScrollReveal delay={120}>
           <LandingInstitutions
-            escuelas={escuelasResult.data}
+            instituciones={escuelasResult.data}
             loadError={escuelasResult.loadError}
           />
         </ScrollReveal>

@@ -1,7 +1,5 @@
-export type PublicEscuelaEstadisticasResponse = {
-  idEscuela: number;
-  nombreOficial: string;
-  totalParticipantes: number;
-  practicasResidencias: number;
-  servicioSocial: number;
+export type PublicInstitucionRegistradaResponse = {
+  idInstitucion: number;
+  nombre: string;
+  totalAlumnos: number;
 };

@@ -99,14 +99,18 @@
 }
 
 .quote p {
+  display: -webkit-box;
   margin: 0;
   padding-left: var(--space-4);
+  overflow: hidden;
   font-size: var(--font-size-sm);
   font-weight: 300;
   font-style: normal;
   line-height: var(--line-height-relaxed);
   color: var(--color-gris-700);
   border-left: 3px solid var(--color-dorado);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
 }
 
 .author {

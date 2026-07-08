@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import type { ReactElement } from "react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { isTitularSectionSlug, type TitularSectionSlug } from "./constants/sections";
+import { TitularExamenesSection } from "./sections/TitularExamenesSection";
 import { TitularInicioSection } from "./sections/TitularInicioSection";
 import { TitularPostulacionesSection } from "./sections/TitularPostulacionesSection";
 import { TitularSeguimientoSection } from "./sections/TitularSeguimientoSection";
@@ -14,6 +15,7 @@ const TITULAR_SECTION_COMPONENTS: Record<
   inicio: TitularInicioSection,
   vacantes: TitularVacantesSection,
   postulaciones: TitularPostulacionesSection,
+  examenes: TitularExamenesSection,
 };
 
 type TitularSectionPageProps = {

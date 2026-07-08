@@ -1,6 +1,6 @@
 import { Quote } from "@/shared/icons";
 import { getLandingAccent } from "../../constants/accents";
-import type { LandingTestimonial } from "../../types/public-testimonial.types";
+import type { LandingTestimonial } from "../../types/public-encuesta.types";
 import { LandingPublicLoadAlert } from "../LandingPublicLoadAlert/LandingPublicLoadAlert";
 import { LandingSectionHeader } from "../LandingSectionHeader/LandingSectionHeader";
 import sectionStyles from "../../styles/LandingSection.module.css";
@@ -93,7 +93,7 @@ export function LandingTestimonials({
                   />
 
                   <blockquote className={styles.quote}>
-                    <p>{testimonial.quote}</p>
+                    <p title={testimonial.quote}>{testimonial.quote}</p>
                   </blockquote>
 
                   <footer className={styles.author}>

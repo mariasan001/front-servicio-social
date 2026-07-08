@@ -10,7 +10,7 @@ type ModalProps = {
   children: ReactNode;
   onClose: () => void;
   footer?: ReactNode;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "xl";
 };
 
 function joinClassNames(...classes: (string | false | undefined)[]) {

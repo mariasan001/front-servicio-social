@@ -3,26 +3,26 @@ import {
   PUBLIC_LOAD_ERRORS,
   type LandingFetchResult,
 } from "./public-data";
-import { listPublicEscuelaEstadisticas } from "../services/public-escuelas.service";
-import type { PublicEscuelaEstadisticasResponse } from "../types/public-escuela.types";
+import { listPublicInstitucionesRegistradas } from "../services/public-escuelas.service";
+import type { PublicInstitucionRegistradaResponse } from "../types/public-escuela.types";
 
-export function sortPublicEscuelas(
-  escuelas: PublicEscuelaEstadisticasResponse[],
+export function sortPublicInstituciones(
+  instituciones: PublicInstitucionRegistradaResponse[],
 ) {
-  return [...escuelas].sort((left, right) => {
-    if (right.totalParticipantes !== left.totalParticipantes) {
-      return right.totalParticipantes - left.totalParticipantes;
+  return [...instituciones].sort((left, right) => {
+    if (right.totalAlumnos !== left.totalAlumnos) {
+      return right.totalAlumnos - left.totalAlumnos;
     }
 
-    return left.nombreOficial.localeCompare(right.nombreOficial, "es-MX");
+    return left.nombre.localeCompare(right.nombre, "es-MX");
   });
 }
 
 export async function getLandingInstitutionStats(): Promise<
-  LandingFetchResult<PublicEscuelaEstadisticasResponse[]>
+  LandingFetchResult<PublicInstitucionRegistradaResponse[]>
 > {
   const result = mapPublicListResult(
-    await listPublicEscuelaEstadisticas(),
+    await listPublicInstitucionesRegistradas(),
     PUBLIC_LOAD_ERRORS.escuelas,
   );
 
@@ -30,5 +30,5 @@ export async function getLandingInstitutionStats(): Promise<
     return result;
   }
 
-  return { data: sortPublicEscuelas(result.data) };
+  return { data: sortPublicInstituciones(result.data) };
 }

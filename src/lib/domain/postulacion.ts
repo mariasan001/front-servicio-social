@@ -86,6 +86,18 @@ export function canCancelPostulacion(estatus?: string) {
   return value === "EN_EXAMEN" || value === "PENDIENTE_EVALUACION";
 }
 
+export function canContestarExamen(
+  estatus?: string,
+  requiereExamen?: boolean,
+  examenEstado?: string,
+) {
+  if (!requiereExamen || isExamenFinalizado(examenEstado)) {
+    return false;
+  }
+
+  return normalizeEstatus(estatus) === "EN_EXAMEN";
+}
+
 export function getCancelPostulacionConfirmMessage(postulacion: {
   folio?: string;
   idPostulacion: number;

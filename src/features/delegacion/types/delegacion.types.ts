@@ -246,3 +246,21 @@ export type CrearEscuelaYNormalizarRequest = {
   correoContacto?: string;
   observacion?: string;
 };
+
+export type EncuestaSatisfaccionResponse = {
+  idEncuesta: number;
+  nombre: string;
+  carrera: string;
+  escuela: string;
+  comentario: string;
+  estatus?: string;
+  fechaRegistro?: string;
+};
+
+export type ListEncuestasSatisfaccionFilters = {
+  page?: number;
+  size?: number;
+  estatus?: string;
+  escuela?: string;
+  carrera?: string;
+};

@@ -1,8 +1,8 @@
 import { publicApiGet } from "@/lib/api/public-request";
-import type { PublicEscuelaEstadisticasResponse } from "../types/public-escuela.types";
+import type { PublicInstitucionRegistradaResponse } from "../types/public-escuela.types";
 
-export async function listPublicEscuelaEstadisticas() {
-  return publicApiGet<PublicEscuelaEstadisticasResponse[]>(
-    "/api/public/escuelas/estadisticas",
+export async function listPublicInstitucionesRegistradas() {
+  return publicApiGet<PublicInstitucionRegistradaResponse[]>(
+    "/api/public/instituciones/registradas",
   );
 }

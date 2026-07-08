@@ -2,13 +2,15 @@
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDeferredValue, useMemo, useState } from "react";
-import { CircleX, Eye, Search } from "lucide-react";
+import { CircleX, Eye, FileQuestion, Search } from "lucide-react";
 import { cancelPostulacionAction } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
+  canContestarExamen,
   formatFecha,
   getCancelPostulacionConfirmMessage,
 } from "@/lib/domain";
+import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { normalizeText } from "@/lib/utils/search";
@@ -127,6 +129,21 @@ export function AlumnoPostulacionesView({
       variant: "actions",
       cell: (postulacion) => (
         <DataTableActions>
+          {canContestarExamen(
+            postulacion.estatus,
+            postulacion.requiereExamen,
+            postulacion.examenEstado,
+          ) ? (
+            <DataTableIconAction
+              label="Contestar examen"
+              icon={FileQuestion}
+              onClick={() =>
+                router.push(
+                  `${PANEL_PATHS.alumno}/postulaciones/${postulacion.idPostulacion}/examen`,
+                )
+              }
+            />
+          ) : null}
           <DataTableIconAction label="Ver detalle" icon={Eye} onClick={() => setSelected(postulacion)} />
           {canCancelPostulacion(postulacion.estatus) ? (
             <DataTableIconAction

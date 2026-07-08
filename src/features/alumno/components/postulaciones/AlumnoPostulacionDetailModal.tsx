@@ -9,9 +9,11 @@ import {
 } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
+  canContestarExamen,
   formatFecha,
   getCancelPostulacionConfirmMessage,
 } from "@/lib/domain";
+import { PANEL_PATHS } from "@/lib/auth/constants";
 import { Alert } from "@/shared/components/Alert";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
@@ -54,6 +56,13 @@ export function AlumnoPostulacionDetailModal({
   };
 
   const cancelVisible = detail ? canCancelPostulacion(detail.estatus) : false;
+  const examVisible = detail
+    ? canContestarExamen(
+        detail.estatus,
+        detail.requiereExamen,
+        detail.examenEstado,
+      )
+    : false;
   const vacanteNombre = detail?.vacanteNombre?.trim();
   const vacanteFolio = detail?.vacanteFolio?.trim();
   const folio = detail?.folio?.trim();
@@ -87,16 +96,26 @@ export function AlumnoPostulacionDetailModal({
         onClose={onClose}
         size="lg"
         footer={
-          cancelVisible ? (
+          examVisible || cancelVisible ? (
             <div className={detailStyles.footerActions}>
-              <Button
-                type="button"
-                variant="danger"
-                disabled={isMutating}
-                onClick={() => setConfirmCancelOpen(true)}
-              >
-                Cancelar postulación
-              </Button>
+              {examVisible && detail ? (
+                <Button
+                  href={`${PANEL_PATHS.alumno}/postulaciones/${detail.idPostulacion}/examen`}
+                  variant="primary"
+                >
+                  Contestar examen
+                </Button>
+              ) : null}
+              {cancelVisible ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={isMutating}
+                  onClick={() => setConfirmCancelOpen(true)}
+                >
+                  Cancelar postulación
+                </Button>
+              ) : null}
             </div>
           ) : undefined
         }
