@@ -109,8 +109,8 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   if (passwordResetComplete) {
     return (
       <AuthCard
-        title="Contraseña actualizada"
-        subtitle="Tu acceso quedó restablecido correctamente."
+        title={AUTH_COPY.resetSuccessTitle}
+        subtitle={AUTH_COPY.resetSuccessSubtitle}
       >
         <button
           type="button"
@@ -124,15 +124,16 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   }
 
   return (
-    <AuthCard
-      title="Verifica tu correo"
-      subtitle={AUTH_COPY.resetCodeSubtitle}
-    >
+    <AuthCard title="Verifica tu correo" subtitle={AUTH_COPY.resetCodeSubtitle}>
       <p className={formStyles.helperText}>
         Código enviado a <strong>{correo}</strong>
       </p>
 
-      <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
+      <form
+        className={`${formStyles.formBody} ${formStyles.formRoot}`}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <FormField
           id="reset-code"
           label="Código de verificación"
@@ -154,7 +155,7 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
           label="Nueva contraseña"
           value={values.password}
           error={fieldErrors.password}
-          hint={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres.`}
+          placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`}
           autoComplete="new-password"
           required
           disabled={isSubmitting}

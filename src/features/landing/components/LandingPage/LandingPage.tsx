@@ -10,6 +10,9 @@ import { LandingInstitutions } from "../LandingInstitutions/LandingInstitutions"
 import { LandingFaq } from "../LandingFaq/LandingFaq";
 import { LandingFooter } from "../LandingFooter/LandingFooter";
 import { ScrollReveal } from "../ScrollReveal/ScrollReveal";
+import { getLandingInstitutionStats } from "../../lib/public-escuelas";
+import { getLandingTestimonials } from "../../lib/public-testimonios";
+import { getLandingVacancyPreview } from "../../lib/public-vacantes";
 import styles from "./LandingPage.module.css";
 
 const websiteJsonLd = {
@@ -28,7 +31,29 @@ const organizationJsonLd = {
   url: SITE_URL,
 };
 
-export function LandingPage() {
+export async function LandingPage() {
+  let vacantes: Awaited<ReturnType<typeof getLandingVacancyPreview>> = [];
+  let escuelas: Awaited<ReturnType<typeof getLandingInstitutionStats>> = [];
+  let testimonials: Awaited<ReturnType<typeof getLandingTestimonials>> = [];
+
+  try {
+    vacantes = await getLandingVacancyPreview();
+  } catch {
+    vacantes = [];
+  }
+
+  try {
+    escuelas = await getLandingInstitutionStats();
+  } catch {
+    escuelas = [];
+  }
+
+  try {
+    testimonials = await getLandingTestimonials();
+  } catch {
+    testimonials = [];
+  }
+
   return (
     <div className={styles.page}>
       <JsonLd data={[websiteJsonLd, organizationJsonLd]} />
@@ -49,15 +74,15 @@ export function LandingPage() {
         <LandingTimeline />
 
         <ScrollReveal delay={80}>
-          <LandingVacancies />
+          <LandingVacancies vacantes={vacantes} />
         </ScrollReveal>
 
         <ScrollReveal delay={100}>
-          <LandingTestimonials />
+          <LandingTestimonials testimonials={testimonials} />
         </ScrollReveal>
 
         <ScrollReveal delay={120}>
-          <LandingInstitutions />
+          <LandingInstitutions escuelas={escuelas} />
         </ScrollReveal>
 
         <ScrollReveal delay={80}>

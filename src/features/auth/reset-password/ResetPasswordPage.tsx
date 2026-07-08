@@ -3,7 +3,7 @@ import { ResetPasswordFlow } from "./ResetPasswordFlow";
 
 export function ResetPasswordPage() {
   return (
-    <AuthLayout backHref="/login" backLabel="Ir a iniciar sesión">
+    <AuthLayout variant="reset" backHref="/login" backLabel="Ir a iniciar sesión">
       <ResetPasswordFlow />
     </AuthLayout>
   );

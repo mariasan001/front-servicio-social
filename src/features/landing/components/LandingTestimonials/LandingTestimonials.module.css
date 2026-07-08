@@ -271,6 +271,31 @@
   }
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  max-width: 28rem;
+  margin-inline: auto;
+  padding: var(--space-10) var(--space-6);
+  text-align: center;
+  color: var(--color-gris-700);
+}
+
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  color: var(--color-vino);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;

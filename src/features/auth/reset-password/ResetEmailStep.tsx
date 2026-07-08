@@ -61,7 +61,18 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
       title={AUTH_COPY.resetTitle}
       subtitle={AUTH_COPY.resetEmailSubtitle}
     >
-      <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
+      <p className={formStyles.ctaInline}>
+        ¿Recordaste tu contraseña?{" "}
+        <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
+          Volver a iniciar sesión
+        </Link>
+      </p>
+
+      <form
+        className={`${formStyles.formBody} ${formStyles.formRoot}`}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <TextInput
           id="reset-email"
           name="correo"
@@ -92,12 +103,6 @@ export function ResetEmailStep({ onSuccess }: ResetEmailStepProps) {
           {isSubmitting ? "Enviando código…" : "Enviar código"}
         </button>
       </form>
-
-      <div className={formStyles.footerLinks}>
-        <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
-          Volver a iniciar sesión
-        </Link>
-      </div>
     </AuthCard>
   );
 }

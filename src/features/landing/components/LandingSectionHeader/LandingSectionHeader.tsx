@@ -11,6 +11,7 @@ type LandingSectionHeaderProps = {
   className?: string;
   copyClassName?: string;
   actionClassName?: string;
+  titleAs?: "h1" | "h2";
 };
 
 function joinClassNames(...classes: (string | undefined)[]) {
@@ -27,8 +28,10 @@ export function LandingSectionHeader({
   className,
   copyClassName,
   actionClassName,
+  titleAs = "h2",
 }: LandingSectionHeaderProps) {
   const hasAction = Boolean(action);
+  const TitleTag = titleAs;
 
   return (
     <header
@@ -42,7 +45,7 @@ export function LandingSectionHeader({
     >
       <div className={joinClassNames(styles.copy, copyClassName)}>
         {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
-        <h2 className={styles.title}>{title}</h2>
+        <TitleTag className={styles.title}>{title}</TitleTag>
         <p className={styles.intro}>{intro}</p>
       </div>
 

@@ -5,13 +5,29 @@ type AuthCardProps = {
   eyebrow?: string;
   title: string;
   subtitle?: string;
+  align?: "start" | "center";
   children: ReactNode;
 };
 
-export function AuthCard({ eyebrow, title, subtitle, children }: AuthCardProps) {
+function joinClassNames(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export function AuthCard({
+  eyebrow,
+  title,
+  subtitle,
+  align = "center",
+  children,
+}: AuthCardProps) {
   return (
     <section className={styles.card} aria-labelledby="auth-card-title">
-      <header className={styles.header}>
+      <header
+        className={joinClassNames(
+          styles.header,
+          align === "center" && styles.headerCenter,
+        )}
+      >
         {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
         <h1 id="auth-card-title" className={styles.title}>
           {title}

@@ -7,7 +7,7 @@ type LoginPageProps = {
 
 export function LoginPage({ nextPath }: LoginPageProps) {
   return (
-    <AuthLayout>
+    <AuthLayout variant="login">
       <LoginForm nextPath={nextPath} />
     </AuthLayout>
   );

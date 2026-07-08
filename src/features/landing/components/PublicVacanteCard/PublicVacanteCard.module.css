@@ -1,0 +1,56 @@
+.card {
+  height: 100%;
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.header {
+  flex-shrink: 0;
+}
+
+.titleBlock {
+  min-width: 0;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--space-5);
+}
+
+.footer {
+  padding: 0 var(--space-5) var(--space-5);
+  margin-top: auto;
+}
+
+.cta {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--card-accent, var(--color-vino));
+}
+
+.ctaIcon {
+  transition: transform var(--transition-fast);
+}
+
+.card:hover .ctaIcon {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaIcon,
+  .card:hover .ctaIcon {
+    transition: none;
+    transform: none;
+  }
+}

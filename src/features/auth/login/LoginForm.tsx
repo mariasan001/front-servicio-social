@@ -13,10 +13,7 @@ import {
   type LoginFormValues,
 } from "../validation/auth.validation";
 import { notify } from "@/shared/notifications";
-import {
-  PasswordInput,
-  TextInput,
-} from "@/shared/components/Form";
+import { PasswordInput, TextInput } from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
 
@@ -81,11 +78,12 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   };
 
   return (
-    <AuthCard
-      title={AUTH_COPY.loginTitle}
-      subtitle={AUTH_COPY.loginSubtitle}
-    >
-      <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
+    <AuthCard title={AUTH_COPY.loginTitle} subtitle={AUTH_COPY.loginSubtitle}>
+      <form
+        className={`${formStyles.formBody} ${formStyles.formRoot}`}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <TextInput
           id="login-username"
           name="username"
@@ -110,10 +108,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         />
 
         <div className={formStyles.inlineAction}>
-          <Link
-            href={AUTH_ROUTES.resetPassword}
-            className={formStyles.footerLink}
-          >
+          <Link href={AUTH_ROUTES.resetPassword} className={formStyles.footerLink}>
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
@@ -125,16 +120,15 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         >
           {isSubmitting ? "Iniciando sesión…" : "Iniciar sesión"}
         </button>
-      </form>
 
-      <div className={formStyles.footerLinks}>
-        <span>
+        <p className={formStyles.ctaInline}>
           ¿Aún no tienes cuenta?{" "}
           <Link href={AUTH_ROUTES.register} className={formStyles.footerLink}>
-            Regístrate aquí
+            Regístrate ahora
           </Link>
-        </span>
-      </div>
+          , es gratis.
+        </p>
+      </form>
     </AuthCard>
   );
 }

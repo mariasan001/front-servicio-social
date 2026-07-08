@@ -1,0 +1,111 @@
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.top {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  padding: 0.3rem var(--space-3);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--card-accent, var(--color-vino));
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--card-accent-soft, rgb(107 35 64 / 7%));
+  border-radius: 999px;
+}
+
+.cupoPill {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  padding: 0.3rem var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-vino-dark);
+  white-space: nowrap;
+  background: rgb(184 149 106 / 16%);
+  border-radius: 999px;
+}
+
+.titleCard,
+.titlePage {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--color-gris-900);
+  letter-spacing: -0.02em;
+}
+
+.titleCard {
+  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+}
+
+.titlePage {
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+}
+
+.dependencia {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-gris-600);
+}
+
+.dependencia svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--card-accent, var(--color-vino));
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.statsCard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  padding-top: var(--space-3);
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+.stat {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-gris-700);
+}
+
+.stat svg {
+  flex-shrink: 0;
+  color: var(--card-accent, var(--color-vino));
+}
+
+.statsDetail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}

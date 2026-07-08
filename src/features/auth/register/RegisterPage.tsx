@@ -7,7 +7,12 @@ type RegisterPageProps = {
 
 export function RegisterPage({ token }: RegisterPageProps) {
   return (
-    <AuthLayout wide backHref="/login" backLabel="Ir a iniciar sesión">
+    <AuthLayout
+      variant="register"
+      wide
+      backHref="/login"
+      backLabel="Ir a iniciar sesión"
+    >
       <RegisterForm token={token} />
     </AuthLayout>
   );

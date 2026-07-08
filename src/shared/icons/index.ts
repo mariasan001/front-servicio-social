@@ -8,6 +8,8 @@ export {
   Layers,
   FileCheck,
   ArrowRight,
+  ArrowLeft,
+  Search,
   MapPin,
   Clock,
   Users,

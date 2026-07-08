@@ -6,6 +6,7 @@ import { getApiErrorMessage } from "@/lib/api/errors";
 import {
   MODALIDAD_INTERES_OPTIONS,
   PASSWORD_MIN_LENGTH,
+  REGISTER_SCHOOL_COPY,
 } from "../constants/register";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
 import {
@@ -19,7 +20,6 @@ import {
   type RegisterFormValues,
 } from "../validation/auth.validation";
 import { notify } from "@/shared/notifications";
-import { Alert } from "@/shared/components/Alert";
 import {
   CheckboxField,
   PasswordInput,
@@ -60,6 +60,7 @@ export function RegisterForm({ token }: RegisterFormProps) {
     "idle" | "loading" | "valid" | "invalid"
   >(withToken ? "loading" : "idle");
   const [tokenSchoolName, setTokenSchoolName] = useState<string | null>(null);
+  const [tokenErrorMessage, setTokenErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!withToken || !token) return;
@@ -77,21 +78,22 @@ export function RegisterForm({ token }: RegisterFormProps) {
         if (result?.valido) {
           setTokenStatus("valid");
           setTokenSchoolName(result.nombreEscuela ?? null);
+          setTokenErrorMessage(null);
           return;
         }
 
         setTokenStatus("invalid");
-        notify.error(
-          result?.mensaje ??
-            "El enlace de registro no es válido o ya expiró. Solicita uno nuevo en tu institución.",
+        setTokenErrorMessage(
+          result?.mensaje ?? REGISTER_SCHOOL_COPY.invalidTokenBody,
         );
+        return;
       } catch (error) {
         if (cancelled) return;
         setTokenStatus("invalid");
-        notify.error(
+        setTokenErrorMessage(
           getApiErrorMessage(
             error,
-            "No fue posible validar el enlace de registro.",
+            REGISTER_SCHOOL_COPY.invalidTokenBody,
           ),
         );
       }
@@ -156,9 +158,11 @@ export function RegisterForm({ token }: RegisterFormProps) {
 
       notify.success(
         response.mensaje ??
-          (response.requiereNormalizacionEscuela
-            ? "Tu cuenta fue creada. Tu escuela será validada por la delegación antes de que puedas postularte."
-            : "Tu cuenta fue creada correctamente. Ya puedes iniciar sesión."),
+          (withToken
+            ? "Tu cuenta fue creada y quedó vinculada a tu institución. Ya puedes iniciar sesión."
+            : response.requiereNormalizacionEscuela
+              ? "Tu cuenta fue creada. Tu escuela será validada por la delegación antes de que puedas postularte."
+              : "Tu cuenta fue creada correctamente. Ya puedes iniciar sesión."),
       );
       setValues(INITIAL_VALUES);
     } catch (error) {
@@ -176,6 +180,8 @@ export function RegisterForm({ token }: RegisterFormProps) {
   const formDisabled =
     isSubmitting || (withToken && tokenStatus !== "valid");
 
+  const schoolLinked = withToken && tokenStatus === "valid";
+
   return (
     <AuthCard
       title={AUTH_COPY.registerTitle}
@@ -186,16 +192,39 @@ export function RegisterForm({ token }: RegisterFormProps) {
       }
     >
       {withToken && tokenStatus === "loading" ? (
-        <Alert tone="info">Validando enlace de registro…</Alert>
+        <p className={formStyles.infoBanner}>{REGISTER_SCHOOL_COPY.validatingToken}</p>
       ) : null}
 
-      {withToken && tokenStatus === "valid" && tokenSchoolName ? (
-        <Alert tone="info">
-          Institución vinculada: <strong>{tokenSchoolName}</strong>
-        </Alert>
+      {withToken && tokenStatus === "invalid" ? (
+        <div className={formStyles.warningBanner} role="alert">
+          <p className={formStyles.warningBannerTitle}>
+            {REGISTER_SCHOOL_COPY.invalidTokenTitle}
+          </p>
+          <p className={formStyles.warningBannerBody}>
+            {tokenErrorMessage ?? REGISTER_SCHOOL_COPY.invalidTokenBody}
+          </p>
+          <Link href={AUTH_ROUTES.register} className={formStyles.footerLink}>
+            {REGISTER_SCHOOL_COPY.invalidTokenAction}
+          </Link>
+        </div>
       ) : null}
 
-      <form className={formStyles.formBody} onSubmit={handleSubmit} noValidate>
+      {!withToken ? (
+        <p className={formStyles.introNote}>{REGISTER_SCHOOL_COPY.manualNote}</p>
+      ) : null}
+
+      <p className={formStyles.ctaInline}>
+        ¿Ya tienes cuenta?{" "}
+        <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
+          Inicia sesión
+        </Link>
+      </p>
+
+      <form
+        className={`${formStyles.formBody} ${formStyles.formRoot}`}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <fieldset className={formStyles.fieldset}>
           <legend className={formStyles.legend}>Cuenta de acceso</legend>
 
@@ -218,7 +247,7 @@ export function RegisterForm({ token }: RegisterFormProps) {
               label="Contraseña"
               value={values.password}
               error={fieldErrors.password}
-              hint={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres.`}
+              placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`}
               autoComplete="new-password"
               required
               disabled={formDisabled}
@@ -242,19 +271,32 @@ export function RegisterForm({ token }: RegisterFormProps) {
         <fieldset className={formStyles.fieldset}>
           <legend className={formStyles.legend}>Datos personales</legend>
 
-          <TextInput
-            id="register-nombre"
-            name="nombreCompleto"
-            label="Nombre completo"
-            value={values.nombreCompleto}
-            error={fieldErrors.nombreCompleto}
-            autoComplete="name"
-            required
-            disabled={formDisabled}
-            onChange={(event) =>
-              updateField("nombreCompleto", event.target.value)
-            }
-          />
+          <div className={formStyles.gridTwo}>
+            <TextInput
+              id="register-nombre"
+              name="nombreCompleto"
+              label="Nombre completo"
+              value={values.nombreCompleto}
+              error={fieldErrors.nombreCompleto}
+              autoComplete="name"
+              required
+              disabled={formDisabled}
+              onChange={(event) =>
+                updateField("nombreCompleto", event.target.value)
+              }
+            />
+
+            <TextInput
+              id="register-curp"
+              name="curp"
+              label="CURP"
+              value={values.curp}
+              error={fieldErrors.curp}
+              autoComplete="off"
+              disabled={formDisabled}
+              onChange={(event) => updateField("curp", event.target.value)}
+            />
+          </div>
 
           <div className={formStyles.gridTwo}>
             <TextInput
@@ -283,47 +325,74 @@ export function RegisterForm({ token }: RegisterFormProps) {
               onChange={(event) => updateField("telefono", event.target.value)}
             />
           </div>
-
-          <TextInput
-            id="register-curp"
-            name="curp"
-            label="CURP"
-            value={values.curp}
-            error={fieldErrors.curp}
-            autoComplete="off"
-            disabled={formDisabled}
-            onChange={(event) => updateField("curp", event.target.value)}
-          />
         </fieldset>
 
         <fieldset className={formStyles.fieldset}>
           <legend className={formStyles.legend}>Datos escolares</legend>
 
-          {!withToken ? (
+          {schoolLinked ? (
+            <div className={formStyles.successBanner}>
+              <p className={formStyles.successBannerTitle}>
+                {REGISTER_SCHOOL_COPY.linkedTitle}
+              </p>
+              <p className={formStyles.successBannerName}>
+                {tokenSchoolName?.trim() || "Institución confirmada"}
+              </p>
+              <p className={formStyles.successBannerHint}>
+                {REGISTER_SCHOOL_COPY.linkedHint}
+              </p>
+            </div>
+          ) : (
             <TextInput
               id="register-escuela"
               name="escuelaTextoCapturada"
-              label="Institución educativa"
+              label={REGISTER_SCHOOL_COPY.manualLabel}
               value={values.escuelaTextoCapturada}
               error={fieldErrors.escuelaTextoCapturada}
               required
               disabled={formDisabled}
-              hint="Si tu escuela aún no está registrada, captúrala tal como aparece en tu credencial."
+              placeholder="Ej. Universidad Autónoma del Estado de México"
               onChange={(event) =>
                 updateField("escuelaTextoCapturada", event.target.value)
               }
             />
+          )}
+
+          {!schoolLinked ? (
+            <p className={formStyles.fieldNote}>{REGISTER_SCHOOL_COPY.manualHint}</p>
           ) : null}
 
-          <TextInput
-            id="register-carrera"
-            name="carrera"
-            label="Carrera"
-            value={values.carrera}
-            error={fieldErrors.carrera}
-            disabled={formDisabled}
-            onChange={(event) => updateField("carrera", event.target.value)}
-          />
+          <div className={formStyles.gridTwo}>
+            <TextInput
+              id="register-carrera"
+              name="carrera"
+              label="Carrera"
+              value={values.carrera}
+              error={fieldErrors.carrera}
+              disabled={formDisabled}
+              onChange={(event) => updateField("carrera", event.target.value)}
+            />
+
+            <SelectInput
+              id="register-modalidad"
+              name="modalidadInteres"
+              label="Modalidad de interés"
+              value={values.modalidadInteres}
+              error={fieldErrors.modalidadInteres}
+              placeholder="Selecciona una opción"
+              required
+              disabled={formDisabled}
+              onChange={(event) =>
+                updateField("modalidadInteres", event.target.value)
+              }
+            >
+              {MODALIDAD_INTERES_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectInput>
+          </div>
 
           <div className={formStyles.gridTwo}>
             <TextInput
@@ -355,26 +424,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
           </div>
         </fieldset>
 
-        <SelectInput
-          id="register-modalidad"
-          name="modalidadInteres"
-          label="Modalidad de interés"
-          value={values.modalidadInteres}
-          error={fieldErrors.modalidadInteres}
-          placeholder="Selecciona una opción"
-          required
-          disabled={formDisabled}
-          onChange={(event) =>
-            updateField("modalidadInteres", event.target.value)
-          }
-        >
-          {MODALIDAD_INTERES_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </SelectInput>
-
         <CheckboxField
           id="register-aviso"
           label="He leído y acepto el aviso de privacidad del Gobierno del Estado de México."
@@ -391,15 +440,6 @@ export function RegisterForm({ token }: RegisterFormProps) {
           {isSubmitting ? "Creando cuenta…" : "Crear cuenta"}
         </button>
       </form>
-
-      <div className={formStyles.footerLinks}>
-        <span>
-          ¿Ya tienes cuenta?{" "}
-          <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
-            Inicia sesión
-          </Link>
-        </span>
-      </div>
     </AuthCard>
   );
 }

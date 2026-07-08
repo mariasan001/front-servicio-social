@@ -12,6 +12,7 @@ type PasswordInputProps = {
   value: string;
   error?: string;
   hint?: string;
+  placeholder?: string;
   required?: boolean;
   autoComplete?: string;
   disabled?: boolean;
@@ -25,6 +26,7 @@ export function PasswordInput({
   value,
   error,
   hint,
+  placeholder,
   required,
   autoComplete = "current-password",
   disabled = false,
@@ -53,6 +55,7 @@ export function PasswordInput({
           aria-invalid={Boolean(error)}
           required={required}
           disabled={disabled}
+          placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
         />
 
