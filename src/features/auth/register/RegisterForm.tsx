@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import {
@@ -9,6 +10,7 @@ import {
   REGISTER_SCHOOL_COPY,
 } from "../constants/register";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
+import { savePostRegisterCredentials } from "../constants/storage";
 import {
   registerWithoutToken,
   registerWithToken,
@@ -50,6 +52,7 @@ type RegisterFormProps = {
 };
 
 export function RegisterForm({ token }: RegisterFormProps) {
+  const router = useRouter();
   const withToken = Boolean(token?.trim());
   const [values, setValues] = useState(INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState<
@@ -159,12 +162,17 @@ export function RegisterForm({ token }: RegisterFormProps) {
       notify.success(
         response.mensaje ??
           (withToken
-            ? "Tu cuenta fue creada y quedó vinculada a tu institución. Ya puedes iniciar sesión."
+            ? "Tu cuenta fue creada y quedó vinculada a tu institución."
             : response.requiereNormalizacionEscuela
-              ? "Tu cuenta fue creada. Tu escuela será validada por la delegación antes de que puedas postularte."
-              : "Tu cuenta fue creada correctamente. Ya puedes iniciar sesión."),
+              ? "Tu cuenta fue creada. Tu escuela será validada por la delegación."
+              : "Tu cuenta fue creada correctamente."),
       );
-      setValues(INITIAL_VALUES);
+
+      savePostRegisterCredentials({
+        username: sharedPayload.username,
+        password: values.password,
+      });
+      router.push(`${AUTH_ROUTES.login}?registered=1`);
     } catch (error) {
       notify.error(
         getApiErrorMessage(

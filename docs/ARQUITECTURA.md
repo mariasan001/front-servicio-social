@@ -152,8 +152,11 @@ flowchart TB
 | `/registro/alumno` | redirect → `/registro` | Sí |
 | `/recuperar-contrasena` | `src/app/recuperar-contrasena/page.tsx` | Sí |
 
+**Post-registro:** tras crear cuenta, `RegisterForm` guarda credenciales en `sessionStorage` (`POST_REGISTER_CREDENTIALS_KEY`) y redirige a `/login?registered=1`. `LoginForm` las consume una sola vez para prellenar usuario/contraseña.
+
 **Fuente única de rutas auth:** `src/lib/auth/constants.ts` → `AUTH_PATHS`  
-**Reexport en features:** `src/features/auth/constants/routes.ts` → `AUTH_ROUTES`
+**Reexport en features:** `src/features/auth/constants/routes.ts` → `AUTH_ROUTES`  
+**Storage post-registro:** `src/features/auth/constants/storage.ts`
 
 ### 5.3 Rutas del panel
 
@@ -190,20 +193,24 @@ flowchart LR
     D3 --> D4[procesos]
     D4 --> D5[validacion]
     D5 --> D6[alumnos]
-    D6 --> D7[reportes]
+    D6 --> D7[encuestas]
+    D7 --> D8[examenes]
+    D8 --> D9[reportes]
   end
 
   subgraph TITULAR["ROLE_TITULAR_AREA"]
     T1[inicio] --> T2[vacantes]
     T2 --> T3[postulaciones]
-    T3 --> T4[procesos]
+    T3 --> T4[examenes]
+    T4 --> T5[procesos]
   end
 
   subgraph ADMIN["ROLE_ADMINISTRADOR"]
     AD1[inicio] --> AD2[dependencias]
     AD2 --> AD3[escuelas]
     AD3 --> AD4[areas]
-    AD4 --> AD5[usuarios]
+    AD4 --> AD5[examenes]
+    AD5 --> AD6[usuarios]
   end
 
   subgraph ENLACE["ROLE_ENLACE_ESCOLAR"]
@@ -218,6 +225,7 @@ flowchart LR
 | Rol | Patrón URL | Secciones |
 |-----|------------|-----------|
 | Alumno | `/panel/alumno/proceso/{slug}` | `resumen`, `horas`, `documentos`, `cartas`, `incidencias` |
+| Alumno | `/panel/alumno/postulaciones/{idPostulacion}/examen` | Examen diagnóstico en línea (página dedicada) |
 | Delegación | `/panel/delegacion/validacion/{slug}` | `documentos`, `horas`, `incidencias` |
 | Titular | `/panel/titular/procesos` (+ incidencias en modal) | Seguimiento por alumno |
 
@@ -432,12 +440,13 @@ Reglas de negocio y tipos **independientes del rol**. Todo el panel y la web pú
 | Archivo | Contenido |
 |---------|-----------|
 | `proceso.ts` | Gates: activación, horas completas, liberación, evaluación |
-| `postulacion.ts` | Aceptar, rechazar, cancelar, examen |
+| `postulacion.ts` | Aceptar, rechazar, cancelar; gates de examen (`canContestarExamen`, `isExamenFinalizado`) |
 | `vacante.ts` | Publicar, cerrar, pausar, editar |
 | `documento.ts` | Subir, aprobar, observar, rechazar |
 | `horas.ts` | Validar/observar/rechazar horas; máx. 12 h/día alumno |
 | `incidencia.ts` | Resolver, cancelar |
 | `cartas.ts` | Tipos de carta y descarga |
+| `examen.ts` | Tipos de examen/pregunta; `puedeActivarExamen`, `getPreguntasActivas`, formatters |
 | `modalidad.ts` | `SERVICIO_SOCIAL`, `PRACTICAS_PROFESIONALES`, `RESIDENCIAS` |
 | `labels.ts` | `formatEtiqueta`, `estatusTone`, `formatFecha` (es-MX) |
 | `requests.ts` | DTOs de mutación compartidos (`motivo`, `comentario`, etc.) |
@@ -456,6 +465,7 @@ Reglas de negocio y tipos **independientes del rol**. Todo el panel y la web pú
 | dependencias | `/panel/admin/dependencias` | `dependencias.service.ts` |
 | escuelas | `/panel/admin/escuelas` | `escuelas.service.ts` |
 | areas | `/panel/admin/areas` | `areas.service.ts` |
+| examenes | `/panel/admin/examenes` | Reutiliza `DelegacionExamenesView` (solo lectura) |
 | usuarios | `/panel/admin/usuarios` | `usuarios.service.ts` |
 
 API: `/api/dependencias`, `/api/escuelas`, `/api/areas`, `/api/admin/usuarios-internos`
@@ -469,7 +479,9 @@ API: `/api/dependencias`, `/api/escuelas`, `/api/areas`, `/api/admin/usuarios-in
 | postulaciones | `.../postulaciones` | Supervisión |
 | procesos | `.../procesos` | Alumnos en servicio social |
 | validacion | `.../validacion/{documentos\|horas\|incidencias}` | Composite |
-| alumnos | `.../alumnos` | Normalización de escuela |
+| alumnos | `.../alumnos` | Normalización de escuela (Vinculaciones) |
+| encuestas | `.../encuestas` | Moderación de testimonios/comentarios públicos |
+| examenes | `.../examenes` | Consulta de exámenes diagnóstico por área |
 | reportes | `.../reportes` | Export Excel |
 
 API: `/api/delegacion/*`
@@ -479,9 +491,10 @@ API: `/api/delegacion/*`
 | Sección | URL |
 |---------|-----|
 | inicio | `/panel/titular` |
-| vacantes | `/panel/titular/vacantes` |
-| postulaciones | `/panel/titular/postulaciones` |
-| procesos | `/panel/titular/procesos` |
+| vacantes | `/panel/titular/vacantes` | CRUD, `requiereExamen`, asociación examen al crear/editar |
+| postulaciones | `/panel/titular/postulaciones` | Aceptar/rechazar; resultado automático del examen en detalle |
+| examenes | `/panel/titular/examenes` | CRUD preguntas, activar/desactivar examen |
+| procesos | `/panel/titular/procesos` | Horas, incidencias, liberación, evaluación |
 
 API: `/api/titular/*`
 
@@ -491,7 +504,8 @@ API: `/api/titular/*`
 |---------|-----|-------|
 | inicio | `/panel/alumno` | Notificaciones |
 | vacantes | `.../vacantes` | Postulación |
-| postulaciones | `.../postulaciones` | Estado |
+| postulaciones | `.../postulaciones` | Estado; enlace a examen si aplica |
+| examen en línea | `.../postulaciones/{id}/examen` | Página `AlumnoExamenPostulacionView` |
 | proceso | `.../proceso/{sub}` | Horas, docs, cartas |
 | cv | `.../cv` | **Gate:** nav bloqueada hasta CV completo |
 
@@ -516,6 +530,39 @@ Sin services propios. Provee:
 - `PanelSectionSkeleton` (loading.tsx)
 - `usePanelRouter` (refresh tras mutación)
 - `constants/navigation.ts`
+
+---
+
+## 12.1 Módulo de exámenes diagnóstico
+
+Flujo transversal entre titular, alumno y supervisión.
+
+```mermaid
+flowchart LR
+  T[Titular: examenes] -->|activa| E[Examen ACTIVO]
+  T -->|asocia a vacante| V[Vacante requiereExamen]
+  V --> A[Alumno postula]
+  A --> X["/postulaciones/{id}/examen"]
+  X -->|finaliza| R[Resultado calificado]
+  R --> P[Titular: detalle postulación]
+  D[Delegación/Admin] -->|consulta| T
+```
+
+| Capa | Ubicación | Uso |
+|------|-----------|-----|
+| Dominio | `lib/domain/examen.ts`, `postulacion.ts` | Tipos, gates, formatters |
+| UI compartida | `shared/components/examen/` | `ExamenBuilder`, `ExamenOverview`, `ExamenPreguntaPreview`, columnas de listado |
+| Titular | `features/titular/components/examenes/` | `TitularExamenesView`, `TitularExamenManageModal`, `TitularExamenPreguntaEditor` |
+| Titular vacantes | `TitularVacanteFormModal`, `TitularVacanteExamenPanel` | Selector al marcar `requiereExamen`; cache local `lib/vacante-examen-cache.ts` |
+| Titular postulación | `TitularPostulacionExamenResultado` | Resumen + tabla de respuestas en modal `size="wide"` |
+| Delegación/Admin | `DelegacionExamenesView`, `DelegacionExamenDetailModal` | Solo lectura (admin reutiliza vista delegación) |
+| Alumno | `features/alumno/components/examen/` | Contestar examen con timer e intro modal |
+
+**API titular:** `/api/titular/examenes/*`, `/api/titular/vacantes/{id}/examen` (POST/DELETE asociar).  
+**API alumno:** `/api/alumno/postulaciones/{id}/examen/*`.  
+**API delegación:** `/api/delegacion/examenes/*` (monitor).
+
+**Nota frontend:** el detalle de vacante no expone `idExamen` en GET; la UI titular persiste la asociación reciente en `localStorage` (`vacante-examen-cache.ts`) y aplica heurística si solo hay un examen activo en el área.
 
 ---
 
@@ -545,7 +592,7 @@ stateDiagram-v2
 4. **Alumno** completa CV → puede postular.
 5. **Titular** crea vacante → envía a revisión.
 6. **Delegación** publica vacante → visible en landing y `/vacantes`.
-7. **Alumno** postula → **Titular** acepta/rechaza/examen.
+7. **Alumno** postula → si la vacante requiere examen, contesta en `/panel/alumno/postulaciones/{id}/examen` → **Titular** revisa resultado automático y acepta/rechaza.
 8. Se crea **proceso** → alumno sube documentos.
 9. **Delegación** valida documentos, define horas, emite carta de aceptación → proceso **ACTIVO**.
 10. **Alumno** registra horas → titular/delegación validan.
@@ -564,6 +611,8 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 | `components/Form/` | Inputs, `SearchableSelect`, `PasswordInput` |
 | `components/Button/` | Variantes: `primary`, `action`, `outline`, `success` |
 | `components/StatusBadge/` | `EstatusBadge` + tonos |
+| `components/Modal/` | Tamaños `md`, `lg`, `wide`, `xl`; prop opcional `className` |
+| `components/examen/` | `ExamenBuilder`, `ExamenOverview`, `ExamenPreguntaPreview`, columnas |
 | `proceso/` | `CartaGestionModal`, `DocumentoGestionModal`, `presentacion.utils` |
 | `notifications/` | Toasts globales (`notify`) |
 | `icons/` | Reexport lucide |
@@ -615,7 +664,8 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 | DTOs del backend | `../Back_end/.../dto/` |
 | Navegación panel | `src/features/panel/constants/navigation.ts` |
 | Reglas Next.js 16 | `node_modules/next/dist/docs/` + `AGENTS.md` |
+| Módulo exámenes | § 12.1 + `shared/components/examen/` |
 
 ---
 
-*Última actualización: arquitectura alineada post-auditoría web pública (`public-request`, feature pages vacantes, manejo de errores en landing).*
+*Última actualización: alineación post-módulo de exámenes (builder compartido, resultado en postulación, encuestas delegación, auth post-registro, modal `wide`).*

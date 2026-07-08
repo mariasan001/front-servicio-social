@@ -345,7 +345,7 @@ export function AlumnoExamenPostulacionView({
         <Modal
           open
           title="Antes de comenzar la evaluación"
-          size="md"
+          size="lg"
           onClose={() => router.push(`${PANEL_PATHS.alumno}/postulaciones`)}
           footer={
             <div className={styles.introFooter}>
@@ -370,80 +370,87 @@ export function AlumnoExamenPostulacionView({
             </div>
           }
         >
-          <div className={styles.introHero}>
-            <span className={styles.introHeroIcon}>
-              <ShieldCheck size={24} aria-hidden="true" />
-            </span>
-            <div className={styles.introHeroText}>
-              <h3 className={styles.introHeroTitle}>Evaluación con seguimiento</h3>
-              <p className={styles.introHeroSubtitle}>
-                Lee las condiciones antes de iniciar. Tu actividad se registra
-                para garantizar una evaluación genuina.
-              </p>
+          <div className={styles.introModal}>
+            <div className={styles.introHero}>
+              <span className={styles.introHeroIcon}>
+                <ShieldCheck size={26} aria-hidden="true" />
+              </span>
+              <div className={styles.introHeroText}>
+                <h3 className={styles.introHeroTitle}>Evaluación con seguimiento</h3>
+                <p className={styles.introHeroSubtitle}>
+                  Lee las condiciones antes de iniciar. Tu actividad se registra
+                  para garantizar una evaluación genuina.
+                </p>
+              </div>
             </div>
+
+            <section className={styles.introRules} aria-label="Condiciones">
+              <h4 className={styles.introSectionTitle}>Condiciones de la evaluación</h4>
+              <ul className={styles.introList}>
+                <li className={styles.introItem}>
+                  <span className={styles.introItemIcon}>
+                    <ShieldCheck size={17} aria-hidden="true" />
+                  </span>
+                  <span className={styles.introItemText}>
+                    Esta es una <strong>evaluación oficial</strong> de tu proceso.
+                    Respóndela de forma individual y honesta.
+                  </span>
+                </li>
+                <li className={styles.introItem}>
+                  <span className={styles.introItemIcon}>
+                    <TimerReset size={17} aria-hidden="true" />
+                  </span>
+                  <span className={styles.introItemText}>
+                    Solo tienes <strong>un intento</strong>. Al comenzar inicia el
+                    cronómetro y no podrás reiniciarlo.
+                  </span>
+                </li>
+                <li className={styles.introItem}>
+                  <span className={styles.introItemIcon}>
+                    <Clock size={17} aria-hidden="true" />
+                  </span>
+                  <span className={styles.introItemText}>
+                    Si se agota el tiempo, tus respuestas se{" "}
+                    <strong>guardan automáticamente</strong> hasta donde llegaste.
+                  </span>
+                </li>
+                <li className={styles.introItem}>
+                  <span className={styles.introItemIcon}>
+                    <Lock size={17} aria-hidden="true" />
+                  </span>
+                  <span className={styles.introItemText}>
+                    Está deshabilitado copiar y pegar. Si cambias de pestaña o
+                    ventana quedará registrado; tras {MAX_SALIDAS} salidas la
+                    evaluación se enviará sola.
+                  </span>
+                </li>
+              </ul>
+            </section>
+
+            <section className={styles.introMeta} aria-label="Resumen del examen">
+              <div className={styles.introMetaExam}>
+                <span className={styles.introMetaLabel}>Examen</span>
+                <strong className={styles.introMetaExamTitle}>{examen.titulo}</strong>
+              </div>
+              <div className={styles.introMetaStats}>
+                <div className={styles.introMetaChip}>
+                  <span className={styles.introMetaLabel}>Preguntas</span>
+                  <strong>{examen.preguntas?.length ?? 0}</strong>
+                </div>
+                <div className={styles.introMetaChip}>
+                  <span className={styles.introMetaLabel}>Tiempo límite</span>
+                  <strong>{formatTiempoLimite(examen.tiempoLimiteMinutos)}</strong>
+                </div>
+              </div>
+            </section>
+
+            {examen.instrucciones ? (
+              <section className={styles.introInstructions}>
+                <h4 className={styles.introSectionTitle}>Instrucciones</h4>
+                <p className={styles.introInstructionsText}>{examen.instrucciones}</p>
+              </section>
+            ) : null}
           </div>
-
-          <ul className={styles.introList}>
-            <li className={styles.introItem}>
-              <span className={styles.introItemIcon}>
-                <ShieldCheck size={16} aria-hidden="true" />
-              </span>
-              <span>
-                Esta es una <strong>evaluación oficial</strong> de tu proceso.
-                Respóndela de forma individual y honesta.
-              </span>
-            </li>
-            <li className={styles.introItem}>
-              <span className={styles.introItemIcon}>
-                <TimerReset size={16} aria-hidden="true" />
-              </span>
-              <span>
-                Solo tienes <strong>un intento</strong>. Al comenzar inicia el
-                cronómetro y no podrás reiniciarlo.
-              </span>
-            </li>
-            <li className={styles.introItem}>
-              <span className={styles.introItemIcon}>
-                <Clock size={16} aria-hidden="true" />
-              </span>
-              <span>
-                Si se agota el tiempo, tus respuestas se{" "}
-                <strong>guardan automáticamente</strong> hasta donde llegaste.
-              </span>
-            </li>
-            <li className={styles.introItem}>
-              <span className={styles.introItemIcon}>
-                <Lock size={16} aria-hidden="true" />
-              </span>
-              <span>
-                Está deshabilitado copiar y pegar. Si cambias de pestaña o
-                ventana quedará registrado; tras {MAX_SALIDAS} salidas la
-                evaluación se enviará sola.
-              </span>
-            </li>
-          </ul>
-
-          <div className={styles.introMeta}>
-            <span className={styles.introMetaChip}>
-              Examen
-              <strong>{examen.titulo}</strong>
-            </span>
-            <span className={styles.introMetaChip}>
-              Preguntas
-              <strong>{examen.preguntas?.length ?? 0}</strong>
-            </span>
-            <span className={styles.introMetaChip}>
-              Tiempo límite
-              <strong>{formatTiempoLimite(examen.tiempoLimiteMinutos)}</strong>
-            </span>
-          </div>
-
-          {examen.instrucciones ? (
-            <p className={styles.introWarning}>
-              <strong>Instrucciones: </strong>
-              {examen.instrucciones}
-            </p>
-          ) : null}
         </Modal>
       ) : null}
 

@@ -6,6 +6,22 @@ type ExamenBuilderProps = {
   children: ReactNode;
 };
 
+/** Contenedor con resumen opcional arriba del builder de dos paneles. */
+export function ExamenBuilderShell({
+  overview,
+  children,
+}: {
+  overview?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className={styles.builderShell}>
+      {overview}
+      {children}
+    </div>
+  );
+}
+
 /** Contenedor de dos paneles (barra lateral + área principal). */
 export function ExamenBuilder({ children }: ExamenBuilderProps) {
   return <div className={styles.builder}>{children}</div>;
@@ -128,17 +144,24 @@ type ExamenBuilderSettingsButtonProps = {
   onClick: () => void;
   title?: string;
   hint?: string;
+  active?: boolean;
 };
 
 export function ExamenBuilderSettingsButton({
   onClick,
   title = "Datos del examen",
   hint = "Título, puntaje y tiempo",
+  active = false,
 }: ExamenBuilderSettingsButtonProps) {
   return (
     <button
       type="button"
-      className={styles.builderSettingsButton}
+      className={[
+        styles.builderSettingsButton,
+        active ? styles.builderSettingsButtonActive : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={onClick}
     >
       <span className={styles.builderSettingsIcon}>
@@ -154,10 +177,16 @@ export function ExamenBuilderSettingsButton({
 
 type ExamenBuilderMainProps = {
   children: ReactNode;
+  toolbar?: ReactNode;
 };
 
-export function ExamenBuilderMain({ children }: ExamenBuilderMainProps) {
-  return <div className={styles.builderMain}>{children}</div>;
+export function ExamenBuilderMain({ children, toolbar }: ExamenBuilderMainProps) {
+  return (
+    <div className={styles.builderMain}>
+      {toolbar ? <div className={styles.builderMainToolbar}>{toolbar}</div> : null}
+      <div className={styles.builderMainBody}>{children}</div>
+    </div>
+  );
 }
 
 type ExamenBuilderPanelTitleProps = {

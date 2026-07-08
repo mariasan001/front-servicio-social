@@ -83,7 +83,7 @@ export function TitularPostulacionDetailModal({
       open={open}
       title={alumnoNombre || (folio ? `Postulaci\u00f3n ${folio}` : "Postulaci\u00f3n")}
       onClose={onClose}
-      size="lg"
+      size="wide"
     >
       {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}

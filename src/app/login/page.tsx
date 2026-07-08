@@ -15,11 +15,16 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; registered?: string }>;
 };
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  return <LoginPage nextPath={params.next} />;
+  return (
+    <LoginPage
+      nextPath={params.next}
+      justRegistered={params.registered === "1"}
+    />
+  );
 }

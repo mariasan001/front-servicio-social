@@ -58,6 +58,7 @@ Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; qu
 | Postularse a vacante | `/panel/alumno/vacantes` | ⬜ | |
 | Ver postulaciones | `/panel/alumno/postulaciones` | ⬜ | |
 | Cancelar postulación | postulaciones modal | ⬜ | |
+| Contestar examen en línea | `/panel/alumno/postulaciones/{id}/examen` | ⬜ | Timer, intro modal, finalizar |
 | Subir documentos | `/panel/alumno/proceso` | ⚠️ | Fix `bodySizeLimit` 10mb; requiere dev server reiniciado |
 | Registrar horas | `/panel/alumno/proceso` | ✅ | Requiere descripción + máx. 12 h/día |
 | Actualizar bitácora observada | `/panel/alumno/proceso` | ⬜ | |
@@ -71,7 +72,10 @@ Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; qu
 |-------|------|--------|-------|
 | Dashboard inicio | `/panel/titular` | ⬜ | |
 | CRUD vacante / enviar a revisión | `/panel/titular/vacantes` | ⬜ | |
-| Registrar examen finalizado | `/panel/titular/postulaciones` | ⚠️ | UI corregida; validar con backend |
+| Registrar examen finalizado (manual) | `/panel/titular/postulaciones` | ⚠️ | Flujo legacy numérico; convive con examen en línea |
+| Ver resultado examen automático | `/panel/titular/postulaciones` detalle | ⬜ | `TitularPostulacionExamenResultado` tras examen FINALIZADO |
+| CRUD examen diagnóstico | `/panel/titular/examenes` | ⬜ | Crear, preguntas, activar/desactivar |
+| Asociar examen a vacante | `/panel/titular/vacantes` | ⬜ | `requiereExamen` + selector; cache local |
 | Aceptar postulación | `/panel/titular/postulaciones` | ⬜ | payload `comentario` vía `AceptarPostulacionRequest` |
 | Rechazar postulación | `/panel/titular/postulaciones` | ⬜ | payload `motivo` vía `RechazarPostulacionRequest` |
 | Registrar horas manual | `/panel/titular/procesos` | ⬜ | |
@@ -95,6 +99,8 @@ Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; qu
 | Validar / observar / rechazar hora | `/panel/delegacion/horas` | ⬜ | requests de dominio |
 | Resolver / cancelar incidencia | `/panel/delegacion/incidencias` | ⬜ | `ResolverIncidenciaRequest` |
 | Normalizar alumno escuela | `/panel/delegacion/alumnos` | ⬜ | |
+| Moderar encuesta/testimonio | `/panel/delegacion/encuestas` | ⬜ | |
+| Consultar examen diagnóstico | `/panel/delegacion/examenes` | ⬜ | Solo lectura |
 | Exportar reporte | `/panel/delegacion/reportes` | ⬜ | |
 
 ### Enlace
@@ -114,14 +120,15 @@ Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; qu
 | Dependencias CRUD + activar | `/panel/admin/dependencias` | ⬜ | |
 | Escuelas + tokens invitación | `/panel/admin/escuelas` | ⬜ | |
 | Áreas + titulares | `/panel/admin/areas` | ⬜ | |
+| Consultar exámenes (monitor) | `/panel/admin/examenes` | ⬜ | Reutiliza vista delegación |
 | Usuarios internos | `/panel/admin/usuarios` | ⬜ | |
 
 ### Auth (fuera del panel)
 
 | Flujo | Ruta | Estado | Notas |
 |-------|------|--------|-------|
-| Login | `/login` | ⬜ | diseño pendiente (fuera de alcance producción panel) |
-| Registro alumno con token | `/registro` | ⬜ | |
+| Login | `/login` | ⬜ | Soporta prellenado tras registro (`?registered=1`) |
+| Registro alumno con token | `/registro` | ⬜ | Redirige a login con credenciales en sessionStorage |
 | Recuperar contraseña | auth público | ❌ | endpoints no existen en backend |
 
 ---
@@ -138,7 +145,9 @@ Ejecutar en orden cuando sea posible (un flujo completo de punta a punta).
 | 4 | Titular | Crear vacante y enviar a revisión | Estatus pendiente revisión | ⬜ | |
 | 5 | Delegación | Publicar vacante | Visible para alumno | ⬜ | |
 | 6 | Alumno | Postularse | Postulación creada | ⬜ | |
-| 7 | Titular | Registrar examen + aceptar | Postulación aceptada | ⬜ | |
+| 6b | Titular | Crear y activar examen + asociar a vacante | Vacante con examen requerido | ⬜ | |
+| 6c | Alumno | Contestar examen en línea | Estatus examen FINALIZADO | ⬜ | |
+| 7 | Titular | Ver resultado + aceptar postulación | Postulación aceptada | ⬜ | |
 | 8 | Alumno | Subir docs obligatorios | Archivos en revisión | ⬜ | |
 | 9 | Delegación | Aprobar todos los docs | Proceso LISTO_PARA_ACTIVACION | ⬜ | |
 | 10 | Delegación | Horas + activar (carta) | Proceso ACTIVO | ⬜ | |

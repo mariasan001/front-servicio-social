@@ -172,6 +172,15 @@ export function EjemploDetailModal({ entityId, open, onClose }: Props) {
 - `entityId: number | null` — ID de la fila seleccionada
 - `open: boolean` — controlado por la vista padre
 - `onClose: () => void` — cierra y limpia `selected`
+- `size?: "md" | "lg" | "wide" | "xl"` — ancho del diálogo (ver tabla abajo)
+- `className?: string` — clase extra en el contenedor del diálogo (override puntual)
+
+| Tamaño | Ancho aprox. | Uso típico |
+|--------|--------------|------------|
+| `md` | 32rem | Confirmaciones, formularios cortos |
+| `lg` | 40rem | Detalle estándar (postulación, vacante) |
+| `wide` | 52rem | Detalle con tablas densas (resultado de examen en postulación) |
+| `xl` | 68rem | Builder de exámenes (sidebar + panel principal) |
 
 Opcional: `entityName?: string` para título provisional mientras carga.
 
@@ -336,6 +345,49 @@ En el modal:
 
 ---
 
+## Módulo de exámenes (`shared/components/examen/`)
+
+UI compartida entre titular (edición), delegación/admin (consulta) y detalle de postulación.
+
+### Componentes
+
+| Export | Uso |
+|--------|-----|
+| `ExamenBuilderShell` | Contenedor con `ExamenOverview` arriba del builder |
+| `ExamenBuilder`, `ExamenBuilderSidebar`, `ExamenBuilderMain` | Layout dos columnas |
+| `ExamenBuilderItem` | Ítem compacto en sidebar |
+| `ExamenOverview` | Resumen: estatus, métricas, puntaje total |
+| `ExamenPreguntaPreview` | Enunciado + opciones (solo lectura) |
+| `buildExamenResumenColumns` | Columnas para `DataTable` |
+| `examenBuilderStyles` | CSS module exportado |
+
+Estilos en `Examen.module.css`. No importar CSS de titular desde delegación.
+
+### Titular — gestión
+
+`TitularExamenesView` → `TitularExamenManageModal` (`size="xl"`) con activar/desactivar en footer.  
+Dominio: `lib/domain/examen.ts` (`puedeActivarExamen`, `getPreguntasActivas`).  
+Con examen **ACTIVO** solo vista previa; editar tras desactivar.
+
+### Delegación / Admin — consulta
+
+`DelegacionExamenesView` → `DelegacionExamenDetailModal`. Admin reutiliza la misma vista.
+
+### Postulación — resultado automático
+
+`TitularPostulacionExamenResultado` dentro de `TitularPostulacionDetailModal` (`size="wide"`).  
+Habilitado cuando `requiereExamen && isExamenFinalizado(examenEstado)`.
+
+### Vacante + examen
+
+`TitularVacanteFormModal` (selector al crear/editar) + cache `lib/vacante-examen-cache.ts`.
+
+### Alumno
+
+`/panel/alumno/postulaciones/{id}/examen` → `AlumnoExamenPostulacionView`. Gate: `canContestarExamen`.
+
+---
+
 ## Servicios HTTP
 
 ```ts
@@ -402,13 +454,15 @@ Modales de documento/carta/horas compartidos viven en `@/shared/proceso/` — no
 
 | Tema | Archivo ejemplo |
 |------|-----------------|
-| Dominio compartido | `lib/domain/` — `horas.ts`, `proceso.ts`, `documento.ts`, `vacante.ts`, `incidencia.ts`, `requests.ts`, `labels.ts` |
+| Dominio compartido | `lib/domain/` — `horas.ts`, `proceso.ts`, `documento.ts`, `vacante.ts`, `examen.ts`, `incidencia.ts`, `requests.ts`, `labels.ts` |
 | Modal detalle | `DependenciaDetailModal.tsx`, `DetailModalHero` |
 | Proceso compartido | `@/shared/proceso/CartaGestionModal.tsx`, `presentacion.utils.ts` |
 | Modal con mutaciones complejas | `DelegacionProcesoDetailModal.tsx` |
 | Documento pendiente | `DocumentoPendienteModal.tsx` |
-| Postulación titular | `TitularPostulacionDetailModal.tsx` |
-| Server action | `delegacion/actions/vacantes.actions.ts` |
+| Postulación titular | `TitularPostulacionDetailModal.tsx`, `TitularPostulacionExamenResultado.tsx` |
+| Examen titular | `TitularExamenManageModal.tsx`, `shared/components/examen/` |
+| Examen delegación | `DelegacionExamenDetailModal.tsx` |
+| Server action | `delegacion/actions/vacantes.actions.ts`, `titular/actions/examenes.actions.ts` |
 | Service | `delegacion/services/vacantes.service.ts` |
 | Labels | `lib/domain/labels.ts` |
 | Horas alumno | `lib/domain/horas.ts` |

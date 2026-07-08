@@ -22,26 +22,43 @@ Variables:
 | `API_PROXY_TARGET` | Origen del backend para rewrites de servidor |
 | `NEXT_PUBLIC_API_URL` | Base URL para `apiRequest` en el cliente (`/api/backend`) |
 
+## Documentación
+
+Índice completo en **[docs/README.md](./docs/README.md)**.
+
+| Documento | Contenido |
+|-----------|-----------|
+| [ARQUITECTURA.md](./docs/ARQUITECTURA.md) | Capas, rutas, roles, APIs, flujos de negocio |
+| [PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Patrones del panel (modales, actions, colores) |
+| [PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke tests E2E |
+
 ## Arquitectura
 
 ```
 src/app/              Rutas delgadas (App Router)
 src/features/{rol}/   Lógica por rol: servicios, secciones, acciones
-src/shared/           UI reutilizable (Form, DataTable, Modal, …)
+src/shared/           UI reutilizable (Form, DataTable, Modal, examen, proceso…)
 src/lib/              API, auth, domain, server actions helpers
 ```
 
-Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consume su propio prefijo de API (`/api/delegacion/*`, `/api/alumno/*`, etc.).
+Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consume su prefijo de API (`/api/delegacion/*`, `/api/alumno/*`, etc.).
 
 ## Panel
 
 - Rutas: `/panel/{rol}/[[...section]]`
-- Cada rol expone secciones desde `constants/sections.ts` y las renderiza con vistas cliente (`*View`) sobre componentes compartidos (`DataTable`, `Modal`, `PageHeader`, etc.)
-- Patrón por sección: `Section` (server) → `*View` (client) → modales con prefijo de rol → `actions/*.ts` → `services` → `revalidate-{rol}.ts`
+- Navegación: `src/features/panel/constants/navigation.ts`
+- Patrón por sección: `Section` (server) → `*View` (client) → modales → `actions/*.ts` → `services` → `revalidate-{rol}.ts`
+
+Secciones recientes alineadas con el código:
+
+| Rol | Secciones adicionales |
+|-----|------------------------|
+| Titular | `examenes` — CRUD y activación de exámenes diagnóstico |
+| Delegación / Admin | `examenes` — consulta (delegación reutilizada en admin) |
+| Delegación | `encuestas` — moderación de comentarios públicos |
+| Alumno | `/panel/alumno/postulaciones/[id]/examen` — examen en línea |
 
 ## Mutaciones (Server Actions)
-
-Patrón recomendado para formularios del panel:
 
 ```ts
 "use server";

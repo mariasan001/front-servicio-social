@@ -150,6 +150,19 @@ export async function asociarExamenVacante(
   return response.data;
 }
 
+export async function getExamenVacante(idVacante: number) {
+  const response = await serverApiRequest<ExamenDiagnosticoDetalleResponse>(
+    `/api/titular/vacantes/${idVacante}/examen`,
+    { method: "GET" },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió el examen asociado a la vacante.");
+  }
+
+  return response.data;
+}
+
 export async function quitarExamenVacante(idVacante: number) {
   await serverApiRequest<null>(`/api/titular/vacantes/${idVacante}/examen`, {
     method: "DELETE",
