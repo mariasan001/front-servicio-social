@@ -66,23 +66,13 @@ export type ValidarTokenRegistroResponse = {
   mensaje?: string;
 };
 
-export type SolicitarRecuperacionContrasenaRequest = {
-  correo: string;
+export type ForgotPasswordRequest = {
+  usernameOrEmail: string;
 };
 
-export type SolicitarRecuperacionContrasenaResponse = {
-  mensaje: string;
-  expiraEnSegundos?: number;
-};
-
-export type ConfirmarRecuperacionContrasenaRequest = {
-  correo: string;
-  codigo: string;
-  password: string;
-};
-
-export type ConfirmarRecuperacionContrasenaResponse = {
-  mensaje: string;
+export type ResetPublicPasswordRequest = {
+  token: string;
+  newPassword: string;
 };
 
 export type ReportPageResponse<T> = {

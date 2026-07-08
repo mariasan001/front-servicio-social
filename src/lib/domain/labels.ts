@@ -128,6 +128,7 @@ export function estatusTone(estatus?: string): StatusBadgeTone {
     value === "ACEPTADA" ||
     value === "FINALIZADO" ||
     value === "FINALIZADA" ||
+    value === "HORAS_COMPLETAS" ||
     value === "EMITIDA"
   ) {
     return "success";
@@ -198,6 +199,7 @@ export function estatusBadgeIcon(estatus?: string): StatusBadgeIconKind {
     value === "ACEPTADA" ||
     value === "FINALIZADO" ||
     value === "FINALIZADA" ||
+    value === "HORAS_COMPLETAS" ||
     value === "EMITIDA"
   ) {
     return "done";

@@ -36,7 +36,6 @@ export type ListEscuelasFilters = {
 export type EscuelaTokenResponse = {
   idToken: number;
   escuelaId: number;
-  token?: string;
   tokenReferencia?: string;
   nombre?: string;
   estatus?: string;
@@ -44,6 +43,7 @@ export type EscuelaTokenResponse = {
   fechaSuspension?: string;
   fechaRevocacion?: string;
   fechaCreacion?: string;
+  recuperable?: boolean;
 };
 
 export type GenerarTokenRequest = {
@@ -53,6 +53,14 @@ export type GenerarTokenRequest = {
 };
 
 export type TokenGeneradoResponse = {
+  idToken: number;
+  token?: string;
+  urlRegistro?: string;
+  estatus?: string;
+  fechaExpiracion?: string;
+};
+
+export type TokenReveladoResponse = {
   idToken: number;
   token?: string;
   urlRegistro?: string;

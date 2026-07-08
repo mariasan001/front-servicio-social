@@ -132,8 +132,8 @@ export function DelegacionProcesoDetailModal({
   const [activeDocumentoId, setActiveDocumentoId] = useState<number | null>(null);
   const [activeCartaId, setActiveCartaId] = useState<number | null>(null);
   const [cartaAceptacionFile, setCartaAceptacionFile] = useState<File | null>(null);
+  const [cartaLiberacionFile, setCartaLiberacionFile] = useState<File | null>(null);
   const cartaAceptacionInput = useRef<HTMLInputElement | null>(null);
-  const cartaLiberacionInput = useRef<HTMLInputElement | null>(null);
   const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     procesoId,
@@ -147,6 +147,7 @@ export function DelegacionProcesoDetailModal({
         setActiveDocumentoId(null);
         setActiveCartaId(null);
         setCartaAceptacionFile(null);
+        setCartaLiberacionFile(null);
       },
     },
   );
@@ -391,9 +392,7 @@ export function DelegacionProcesoDetailModal({
 
   const emitCarta = async (kind: CartaDownloadKind, withFile: boolean) => {
     if (!proceso) return;
-    const input =
-      kind === "aceptacion" ? cartaAceptacionInput.current : cartaLiberacionInput.current;
-    const file = withFile ? input?.files?.[0] : undefined;
+    const file = withFile ? cartaLiberacionFile : null;
 
     if (withFile && !file) {
       notify.error("Selecciona un archivo PDF para emitir la carta.");
@@ -415,7 +414,7 @@ export function DelegacionProcesoDetailModal({
       return;
     }
 
-    if (input) input.value = "";
+    setCartaLiberacionFile(null);
     if (kind === "aceptacion") {
       notify.success("Proceso activado. Se emitió la carta de aceptación y el alumno ya puede registrar horas.");
     } else {
@@ -768,32 +767,37 @@ export function DelegacionProcesoDetailModal({
                     </p>
                   </div>
 
-                  <FormField id="carta-liberacion-archivo" label="Archivo PDF (opcional)">
-                    <input
-                      ref={cartaLiberacionInput}
-                      id="carta-liberacion-archivo"
-                      type="file"
-                      accept="application/pdf,.pdf"
-                      aria-label="Archivo PDF para carta de liberación"
+                  <FormField
+                    id="carta-liberacion-archivo"
+                    label="Archivo PDF (opcional)"
+                    hint="Opcional. Si no adjuntas nada, al emitir se generará el PDF automáticamente."
+                  >
+                    <DocumentoUploadField
+                      documentoLabel="Carta de liberación"
+                      selectedFile={cartaLiberacionFile}
+                      disabled={isMutating}
+                      canUpload
+                      canDownload={false}
+                      showActions={false}
+                      onFileSelect={setCartaLiberacionFile}
+                      onInvalidFile={notify.error}
+                      onUpload={() => {}}
+                      onDownload={() => {}}
                     />
                   </FormField>
 
                   <div className={sectionStyles.registerPanelActions}>
                     <Button
                       type="button"
-                      variant="primary"
-                      disabled={isMutating}
-                      onClick={() => void emitCarta("liberacion", false)}
-                    >
-                      Emitir liberación
-                    </Button>
-                    <Button
-                      type="button"
                       variant="success"
                       disabled={isMutating}
-                      onClick={() => void emitCarta("liberacion", true)}
+                      onClick={() => void emitCarta("liberacion", Boolean(cartaLiberacionFile))}
                     >
-                      Emitir con PDF
+                      {isMutating
+                        ? "Emitiendo…"
+                        : cartaLiberacionFile
+                          ? "Emitir con PDF adjunto"
+                          : "Emitir carta de liberación"}
                     </Button>
                   </div>
                 </div>

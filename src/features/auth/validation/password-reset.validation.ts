@@ -1,14 +1,13 @@
-import { CORREO_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "../constants/register";
+import { PASSWORD_MIN_LENGTH } from "../constants/register";
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CODE_PATTERN = /^\d{6}$/;
+const USERNAME_OR_EMAIL_MAX_LENGTH = 150;
+const PASSWORD_MAX_LENGTH = 100;
 
 export type ResetEmailFormValues = {
-  correo: string;
+  usernameOrEmail: string;
 };
 
 export type ResetPasswordFormValues = {
-  codigo: string;
   password: string;
   confirmPassword: string;
 };
@@ -25,14 +24,12 @@ export function validateResetEmailForm(
   values: ResetEmailFormValues,
 ): ResetEmailFormErrors {
   const errors: ResetEmailFormErrors = {};
-  const correo = values.correo.trim();
+  const usernameOrEmail = values.usernameOrEmail.trim();
 
-  if (!correo) {
-    errors.correo = "Ingresa tu correo electrónico.";
-  } else if (!EMAIL_PATTERN.test(correo)) {
-    errors.correo = "Ingresa un correo electrónico válido.";
-  } else if (correo.length > CORREO_MAX_LENGTH) {
-    errors.correo = `Máximo ${CORREO_MAX_LENGTH} caracteres.`;
+  if (!usernameOrEmail) {
+    errors.usernameOrEmail = "Ingresa tu usuario o correo electrónico.";
+  } else if (usernameOrEmail.length > USERNAME_OR_EMAIL_MAX_LENGTH) {
+    errors.usernameOrEmail = `Máximo ${USERNAME_OR_EMAIL_MAX_LENGTH} caracteres.`;
   }
 
   return errors;
@@ -42,20 +39,15 @@ export function validateResetPasswordForm(
   values: ResetPasswordFormValues,
 ): ResetPasswordFormErrors {
   const errors: ResetPasswordFormErrors = {};
-  const codigo = values.codigo.trim();
   const password = values.password;
   const confirmPassword = values.confirmPassword;
-
-  if (!codigo) {
-    errors.codigo = "Ingresa el código de verificación.";
-  } else if (!CODE_PATTERN.test(codigo)) {
-    errors.codigo = "El código debe tener 6 dígitos.";
-  }
 
   if (!password) {
     errors.password = "Ingresa una contraseña nueva.";
   } else if (password.length < PASSWORD_MIN_LENGTH) {
     errors.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  } else if (password.length > PASSWORD_MAX_LENGTH) {
+    errors.password = `Máximo ${PASSWORD_MAX_LENGTH} caracteres.`;
   }
 
   if (!confirmPassword) {

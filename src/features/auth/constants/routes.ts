@@ -19,9 +19,16 @@ export const AUTH_COPY = {
     "Completa tus datos personales y escolares. Tu escuela ya viene definida por la invitación.",
   resetTitle: "Recuperar contraseña",
   resetEmailSubtitle:
-    "Ingresa tu correo electrónico institucional para recibir un código de verificación.",
-  resetCodeSubtitle:
-    "Ingresa el código de 6 dígitos y define tu nueva contraseña.",
+    "Ingresa tu usuario o correo institucional y te enviaremos un enlace para restablecer tu contraseña.",
+  resetEmailSentTitle: "Revisa tu correo",
+  resetEmailSentSubtitle:
+    "Si la cuenta existe, te enviamos un correo con un enlace para restablecer tu contraseña.",
+  resetNewPasswordTitle: "Define tu nueva contraseña",
+  resetNewPasswordSubtitle:
+    "Crea una contraseña nueva para volver a acceder a tu cuenta.",
+  resetInvalidTokenTitle: "Enlace no válido",
+  resetInvalidTokenSubtitle:
+    "El enlace para restablecer tu contraseña es inválido o ya no está disponible. Solicita uno nuevo.",
   resetSuccessTitle: "Contraseña actualizada",
   resetSuccessSubtitle: "Tu acceso quedó restablecido correctamente.",
 } as const;

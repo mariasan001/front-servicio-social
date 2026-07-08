@@ -194,6 +194,14 @@
   color: var(--color-gris-500);
 }
 
+.inviteHint {
+  margin: var(--space-1) 0 0;
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--color-gris-500);
+}
+
 .inviteActions {
   display: flex;
   flex-wrap: wrap;

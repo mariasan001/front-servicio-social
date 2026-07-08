@@ -21,6 +21,7 @@ export const AUTH_PATHS = {
   login: "/login",
   register: "/registro",
   resetPassword: "/recuperar-contrasena",
+  resetPasswordConfirm: "/restablecer-contrasena",
   home: "/",
 } as const;
 

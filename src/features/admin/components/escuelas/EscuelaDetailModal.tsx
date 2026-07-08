@@ -7,6 +7,7 @@ import {
   generateEscuelaTokenAction,
   getEscuelaDetailAction,
   reactivateEscuelaTokenAction,
+  revealEscuelaTokenAction,
   revokeEscuelaTokenAction,
   suspendEscuelaTokenAction,
 } from "../../actions/escuelas.actions";
@@ -66,6 +67,7 @@ export function EscuelaDetailModal({
   );
   const [expandedInviteId, setExpandedInviteId] = useState<number | null>(null);
   const [generatedTokens, setGeneratedTokens] = useState<Record<number, string>>({});
+  const [revealingId, setRevealingId] = useState<number | null>(null);
   const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
     open,
     escuelaId,
@@ -76,6 +78,8 @@ export function EscuelaDetailModal({
         setInvitacionError(null);
         setInvitacionGenerada(null);
         setExpandedInviteId(null);
+        setGeneratedTokens({});
+        setRevealingId(null);
       },
     },
   );
@@ -150,6 +154,46 @@ export function EscuelaDetailModal({
     }
 
     handleMutationSuccess();
+  };
+
+  const handleToggleEnlace = async (idToken: number) => {
+    if (!detail) {
+      return;
+    }
+
+    if (expandedInviteId === idToken) {
+      setExpandedInviteId(null);
+      return;
+    }
+
+    if (generatedTokens[idToken]) {
+      setExpandedInviteId(idToken);
+      return;
+    }
+
+    setRevealingId(idToken);
+    setInvitacionError(null);
+
+    const result = await revealEscuelaTokenAction(detail.escuela.idEscuela, idToken);
+
+    setRevealingId(null);
+
+    if (!result.success) {
+      setInvitacionError(result.error);
+      return;
+    }
+
+    const token = result.data.token?.trim();
+
+    if (!token) {
+      setInvitacionError(
+        "El enlace ya no está disponible. Genera una nueva invitación para compartirla.",
+      );
+      return;
+    }
+
+    setGeneratedTokens((current) => ({ ...current, [idToken]: token }));
+    setExpandedInviteId(idToken);
   };
 
   const escuela = detail?.escuela;
@@ -323,8 +367,14 @@ export function EscuelaDetailModal({
                         invitacion,
                         generatedTokens[invitacion.idToken],
                       );
-                      const canShareLink = Boolean(shareData);
+                      const canShareLink = Boolean(shareData) || Boolean(invitacion.recuperable);
                       const isExpanded = expandedInviteId === invitacion.idToken;
+                      const isRevealing = revealingId === invitacion.idToken;
+                      const isVigente =
+                        estatus === "ACTIVO" ||
+                        estatus === "VIGENTE" ||
+                        estatus === "DISPONIBLE";
+                      const showNoRecuperableHint = !canShareLink && isVigente;
 
                       return (
                         <li key={invitacion.idToken} className={escuelaStyles.inviteRowItem}>
@@ -351,6 +401,12 @@ export function EscuelaDetailModal({
                                   </>
                                 ) : null}
                               </p>
+                              {showNoRecuperableHint ? (
+                                <p className={escuelaStyles.inviteHint}>
+                                  El enlace de esta invitación no se puede recuperar. Genera una
+                                  invitación nueva para obtener un enlace para compartir.
+                                </p>
+                              ) : null}
                             </div>
 
                             <div className={escuelaStyles.inviteActions}>
@@ -358,12 +414,14 @@ export function EscuelaDetailModal({
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  disabled={isMutating}
-                                  onClick={() =>
-                                    setExpandedInviteId(isExpanded ? null : invitacion.idToken)
-                                  }
+                                  disabled={isMutating || isRevealing}
+                                  onClick={() => void handleToggleEnlace(invitacion.idToken)}
                                 >
-                                  {isExpanded ? "Ocultar enlace" : "Ver enlace"}
+                                  {isRevealing
+                                    ? "Recuperando…"
+                                    : isExpanded
+                                      ? "Ocultar enlace"
+                                      : "Ver enlace"}
                                 </Button>
                               ) : null}
                               {estatus === "ACTIVO" ||

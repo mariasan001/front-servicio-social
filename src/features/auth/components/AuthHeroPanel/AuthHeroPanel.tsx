@@ -1,13 +1,11 @@
-import { AUTH_HERO_COPY, type AuthVariant } from "../../constants/hero";
+import type { AuthVariant } from "../../constants/hero";
 import styles from "./AuthHeroPanel.module.css";
 
 type AuthHeroPanelProps = {
   variant?: AuthVariant;
 };
 
-export function AuthHeroPanel({ variant = "login" }: AuthHeroPanelProps) {
-  const copy = AUTH_HERO_COPY[variant];
-
+export function AuthHeroPanel(_props: AuthHeroPanelProps) {
   return (
     <div className={styles.panel}>
       <svg
@@ -104,12 +102,6 @@ export function AuthHeroPanel({ variant = "login" }: AuthHeroPanelProps) {
           style={{ mixBlendMode: "soft-light" }}
         />
       </svg>
-
-      <div className={styles.copy}>
-        <p className={styles.eyebrow}>{copy.eyebrow}</p>
-        <h2 className={styles.title}>{copy.title}</h2>
-        <p className={styles.description}>{copy.description}</p>
-      </div>
 
       <div className={styles.grain} aria-hidden="true" />
       <div className={styles.vignette} aria-hidden="true" />

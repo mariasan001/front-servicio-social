@@ -192,6 +192,32 @@
   transform: scale(0.99);
 }
 
+.submitButtonLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+  color: var(--color-white);
+  background-color: var(--color-vino);
+  border: 1px solid var(--color-vino);
+  border-radius: 999px;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.submitButtonLink:hover {
+  background-color: var(--color-vino-dark);
+  border-color: var(--color-vino-dark);
+}
+
 .textButton {
   padding: 0;
   font-size: var(--font-size-sm);

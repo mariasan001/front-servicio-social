@@ -8,6 +8,7 @@ import {
   getEscuela,
   listEscuelaTokens,
   reactivateEscuelaToken,
+  revealEscuelaToken,
   revokeEscuelaToken,
   suspendEscuelaToken,
   updateEscuela,
@@ -19,6 +20,7 @@ import type {
   EscuelaTokenResponse,
   GenerarTokenRequest,
   TokenGeneradoResponse,
+  TokenReveladoResponse,
 } from "../types/escuela.types";
 
 export type EscuelaDetailPayload = {
@@ -84,6 +86,16 @@ export async function generateEscuelaTokenAction(
   }
 
   return result;
+}
+
+export async function revealEscuelaTokenAction(
+  idEscuela: number,
+  idToken: number,
+): Promise<ActionResult<TokenReveladoResponse>> {
+  return runServerAction(
+    () => revealEscuelaToken(idEscuela, idToken),
+    "No pudimos recuperar el enlace de la invitación.",
+  );
 }
 
 export async function suspendEscuelaTokenAction(

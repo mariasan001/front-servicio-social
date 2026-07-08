@@ -215,7 +215,7 @@ export function DelegacionInicioView({
 
             <ul className={dashStyles.depAreasList}>
               {liberacionesPendientes.slice(0, 5).map((item, index) => (
-                <li key={item.idProceso} className={dashStyles.depAreasRow}>
+                <li key={`${item.idProceso}-${index}`} className={dashStyles.depAreasRow}>
                   <span className={dashStyles.depAreasRank} data-rank="default">
                     {index + 1}
                   </span>

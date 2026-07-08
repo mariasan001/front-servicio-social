@@ -8,6 +8,7 @@ import type {
   GenerarTokenRequest,
   ListEscuelasFilters,
   TokenGeneradoResponse,
+  TokenReveladoResponse,
 } from "../types/escuela.types";
 
 export async function listEscuelas(filters?: ListEscuelasFilters) {
@@ -63,6 +64,19 @@ export async function listEscuelaTokens(idEscuela: number) {
   );
 
   return response.data ?? [];
+}
+
+export async function revealEscuelaToken(idEscuela: number, idToken: number) {
+  const response = await serverApiRequest<TokenReveladoResponse>(
+    `/api/escuelas/${idEscuela}/tokens/${idToken}/revelar`,
+    { method: "GET" },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió el enlace de la invitación.");
+  }
+
+  return response.data;
 }
 
 export async function generateEscuelaToken(

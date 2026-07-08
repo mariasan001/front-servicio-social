@@ -7,9 +7,9 @@ export type InvitationShareData = {
 
 export function resolveInvitationShareData(
   invitacion: EscuelaTokenResponse,
-  generatedToken?: string,
+  revealedToken?: string,
 ): InvitationShareData | null {
-  const token = invitacion.token?.trim() || generatedToken?.trim();
+  const token = revealedToken?.trim();
 
   if (!token) {
     return null;

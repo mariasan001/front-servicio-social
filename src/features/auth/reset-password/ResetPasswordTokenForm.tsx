@@ -1,49 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { PASSWORD_MIN_LENGTH } from "../constants/register";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
-import {
-  confirmPasswordReset,
-  requestPasswordReset,
-} from "../services/password-reset.service";
+import { confirmPasswordReset } from "../services/password-reset.service";
 import {
   validateResetPasswordForm,
   type ResetPasswordFormValues,
 } from "../validation/password-reset.validation";
 import { hasFormErrors } from "../validation/auth.validation";
 import { notify } from "@/shared/notifications";
-import {
-  FormField,
-  PasswordInput,
-} from "@/shared/components/Form";
+import { PasswordInput } from "@/shared/components/Form";
 import { AuthCard } from "../components/AuthCard/AuthCard";
 import formStyles from "../components/AuthForm/AuthForm.module.css";
-import { VerificationCodeInput } from "../components/VerificationCodeInput/VerificationCodeInput";
 
-type ResetPasswordStepProps = {
-  correo: string;
-  onBack: () => void;
+type ResetPasswordTokenFormProps = {
+  token?: string;
 };
 
 const INITIAL_VALUES: ResetPasswordFormValues = {
-  codigo: "",
   password: "",
   confirmPassword: "",
 };
 
-export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
-  const router = useRouter();
+export function ResetPasswordTokenForm({ token }: ResetPasswordTokenFormProps) {
   const [values, setValues] = useState(INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof ResetPasswordFormValues, string>>
   >({});
-  const [passwordResetComplete, setPasswordResetComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isResending, setIsResending] = useState(false);
+  const [resetComplete, setResetComplete] = useState(false);
+
+  const cleanToken = token?.trim();
 
   const updateField = <K extends keyof ResetPasswordFormValues>(
     field: K,
@@ -56,6 +46,10 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!cleanToken) {
+      return;
+    }
+
     const validationErrors = validateResetPasswordForm(values);
     if (hasFormErrors(validationErrors)) {
       setFieldErrors(validationErrors);
@@ -65,22 +59,19 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
     setIsSubmitting(true);
 
     try {
-      const result = await confirmPasswordReset({
-        correo,
-        codigo: values.codigo.trim(),
-        password: values.password,
+      await confirmPasswordReset({
+        token: cleanToken,
+        newPassword: values.password,
       });
-
       notify.success(
-        result.mensaje ??
-          "Tu contraseña se restableció correctamente. Ya puedes iniciar sesión.",
+        "Tu contraseña se restableció correctamente. Ya puedes iniciar sesión.",
       );
-      setPasswordResetComplete(true);
+      setResetComplete(true);
     } catch (error) {
       notify.error(
         getApiErrorMessage(
           error,
-          "No fue posible restablecer la contraseña. Verifica el código e intenta de nuevo.",
+          "No fue posible restablecer la contraseña. El enlace pudo expirar; solicita uno nuevo.",
         ),
       );
     } finally {
@@ -88,67 +79,52 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
     }
   };
 
-  const handleResend = async () => {
-    setIsResending(true);
+  if (!cleanToken) {
+    return (
+      <AuthCard
+        title={AUTH_COPY.resetInvalidTokenTitle}
+        subtitle={AUTH_COPY.resetInvalidTokenSubtitle}
+      >
+        <Link
+          href={AUTH_ROUTES.resetPassword}
+          className={formStyles.submitButtonLink}
+        >
+          Solicitar un nuevo enlace
+        </Link>
 
-    try {
-      await requestPasswordReset({ correo });
-      notify.success("Enviamos un nuevo código a tu correo electrónico.");
-    } catch (error) {
-      notify.error(
-        getApiErrorMessage(
-          error,
-          "No fue posible reenviar el código. Intenta de nuevo.",
-        ),
-      );
-    } finally {
-      setIsResending(false);
-    }
-  };
+        <p className={formStyles.ctaInline}>
+          ¿Recordaste tu contraseña?{" "}
+          <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
+            Volver a iniciar sesión
+          </Link>
+        </p>
+      </AuthCard>
+    );
+  }
 
-  if (passwordResetComplete) {
+  if (resetComplete) {
     return (
       <AuthCard
         title={AUTH_COPY.resetSuccessTitle}
         subtitle={AUTH_COPY.resetSuccessSubtitle}
       >
-        <button
-          type="button"
-          className={formStyles.submitButton}
-          onClick={() => router.push(AUTH_ROUTES.login)}
-        >
+        <Link href={AUTH_ROUTES.login} className={formStyles.submitButtonLink}>
           Ir a iniciar sesión
-        </button>
+        </Link>
       </AuthCard>
     );
   }
 
   return (
-    <AuthCard title="Verifica tu correo" subtitle={AUTH_COPY.resetCodeSubtitle}>
-      <p className={formStyles.helperText}>
-        Código enviado a <strong>{correo}</strong>
-      </p>
-
+    <AuthCard
+      title={AUTH_COPY.resetNewPasswordTitle}
+      subtitle={AUTH_COPY.resetNewPasswordSubtitle}
+    >
       <form
         className={`${formStyles.formBody} ${formStyles.formRoot}`}
         onSubmit={handleSubmit}
         noValidate
       >
-        <FormField
-          id="reset-code"
-          label="Código de verificación"
-          error={fieldErrors.codigo}
-          required
-        >
-          <VerificationCodeInput
-            id="reset-code"
-            value={values.codigo}
-            error={fieldErrors.codigo}
-            disabled={isSubmitting}
-            onChange={(value) => updateField("codigo", value)}
-          />
-        </FormField>
-
         <PasswordInput
           id="reset-password"
           name="password"
@@ -183,24 +159,12 @@ export function ResetPasswordStep({ correo, onBack }: ResetPasswordStepProps) {
         </button>
       </form>
 
-      <div className={formStyles.footerLinks}>
-        <button
-          type="button"
-          className={formStyles.textButton}
-          disabled={isResending}
-          onClick={() => void handleResend()}
-        >
-          {isResending ? "Reenviando código…" : "Reenviar código"}
-        </button>
-
-        <button type="button" className={formStyles.textButton} onClick={onBack}>
-          Usar otro correo
-        </button>
-
+      <p className={formStyles.ctaInline}>
+        ¿Recordaste tu contraseña?{" "}
         <Link href={AUTH_ROUTES.login} className={formStyles.footerLink}>
           Volver a iniciar sesión
         </Link>
-      </div>
+      </p>
     </AuthCard>
   );
 }

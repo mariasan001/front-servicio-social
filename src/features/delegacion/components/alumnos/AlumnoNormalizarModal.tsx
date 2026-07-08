@@ -193,14 +193,14 @@ function AlumnoNormalizarModalContent({
         <div className={formStyles.formActions}>
           <Button
             type="button"
-            variant={mode === "vincular" ? "action" : "outline"}
+            variant={mode === "vincular" ? "primary" : "outline"}
             onClick={() => switchMode("vincular")}
           >
             Vincular escuela existente
           </Button>
           <Button
             type="button"
-            variant={mode === "crear" ? "action" : "outline"}
+            variant={mode === "crear" ? "primary" : "outline"}
             onClick={() => switchMode("crear")}
           >
             Registrar escuela nueva
