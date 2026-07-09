@@ -1,6 +1,26 @@
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
+import {
+  Children,
+  cloneElement,
+  createContext,
+  isValidElement,
+  useContext,
+  type InputHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  type SelectHTMLAttributes,
+} from "react";
 import { Check } from "lucide-react";
 import styles from "./Form.module.css";
+
+type FormFieldContextValue = {
+  describedBy?: string;
+};
+
+const FormFieldContext = createContext<FormFieldContextValue>({});
+
+export function useFormFieldDescribedBy() {
+  return useContext(FormFieldContext).describedBy;
+}
 
 type FormFieldProps = {
   id: string;
@@ -10,6 +30,30 @@ type FormFieldProps = {
   required?: boolean;
   children: ReactNode;
 };
+
+function enhanceControl(children: ReactNode, describedBy?: string) {
+  if (!describedBy) {
+    return children;
+  }
+
+  return Children.map(children, (child) => {
+    if (!isValidElement(child)) {
+      return child;
+    }
+
+    const element = child as ReactElement<{ "aria-describedby"?: string }>;
+    const controlTags = new Set(["input", "select", "textarea"]);
+
+    if (typeof element.type === "string" && controlTags.has(element.type)) {
+      const existing = element.props["aria-describedby"];
+      return cloneElement(element, {
+        "aria-describedby": existing ? `${existing} ${describedBy}` : describedBy,
+      });
+    }
+
+    return child;
+  });
+}
 
 export function FormField({
   id,
@@ -24,33 +68,35 @@ export function FormField({
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={styles.field}>
-      <label htmlFor={id} className={styles.label}>
-        {label}
-        {required ? (
-          <>
-            {" "}
-            <span className={styles.required} aria-hidden="true">
-              *
-            </span>
-          </>
+    <FormFieldContext.Provider value={{ describedBy }}>
+      <div className={styles.field}>
+        <label htmlFor={id} className={styles.label}>
+          {label}
+          {required ? (
+            <>
+              {" "}
+              <span className={styles.required} aria-hidden="true">
+                *
+              </span>
+            </>
+          ) : null}
+        </label>
+
+        {hint ? (
+          <p id={hintId} className={styles.hint}>
+            {hint}
+          </p>
         ) : null}
-      </label>
 
-      {hint ? (
-        <p id={hintId} className={styles.hint}>
-          {hint}
-        </p>
-      ) : null}
+        {enhanceControl(children, describedBy)}
 
-      <div aria-describedby={describedBy}>{children}</div>
-
-      {error ? (
-        <p id={errorId} className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-    </div>
+        {error ? (
+          <p id={errorId} className={styles.error} role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    </FormFieldContext.Provider>
   );
 }
 

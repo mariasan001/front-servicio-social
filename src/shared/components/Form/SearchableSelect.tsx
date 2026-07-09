@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronDown } from "lucide-react";
 import { normalizeText } from "@/lib/utils/search";
-import { FormField } from "./FormField";
+import { FormField, useFormFieldDescribedBy } from "./FormField";
 import styles from "./Form.module.css";
 
 export type SearchableSelectOption = {
@@ -51,6 +51,37 @@ export function SearchableSelect({
   emptyMessage = "No hay opciones disponibles.",
   noResultsMessage = "Sin coincidencias. Prueba con otro nombre.",
 }: SearchableSelectProps) {
+  return (
+    <FormField id={id} label={label} error={error} hint={hint} required={required}>
+      <SearchableSelectControl
+        id={id}
+        options={options}
+        value={value}
+        onChange={onChange}
+        error={error}
+        required={required}
+        placeholder={placeholder}
+        disabled={disabled}
+        emptyMessage={emptyMessage}
+        noResultsMessage={noResultsMessage}
+      />
+    </FormField>
+  );
+}
+
+function SearchableSelectControl({
+  id,
+  options,
+  value,
+  onChange,
+  error,
+  required,
+  placeholder = "Escribe para buscar…",
+  disabled = false,
+  emptyMessage = "No hay opciones disponibles.",
+  noResultsMessage = "Sin coincidencias. Prueba con otro nombre.",
+}: Omit<SearchableSelectProps, "label" | "hint">) {
+  const describedBy = useFormFieldDescribedBy();
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -188,38 +219,32 @@ export function SearchableSelect({
           : `${options.length} opción${options.length === 1 ? "" : "es"} disponible${options.length === 1 ? "" : "s"}`;
 
   return (
-    <FormField
-      id={id}
-      label={label}
-      error={error}
-      hint={hint}
-      required={required}
+    <div
+      ref={rootRef}
+      className={[styles.searchableSelect, disabled && styles.searchableSelectDisabled]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div
-        ref={rootRef}
-        className={[styles.searchableSelect, disabled && styles.searchableSelectDisabled]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        <input
-          ref={inputRef}
-          id={id}
-          type="text"
-          role="combobox"
-          className={styles.searchableInput}
-          value={displayValue}
-          placeholder={placeholder}
-          disabled={disabled}
-          autoComplete="off"
-          aria-invalid={Boolean(error)}
-          aria-required={required}
-          aria-expanded={isOpen}
-          aria-controls={listboxId}
-          aria-autocomplete="list"
-          onFocus={openList}
-          onChange={(event) => handleInputChange(event.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+      <input
+        ref={inputRef}
+        id={id}
+        type="text"
+        role="combobox"
+        className={styles.searchableInput}
+        value={displayValue}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoComplete="off"
+        aria-invalid={Boolean(error)}
+        aria-describedby={describedBy}
+        aria-required={required}
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        aria-autocomplete="list"
+        onFocus={openList}
+        onChange={(event) => handleInputChange(event.target.value)}
+        onKeyDown={handleKeyDown}
+      />
         <button
           type="button"
           className={styles.searchableToggle}
@@ -285,7 +310,6 @@ export function SearchableSelect({
           </ul>
           </div>
         ) : null}
-      </div>
-    </FormField>
+    </div>
   );
 }

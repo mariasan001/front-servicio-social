@@ -9,10 +9,12 @@ export default function NotFound() {
       title="Página no encontrada"
       message="La ruta que buscas no existe o ya no está disponible. Revisa la dirección o regresa al inicio."
       primaryAction={
-        <Link href="/login" className={styles.primaryAction}>
-          Iniciar sesión
+        <Link href="/" className={styles.primaryAction}>
+          Ir al inicio
         </Link>
       }
+      secondaryHref="/login"
+      secondaryLabel="Iniciar sesión"
     />
   );
 }

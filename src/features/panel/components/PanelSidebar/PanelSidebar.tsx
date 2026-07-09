@@ -66,6 +66,7 @@ export function PanelSidebar({
       <div className={styles.brandBlock}>
         <Link
           href={navigation.basePath}
+          prefetch={false}
           className={styles.brandLink}
           aria-label="Ir al inicio del panel"
           onClick={onNavigate}
@@ -100,6 +101,7 @@ export function PanelSidebar({
               <Link
                 key={group.role}
                 href={group.basePath}
+                prefetch={false}
                 className={[
                   styles.roleSwitcherLink,
                   isActive && styles.roleSwitcherLinkActive,
@@ -143,6 +145,7 @@ export function PanelSidebar({
             <Link
               key={item.id}
               href={item.href}
+              prefetch={false}
               className={[styles.navLink, active && styles.navLinkActive]
                 .filter(Boolean)
                 .join(" ")}

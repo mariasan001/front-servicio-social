@@ -72,15 +72,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={gotham.variable}>
-      <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/images/fondoLanding_01.png"
-          type="image/webp"
-          media="(min-width: 961px)"
-        />
-      </head>
       <body className={gotham.variable}>
         <SkipLink />
         <AppToaster />

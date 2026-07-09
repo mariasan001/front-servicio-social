@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.gitignore
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+*.md
+!README.md
+.env*
+!.env.example
