@@ -1,11 +1,15 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Button } from "@/shared/components/Button";
 import { LogIn, Menu, Minus, UserPlus } from "@/shared/icons";
-import { LANDING_NAV_LINKS } from "../../constants/nav";
+import {
+  isLandingNavLinkActive,
+  LANDING_NAV_LINKS,
+} from "../../constants/nav";
 import { useLandingNav } from "../../hooks/useLandingNav";
 import styles from "./LandingHeader.module.css";
 
@@ -36,6 +40,7 @@ function getFocusableElements(container: HTMLElement) {
 }
 
 export function LandingHeader() {
+  const pathname = usePathname();
   const {
     activeHash,
     isMenuOpen,
@@ -110,15 +115,18 @@ export function LandingHeader() {
 
           <nav className={styles.navDesktop} aria-label="Navegación principal">
             <ul className={styles.navList}>
-              {LANDING_NAV_LINKS.map((link) => (
+              {LANDING_NAV_LINKS.map((link) => {
+                const isActive = isLandingNavLinkActive(link.href, pathname, activeHash);
+
+                return (
                 <li key={link.href}>
                   <a
                     href={link.href}
                     className={joinClassNames(
                       styles.navLink,
-                      activeHash === link.href && styles.navLinkActive,
+                      isActive && styles.navLinkActive,
                     )}
-                    aria-current={activeHash === link.href ? "page" : undefined}
+                    aria-current={isActive ? "page" : undefined}
                     onClick={() => handleNavClick(link.href)}
                   >
                     <span className={styles.navLinkLabel}>{link.label}</span>
@@ -128,7 +136,8 @@ export function LandingHeader() {
                     />
                   </a>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </nav>
 
@@ -193,7 +202,10 @@ export function LandingHeader() {
 
         <nav className={styles.mobileMenuNav} aria-label="Navegación móvil">
           <ul className={styles.mobileNavList}>
-            {LANDING_NAV_LINKS.map((link, index) => (
+            {LANDING_NAV_LINKS.map((link, index) => {
+              const isActive = isLandingNavLinkActive(link.href, pathname, activeHash);
+
+              return (
               <li
                 key={link.href}
                 className={styles.mobileNavItem}
@@ -205,16 +217,17 @@ export function LandingHeader() {
                   href={link.href}
                   className={joinClassNames(
                     styles.mobileNavLink,
-                    activeHash === link.href && styles.mobileNavLinkActive,
+                    isActive && styles.mobileNavLinkActive,
                   )}
-                  aria-current={activeHash === link.href ? "page" : undefined}
+                  aria-current={isActive ? "page" : undefined}
                   tabIndex={isMenuOpen ? 0 : -1}
                   onClick={() => handleNavClick(link.href)}
                 >
                   {link.label}
                 </a>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </nav>
 

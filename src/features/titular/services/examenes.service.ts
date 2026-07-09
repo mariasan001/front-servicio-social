@@ -134,6 +134,19 @@ export async function desactivarExamen(idExamen: number) {
   return response.data;
 }
 
+export async function getVacanteExamen(idVacante: number) {
+  try {
+    const response = await serverApiRequest<ExamenDiagnosticoDetalleResponse>(
+      `/api/titular/vacantes/${idVacante}/examen`,
+      { method: "GET" },
+    );
+
+    return response.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function asociarExamenVacante(
   idVacante: number,
   request: AsociarExamenVacanteRequest,

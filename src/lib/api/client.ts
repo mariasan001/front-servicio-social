@@ -1,4 +1,5 @@
 import { ApiError } from "./errors";
+import { redirectToLogin, isUnauthorizedStatus } from "@/lib/auth/unauthorized";
 import type { ApiResponse } from "./types";
 
 export const API_PROXY_PATH = "/api/backend";
@@ -64,10 +65,17 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok || payload?.success === false) {
+    const status = response.status;
+    const code = payload?.code ?? "REQUEST_FAILED";
+
+    if (typeof window !== "undefined" && isUnauthorizedStatus(status)) {
+      redirectToLogin();
+    }
+
     throw new ApiError(
       payload?.message ?? "No fue posible completar la solicitud.",
-      payload?.code ?? "REQUEST_FAILED",
-      response.status,
+      code,
+      status,
       payload?.errors,
     );
   }

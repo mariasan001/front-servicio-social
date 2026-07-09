@@ -16,7 +16,7 @@ export function LandingFooter() {
           <div className={styles.brand}>
             <span className={styles.eyebrow}>Plataforma oficial</span>
 
-            <Link href="#inicio" className={styles.logo} aria-label="Ir al inicio">
+            <Link href="/" className={styles.logo} aria-label="Ir al inicio">
               <Image
                 className={styles.logoImage}
                 src="/images/logo.webp"
@@ -64,7 +64,7 @@ export function LandingFooter() {
             © {year} Plataforma de Servicio Social. Todos los derechos reservados.
           </p>
 
-          <Link href="#main" className={styles.backToTop}>
+          <Link href="/#inicio" className={styles.backToTop}>
             Volver al inicio
             <ArrowUp size={16} strokeWidth={2} aria-hidden="true" />
           </Link>

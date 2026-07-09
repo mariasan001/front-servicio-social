@@ -12,12 +12,14 @@ export type VacanteResponse = VacanteBase & {
   modalidadTrabajo?: string;
   cupoTotal?: number;
   cupoDisponible?: number;
+  requiereExamen?: boolean;
 };
 
 export type VacanteDetalleResponse = VacanteResponse & {
   descripcion?: string;
   perfilRequerido?: string;
-  requiereExamen?: boolean;
+  idExamen?: number;
+  examenTitulo?: string;
 };
 
 export type PostulacionResponse = PostulacionBase & {

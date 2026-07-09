@@ -13,6 +13,7 @@ import {
   desactivarExamen,
   getExamen,
   getResultadoExamenPostulacion,
+  getVacanteExamen,
   listExamenes,
   quitarExamenVacante,
   updateExamen,
@@ -175,6 +176,15 @@ export async function desactivarExamenAction(
   }
 
   return result;
+}
+
+export async function getVacanteExamenAction(
+  idVacante: number,
+): Promise<ActionResult<ExamenDiagnosticoDetalleResponse | null>> {
+  return runServerAction(
+    () => getVacanteExamen(idVacante),
+    "No pudimos consultar el examen de la vacante.",
+  );
 }
 
 export async function asociarExamenVacanteAction(

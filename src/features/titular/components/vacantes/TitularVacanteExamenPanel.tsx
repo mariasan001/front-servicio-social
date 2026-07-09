@@ -4,9 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import {
   asociarExamenVacanteAction,
+  getVacanteExamenAction,
   listExamenesAction,
   quitarExamenVacanteAction,
 } from "../../actions/examenes.actions";
+import {
+  clearVacanteExamenCache,
+  readVacanteExamenCache,
+  saveVacanteExamenCache,
+} from "../../lib/vacante-examen-cache";
 import type {
   ExamenDiagnosticoResumenResponse,
   VacanteDetalleResponse,
@@ -24,11 +30,64 @@ type TitularVacanteExamenPanelProps = {
   onChanged: () => void;
 };
 
+type ExamenVinculado = {
+  idExamen: number;
+  titulo: string;
+};
+
+function filterExamenesActivos(
+  examenes: ExamenDiagnosticoResumenResponse[],
+  areaId?: number,
+) {
+  return examenes.filter(
+    (examen) =>
+      isExamenActivo(examen.estatus) &&
+      (!areaId || Number(examen.areaId) === Number(areaId)),
+  );
+}
+
+function resolveExamenVinculado(
+  vacante: VacanteDetalleResponse,
+  examenes: ExamenDiagnosticoResumenResponse[],
+  fromApi: ExamenVinculado | null,
+): ExamenVinculado | null {
+  if (!vacante.requiereExamen) {
+    return null;
+  }
+
+  if (vacante.idExamen) {
+    return {
+      idExamen: vacante.idExamen,
+      titulo:
+        vacante.examenTitulo?.trim() ||
+        examenes.find((examen) => examen.idExamen === vacante.idExamen)?.titulo ||
+        `Examen #${vacante.idExamen}`,
+    };
+  }
+
+  if (fromApi) {
+    return fromApi;
+  }
+
+  const cached = readVacanteExamenCache(vacante.idVacante);
+  if (cached) {
+    return { idExamen: cached.idExamen, titulo: cached.titulo };
+  }
+
+  const activos = filterExamenesActivos(examenes, vacante.areaId);
+  if (activos.length === 1) {
+    return { idExamen: activos[0].idExamen, titulo: activos[0].titulo };
+  }
+
+  return null;
+}
+
 export function TitularVacanteExamenPanel({
   vacante,
   onChanged,
 }: TitularVacanteExamenPanelProps) {
   const [examenes, setExamenes] = useState<ExamenDiagnosticoResumenResponse[]>([]);
+  const [examenVinculado, setExamenVinculado] = useState<ExamenVinculado | null>(null);
   const [selectedExamenId, setSelectedExamenId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
@@ -38,13 +97,34 @@ export function TitularVacanteExamenPanel({
 
     async function load() {
       setIsLoading(true);
-      const result = await listExamenesAction();
+
+      const [examenesResult, examenApiResult] = await Promise.all([
+        listExamenesAction(),
+        vacante.requiereExamen
+          ? getVacanteExamenAction(vacante.idVacante)
+          : Promise.resolve({ success: true as const, data: null }),
+      ]);
+
       if (cancelled) return;
 
-      if (result.success) {
-        setExamenes(result.data);
+      const lista = examenesResult.success ? examenesResult.data : [];
+      setExamenes(lista);
+
+      const fromApi =
+        examenApiResult.success && examenApiResult.data
+          ? {
+              idExamen: examenApiResult.data.idExamen,
+              titulo: examenApiResult.data.titulo,
+            }
+          : null;
+
+      if (fromApi) {
+        saveVacanteExamenCache(vacante.idVacante, fromApi);
       }
 
+      const vinculado = resolveExamenVinculado(vacante, lista, fromApi);
+      setExamenVinculado(vinculado);
+      setSelectedExamenId(vinculado ? String(vinculado.idExamen) : "");
       setIsLoading(false);
     }
 
@@ -53,15 +133,37 @@ export function TitularVacanteExamenPanel({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [
+    vacante.areaId,
+    vacante.examenTitulo,
+    vacante.idExamen,
+    vacante.idVacante,
+    vacante.requiereExamen,
+  ]);
 
-  const opcionesActivas = useMemo(() => {
-    return examenes.filter(
-      (examen) =>
-        isExamenActivo(examen.estatus) &&
-        (!vacante.areaId || examen.areaId === vacante.areaId),
-    );
-  }, [examenes, vacante.areaId]);
+  const opcionesActivas = useMemo(
+    () => filterExamenesActivos(examenes, vacante.areaId),
+    [examenes, vacante.areaId],
+  );
+
+  const opcionesSelect = useMemo(() => {
+    if (
+      examenVinculado &&
+      !opcionesActivas.some((examen) => examen.idExamen === examenVinculado.idExamen)
+    ) {
+      return [
+        {
+          idExamen: examenVinculado.idExamen,
+          titulo: examenVinculado.titulo,
+          areaId: vacante.areaId ?? 0,
+          estatus: "INACTIVO",
+        } satisfies ExamenDiagnosticoResumenResponse,
+        ...opcionesActivas,
+      ];
+    }
+
+    return opcionesActivas;
+  }, [examenVinculado, opcionesActivas, vacante.areaId]);
 
   const handleAsociar = async () => {
     const idExamen = Number(selectedExamenId);
@@ -70,10 +172,12 @@ export function TitularVacanteExamenPanel({
       return;
     }
 
+    const examenSeleccionado = opcionesSelect.find(
+      (examen) => examen.idExamen === idExamen,
+    );
+
     setIsMutating(true);
 
-    // El backend solo permite una asociacion por vacante y no reemplaza en el
-    // POST. Si ya hay un examen, primero lo quitamos y luego asociamos el nuevo.
     if (vacante.requiereExamen) {
       const quitarResult = await quitarExamenVacanteAction(vacante.idVacante);
       if (!quitarResult.success) {
@@ -91,12 +195,21 @@ export function TitularVacanteExamenPanel({
       return;
     }
 
+    if (examenSeleccionado) {
+      const entry = {
+        idExamen: examenSeleccionado.idExamen,
+        titulo: examenSeleccionado.titulo,
+      };
+      saveVacanteExamenCache(vacante.idVacante, entry);
+      setExamenVinculado(entry);
+      setSelectedExamenId(String(entry.idExamen));
+    }
+
     notify.success(
       vacante.requiereExamen
         ? "Examen actualizado en la vacante."
         : "Examen asociado a la vacante.",
     );
-    setSelectedExamenId("");
     onChanged();
   };
 
@@ -110,12 +223,19 @@ export function TitularVacanteExamenPanel({
       return;
     }
 
+    clearVacanteExamenCache(vacante.idVacante);
+    setExamenVinculado(null);
+    setSelectedExamenId("");
     notify.success("Examen desasociado de la vacante.");
     onChanged();
   };
 
   const yaRequiereExamen = Boolean(vacante.requiereExamen);
   const noHayActivos = !isLoading && opcionesActivas.length === 0;
+  const cambioPendiente =
+    Boolean(examenVinculado) &&
+    selectedExamenId !== "" &&
+    Number(selectedExamenId) !== examenVinculado?.idExamen;
 
   return (
     <section className={detailStyles.contentPanel} aria-label="Examen de la vacante">
@@ -134,25 +254,41 @@ export function TitularVacanteExamenPanel({
         </p>
       ) : null}
 
-      {noHayActivos ? (
+      {yaRequiereExamen && examenVinculado ? (
+        <dl className={styles.linkedExam}>
+          <dt>Examen vinculado</dt>
+          <dd>{examenVinculado.titulo}</dd>
+        </dl>
+      ) : null}
+
+      {yaRequiereExamen && !isLoading && !examenVinculado ? (
+        <Alert tone="info">
+          Esta vacante tiene examen configurado, pero no pudimos mostrar cuál es.
+          Si tienes varios exámenes activos, selecciona el correcto para confirmarlo
+          o cámbialo.
+        </Alert>
+      ) : null}
+
+      {noHayActivos && !examenVinculado ? (
         <Alert tone="info">
           No tienes exámenes activos en tu área. Crea uno en la sección
           <strong> Exámenes</strong>, agrégale preguntas y actívalo para poder
           asociarlo aquí.
         </Alert>
-      ) : (
+      ) : opcionesSelect.length > 0 || isLoading ? (
         <div className={styles.form}>
           <SelectInput
             id="vacante-examen-id"
             label={yaRequiereExamen ? "Cambiar examen" : "Examen activo"}
             placeholder={isLoading ? "Cargando exámenes…" : "Selecciona un examen"}
             value={selectedExamenId}
-            disabled={isLoading || opcionesActivas.length === 0 || isMutating}
+            disabled={isLoading || opcionesSelect.length === 0 || isMutating}
             onChange={(event) => setSelectedExamenId(event.target.value)}
           >
-            {opcionesActivas.map((examen) => (
+            {opcionesSelect.map((examen) => (
               <option key={examen.idExamen} value={examen.idExamen}>
                 {examen.titulo}
+                {!isExamenActivo(examen.estatus) ? " (inactivo)" : ""}
               </option>
             ))}
           </SelectInput>
@@ -161,7 +297,11 @@ export function TitularVacanteExamenPanel({
             <Button
               type="button"
               variant="primary"
-              disabled={isMutating || !selectedExamenId}
+              disabled={
+                isMutating ||
+                !selectedExamenId ||
+                (yaRequiereExamen && !cambioPendiente && Boolean(examenVinculado))
+              }
               onClick={() => void handleAsociar()}
             >
               {yaRequiereExamen ? "Actualizar examen" : "Asociar examen"}
@@ -179,7 +319,7 @@ export function TitularVacanteExamenPanel({
             ) : null}
           </div>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

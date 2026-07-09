@@ -2,14 +2,22 @@
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { Building2 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { TitularAreaContext } from "../../lib/area-context";
 import { MODALIDAD_TRABAJO_OPTIONS } from "../../constants/vacante-form";
+import { asociarExamenVacanteAction, listExamenesAction, quitarExamenVacanteAction } from "../../actions/examenes.actions";
+import { saveVacanteExamenCache } from "../../lib/vacante-examen-cache";
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { isExamenActivo } from "@/lib/domain";
 import { MODALIDAD_CATALOGO_OPTIONS } from "@/lib/domain/modalidad";
-import type { VacanteDetalleResponse, VacanteResponse } from "../../types/titular.types";
+import type {
+  ExamenDiagnosticoResumenResponse,
+  VacanteDetalleResponse,
+  VacanteResponse,
+} from "../../types/titular.types";
 import { notify } from "@/shared/notifications";
+import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -64,6 +72,19 @@ function buildInitialValues(
   return EMPTY_VALUES;
 }
 
+function matchesVacanteArea(examenAreaId: number | undefined, vacanteAreaId?: number) {
+  if (!vacanteAreaId) return true;
+  return Number(examenAreaId) === Number(vacanteAreaId);
+}
+
+function filterExamenesActivos(
+  examenes: ExamenDiagnosticoResumenResponse[],
+  areaId?: number,
+) {
+  return examenes.filter(
+    (examen) => isExamenActivo(examen.estatus) && matchesVacanteArea(examen.areaId, areaId),
+  );
+}
 function VacanteContextBanner({
   areaLabel,
   hint,
@@ -94,7 +115,51 @@ function VacanteFormModalContent({
   const router = usePanelRouter();
   const [values, setValues] = useState(() => buildInitialValues(mode, vacante));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
+  const [selectedExamenId, setSelectedExamenId] = useState("");
+  const [examenError, setExamenError] = useState<string | undefined>();
+  const [examenes, setExamenes] = useState<ExamenDiagnosticoResumenResponse[]>([]);
+  const [isLoadingExamenes, setIsLoadingExamenes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const areaId = areaContext?.areaId ?? vacante?.areaId;
+
+  useEffect(() => {
+    if (!values.requiereExamen) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadExamenes() {
+      setIsLoadingExamenes(true);
+      const result = await listExamenesAction();
+      if (cancelled) return;
+
+      if (result.success) {
+        setExamenes(result.data);
+      } else {
+        setExamenes([]);
+      }
+
+      setIsLoadingExamenes(false);
+    }
+
+    void loadExamenes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [values.requiereExamen]);
+
+  const examenesActivos = useMemo(
+    () => filterExamenesActivos(examenes, areaId),
+    [areaId, examenes],
+  );
+
+  const examenesActivosTotales = useMemo(
+    () => examenes.filter((examen) => isExamenActivo(examen.estatus)),
+    [examenes],
+  );
 
   const selectedModalidad = MODALIDAD_TRABAJO_OPTIONS.find(
     (option) => option.value === values.modalidadTrabajo,
@@ -111,7 +176,14 @@ function VacanteFormModalContent({
         : null;
 
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
-    setValues((current) => ({ ...current, [field]: value }));
+    setValues((current) => {
+      const next = { ...current, [field]: value };
+      if (field === "requiereExamen" && !value) {
+        setSelectedExamenId("");
+        setExamenError(undefined);
+      }
+      return next;
+    });
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
   };
 
@@ -131,9 +203,18 @@ function VacanteFormModalContent({
       errors.modalidadId = "Selecciona el tipo de vacante.";
     }
     if (!modalidadTrabajo) errors.modalidadTrabajo = "Selecciona la modalidad de trabajo.";
-    if (!cupoTotal || cupoTotal < 1) errors.cupoTotal = "Indica un cupo válido (mínimo 1).";
+    const requiereSeleccionExamen =
+      values.requiereExamen &&
+      !(mode === "edit" && vacante?.requiereExamen && !selectedExamenId);
 
-    if (Object.keys(errors).length > 0) {
+    if (!cupoTotal || cupoTotal < 1) errors.cupoTotal = "Indica un cupo válido (mínimo 1).";
+    if (requiereSeleccionExamen && !selectedExamenId) {
+      setExamenError("Selecciona el examen de ingreso.");
+    } else {
+      setExamenError(undefined);
+    }
+
+    if (Object.keys(errors).length > 0 || (requiereSeleccionExamen && !selectedExamenId)) {
       setFieldErrors(errors);
       return;
     }
@@ -164,9 +245,8 @@ function VacanteFormModalContent({
           ? await updateVacanteAction(vacante.idVacante, payload)
           : { success: false as const, error: "No se pudo completar la operación." };
 
-    setIsSubmitting(false);
-
     if (!result.success) {
+      setIsSubmitting(false);
       notify.error(result.error);
       if ("fieldErrors" in result && result.fieldErrors) {
         setFieldErrors(mapActionFieldErrors(result.fieldErrors));
@@ -174,6 +254,60 @@ function VacanteFormModalContent({
       return;
     }
 
+    if (values.requiereExamen && selectedExamenId) {
+      const vacanteId =
+        mode === "create"
+          ? result.data.idVacante
+          : mode === "edit" && vacante
+            ? vacante.idVacante
+            : null;
+
+      if (vacanteId) {
+        if (mode === "edit" && vacante?.requiereExamen) {
+          const quitarResult = await quitarExamenVacanteAction(vacanteId);
+          if (!quitarResult.success) {
+            setIsSubmitting(false);
+            notify.warning(
+              "Los datos se guardaron, pero no se pudo actualizar el examen vinculado.",
+              { description: quitarResult.error },
+            );
+            router.refresh();
+            onClose();
+            return;
+          }
+        }
+
+        const assocResult = await asociarExamenVacanteAction(
+          vacanteId,
+          Number(selectedExamenId),
+        );
+
+        if (!assocResult.success) {
+          setIsSubmitting(false);
+          notify.warning(
+            mode === "create"
+              ? "La vacante se registró, pero no se pudo vincular el examen. Ábrela en detalle para asociarlo."
+              : "Los datos se guardaron, pero no se pudo vincular el examen. Inténtalo desde el detalle.",
+            { description: assocResult.error },
+          );
+          router.refresh();
+          onClose();
+          return;
+        }
+
+        const examenSeleccionado = examenesActivos.find(
+          (examen) => examen.idExamen === Number(selectedExamenId),
+        );
+        if (examenSeleccionado) {
+          saveVacanteExamenCache(vacanteId, {
+            idExamen: examenSeleccionado.idExamen,
+            titulo: examenSeleccionado.titulo,
+          });
+        }
+      }
+    }
+
+    setIsSubmitting(false);
     router.refresh();
     onClose();
   };
@@ -329,6 +463,52 @@ function VacanteFormModalContent({
               />
             </div>
           </div>
+
+          {values.requiereExamen ? (
+            <div className={styles.examenPanel}>
+              <p className={styles.examenPanelTitle}>Examen de ingreso</p>
+              <p className={styles.examenPanelHint}>
+                Selecciona el examen diagnóstico que deberán contestar los postulantes.
+              </p>
+
+              {isLoadingExamenes ? (
+                <p className={styles.examenLoading} role="status">
+                  Cargando exámenes activos de tu área…
+                </p>
+              ) : examenesActivos.length > 0 ? (
+                <SelectInput
+                  id="vacante-examen-id"
+                  label="Examen relacionado"
+                  required
+                  placeholder="Selecciona un examen"
+                  hint="Solo se listan exámenes activos de tu área."
+                  value={selectedExamenId}
+                  error={examenError}
+                  disabled={isSubmitting}
+                  onChange={(event) => {
+                    setSelectedExamenId(event.target.value);
+                    setExamenError(undefined);
+                  }}
+                >
+                  {examenesActivos.map((examen) => (
+                    <option key={examen.idExamen} value={examen.idExamen}>
+                      {examen.titulo}
+                    </option>
+                  ))}
+                </SelectInput>
+              ) : examenesActivosTotales.length > 0 ? (
+                <Alert tone="warning" title="Sin exámenes en tu área">
+                  Tienes exámenes activos, pero ninguno corresponde al área asignada de esta
+                  vacante. Verifica el área del examen o créalo en la sección <strong>Exámenes</strong>.
+                </Alert>
+              ) : (
+                <Alert tone="info" title="Sin exámenes disponibles">
+                  No tienes exámenes activos. Créalos y actívalos en la sección{" "}
+                  <strong>Exámenes</strong> antes de vincularlos aquí.
+                </Alert>
+              )}
+            </div>
+          ) : null}
         </section>
       </form>
     </Modal>

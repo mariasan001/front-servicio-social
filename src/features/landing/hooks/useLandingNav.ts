@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LANDING_SECTION_IDS } from "../constants/nav";
+import { LANDING_SECTION_IDS, getLandingNavHash } from "../constants/nav";
 
 const DEFAULT_HASH = "#inicio";
 
@@ -123,7 +123,10 @@ export function useLandingNav() {
   }, []);
 
   const handleNavClick = useCallback((href: string) => {
-    setActiveHash(href);
+    const hash = getLandingNavHash(href);
+    if (hash) {
+      setActiveHash(hash);
+    }
     setIsMenuOpen(false);
   }, []);
 

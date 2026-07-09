@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
 import { ApiError } from "@/lib/api/errors";
+import { AUTH_PATHS } from "@/lib/auth/constants";
+import { isNextNavigationError, isUnauthorizedApiError } from "@/lib/auth/unauthorized";
 import {
   actionFailure,
   actionSuccess,
@@ -36,6 +39,14 @@ export async function runServerAction<T>(
     const data = await action();
     return actionSuccess(data);
   } catch (error) {
+    if (isNextNavigationError(error)) {
+      throw error;
+    }
+
+    if (isUnauthorizedApiError(error)) {
+      redirect(AUTH_PATHS.login);
+    }
+
     if (error instanceof ApiError) {
       return actionFailure(error.message || fallbackMessage, {
         code: error.code,

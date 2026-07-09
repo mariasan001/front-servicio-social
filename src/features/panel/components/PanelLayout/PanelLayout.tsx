@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/lib/api/types";
 import type { UserRole } from "@/lib/auth/constants";
 import { getAccessibleNavigations, getNavigationForRole } from "../../constants/navigation";
+import { PanelSessionMonitor } from "../PanelSessionMonitor/PanelSessionMonitor";
 import { PanelSidebar } from "../PanelSidebar/PanelSidebar";
 import styles from "./PanelLayout.module.css";
 
@@ -56,6 +57,7 @@ export function PanelLayout({
 
   return (
     <div className={styles.panelLayout}>
+      <PanelSessionMonitor />
       <div className={styles.shell}>
         <div
           className={[styles.overlay, isSidebarOpen && styles.overlayVisible]

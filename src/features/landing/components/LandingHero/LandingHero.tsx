@@ -47,7 +47,7 @@ export function LandingHero() {
               <UserPlus className={styles.actionIcon} size={18} strokeWidth={2} />
               Registrarme
             </Button>
-            <Button href="#vacantes" variant="outline">
+            <Button href="/vacantes" variant="outline">
               <Briefcase className={styles.actionIcon} size={18} strokeWidth={2} />
               Ver vacantes
             </Button>
