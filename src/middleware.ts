@@ -54,6 +54,7 @@ export const config = {
     "/panel/:path*",
     "/login",
     "/registro",
+    "/registro/:path*",
     "/recuperar-contrasena",
     "/restablecer-contrasena/:path*",
   ],

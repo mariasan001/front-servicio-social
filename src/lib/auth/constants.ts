@@ -29,6 +29,7 @@ export const GUEST_ONLY_PATHS = [
   AUTH_PATHS.login,
   AUTH_PATHS.register,
   AUTH_PATHS.resetPassword,
+  AUTH_PATHS.resetPasswordConfirm,
 ] as const;
 
 export const ROLE_HOME_PATHS: Record<UserRole, string> = {

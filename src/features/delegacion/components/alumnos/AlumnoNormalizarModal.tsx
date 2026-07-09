@@ -11,6 +11,7 @@ import {
 import type { AlumnoPorNormalizarResponse } from "../../types/delegacion.types";
 import type { EscuelaResponse } from "@/lib/domain";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { SelectInput, TextInput } from "@/shared/components/Form";
@@ -140,11 +141,14 @@ function AlumnoNormalizarModalContent({
 
     setIsMutating(true);
     setFieldErrors({});
-    const result = await createEscuelaAndNormalizeAlumnoAction(alumno.idAlumno, {
-      nombreOficial,
-      nombreCorto: nuevaEscuela.nombreCorto.trim() || undefined,
-      correoContacto: nuevaEscuela.correoContacto.trim() || undefined,
-    });
+    const result = await createEscuelaAndNormalizeAlumnoAction(
+      alumno.idAlumno,
+      compactPayload({
+        nombreOficial,
+        nombreCorto: nuevaEscuela.nombreCorto.trim() || undefined,
+        correoContacto: nuevaEscuela.correoContacto.trim() || undefined,
+      }),
+    );
     setIsMutating(false);
 
     if (!result.success) {

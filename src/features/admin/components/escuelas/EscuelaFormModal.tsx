@@ -7,6 +7,7 @@ import {
   updateEscuelaAction,
 } from "../../actions/escuelas.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import type { EscuelaDetalleResponse, EscuelaResponse } from "../../types/escuela.types";
 import { formatEtiqueta, CONVENIO_ESTATUS_OPTIONS, normalizeConvenioEstatus } from "./escuela-labels";
 import { notify } from "@/shared/notifications";
@@ -98,7 +99,7 @@ function EscuelaFormModalContent({
 
     setIsSubmitting(true);
 
-    const payload = {
+    const payload = compactPayload({
       nombreOficial,
       nombreCorto: values.nombreCorto.trim() || undefined,
       clave: values.clave.trim() || undefined,
@@ -108,7 +109,7 @@ function EscuelaFormModalContent({
       domicilio: values.domicilio.trim() || undefined,
       estatus: values.estatus.trim() || undefined,
       convenioEstatus: values.convenioEstatus.trim() || undefined,
-    };
+    });
 
     const result =
       mode === "create"

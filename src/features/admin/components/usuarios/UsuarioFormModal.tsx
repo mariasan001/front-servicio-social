@@ -8,6 +8,7 @@ import {
   updateUsuarioInternoAction,
 } from "../../actions/usuarios.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import type { EscuelaResponse } from "../../types/escuela.types";
 import type { UsuarioInternoResponse } from "../../types/usuario.types";
 import { formatRol } from "./usuario-labels";
@@ -175,7 +176,7 @@ function UsuarioFormModalContent({
 
     setIsSubmitting(true);
 
-    const sharedPayload = {
+    const sharedPayload = compactPayload({
       nombreCompleto,
       correo,
       telefono: values.telefono.trim() || undefined,
@@ -183,15 +184,17 @@ function UsuarioFormModalContent({
       roles: values.roles,
       escuelaId: requiresEscuela ? Number(values.escuelaId) : undefined,
       puedeDescargarCartas: values.puedeDescargarCartas,
-    };
+    });
 
     const result =
       mode === "create"
-        ? await createUsuarioInternoAction({
-            ...sharedPayload,
-            username: values.username.trim(),
-            password: values.password,
-          })
+        ? await createUsuarioInternoAction(
+            compactPayload({
+              ...sharedPayload,
+              username: values.username.trim(),
+              password: values.password,
+            }),
+          )
         : await updateUsuarioInternoAction(usuario!.idUsuario, sharedPayload);
 
     setIsSubmitting(false);

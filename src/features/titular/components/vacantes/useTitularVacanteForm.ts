@@ -9,6 +9,7 @@ import {
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
 import { saveVacanteExamenCache } from "../../lib/vacante-examen-cache";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import type {
   ExamenDiagnosticoResumenResponse,
   VacanteDetalleResponse,
@@ -135,7 +136,7 @@ export function useTitularVacanteForm({
 
     setIsSubmitting(true);
 
-    const payload = {
+    const payload = compactPayload({
       nombre,
       descripcion,
       perfilRequerido: values.perfilRequerido.trim() || undefined,
@@ -143,12 +144,14 @@ export function useTitularVacanteForm({
       modalidadTrabajo,
       cupoTotal,
       requiereExamen: values.requiereExamen,
-    };
+    });
 
     const result =
       mode === "create"
         ? await createVacanteAction(
-            areaContext ? { ...payload, areaId: areaContext.areaId } : payload,
+            areaContext
+              ? compactPayload({ ...payload, areaId: areaContext.areaId })
+              : payload,
           )
         : mode === "edit" && vacante
           ? await updateVacanteAction(vacante.idVacante, payload)

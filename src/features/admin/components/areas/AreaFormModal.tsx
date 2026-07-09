@@ -4,6 +4,7 @@ import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useMemo, useState, type FormEvent } from "react";
 import { createAreaAction, updateAreaAction } from "../../actions/areas.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import type { AreaResponse } from "../../types/area.types";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { notify } from "@/shared/notifications";
@@ -112,14 +113,14 @@ function AreaFormModalContent({
 
     setIsSubmitting(true);
 
-    const payload = {
+    const payload = compactPayload({
       dependenciaId,
       nombre,
       descripcion: values.descripcion.trim() || undefined,
       ubicacion: values.ubicacion.trim() || undefined,
       correoContacto: values.correoContacto.trim() || undefined,
       telefonoContacto: values.telefonoContacto.trim() || undefined,
-    };
+    });
 
     const result =
       mode === "create"

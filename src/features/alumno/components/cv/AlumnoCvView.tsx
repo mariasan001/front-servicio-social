@@ -4,6 +4,7 @@ import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import {
   ALUMNO_POSTULACION_ENTRY_PATH,
   hasAlumnoCvPostulacionMotivo,
@@ -149,14 +150,16 @@ function AlumnoCvViewContent({ cv, nombreCompleto }: AlumnoCvViewProps) {
     event.preventDefault();
     setIsSaving(true);
 
-    const result = await updateCvAction({
-      perfilProfesional: effectiveForm.perfilProfesional.trim() || undefined,
-      experienciaLaboral: effectiveForm.experienciaLaboral.trim() || undefined,
-      habilidades: effectiveForm.habilidades.trim() || undefined,
-      idiomas: effectiveForm.idiomas.trim() || undefined,
-      certificaciones: effectiveForm.certificaciones.trim() || undefined,
-      portafolioUrl: effectiveForm.portafolioUrl.trim() || undefined,
-    });
+    const result = await updateCvAction(
+      compactPayload({
+        perfilProfesional: effectiveForm.perfilProfesional.trim() || undefined,
+        experienciaLaboral: effectiveForm.experienciaLaboral.trim() || undefined,
+        habilidades: effectiveForm.habilidades.trim() || undefined,
+        idiomas: effectiveForm.idiomas.trim() || undefined,
+        certificaciones: effectiveForm.certificaciones.trim() || undefined,
+        portafolioUrl: effectiveForm.portafolioUrl.trim() || undefined,
+      }),
+    );
 
     setIsSaving(false);
 

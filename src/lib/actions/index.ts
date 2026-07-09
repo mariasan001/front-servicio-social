@@ -8,3 +8,9 @@ export {
 export { runServerAction } from "./run-server-action";
 export { runAuthorizedAction } from "./run-authorized-action";
 export { mapActionFieldErrors } from "./form-errors";
+export {
+  compactOptionalStrings,
+  compactPayload,
+  normalizeOptionalNumber,
+  normalizeOptionalString,
+} from "./normalize-server-args";

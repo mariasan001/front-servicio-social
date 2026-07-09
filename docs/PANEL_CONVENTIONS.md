@@ -410,6 +410,7 @@ export async function getVacante(idVacante: number) {
 - Listados con filtros: `buildQuery(filters)`
 - Mutaciones: `method: "PATCH"` o `"POST"` según el backend
 - Subida de archivos: respetar `experimental.serverActions.bodySizeLimit: "2mb"` en `next.config.ts`
+- Payloads opcionales: usar `compactPayload()` de `@/lib/actions` antes de invocar server actions
 
 ---
 

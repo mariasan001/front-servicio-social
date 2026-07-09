@@ -11,6 +11,7 @@ import { getVacanteDetailAction } from "../../actions/vacantes.actions";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { puedePostularVacantes } from "@/lib/domain";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import { notify } from "@/shared/notifications";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
@@ -67,10 +68,12 @@ export function AlumnoVacanteDetailModal({
   const handlePostular = async () => {
     if (!detail) return;
     setIsMutating(true);
-    const result = await createPostulacionAction({
-      vacanteId: detail.idVacante,
-      comentarioAlumno: comentario.trim() || undefined,
-    });
+    const result = await createPostulacionAction(
+      compactPayload({
+        vacanteId: detail.idVacante,
+        comentarioAlumno: comentario.trim() || undefined,
+      }),
+    );
     setIsMutating(false);
     if (!result.success) {
       if (result.code === "CV_INCOMPLETO") {

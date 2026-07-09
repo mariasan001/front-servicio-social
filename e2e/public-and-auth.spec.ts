@@ -46,6 +46,15 @@ test.describe("Autenticación pública", () => {
   });
 });
 
+test.describe("Operación", () => {
+  test("health check responde ok", async ({ request }) => {
+    const response = await request.get("/api/health");
+    expect(response.ok()).toBeTruthy();
+    const body = (await response.json()) as { status: string };
+    expect(body.status).toBe("ok");
+  });
+});
+
 test.describe("Protección del panel", () => {
   test("panel alumno redirige a login sin sesión", async ({ page }) => {
     await page.goto("/panel/alumno");

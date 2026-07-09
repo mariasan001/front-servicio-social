@@ -19,6 +19,7 @@ import { Button } from "@/shared/components/Button";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 
 type EscuelaDetailModalProps = {
@@ -78,11 +79,14 @@ export function EscuelaDetailModal({
     setInvitacionError(null);
     setInvitacionGenerada(null);
 
-    const result = await generateEscuelaTokenAction(detail.escuela.idEscuela, {
-      nombre: invitacionNombre.trim() || undefined,
-      fechaExpiracion: invitacionExpiracion || undefined,
-      revocarTokensActivos: revocarActivas,
-    });
+    const result = await generateEscuelaTokenAction(
+      detail.escuela.idEscuela,
+      compactPayload({
+        nombre: invitacionNombre.trim() || undefined,
+        fechaExpiracion: invitacionExpiracion || undefined,
+        revocarTokensActivos: revocarActivas,
+      }),
+    );
 
     setIsMutating(false);
 

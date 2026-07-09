@@ -5,7 +5,15 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", "/vacantes"],
+      disallow: [
+        "/panel/",
+        "/login",
+        "/registro",
+        "/recuperar-contrasena",
+        "/restablecer-contrasena",
+        "/api/",
+      ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

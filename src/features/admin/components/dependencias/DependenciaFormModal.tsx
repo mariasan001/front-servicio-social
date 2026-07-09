@@ -7,6 +7,7 @@ import {
   updateDependenciaAction,
 } from "../../actions/dependencias.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import type { DependenciaResponse } from "../../types/dependencia.types";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
@@ -80,12 +81,12 @@ function DependenciaFormModalContent({
 
     setIsSubmitting(true);
 
-    const payload = {
+    const payload = compactPayload({
       nombre,
       clave: values.clave.trim() || undefined,
       siglas: values.siglas.trim() || undefined,
       descripcion: values.descripcion.trim() || undefined,
-    };
+    });
 
     const result =
       mode === "create"

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { compactPayload } from "@/lib/actions/normalize-server-args";
 import {
   createExamenAction,
   updateExamenAction,
@@ -134,20 +135,22 @@ function ExamenFormModalContent({
 
     setIsSubmitting(true);
 
-    const payload = {
+    const payload = compactPayload({
       titulo,
       descripcion: values.descripcion.trim() || undefined,
       instrucciones: values.instrucciones.trim() || undefined,
       puntajeMinimoAprobatorio: puntaje,
       tiempoLimiteMinutos: tiempo,
-    };
+    });
 
     const result =
       mode === "create"
-        ? await createExamenAction({
-            ...payload,
-            areaId: values.areaId ? Number(values.areaId) : undefined,
-          })
+        ? await createExamenAction(
+            compactPayload({
+              ...payload,
+              areaId: values.areaId ? Number(values.areaId) : undefined,
+            }),
+          )
         : mode === "edit" && examen
           ? await updateExamenAction(examen.idExamen, payload)
           : { success: false as const, error: "No se pudo completar la operación." };
