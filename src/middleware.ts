@@ -6,7 +6,7 @@ import {
   isProtectedPath,
   resolveHomePath,
 } from "@/lib/auth";
-import { resolveGuestAuthRedirect } from "@/features/alumno/lib/resolve-guest-auth-redirect";
+import { resolveGuestAuthRedirect } from "@/lib/auth/guest-redirect";
 import { getSessionFromRequest } from "@/lib/auth/session.middleware";
 
 function redirectTo(request: NextRequest, destination: string) {

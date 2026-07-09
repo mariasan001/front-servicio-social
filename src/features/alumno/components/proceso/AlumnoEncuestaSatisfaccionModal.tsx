@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { registerPublicEncuestaSatisfaccion } from "@/features/landing/services/public-encuestas.service";
+import { registerPublicEncuestaSatisfaccion } from "@/lib/services/public-encuestas.service";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { Modal } from "@/shared/components/Modal";

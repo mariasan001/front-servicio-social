@@ -1,7 +1,7 @@
 "use client";
 
 import { Inbox, type LucideIcon } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/shared/components/Button";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { LoadingStateBlock } from "@/shared/components/LoadingState";
@@ -170,20 +170,21 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const EmptyIcon = emptyIcon ?? Inbox;
   const [page, setPage] = useState(1);
+  const [rowsIdentity, setRowsIdentity] = useState(rows);
   const shouldExpand = fillHeight && (isLoading || rows.length === 0);
   const columnWidths = resolveColumnWidths(columns);
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+
+  if (rowsIdentity !== rows) {
+    setRowsIdentity(rows);
+    setPage(1);
+  }
+
   const safePage = Math.min(page, totalPages);
 
-  useEffect(() => {
-    setPage(1);
-  }, [rows]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  if (page !== safePage) {
+    setPage(safePage);
+  }
 
   const paginatedRows = useMemo(() => {
     if (isLoading || rows.length === 0) {

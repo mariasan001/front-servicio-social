@@ -4,7 +4,8 @@
 
 | Documento | Contenido |
 |-----------|-----------|
-| **[ARQUITECTURA.md](./ARQUITECTURA.md)** | Mapa completo: capas, rutas, roles, APIs, flujos (incl. exámenes y encuestas) |
+| **[ARQUITECTURA.md](./ARQUITECTURA.md)** | Mapa completo: capas, rutas, roles, APIs |
+| **[FLUJOS.md](./FLUJOS.md)** | Diagramas Mermaid: sesión, postulación, proceso, exámenes |
 | **[PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)** | Convenciones del panel: modales, actions, dominio, módulo de exámenes |
 | **[PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)** | Smoke tests E2E por rol y flujo |
 

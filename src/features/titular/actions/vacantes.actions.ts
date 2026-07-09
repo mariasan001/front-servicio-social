@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { normalizeOptionalNumber, normalizeOptionalString } from "@/lib/actions/normalize-server-args";
 import { requireServerSession } from "@/lib/auth/session.server";
 import { resolveTitularAreaContext } from "../lib/area-context";
@@ -55,7 +57,7 @@ function buildCreateVacantePayload(
 export async function getVacanteDetailAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getVacante(idVacante),
     "No pudimos cargar la información de la vacante.",
   );
@@ -64,7 +66,7 @@ export async function getVacanteDetailAction(
 export async function createVacanteAction(
   request: CrearVacanteActionRequest,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  const result = await runServerAction(async () => {
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],async () => {
     const session = await requireServerSession();
     const vacantes = await listVacantes();
 
@@ -105,7 +107,7 @@ export async function updateVacanteAction(
   idVacante: number,
   request: ActualizarVacanteRequest,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => updateVacante(idVacante, request),
     "No pudimos actualizar la vacante.",
   );
@@ -120,7 +122,7 @@ export async function updateVacanteAction(
 export async function sendVacanteToReviewAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => sendVacanteToReview(idVacante),
     "No pudimos enviar la vacante a revisión.",
   );
@@ -136,7 +138,7 @@ export async function sendVacanteToReviewAction(
 export async function cancelVacanteAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => cancelVacante(idVacante),
     "No pudimos cancelar la vacante.",
   );

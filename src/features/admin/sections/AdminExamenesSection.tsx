@@ -1,7 +1,7 @@
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { Alert } from "@/shared/components/Alert";
-import { DelegacionExamenesView } from "@/features/delegacion/components/examenes/DelegacionExamenesView";
-import { listExamenesMonitor } from "@/features/delegacion/services/examenes.service";
+import { ExamenesMonitorView } from "@/shared/components/examen/ExamenesMonitorView";
+import { listExamenesMonitor } from "@/lib/services/examenes-monitor.service";
 
 export async function AdminExamenesSection() {
   const result = await listExamenesMonitor()
@@ -15,7 +15,7 @@ export async function AdminExamenesSection() {
   }
 
   return (
-    <DelegacionExamenesView
+    <ExamenesMonitorView
       examenes={result.examenes}
       titleId="admin-examenes-title"
       title="Exámenes diagnóstico"

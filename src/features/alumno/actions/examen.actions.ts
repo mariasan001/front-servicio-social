@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import type {
   AlumnoExamenDisponibleResponse,
   FinalizarExamenRequest,
@@ -17,7 +19,7 @@ import {
 export async function getExamenPostulacionAction(
   idPostulacion: number,
 ): Promise<ActionResult<AlumnoExamenDisponibleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ALUMNO], 
     () => getExamenPostulacion(idPostulacion),
     "No pudimos cargar el examen.",
   );
@@ -26,7 +28,7 @@ export async function getExamenPostulacionAction(
 export async function iniciarExamenPostulacionAction(
   idPostulacion: number,
 ): Promise<ActionResult<IntentoExamenResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ALUMNO], 
     () => iniciarExamenPostulacion(idPostulacion),
     "No pudimos iniciar el examen.",
   );
@@ -36,7 +38,7 @@ export async function finalizarExamenPostulacionAction(
   idPostulacion: number,
   request: FinalizarExamenRequest,
 ): Promise<ActionResult<FinalizarExamenResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => finalizarExamenPostulacion(idPostulacion, request),
     "No pudimos enviar tus respuestas.",
   );

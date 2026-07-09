@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
@@ -59,15 +59,31 @@ export function TitularExamenManageModal({
   examenId,
   onClose,
 }: TitularExamenManageModalProps) {
+  if (!open || examenId === null) {
+    return null;
+  }
+
+  return (
+    <TitularExamenManageModalContent key={examenId} examenId={examenId} onClose={onClose} />
+  );
+}
+
+function TitularExamenManageModalContent({
+  examenId,
+  onClose,
+}: {
+  examenId: number;
+  onClose: () => void;
+}) {
   const router = usePanelRouter();
   const { detail, setDetail, error, isLoading } =
     useDetailModalLoader<ExamenDiagnosticoDetalleResponse>(
-      open,
+      true,
       examenId,
       getExamenDetailAction,
     );
 
-  const [selected, setSelected] = useState<Selection | null>(null);
+  const [selectedOverride, setSelectedOverride] = useState<Selection | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editGeneralOpen, setEditGeneralOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ExamenPreguntaResponse | null>(
@@ -77,22 +93,15 @@ export function TitularExamenManageModal({
   const preguntas = getPreguntasActivas(detail?.preguntas);
   const activo = isExamenActivo(detail?.estatus);
   const canActivate = detail ? puedeActivarExamen(detail) : false;
-
-  useEffect(() => {
-    if (!open) {
-      setSelected(null);
+  const defaultSelected = useMemo<Selection | null>(() => {
+    if (!detail) {
+      return null;
     }
-  }, [open]);
 
-  useEffect(() => {
-    if (!detail) return;
-    setSelected((current) => {
-      if (current) return current;
-      const first = preguntas[0];
-      return first ? { type: "pregunta", id: first.idPregunta } : { type: "settings" };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+    const first = preguntas[0];
+    return first ? { type: "pregunta", id: first.idPregunta } : { type: "settings" };
+  }, [detail, preguntas]);
+  const selected = selectedOverride ?? defaultSelected;
 
   const selectedPregunta =
     selected?.type === "pregunta"
@@ -118,7 +127,7 @@ export function TitularExamenManageModal({
     applyDetail(result.data);
     const nuevas = getPreguntasActivas(result.data.preguntas);
     const ultima = nuevas[nuevas.length - 1];
-    setSelected(ultima ? { type: "pregunta", id: ultima.idPregunta } : { type: "settings" });
+    setSelectedOverride(ultima ? { type: "pregunta", id: ultima.idPregunta } : { type: "settings" });
     notify.success("Pregunta agregada.");
   };
 
@@ -155,7 +164,7 @@ export function TitularExamenManageModal({
 
     applyDetail(result.data);
     const restantes = getPreguntasActivas(result.data.preguntas);
-    setSelected(
+    setSelectedOverride(
       restantes[0]
         ? { type: "pregunta", id: restantes[0].idPregunta }
         : { type: "settings" },
@@ -243,7 +252,7 @@ export function TitularExamenManageModal({
           onSubmit={handleAddPregunta}
           onCancel={() => {
             const first = preguntas[0];
-            setSelected(
+            setSelectedOverride(
               first ? { type: "pregunta", id: first.idPregunta } : { type: "settings" },
             );
           }}
@@ -266,7 +275,7 @@ export function TitularExamenManageModal({
           onSubmit={(request) =>
             handleUpdatePregunta(selectedPregunta.idPregunta, request)
           }
-          onCancel={() => setSelected({ type: "settings" })}
+          onCancel={() => setSelectedOverride({ type: "settings" })}
         />
       );
     }
@@ -281,7 +290,7 @@ export function TitularExamenManageModal({
   return (
     <>
       <Modal
-        open={open}
+        open
         title={detail?.titulo ?? "Examen"}
         onClose={onClose}
         size="xl"
@@ -325,13 +334,13 @@ export function TitularExamenManageModal({
                 ? selected
                 : null
             }
-            onSelectSettings={() => setSelected({ type: "settings" })}
-            onSelectPregunta={(id) => setSelected({ type: "pregunta", id })}
+            onSelectSettings={() => setSelectedOverride({ type: "settings" })}
+            onSelectPregunta={(id) => setSelectedOverride({ type: "pregunta", id })}
             sidebarAction={
               <ExamenBuilderAddButton
                 label="Agregar pregunta"
                 disabled={isSubmitting || activo}
-                onClick={() => setSelected({ type: "new" })}
+                onClick={() => setSelectedOverride({ type: "new" })}
               />
             }
             sidebarExtraItems={

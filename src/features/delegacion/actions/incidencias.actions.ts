@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
 import {
   cancelIncidencia,
@@ -16,7 +18,7 @@ import type {
 export async function getIncidenciaDetailAction(
   idIncidencia: number,
 ): Promise<ActionResult<IncidenciaResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.DELEGACION], 
     () => getIncidencia(idIncidencia),
     "No pudimos cargar la información de la incidencia.",
   );
@@ -26,7 +28,7 @@ export async function resolveIncidenciaAction(
   idIncidencia: number,
   request: ResolverIncidenciaRequest,
 ): Promise<ActionResult<IncidenciaResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => resolveIncidencia(idIncidencia, request),
     "No pudimos resolver la incidencia.",
   );
@@ -43,7 +45,7 @@ export async function cancelIncidenciaAction(
   idIncidencia: number,
   request: CancelarIncidenciaRequest,
 ): Promise<ActionResult<IncidenciaResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => cancelIncidencia(idIncidencia, request),
     "No pudimos cancelar la incidencia.",
   );

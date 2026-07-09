@@ -29,7 +29,24 @@ function formatBadgeCount(count: number) {
   return count > 99 ? "99+" : String(count);
 }
 
-export function AlumnoNotificacionesTray({
+function buildNotificacionesSyncKey(
+  notificaciones: NotificacionResponse[],
+  unreadCount: number,
+) {
+  const itemsKey = notificaciones.map((item) => `${item.id}:${item.leida}`).join("|");
+  return `${itemsKey}:${unreadCount}`;
+}
+
+export function AlumnoNotificacionesTray(props: AlumnoNotificacionesTrayProps) {
+  return (
+    <AlumnoNotificacionesTrayContent
+      key={buildNotificacionesSyncKey(props.notificaciones, props.unreadCount)}
+      {...props}
+    />
+  );
+}
+
+function AlumnoNotificacionesTrayContent({
   notificaciones,
   unreadCount,
   totalElements,
@@ -44,11 +61,6 @@ export function AlumnoNotificacionesTray({
   const [isMarkingAll, setIsMarkingAll] = useState(false);
 
   const badgeLabel = formatBadgeCount(localUnreadCount);
-
-  useEffect(() => {
-    setItems(notificaciones);
-    setLocalUnreadCount(unreadCount);
-  }, [notificaciones, unreadCount]);
 
   useEffect(() => {
     if (!open) {

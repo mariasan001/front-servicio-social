@@ -1,6 +1,5 @@
 "use client";
 
-import { GraduationCap, Link2 } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import {
@@ -12,20 +11,13 @@ import {
   suspendEscuelaTokenAction,
 } from "../../actions/escuelas.actions";
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
+import { EscuelaDetailInfo } from "./EscuelaDetailInfo";
 import { EscuelaFormModal } from "./EscuelaFormModal";
-import { InvitacionGeneradaCard } from "./InvitacionGeneradaCard";
-import { resolveInvitationShareData } from "./invitation-share";
-import {
-  formatFecha,
-} from "./escuela-labels";
-import escuelaStyles from "./EscuelaDetailModal.module.css";
+import { EscuelaInvitacionesPanel } from "./EscuelaInvitacionesPanel";
 import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
-import { CheckboxField, TextInput } from "@/shared/components/Form";
-import { DetailModalHero } from "@/shared/components/DetailModal";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 
@@ -35,18 +27,6 @@ type EscuelaDetailModalProps = {
   open: boolean;
   onClose: () => void;
 };
-
-function normalizeEstatus(value?: string) {
-  return value?.trim().toUpperCase() ?? "";
-}
-
-function formatInviteExpiry(fechaExpiracion?: string) {
-  if (!fechaExpiracion?.trim()) {
-    return null;
-  }
-
-  return formatFecha(fechaExpiracion);
-}
 
 export function EscuelaDetailModal({
   escuelaId,
@@ -68,7 +48,7 @@ export function EscuelaDetailModal({
   const [expandedInviteId, setExpandedInviteId] = useState<number | null>(null);
   const [generatedTokens, setGeneratedTokens] = useState<Record<number, string>>({});
   const [revealingId, setRevealingId] = useState<number | null>(null);
-  const { detail, error, setError, isLoading, isReloading } = useDetailModalLoader(
+  const { detail, error, isLoading, isReloading } = useDetailModalLoader(
     open,
     escuelaId,
     getEscuelaDetailAction,
@@ -198,8 +178,6 @@ export function EscuelaDetailModal({
 
   const escuela = detail?.escuela;
   const invitaciones = detail?.invitaciones ?? [];
-  const nombreCorto = escuela?.nombreCorto?.trim();
-  const clave = escuela?.clave?.trim();
 
   return (
     <>
@@ -223,9 +201,7 @@ export function EscuelaDetailModal({
           ) : undefined
         }
       >
-        {isLoading && !detail ? (
-          <EntityDetailModalSkeleton sections={2} />
-        ) : null}
+        {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
 
         {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
@@ -242,242 +218,26 @@ export function EscuelaDetailModal({
           >
             {error ? <Alert tone="error">{error}</Alert> : null}
 
-            <DetailModalHero
-              icon={GraduationCap}
-              title={nombreCorto || escuela.nombreOficial}
-              subtitle={
-                clave ? `Clave ${clave}` : escuela.municipio?.trim() || "Sin municipio registrado"
-              }
-              badges={
-                <>
-                  <EstatusBadge estatus={escuela.estatus} fallback="Sin estatus" />
-                  <EstatusBadge estatus={escuela.convenioEstatus} fallback="Sin convenio" />
-                </>
-              }
+            <EscuelaDetailInfo escuela={escuela} />
+
+            <EscuelaInvitacionesPanel
+              invitaciones={invitaciones}
+              invitacionError={invitacionError}
+              invitacionGenerada={invitacionGenerada}
+              invitacionNombre={invitacionNombre}
+              invitacionExpiracion={invitacionExpiracion}
+              revocarActivas={revocarActivas}
+              isMutating={isMutating}
+              expandedInviteId={expandedInviteId}
+              generatedTokens={generatedTokens}
+              revealingId={revealingId}
+              onInvitacionNombreChange={setInvitacionNombre}
+              onInvitacionExpiracionChange={setInvitacionExpiracion}
+              onRevocarActivasChange={setRevocarActivas}
+              onGenerate={() => void handleGenerateInvitacion()}
+              onToggleEnlace={(idToken) => void handleToggleEnlace(idToken)}
+              onTokenAction={(action, idToken) => void handleTokenAction(action, idToken)}
             />
-
-            <dl className={detailStyles.metaList}>
-              <div className={detailStyles.metaRow}>
-                <dt>Institución</dt>
-                <dd>{escuela.nombreOficial}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Municipio</dt>
-                <dd>{escuela.municipio?.trim() || "Sin municipio registrado"}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Correo de contacto</dt>
-                <dd>{escuela.correoContacto?.trim() || "Sin correo registrado"}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Teléfono</dt>
-                <dd>{escuela.telefono?.trim() || "Sin teléfono registrado"}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Clave de registro</dt>
-                <dd>{clave || "Sin clave registrada"}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Domicilio</dt>
-                <dd>{escuela.domicilio?.trim() || "Sin domicilio registrado"}</dd>
-              </div>
-              <div className={detailStyles.metaRow}>
-                <dt>Última actualización</dt>
-                <dd>{formatFecha(escuela.fechaActualizacion ?? escuela.fechaCreacion)}</dd>
-              </div>
-            </dl>
-
-            <section
-              className={detailStyles.contentPanel}
-              aria-labelledby="escuela-invitaciones-title"
-            >
-              <div className={detailStyles.panelHeader}>
-                <h3 id="escuela-invitaciones-title" className={detailStyles.panelTitle}>
-                  Invitaciones de registro
-                </h3>
-              </div>
-
-              {invitacionError ? <Alert tone="error">{invitacionError}</Alert> : null}
-
-              {invitacionGenerada ? (
-                <InvitacionGeneradaCard invitacion={invitacionGenerada} />
-              ) : null}
-
-              <div className={escuelaStyles.composer}>
-                <p className={escuelaStyles.composerTitle}>Generar nueva invitación</p>
-
-                <div className={escuelaStyles.composerFields}>
-                  <TextInput
-                    id="invitacion-nombre"
-                    label="Nombre"
-                    hint="Opcional"
-                    value={invitacionNombre}
-                    onChange={(event) => setInvitacionNombre(event.target.value)}
-                  />
-
-                  <TextInput
-                    id="invitacion-expiracion"
-                    label="Vence el"
-                    type="date"
-                    hint="Opcional"
-                    value={invitacionExpiracion}
-                    onChange={(event) => setInvitacionExpiracion(event.target.value)}
-                  />
-                </div>
-
-                <div className={escuelaStyles.composerFooter}>
-                  <CheckboxField
-                    id="invitacion-revocar"
-                    label="Revocar invitaciones activas al generar"
-                    checked={revocarActivas}
-                    onChange={setRevocarActivas}
-                  />
-
-                  <div className={escuelaStyles.composerActions}>
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={() => void handleGenerateInvitacion()}
-                      disabled={isMutating}
-                    >
-                      Generar invitación
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className={escuelaStyles.history}>
-                <div className={escuelaStyles.historyHeader}>
-                  <p className={escuelaStyles.historyTitle}>Invitaciones registradas</p>
-                  <span className={escuelaStyles.historyCount}>{invitaciones.length}</span>
-                </div>
-
-                {invitaciones.length === 0 ? (
-                  <p className={escuelaStyles.emptyInvites}>
-                    <span className={escuelaStyles.emptyIcon} aria-hidden="true">
-                      <Link2 size={14} strokeWidth={1.75} />
-                    </span>
-                    Aún no hay invitaciones para esta escuela.
-                  </p>
-                ) : (
-                  <ul className={escuelaStyles.inviteList}>
-                    {invitaciones.map((invitacion) => {
-                      const estatus = normalizeEstatus(invitacion.estatus);
-                      const shareData = resolveInvitationShareData(
-                        invitacion,
-                        generatedTokens[invitacion.idToken],
-                      );
-                      const canShareLink = Boolean(shareData) || Boolean(invitacion.recuperable);
-                      const isExpanded = expandedInviteId === invitacion.idToken;
-                      const isRevealing = revealingId === invitacion.idToken;
-                      const isVigente =
-                        estatus === "ACTIVO" ||
-                        estatus === "VIGENTE" ||
-                        estatus === "DISPONIBLE";
-                      const showNoRecuperableHint = !canShareLink && isVigente;
-
-                      return (
-                        <li key={invitacion.idToken} className={escuelaStyles.inviteRowItem}>
-                          <div className={escuelaStyles.inviteRow}>
-                            <span className={escuelaStyles.inviteIcon} aria-hidden="true">
-                              <Link2 size={14} strokeWidth={1.75} />
-                            </span>
-
-                            <div className={escuelaStyles.inviteMain}>
-                              <div className={escuelaStyles.inviteTop}>
-                                <span className={escuelaStyles.inviteName}>
-                                  {invitacion.nombre?.trim() || "Sin nombre"}
-                                </span>
-                                <EstatusBadge estatus={invitacion.estatus} />
-                              </div>
-                              <p className={escuelaStyles.inviteMeta}>
-                                {formatInviteExpiry(invitacion.fechaExpiracion)
-                                  ? `Vence el ${formatInviteExpiry(invitacion.fechaExpiracion)}`
-                                  : "Sin fecha de vencimiento"}
-                                {invitacion.fechaCreacion ? (
-                                  <>
-                                    {" · "}
-                                    Creada el {formatFecha(invitacion.fechaCreacion)}
-                                  </>
-                                ) : null}
-                              </p>
-                              {showNoRecuperableHint ? (
-                                <p className={escuelaStyles.inviteHint}>
-                                  El enlace de esta invitación no se puede recuperar. Genera una
-                                  invitación nueva para obtener un enlace para compartir.
-                                </p>
-                              ) : null}
-                            </div>
-
-                            <div className={escuelaStyles.inviteActions}>
-                              {canShareLink ? (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  disabled={isMutating || isRevealing}
-                                  onClick={() => void handleToggleEnlace(invitacion.idToken)}
-                                >
-                                  {isRevealing
-                                    ? "Recuperando…"
-                                    : isExpanded
-                                      ? "Ocultar enlace"
-                                      : "Ver enlace"}
-                                </Button>
-                              ) : null}
-                              {estatus === "ACTIVO" ||
-                              estatus === "VIGENTE" ||
-                              estatus === "DISPONIBLE" ? (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  disabled={isMutating}
-                                  onClick={() =>
-                                    void handleTokenAction("suspend", invitacion.idToken)
-                                  }
-                                >
-                                  Suspender
-                                </Button>
-                              ) : null}
-                              {estatus === "SUSPENDIDO" ? (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  disabled={isMutating}
-                                  onClick={() =>
-                                    void handleTokenAction("reactivate", invitacion.idToken)
-                                  }
-                                >
-                                  Reactivar
-                                </Button>
-                              ) : null}
-                              {estatus !== "REVOCADO" ? (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className={detailStyles.dangerButton}
-                                  disabled={isMutating}
-                                  onClick={() =>
-                                    void handleTokenAction("revoke", invitacion.idToken)
-                                  }
-                                >
-                                  Cancelar
-                                </Button>
-                              ) : null}
-                            </div>
-                          </div>
-
-                          {isExpanded && shareData ? (
-                            <div className={escuelaStyles.inviteExpanded}>
-                              <InvitacionGeneradaCard invitacion={shareData} variant="stored" />
-                            </div>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            </section>
           </div>
         ) : null}
       </Modal>

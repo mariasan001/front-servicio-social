@@ -1,7 +1,7 @@
 "use client";
 
 import { EllipsisVertical } from "lucide-react";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import styles from "./DataTableRowMenu.module.css";
 
@@ -38,6 +38,19 @@ function getMenuPosition(trigger: HTMLButtonElement, estimatedHeight: number): M
   };
 }
 
+function subscribeToClientMount(onStoreChange: () => void) {
+  onStoreChange();
+  return () => undefined;
+}
+
+function getClientMountSnapshot() {
+  return true;
+}
+
+function getClientMountServerSnapshot() {
+  return false;
+}
+
 export function DataTableRowMenu<T extends string>({
   options,
   onSelect,
@@ -47,13 +60,13 @@ export function DataTableRowMenu<T extends string>({
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToClientMount,
+    getClientMountSnapshot,
+    getClientMountServerSnapshot,
+  );
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
   const estimatedHeight = options.length * 36 + 12;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {

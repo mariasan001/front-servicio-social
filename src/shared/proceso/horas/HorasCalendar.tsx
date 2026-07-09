@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
-import type { HoraCalendarEntry } from "../../lib/horas-calendar.utils";
 import { estatusTone } from "@/lib/domain";
 import {
   WEEKDAY_LABELS,
@@ -21,7 +20,8 @@ import {
   shiftWeek,
   toDateKey,
   type CalendarCell,
-} from "../../lib/horas-calendar.utils";
+  type HoraCalendarEntry,
+} from "./horas-calendar.utils";
 import styles from "./HorasCalendar.module.css";
 
 export type HorasCalendarView = "month" | "week";

@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateAdminSection } from "../lib/revalidate-admin";
 import {
   activateUsuarioInterno,
@@ -20,7 +22,7 @@ import type {
 export async function getUsuarioDetailAction(
   idUsuario: number,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ADMINISTRADOR], 
     () => getUsuarioInterno(idUsuario),
     "No pudimos cargar la información del usuario. Intenta de nuevo en unos momentos.",
   );
@@ -29,7 +31,7 @@ export async function getUsuarioDetailAction(
 export async function createUsuarioInternoAction(
   request: CrearUsuarioInternoRequest,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => createUsuarioInterno(request),
     "No pudimos dar de alta la cuenta. Revisa los datos e intenta de nuevo.",
   );
@@ -46,7 +48,7 @@ export async function updateUsuarioInternoAction(
   idUsuario: number,
   request: ActualizarUsuarioInternoRequest,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => updateUsuarioInterno(idUsuario, request),
     "No pudimos actualizar la cuenta. Revisa los datos e intenta de nuevo.",
   );
@@ -62,7 +64,7 @@ export async function updateUsuarioInternoAction(
 export async function activateUsuarioInternoAction(
   idUsuario: number,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => activateUsuarioInterno(idUsuario),
     "No pudimos activar la cuenta. Intenta de nuevo en unos momentos.",
   );
@@ -77,7 +79,7 @@ export async function activateUsuarioInternoAction(
 export async function deactivateUsuarioInternoAction(
   idUsuario: number,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => deactivateUsuarioInterno(idUsuario),
     "No pudimos desactivar la cuenta. Intenta de nuevo en unos momentos.",
   );
@@ -93,7 +95,7 @@ export async function resetUsuarioInternoPasswordAction(
   idUsuario: number,
   request: ResetPasswordUsuarioRequest,
 ): Promise<ActionResult<UsuarioInternoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => resetUsuarioInternoPassword(idUsuario, request),
     "No pudimos restablecer la contraseña. Intenta de nuevo.",
   );

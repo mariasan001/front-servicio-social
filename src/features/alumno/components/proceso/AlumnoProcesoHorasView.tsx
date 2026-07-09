@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { HoraResponse, ProcesoDetalleResponse } from "../../types/alumno.types";
 import { canRegistrarHoraProceso } from "@/lib/domain";
 import { Alert } from "@/shared/components/Alert";
 import { AlumnoProcesoLayout } from "./AlumnoProcesoLayout";
 import { HoraDiaDetailModal } from "./HoraDiaDetailModal";
-import { HorasCalendar, type HorasCalendarView } from "./HorasCalendar";
-import { horasEnFecha, isDateKeyToday, parseDateKey } from "../../lib/horas-calendar.utils";
+import { HorasCalendar, type HorasCalendarView } from "@/shared/proceso/horas";
+import { horasEnFecha, isDateKeyToday, parseDateKey } from "@/shared/proceso/horas";
 
 type AlumnoProcesoHorasViewProps = {
   proceso: ProcesoDetalleResponse;
@@ -16,21 +16,78 @@ type AlumnoProcesoHorasViewProps = {
   firstName: string;
 };
 
+type DeepLinkState = {
+  fecha: string;
+  anchor: Date;
+  initialRegister?: {
+    horaEntrada?: string;
+    horaSalida?: string;
+    descripcionActividades?: string;
+  };
+};
+
+function parseHorasDeepLink(searchParams: URLSearchParams): DeepLinkState | null {
+  const fecha = searchParams.get("fecha");
+  if (!fecha || !parseDateKey(fecha)) {
+    return null;
+  }
+
+  const anchor = parseDateKey(fecha) as Date;
+  if (!isDateKeyToday(fecha)) {
+    return { fecha, anchor };
+  }
+
+  return {
+    fecha,
+    anchor,
+    initialRegister: {
+      horaEntrada: searchParams.get("entrada") ?? undefined,
+      horaSalida: searchParams.get("salida") ?? undefined,
+      descripcionActividades: searchParams.get("descripcion") ?? undefined,
+    },
+  };
+}
+
+function buildDeepLinkKey(deepLink: DeepLinkState | null) {
+  if (!deepLink) {
+    return null;
+  }
+
+  const register = deepLink.initialRegister;
+  return [
+    deepLink.fecha,
+    register?.horaEntrada ?? "",
+    register?.horaSalida ?? "",
+    register?.descripcionActividades ?? "",
+  ].join(":");
+}
+
 export function AlumnoProcesoHorasView({
   proceso,
   horas,
   firstName,
 }: AlumnoProcesoHorasViewProps) {
   const searchParams = useSearchParams();
+  const deepLink = useMemo(() => parseHorasDeepLink(searchParams), [searchParams]);
+  const deepLinkKey = buildDeepLinkKey(deepLink);
   const [calendarView, setCalendarView] = useState<HorasCalendarView>("month");
-  const [calendarAnchor, setCalendarAnchor] = useState(() => new Date());
-  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
-  const [dayModalOpen, setDayModalOpen] = useState(false);
-  const [initialRegister, setInitialRegister] = useState<{
-    horaEntrada?: string;
-    horaSalida?: string;
-    descripcionActividades?: string;
-  }>();
+  const [calendarAnchor, setCalendarAnchor] = useState(() => deepLink?.anchor ?? new Date());
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(
+    () => deepLink?.fecha ?? null,
+  );
+  const [dayModalOpen, setDayModalOpen] = useState(() => Boolean(deepLink));
+  const [initialRegister, setInitialRegister] = useState(deepLink?.initialRegister);
+  const [handledDeepLinkKey, setHandledDeepLinkKey] = useState<string | null>(
+    () => deepLinkKey,
+  );
+
+  if (deepLinkKey && handledDeepLinkKey !== deepLinkKey && deepLink) {
+    setHandledDeepLinkKey(deepLinkKey);
+    setSelectedDateKey(deepLink.fecha);
+    setCalendarAnchor(deepLink.anchor);
+    setDayModalOpen(true);
+    setInitialRegister(deepLink.initialRegister);
+  }
   const canRegisterHours = canRegistrarHoraProceso(proceso.estatus);
 
   const selectedDayHoras = useMemo(() => {
@@ -40,28 +97,6 @@ export function AlumnoProcesoHorasView({
 
     return horasEnFecha(horas, selectedDateKey);
   }, [horas, selectedDateKey]);
-
-  useEffect(() => {
-    const fecha = searchParams.get("fecha");
-    if (!fecha || !parseDateKey(fecha)) {
-      return;
-    }
-
-    setSelectedDateKey(fecha);
-    setCalendarAnchor(parseDateKey(fecha) as Date);
-    setDayModalOpen(true);
-
-    if (!isDateKeyToday(fecha)) {
-      setInitialRegister(undefined);
-      return;
-    }
-
-    setInitialRegister({
-      horaEntrada: searchParams.get("entrada") ?? undefined,
-      horaSalida: searchParams.get("salida") ?? undefined,
-      descripcionActividades: searchParams.get("descripcion") ?? undefined,
-    });
-  }, [searchParams]);
 
   const handleSelectDate = (dateKey: string) => {
     setSelectedDateKey(dateKey);

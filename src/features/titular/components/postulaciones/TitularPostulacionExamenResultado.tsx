@@ -18,6 +18,23 @@ export function TitularPostulacionExamenResultado({
   idPostulacion,
   enabled,
 }: TitularPostulacionExamenResultadoProps) {
+  if (!enabled) {
+    return null;
+  }
+
+  return (
+    <TitularPostulacionExamenResultadoContent
+      key={idPostulacion}
+      idPostulacion={idPostulacion}
+    />
+  );
+}
+
+function TitularPostulacionExamenResultadoContent({
+  idPostulacion,
+}: {
+  idPostulacion: number;
+}) {
   const [resultado, setResultado] = useState<ResultadoExamenResponse | null>(
     null,
   );
@@ -25,12 +42,6 @@ export function TitularPostulacionExamenResultado({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!enabled) {
-      setResultado(null);
-      setError(null);
-      return;
-    }
-
     let cancelled = false;
 
     async function load() {
@@ -56,11 +67,7 @@ export function TitularPostulacionExamenResultado({
     return () => {
       cancelled = true;
     };
-  }, [enabled, idPostulacion]);
-
-  if (!enabled) {
-    return null;
-  }
+  }, [idPostulacion]);
 
   if (isLoading) {
     return (

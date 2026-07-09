@@ -1,10 +1,12 @@
 "use server";
 
+import { USER_ROLES } from "@/lib/auth/constants";
+
 import type { DownloadedFile } from "@/lib/api/download";
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import type { CartaDownloadKind } from "@/lib/domain/cartas";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
-import { revalidateTitularSection } from "@/features/titular/lib/revalidate-titular";
+import { revalidateTitularPanelSection } from "@/lib/cache/revalidate-titular";
 import {
   approveProcesoDocumento,
   cancelProceso,
@@ -56,7 +58,7 @@ export type ProcesoDetailPayload = {
 export async function getProcesoDetailAction(
   idProceso: number,
 ): Promise<ActionResult<ProcesoDetailPayload>> {
-  return runServerAction(async () => {
+  return runAuthorizedAction([USER_ROLES.DELEGACION], async () => {
     const [proceso, documentos, horas, incidencias, cartas] = await Promise.all([
       getProceso(idProceso),
       listProcesoDocumentos(idProceso),
@@ -73,7 +75,7 @@ export async function cancelProcesoAction(
   idProceso: number,
   request: CancelarProcesoRequest,
 ): Promise<ActionResult<ProcesoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => cancelProceso(idProceso, request),
     "No pudimos cancelar el proceso.",
   );
@@ -90,7 +92,7 @@ export async function setProcesoHorasRequeridasAction(
   idProceso: number,
   horasRequeridas: number,
 ): Promise<ActionResult<ProcesoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => setProcesoHorasRequeridas(idProceso, { horasRequeridas }),
     "No pudimos guardar las horas requeridas.",
   );
@@ -106,7 +108,7 @@ export async function approveProcesoDocumentoAction(
   idProceso: number,
   idProcesoDocumento: number,
 ): Promise<ActionResult<ProcesoDocumentoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => approveProcesoDocumento(idProceso, idProcesoDocumento),
     "No pudimos aprobar el documento.",
   );
@@ -124,7 +126,7 @@ export async function observeProcesoDocumentoAction(
   idProcesoDocumento: number,
   request: ValidarDocumentoRequest,
 ): Promise<ActionResult<ProcesoDocumentoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => observeProcesoDocumento(idProceso, idProcesoDocumento, request),
     "No pudimos registrar la observación del documento.",
   );
@@ -142,7 +144,7 @@ export async function rejectProcesoDocumentoAction(
   idProcesoDocumento: number,
   request: ValidarDocumentoRequest,
 ): Promise<ActionResult<ProcesoDocumentoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => rejectProcesoDocumento(idProceso, idProcesoDocumento, request),
     "No pudimos rechazar el documento.",
   );
@@ -159,7 +161,7 @@ export async function getHoraPendienteDetailAction(
   idProceso: number,
   idAsistencia: number,
 ): Promise<ActionResult<HoraPendienteDetail>> {
-  return runServerAction(async () => {
+  return runAuthorizedAction([USER_ROLES.DELEGACION], async () => {
     let horas: Awaited<ReturnType<typeof listProcesoHoras>> = [];
 
     try {
@@ -192,7 +194,7 @@ export async function validateProcesoHoraAction(
   idAsistencia: number,
   request?: ValidarHoraRequest,
 ): Promise<ActionResult<ProcesoHoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => validateProcesoHora(idProceso, idAsistencia, request),
     "No pudimos validar el registro de horas.",
   );
@@ -200,7 +202,7 @@ export async function validateProcesoHoraAction(
   if (result.success) {
     revalidateDelegacionSection("procesos");
     revalidateDelegacionSection("horas");
-    revalidateTitularSection("procesos");
+    revalidateTitularPanelSection("procesos");
   }
 
   return result;
@@ -211,7 +213,7 @@ export async function rejectProcesoHoraAction(
   idAsistencia: number,
   request: RechazarHoraRequest,
 ): Promise<ActionResult<ProcesoHoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => rejectProcesoHora(idProceso, idAsistencia, request),
     "No pudimos rechazar el registro de horas.",
   );
@@ -229,7 +231,7 @@ export async function observeProcesoHoraAction(
   idAsistencia: number,
   request: ObservarHoraRequest,
 ): Promise<ActionResult<ProcesoHoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => observeProcesoHora(idProceso, idAsistencia, request),
     "No pudimos registrar la observación de horas.",
   );
@@ -247,7 +249,7 @@ export async function cancelProcesoHoraAction(
   idAsistencia: number,
   request: CancelarHoraRequest,
 ): Promise<ActionResult<ProcesoHoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => cancelProcesoHora(idProceso, idAsistencia, request),
     "No pudimos cancelar el registro de horas.",
   );
@@ -264,7 +266,7 @@ export async function registerProcesoIncidenciaAction(
   idProceso: number,
   request: CrearIncidenciaProcesoRequest,
 ): Promise<ActionResult<IncidenciaResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => registerProcesoIncidencia(idProceso, request),
     "No pudimos registrar la incidencia.",
   );
@@ -281,7 +283,7 @@ export async function downloadProcesoDocumentoArchivoAction(
   idProceso: number,
   idProcesoDocumento: number,
 ): Promise<ActionResult<DownloadedFile>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.DELEGACION], 
     () => downloadProcesoDocumentoArchivo(idProceso, idProcesoDocumento),
     "No pudimos descargar el documento.",
   );
@@ -291,7 +293,7 @@ export async function downloadProcesoCartaArchivoAction(
   idProceso: number,
   kind: CartaDownloadKind,
 ): Promise<ActionResult<DownloadedFile>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.DELEGACION], 
     () =>
       kind === "aceptacion"
         ? downloadProcesoCartaAceptacionArchivo(idProceso)
@@ -304,7 +306,7 @@ export async function emitProcesoCartaAction(
   idProceso: number,
   kind: CartaDownloadKind,
 ): Promise<ActionResult<CartaMetadataResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () =>
       kind === "aceptacion"
         ? emitProcesoCartaAceptacion(idProceso)
@@ -325,7 +327,7 @@ export async function emitProcesoCartaConArchivoAction(
   kind: CartaDownloadKind,
   formData: FormData,
 ): Promise<ActionResult<CartaMetadataResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () =>
       kind === "aceptacion"
         ? emitProcesoCartaAceptacionConArchivo(idProceso, formData)

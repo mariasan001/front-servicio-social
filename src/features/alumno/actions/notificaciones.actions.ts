@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
 import {
   markAllNotificacionesRead,
@@ -11,7 +13,7 @@ import type { NotificacionResponse } from "../types/alumno.types";
 export async function markNotificacionReadAction(
   idNotificacion: number,
 ): Promise<ActionResult<NotificacionResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => markNotificacionRead(idNotificacion),
     "No pudimos marcar la notificación como leída.",
   );
@@ -24,7 +26,7 @@ export async function markNotificacionReadAction(
 }
 
 export async function markAllNotificacionesReadAction(): Promise<ActionResult<unknown>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => markAllNotificacionesRead(),
     "No pudimos marcar todas las notificaciones como leídas.",
   );

@@ -2,12 +2,12 @@
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
 import {
   ALUMNO_POSTULACION_ENTRY_PATH,
   hasAlumnoCvPostulacionMotivo,
-} from "../../lib/alumno-postulacion-entry";
+} from "@/lib/auth/postulacion-entry";
 import type { CvResponse } from "../../types/alumno.types";
 import { notify } from "@/shared/notifications";
 import { Alert } from "@/shared/components/Alert";
@@ -50,7 +50,25 @@ function buildInitialForm(cv: CvResponse): CvFormState {
   };
 }
 
+function buildCvSyncKey(cv: CvResponse) {
+  return JSON.stringify([
+    cv.perfilProfesional,
+    cv.experienciaLaboral,
+    cv.habilidades,
+    cv.idiomas,
+    cv.certificaciones,
+    cv.portafolioUrl,
+    cv.completo,
+  ]);
+}
+
 export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
+  return (
+    <AlumnoCvViewContent key={buildCvSyncKey(cv)} cv={cv} nombreCompleto={nombreCompleto} />
+  );
+}
+
+function AlumnoCvViewContent({ cv, nombreCompleto }: AlumnoCvViewProps) {
   const router = usePanelRouter();
   const searchParams = useSearchParams();
   const motivoPostulacion = hasAlumnoCvPostulacionMotivo(searchParams.get("motivo"));
@@ -68,14 +86,6 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
     parseListItems(cv.certificaciones ?? ""),
   );
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    setForm(buildInitialForm(cv));
-    setHabilidadesItems(parseListItems(cv.habilidades ?? ""));
-    setExperienciaItems(parseListItems(cv.experienciaLaboral ?? ""));
-    setIdiomasItems(parseListItems(cv.idiomas ?? ""));
-    setCertificacionesItems(parseListItems(cv.certificaciones ?? ""));
-  }, [cv]);
 
   const effectiveForm = useMemo<CvFormState>(
     () => ({

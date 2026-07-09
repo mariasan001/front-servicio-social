@@ -1,6 +1,11 @@
 import type { NextRequest } from "next/server";
 import type { AuthUser } from "@/lib/api/types";
 import { USER_ROLES } from "@/lib/auth/constants";
+import { getCvFromRequest } from "@/lib/auth/alumno-cv-request";
+import {
+  buildAlumnoCvPostulacionUrl,
+  isAlumnoPostulacionEntryPath,
+} from "@/lib/auth/postulacion-entry";
 import {
   canAccessPath,
   hasAnyRole,
@@ -8,12 +13,7 @@ import {
   normalizeAuthUser,
   resolveHomePath,
 } from "@/lib/auth/roles";
-import { isCvComplete } from "../components/cv/cv-labels";
-import { getCvFromRequest } from "./alumno-cv-request";
-import {
-  buildAlumnoCvPostulacionUrl,
-  isAlumnoPostulacionEntryPath,
-} from "./alumno-postulacion-entry";
+import { isCvComplete } from "@/lib/domain/cv";
 
 export async function resolveGuestAuthRedirect(
   session: AuthUser,

@@ -10,7 +10,7 @@ import {
   listProcesoHoras,
   listProcesoIncidencias,
 } from "./proceso.service";
-import { resolveHoraFechaKey } from "../lib/horas-calendar.utils";
+import { resolveHoraFechaKey } from "@/shared/proceso/horas";
 
 export type AlumnoInicioStats = {
   horasAcumuladas: number;

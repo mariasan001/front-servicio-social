@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateTitularSection } from "../lib/revalidate-titular";
 import {
   emitProcesoLiberacionTecnica,
@@ -40,7 +42,7 @@ export type TitularProcesoDetailPayload = {
 export async function getProcesoDetailAction(
   idProceso: number,
 ): Promise<ActionResult<TitularProcesoDetailPayload>> {
-  return runServerAction(async () => {
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], async () => {
     const [proceso, horas, incidencias, liberacionTecnica, evaluacionFinal] =
       await Promise.all([
         getProceso(idProceso),
@@ -59,7 +61,7 @@ export async function validateProcesoHoraAction(
   idAsistencia: number,
   request?: ValidarHoraRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => validateProcesoHora(idProceso, idAsistencia, request),
     "No pudimos validar el registro de horas.",
   );
@@ -76,7 +78,7 @@ export async function observeProcesoHoraAction(
   idAsistencia: number,
   request: ObservarHoraRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => observeProcesoHora(idProceso, idAsistencia, request),
     "No pudimos observar el registro de horas.",
   );
@@ -93,7 +95,7 @@ export async function rejectProcesoHoraAction(
   idAsistencia: number,
   request: RechazarHoraRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => rejectProcesoHora(idProceso, idAsistencia, request),
     "No pudimos rechazar el registro de horas.",
   );
@@ -109,7 +111,7 @@ export async function registerProcesoHoraAction(
   idProceso: number,
   request: RegistrarHoraInternaRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => registerProcesoHora(idProceso, request),
     "No pudimos registrar las horas.",
   );
@@ -125,7 +127,7 @@ export async function registerProcesoIncidenciaAction(
   idProceso: number,
   request: CrearIncidenciaRequest,
 ): Promise<ActionResult<IncidenciaResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => registerProcesoIncidencia(idProceso, request),
     "No pudimos registrar la incidencia.",
   );
@@ -141,7 +143,7 @@ export async function emitProcesoLiberacionTecnicaAction(
   idProceso: number,
   request?: EmitirLiberacionTecnicaRequest,
 ): Promise<ActionResult<unknown>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => emitProcesoLiberacionTecnica(idProceso, request),
     "No pudimos emitir la liberación técnica.",
   );
@@ -157,7 +159,7 @@ export async function registerProcesoEvaluacionFinalAction(
   idProceso: number,
   request: CrearEvaluacionFinalRequest,
 ): Promise<ActionResult<unknown>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => registerProcesoEvaluacionFinal(idProceso, request),
     "No pudimos registrar la evaluación final.",
   );

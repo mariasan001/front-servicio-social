@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { normalizeOptionalNumber } from "@/lib/actions/normalize-server-args";
 import { resolveTitularAssignedAreaContext } from "../lib/area-context";
 import { revalidateTitularSection } from "../lib/revalidate-titular";
@@ -48,7 +50,7 @@ async function resolveAreaId(preferred?: number) {
 export async function listExamenesAction(): Promise<
   ActionResult<ExamenDiagnosticoResumenResponse[]>
 > {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => listExamenes(),
     "No pudimos cargar los exámenes.",
   );
@@ -57,7 +59,7 @@ export async function listExamenesAction(): Promise<
 export async function getExamenDetailAction(
   idExamen: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getExamen(idExamen),
     "No pudimos cargar el examen.",
   );
@@ -66,7 +68,7 @@ export async function getExamenDetailAction(
 export async function createExamenAction(
   request: CrearExamenActionRequest,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(async () => {
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],async () => {
     const areaId = await resolveAreaId(request.areaId);
 
     if (!areaId) {
@@ -87,7 +89,7 @@ export async function updateExamenAction(
   idExamen: number,
   request: ActualizarExamenDiagnosticoRequest,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => updateExamen(idExamen, request),
     "No pudimos actualizar el examen.",
   );
@@ -103,7 +105,7 @@ export async function addExamenPreguntaAction(
   idExamen: number,
   request: ExamenPreguntaRequest,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => addExamenPregunta(idExamen, request),
     "No pudimos agregar la pregunta.",
   );
@@ -120,7 +122,7 @@ export async function updateExamenPreguntaAction(
   idPregunta: number,
   request: ExamenPreguntaRequest,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => updateExamenPregunta(idExamen, idPregunta, request),
     "No pudimos actualizar la pregunta.",
   );
@@ -136,7 +138,7 @@ export async function deleteExamenPreguntaAction(
   idExamen: number,
   idPregunta: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => deleteExamenPregunta(idExamen, idPregunta),
     "No pudimos eliminar la pregunta.",
   );
@@ -151,7 +153,7 @@ export async function deleteExamenPreguntaAction(
 export async function activarExamenAction(
   idExamen: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => activarExamen(idExamen),
     "No pudimos activar el examen.",
   );
@@ -166,7 +168,7 @@ export async function activarExamenAction(
 export async function desactivarExamenAction(
   idExamen: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => desactivarExamen(idExamen),
     "No pudimos desactivar el examen.",
   );
@@ -181,7 +183,7 @@ export async function desactivarExamenAction(
 export async function getVacanteExamenAction(
   idVacante: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse | null>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getVacanteExamen(idVacante),
     "No pudimos consultar el examen de la vacante.",
   );
@@ -191,7 +193,7 @@ export async function asociarExamenVacanteAction(
   idVacante: number,
   idExamen: number,
 ): Promise<ActionResult<ExamenDiagnosticoDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => asociarExamenVacante(idVacante, { idExamen }),
     "No pudimos asociar el examen a la vacante.",
   );
@@ -207,7 +209,7 @@ export async function asociarExamenVacanteAction(
 export async function quitarExamenVacanteAction(
   idVacante: number,
 ): Promise<ActionResult<void>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => quitarExamenVacante(idVacante),
     "No pudimos quitar el examen de la vacante.",
   );
@@ -223,7 +225,7 @@ export async function quitarExamenVacanteAction(
 export async function getResultadoExamenAction(
   idPostulacion: number,
 ): Promise<ActionResult<ResultadoExamenResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getResultadoExamenPostulacion(idPostulacion),
     "No pudimos cargar el resultado del examen.",
   );

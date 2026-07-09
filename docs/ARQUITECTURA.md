@@ -41,6 +41,8 @@ Plataforma web para que estudiantes del Estado de México realicen **servicio so
 | `npm run build` | Build producción |
 | `npm run start` | Servir build |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript sin emit |
+| `npm run check` | typecheck + lint |
 
 ---
 

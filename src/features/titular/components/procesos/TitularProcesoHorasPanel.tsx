@@ -1,11 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { HorasCalendar } from "@/features/alumno/components/proceso/HorasCalendar";
-import {
-  horasEnFecha,
-  parseDateKey,
-} from "@/features/alumno/lib/horas-calendar.utils";
+import { HorasCalendar, horasEnFecha, parseDateKey } from "@/shared/proceso/horas";
 import type { HoraResponse } from "../../types/titular.types";
 import { TitularHoraDiaDetailModal } from "./TitularHoraDiaDetailModal";
 

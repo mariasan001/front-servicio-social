@@ -1,11 +1,11 @@
 import type { NextRequest } from "next/server";
 import { resolveBackendUrl } from "@/lib/api/client";
 import type { ApiResponse } from "@/lib/api/types";
-import type { CvResponse } from "@/features/alumno/types/alumno.types";
+import type { CvCompletionSnapshot } from "@/lib/domain/cv";
 
 export async function getCvFromRequest(
   request: NextRequest,
-): Promise<CvResponse | null> {
+): Promise<CvCompletionSnapshot | null> {
   const cookie = request.headers.get("cookie");
 
   if (!cookie) {
@@ -26,7 +26,7 @@ export async function getCvFromRequest(
       return null;
     }
 
-    const payload = (await response.json()) as ApiResponse<CvResponse>;
+    const payload = (await response.json()) as ApiResponse<CvCompletionSnapshot>;
     return payload.data ?? null;
   } catch {
     return null;

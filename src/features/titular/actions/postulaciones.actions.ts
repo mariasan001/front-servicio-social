@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateTitularSection } from "../lib/revalidate-titular";
 import {
   acceptPostulacion,
@@ -18,7 +20,7 @@ import type {
 export async function getPostulacionDetailAction(
   idPostulacion: number,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getPostulacion(idPostulacion),
     "No pudimos cargar la información de la postulación.",
   );
@@ -28,7 +30,7 @@ export async function acceptPostulacionAction(
   idPostulacion: number,
   request?: AceptarPostulacionRequest,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => acceptPostulacion(idPostulacion, request),
     "No pudimos aceptar la postulación.",
   );
@@ -46,7 +48,7 @@ export async function rejectPostulacionAction(
   idPostulacion: number,
   request: RechazarPostulacionRequest,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => rejectPostulacion(idPostulacion, request),
     "No pudimos rechazar la postulación.",
   );
@@ -63,7 +65,7 @@ export async function markPostulacionExamFinishedAction(
   idPostulacion: number,
   request: ExamenFinalizadoRequest,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.TITULAR_AREA],
     () => markPostulacionExamFinished(idPostulacion, request),
     "No pudimos registrar el examen finalizado.",
   );

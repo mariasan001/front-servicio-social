@@ -1,7 +1,9 @@
 "use server";
 
+import { USER_ROLES } from "@/lib/auth/constants";
+
 import { revalidatePath } from "next/cache";
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
 import {
   listEncuestasSatisfaccion,
@@ -13,7 +15,7 @@ import type { EncuestaSatisfaccionResponse } from "../types/delegacion.types";
 export async function listEncuestasSatisfaccionAction(): Promise<
   ActionResult<EncuestaSatisfaccionResponse[]>
 > {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.DELEGACION], 
     () => listEncuestasSatisfaccion({ page: 0, size: 100 }),
     "No pudimos cargar las encuestas de satisfacción.",
   );
@@ -22,7 +24,7 @@ export async function listEncuestasSatisfaccionAction(): Promise<
 export async function ocultarEncuestaSatisfaccionAction(
   idEncuesta: number,
 ): Promise<ActionResult<EncuestaSatisfaccionResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => ocultarEncuestaSatisfaccion(idEncuesta),
     "No pudimos ocultar la encuesta.",
   );
@@ -38,7 +40,7 @@ export async function ocultarEncuestaSatisfaccionAction(
 export async function publicarEncuestaSatisfaccionAction(
   idEncuesta: number,
 ): Promise<ActionResult<EncuestaSatisfaccionResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => publicarEncuestaSatisfaccion(idEncuesta),
     "No pudimos publicar la encuesta.",
   );

@@ -86,15 +86,12 @@ export function SearchableSelect({
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [isOpen]);
 
-  useEffect(() => {
-    setHighlightedIndex(0);
-  }, [query, isOpen]);
-
   const openList = () => {
     if (disabled) {
       return;
     }
 
+    setHighlightedIndex(0);
     setIsOpen(true);
     setQuery("");
   };
@@ -112,6 +109,7 @@ export function SearchableSelect({
   const closeList = () => {
     setIsOpen(false);
     setQuery("");
+    setHighlightedIndex(0);
   };
 
   const selectOption = (option: SearchableSelectOption) => {
@@ -123,6 +121,7 @@ export function SearchableSelect({
 
   const handleInputChange = (nextValue: string) => {
     setQuery(nextValue);
+    setHighlightedIndex(0);
     setIsOpen(true);
 
     if (value) {

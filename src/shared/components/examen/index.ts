@@ -15,6 +15,7 @@ export {
   type ExamenDetailSelection,
 } from "./ExamenDetailLayout";
 export { ExamenMonitorDetailModal } from "./ExamenMonitorDetailModal";
+export { ExamenesMonitorView } from "./ExamenesMonitorView";
 export { ExamenPreguntaPreview } from "./ExamenPreguntaPreview";
 export { ExamenSettingsPanel } from "./ExamenSettingsPanel";
 export { ExamenStatChips } from "./ExamenStatChips";

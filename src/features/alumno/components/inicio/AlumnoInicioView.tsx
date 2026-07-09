@@ -11,13 +11,12 @@ import {
   canRegistrarHoraProceso,
   formatFecha,
 } from "@/lib/domain";
-import { horasEnFecha, parseDateKey } from "../../lib/horas-calendar.utils";
+import { horasEnFecha, parseDateKey, HorasCalendar, type HorasCalendarView } from "@/shared/proceso/horas";
 import { PageGreeting, PageHeader } from "@/shared/components/PageHeader";
 import { SectionEmptyState } from "@/shared/components/SectionEmptyState";
 import { StatCard, StatCards } from "@/shared/components/StatCard";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 import { HoraDiaDetailModal } from "../proceso/HoraDiaDetailModal";
-import { HorasCalendar, type HorasCalendarView } from "../proceso/HorasCalendar";
 import headerStyles from "./AlumnoInicioView.module.css";
 import { AlumnoNotificacionesTray } from "./AlumnoNotificacionesTray";
 

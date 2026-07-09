@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
 import {
   closeVacante,
@@ -17,7 +19,7 @@ import type {
 export async function getVacanteDetailAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.DELEGACION], 
     () => getVacante(idVacante),
     "No pudimos cargar la información de la vacante.",
   );
@@ -26,7 +28,7 @@ export async function getVacanteDetailAction(
 export async function publishVacanteAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => publishVacante(idVacante),
     "No pudimos publicar la vacante.",
   );
@@ -41,7 +43,7 @@ export async function publishVacanteAction(
 export async function closeVacanteAction(
   idVacante: number,
 ): Promise<ActionResult<VacanteResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => closeVacante(idVacante),
     "No pudimos cerrar la vacante.",
   );
@@ -57,7 +59,7 @@ export async function rejectVacanteAction(
   idVacante: number,
   request: RechazarVacanteRequest,
 ): Promise<ActionResult<VacanteResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.DELEGACION],
     () => rejectVacante(idVacante, request),
     "No pudimos rechazar la vacante.",
   );

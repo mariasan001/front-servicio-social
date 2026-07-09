@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { revalidateAdminSection } from "../lib/revalidate-admin";
 import {
   createEscuela,
@@ -31,7 +33,7 @@ export type EscuelaDetailPayload = {
 export async function getEscuelaDetailAction(
   idEscuela: number,
 ): Promise<ActionResult<EscuelaDetailPayload>> {
-  return runServerAction(async () => {
+  return runAuthorizedAction([USER_ROLES.ADMINISTRADOR], async () => {
     const [escuela, invitaciones] = await Promise.all([
       getEscuela(idEscuela),
       listEscuelaTokens(idEscuela),
@@ -44,7 +46,7 @@ export async function getEscuelaDetailAction(
 export async function createEscuelaAction(
   request: CrearEscuelaRequest,
 ): Promise<ActionResult<EscuelaDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => createEscuela(request),
     "No pudimos registrar la escuela. Revisa los datos e intenta de nuevo.",
   );
@@ -60,7 +62,7 @@ export async function updateEscuelaAction(
   idEscuela: number,
   request: ActualizarEscuelaRequest,
 ): Promise<ActionResult<EscuelaDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => updateEscuela(idEscuela, request),
     "No pudimos actualizar la escuela. Revisa los datos e intenta de nuevo.",
   );
@@ -76,7 +78,7 @@ export async function generateEscuelaTokenAction(
   idEscuela: number,
   request: GenerarTokenRequest,
 ): Promise<ActionResult<TokenGeneradoResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => generateEscuelaToken(idEscuela, request),
     "No pudimos generar la invitación de registro. Intenta de nuevo.",
   );
@@ -92,7 +94,7 @@ export async function revealEscuelaTokenAction(
   idEscuela: number,
   idToken: number,
 ): Promise<ActionResult<TokenReveladoResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ADMINISTRADOR], 
     () => revealEscuelaToken(idEscuela, idToken),
     "No pudimos recuperar el enlace de la invitación.",
   );
@@ -102,7 +104,7 @@ export async function suspendEscuelaTokenAction(
   idEscuela: number,
   idToken: number,
 ): Promise<ActionResult<EscuelaTokenResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => suspendEscuelaToken(idEscuela, idToken),
     "No pudimos suspender la invitación.",
   );
@@ -118,7 +120,7 @@ export async function revokeEscuelaTokenAction(
   idEscuela: number,
   idToken: number,
 ): Promise<ActionResult<EscuelaTokenResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => revokeEscuelaToken(idEscuela, idToken),
     "No pudimos cancelar la invitación.",
   );
@@ -134,7 +136,7 @@ export async function reactivateEscuelaTokenAction(
   idEscuela: number,
   idToken: number,
 ): Promise<ActionResult<EscuelaTokenResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ADMINISTRADOR],
     () => reactivateEscuelaToken(idEscuela, idToken),
     "No pudimos reactivar la invitación.",
   );

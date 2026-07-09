@@ -1,6 +1,8 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import {
   getProceso,
   getProcesoHorasResumen,
@@ -24,7 +26,7 @@ export type EnlaceProcesoDetailPayload = {
 export async function getProcesoDetailAction(
   idProceso: number,
 ): Promise<ActionResult<EnlaceProcesoDetailPayload>> {
-  return runServerAction(async () => {
+  return runAuthorizedAction([USER_ROLES.ENLACE_ESCOLAR], async () => {
     const [proceso, horasResumen, documentos, cartas] = await Promise.all([
       getProceso(idProceso),
       getProcesoHorasResumen(idProceso).catch(() => null),

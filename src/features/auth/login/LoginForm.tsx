@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { resolveLoginRedirect } from "../lib/resolve-login-redirect";
+import { resolveLoginRedirect } from "@/lib/auth/login-redirect";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { isSafeInternalPath } from "@/lib/auth/roles";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";

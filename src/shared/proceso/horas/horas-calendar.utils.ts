@@ -1,15 +1,12 @@
-import type { HoraResponse } from "../types/alumno.types";
-
-export type HoraCalendarEntry = Pick<
-  HoraResponse,
-  | "idAsistencia"
-  | "fecha"
-  | "estatus"
-  | "horasRegistradas"
-  | "horaEntrada"
-  | "horaSalida"
-  | "descripcionActividades"
->;
+export type HoraCalendarEntry = {
+  idAsistencia: number;
+  fecha?: string;
+  estatus?: string;
+  horasRegistradas?: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  descripcionActividades?: string;
+};
 
 export const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
 

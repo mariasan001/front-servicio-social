@@ -1,7 +1,7 @@
 "use client";
 
 import type { ActionResult } from "@/lib/actions";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   getPreguntasActivas,
   type ExamenDiagnosticoDetalleResponse,
@@ -26,42 +26,28 @@ function renderPreguntaPreview(pregunta: ExamenPreguntaResponse, index: number) 
   return <ExamenPreguntaPreview pregunta={pregunta} index={index} />;
 }
 
-export function ExamenMonitorDetailModal({
-  open,
+function ExamenMonitorDetailModalContent({
   examenId,
   onClose,
   loadExamen,
-}: ExamenMonitorDetailModalProps) {
-  const { detail, error, isLoading } = useDetailModalLoader(
-    open,
-    examenId,
-    loadExamen,
-  );
+}: {
+  examenId: number;
+  onClose: () => void;
+  loadExamen: (idExamen: number) => Promise<ActionResult<ExamenDiagnosticoDetalleResponse>>;
+}) {
+  const { detail, error, isLoading } = useDetailModalLoader(true, examenId, loadExamen);
 
-  const [selected, setSelected] = useState<ExamenDetailSelection | null>(null);
   const preguntas = getPreguntasActivas(detail?.preguntas);
-
-  useEffect(() => {
-    if (!open) {
-      setSelected(null);
-    }
-  }, [open]);
-
-  useEffect(() => {
+  const defaultSelected = useMemo<ExamenDetailSelection | null>(() => {
     if (!detail) {
-      return;
+      return null;
     }
 
-    setSelected((current) => {
-      if (current) {
-        return current;
-      }
-
-      const first = preguntas[0];
-      return first ? { type: "pregunta", id: first.idPregunta } : { type: "settings" };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+    const first = preguntas[0];
+    return first ? { type: "pregunta", id: first.idPregunta } : { type: "settings" };
+  }, [detail, preguntas]);
+  const [selectedOverride, setSelectedOverride] = useState<ExamenDetailSelection | null>(null);
+  const selected = selectedOverride ?? defaultSelected;
 
   const selectedPregunta =
     selected?.type === "pregunta"
@@ -84,7 +70,7 @@ export function ExamenMonitorDetailModal({
   };
 
   return (
-    <Modal open={open} title={detail?.titulo ?? "Examen"} onClose={onClose} size="xl">
+    <Modal open title={detail?.titulo ?? "Examen"} onClose={onClose} size="xl">
       {isLoading && !detail ? <EntityDetailModalSkeleton sections={2} /> : null}
       {error && !detail ? <Alert tone="error">{error}</Alert> : null}
 
@@ -93,12 +79,32 @@ export function ExamenMonitorDetailModal({
           detail={detail}
           preguntas={preguntas}
           selected={selected}
-          onSelectSettings={() => setSelected({ type: "settings" })}
-          onSelectPregunta={(id) => setSelected({ type: "pregunta", id })}
+          onSelectSettings={() => setSelectedOverride({ type: "settings" })}
+          onSelectPregunta={(id) => setSelectedOverride({ type: "pregunta", id })}
         >
           {renderMain()}
         </ExamenDetailLayout>
       ) : null}
     </Modal>
+  );
+}
+
+export function ExamenMonitorDetailModal({
+  open,
+  examenId,
+  onClose,
+  loadExamen,
+}: ExamenMonitorDetailModalProps) {
+  if (!open || examenId === null) {
+    return null;
+  }
+
+  return (
+    <ExamenMonitorDetailModalContent
+      key={examenId}
+      examenId={examenId}
+      onClose={onClose}
+      loadExamen={loadExamen}
+    />
   );
 }

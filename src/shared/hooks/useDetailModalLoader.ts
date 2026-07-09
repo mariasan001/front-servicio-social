@@ -22,8 +22,10 @@ export function useDetailModalLoader<T>(
   const onBeforeLoadRef = useRef(onBeforeLoad);
   const previousIdRef = useRef<number | null>(null);
 
-  loadRef.current = load;
-  onBeforeLoadRef.current = onBeforeLoad;
+  useEffect(() => {
+    loadRef.current = load;
+    onBeforeLoadRef.current = onBeforeLoad;
+  });
 
   useEffect(() => {
     if (!open || id === null) {

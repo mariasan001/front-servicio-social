@@ -7,7 +7,7 @@ import { PanelSectionSkeleton } from "@/features/panel/components/PanelSectionSk
 import {
   buildAlumnoCvPostulacionUrl,
   isAlumnoPostulacionEntryPath,
-} from "@/features/alumno/lib/alumno-postulacion-entry";
+} from "@/lib/auth/postulacion-entry";
 
 const CV_PATH = `${PANEL_PATHS.alumno}/cv`;
 

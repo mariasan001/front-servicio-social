@@ -28,6 +28,18 @@ export {
   validarRegistroHoraAlumno,
 } from "./horas";
 export {
+  ALUMNO_CV_NAV_ID,
+  ALUMNO_NAV_IDS_BLOCKED_WITHOUT_CV,
+  CV_OPTIONAL_FIELDS,
+  CV_REQUIRED_FIELDS,
+  CV_TRACKED_FIELDS,
+  countCvProgress,
+  isCvComplete,
+  type CvCompletionSnapshot,
+  type CvRequiredField,
+  type CvTrackedField,
+} from "./cv";
+export {
   formatHorasProceso,
   isListoParaActivacion,
   puedeActivarProceso,

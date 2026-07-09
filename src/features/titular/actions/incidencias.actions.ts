@@ -1,13 +1,15 @@
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { getIncidencia } from "../services/incidencias.service";
 import type { IncidenciaDetalleResponse } from "../types/titular.types";
 
 export async function getIncidenciaDetailAction(
   idIncidencia: number,
 ): Promise<ActionResult<IncidenciaDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.TITULAR_AREA], 
     () => getIncidencia(idIncidencia),
     "No pudimos cargar la información de la incidencia.",
   );

@@ -2,7 +2,7 @@
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { Clock } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   registerProcesoHoraAction,
   updateProcesoHoraBitacoraAction,
@@ -13,7 +13,7 @@ import {
   formatHoraRange,
   formatHorasDia,
   isDateKeyToday,
-} from "../../lib/horas-calendar.utils";
+} from "@/shared/proceso/horas";
 import {
   canAlumnoActualizarBitacora,
   HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO,
@@ -28,7 +28,7 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
-import styles from "./HoraDiaDetailModal.module.css";
+import styles from "@/shared/proceso/horas/HoraDiaDetailModal.module.css";
 
 type HoraRegisterDraft = {
   horaEntrada: string;
@@ -59,8 +59,21 @@ function buildBitacoraDrafts(horas: HoraResponse[]) {
   );
 }
 
-export function HoraDiaDetailModal({
-  open,
+type HoraDiaDetailModalContentProps = Omit<HoraDiaDetailModalProps, "open" | "dateKey"> & {
+  dateKey: string;
+};
+
+function buildInitialRegisterDraft(
+  initialRegister?: Partial<HoraRegisterDraft>,
+): HoraRegisterDraft {
+  return {
+    horaEntrada: initialRegister?.horaEntrada ?? "",
+    horaSalida: initialRegister?.horaSalida ?? "",
+    descripcionActividades: initialRegister?.descripcionActividades ?? "",
+  };
+}
+
+function HoraDiaDetailModalContent({
   dateKey,
   horas,
   canRegister,
@@ -68,24 +81,15 @@ export function HoraDiaDetailModal({
   initialRegister,
   onClose,
   onRegistered,
-}: HoraDiaDetailModalProps) {
+}: HoraDiaDetailModalContentProps) {
   const router = usePanelRouter();
   const [isMutating, setIsMutating] = useState(false);
-  const [registerDraft, setRegisterDraft] = useState<HoraRegisterDraft>(EMPTY_REGISTER);
-  const [bitacoraDrafts, setBitacoraDrafts] = useState<Record<number, string>>({});
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setRegisterDraft({
-      horaEntrada: initialRegister?.horaEntrada ?? "",
-      horaSalida: initialRegister?.horaSalida ?? "",
-      descripcionActividades: initialRegister?.descripcionActividades ?? "",
-    });
-    setBitacoraDrafts(buildBitacoraDrafts(horas));
-  }, [open, dateKey, initialRegister, horas]);
+  const [registerDraft, setRegisterDraft] = useState<HoraRegisterDraft>(() =>
+    buildInitialRegisterDraft(initialRegister),
+  );
+  const [bitacoraDrafts, setBitacoraDrafts] = useState<Record<number, string>>(() =>
+    buildBitacoraDrafts(horas),
+  );
 
   const savedBitacoras = useMemo(() => buildBitacoraDrafts(horas), [horas]);
   const editableHoras = useMemo(
@@ -101,10 +105,6 @@ export function HoraDiaDetailModal({
       ),
     [bitacoraDrafts, editableHoras, savedBitacoras],
   );
-
-  if (!open || !dateKey) {
-    return null;
-  }
 
   const title = formatDiaCompleto(dateKey);
   const hasHoras = horas.length > 0;
@@ -390,5 +390,48 @@ export function HoraDiaDetailModal({
         </Alert>
       ) : null}
     </Modal>
+  );
+}
+
+function buildHoraDiaModalKey(
+  dateKey: string,
+  horas: HoraResponse[],
+  initialRegister?: Partial<HoraRegisterDraft>,
+) {
+  const horasKey = horas.map((hora) => hora.idAsistencia).join(",");
+  const registerKey = [
+    initialRegister?.horaEntrada ?? "",
+    initialRegister?.horaSalida ?? "",
+    initialRegister?.descripcionActividades ?? "",
+  ].join(":");
+
+  return `${dateKey}:${horasKey}:${registerKey}`;
+}
+
+export function HoraDiaDetailModal({
+  open,
+  dateKey,
+  horas,
+  canRegister,
+  idProceso,
+  initialRegister,
+  onClose,
+  onRegistered,
+}: HoraDiaDetailModalProps) {
+  if (!open || !dateKey) {
+    return null;
+  }
+
+  return (
+    <HoraDiaDetailModalContent
+      key={buildHoraDiaModalKey(dateKey, horas, initialRegister)}
+      dateKey={dateKey}
+      horas={horas}
+      canRegister={canRegister}
+      idProceso={idProceso}
+      initialRegister={initialRegister}
+      onClose={onClose}
+      onRegistered={onRegistered}
+    />
   );
 }

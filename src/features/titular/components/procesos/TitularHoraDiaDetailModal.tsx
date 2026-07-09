@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   registerProcesoHoraAction,
   rejectProcesoHoraAction,
@@ -12,7 +12,7 @@ import {
   formatDiaCompleto,
   formatHoraRange,
   formatHorasDia,
-} from "@/features/alumno/lib/horas-calendar.utils";
+} from "@/shared/proceso/horas";
 import {
   canRejectHora,
   canValidateHora,
@@ -26,7 +26,7 @@ import { Modal } from "@/shared/components/Modal";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import sectionStyles from "@/shared/styles/DetailModalSections.module.css";
-import alumnoDayStyles from "@/features/alumno/components/proceso/HoraDiaDetailModal.module.css";
+import alumnoDayStyles from "@/shared/proceso/horas/HoraDiaDetailModal.module.css";
 
 type RegisterDraft = {
   horaEntrada: string;
@@ -50,31 +50,24 @@ type TitularHoraDiaDetailModalProps = {
   onUpdated: () => void;
 };
 
-export function TitularHoraDiaDetailModal({
-  open,
+type TitularHoraDiaDetailModalContentProps = Omit<
+  TitularHoraDiaDetailModalProps,
+  "open" | "dateKey"
+> & {
+  dateKey: string;
+};
+
+function TitularHoraDiaDetailModalContent({
   dateKey,
   horas,
   idProceso,
   canRegister,
   onClose,
   onUpdated,
-}: TitularHoraDiaDetailModalProps) {
+}: TitularHoraDiaDetailModalContentProps) {
   const [isMutating, setIsMutating] = useState(false);
   const [comentario, setComentario] = useState("");
   const [registerDraft, setRegisterDraft] = useState<RegisterDraft>(EMPTY_REGISTER);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setComentario("");
-    setRegisterDraft(EMPTY_REGISTER);
-  }, [open, dateKey]);
-
-  if (!open || !dateKey) {
-    return null;
-  }
 
   const hasHoras = horas.length > 0;
   const showRegisterForm = canRegister && !hasHoras;
@@ -317,5 +310,31 @@ export function TitularHoraDiaDetailModal({
         </div>
       )}
     </Modal>
+  );
+}
+
+export function TitularHoraDiaDetailModal({
+  open,
+  dateKey,
+  horas,
+  idProceso,
+  canRegister,
+  onClose,
+  onUpdated,
+}: TitularHoraDiaDetailModalProps) {
+  if (!open || !dateKey) {
+    return null;
+  }
+
+  return (
+    <TitularHoraDiaDetailModalContent
+      key={dateKey}
+      dateKey={dateKey}
+      horas={horas}
+      idProceso={idProceso}
+      canRegister={canRegister}
+      onClose={onClose}
+      onUpdated={onUpdated}
+    />
   );
 }

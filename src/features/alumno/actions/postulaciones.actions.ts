@@ -1,6 +1,8 @@
 "use server";
 
-import { actionFailure, runServerAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
+
+import { actionFailure, runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import { puedePostularVacantes } from "@/lib/domain";
 import { isCvComplete } from "../components/cv/cv-labels";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
@@ -19,7 +21,7 @@ import type {
 export async function getPostulacionDetailAction(
   idPostulacion: number,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ALUMNO], 
     () => getPostulacion(idPostulacion),
     "No pudimos cargar la información de la postulación.",
   );
@@ -45,7 +47,7 @@ export async function createPostulacionAction(
     );
   }
 
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => createPostulacion(request),
     "No pudimos registrar tu postulación.",
   );
@@ -62,7 +64,7 @@ export async function createPostulacionAction(
 export async function cancelPostulacionAction(
   idPostulacion: number,
 ): Promise<ActionResult<PostulacionDetalleResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => cancelPostulacion(idPostulacion),
     "No pudimos cancelar la postulación.",
   );

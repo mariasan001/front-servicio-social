@@ -1,7 +1,9 @@
 "use server";
 
+import { USER_ROLES } from "@/lib/auth/constants";
+
 import type { DownloadedFile } from "@/lib/api/download";
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
 import type { CartaDownloadKind } from "@/lib/domain/cartas";
 import { revalidateAlumnoSection } from "../lib/revalidate-alumno";
 import {
@@ -22,7 +24,7 @@ export async function registerProcesoHoraAction(
   idProceso: number,
   request: RegistrarHoraRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => registerProcesoHora(idProceso, request),
     "No pudimos registrar las horas.",
   );
@@ -40,7 +42,7 @@ export async function updateProcesoHoraBitacoraAction(
   idAsistencia: number,
   request: ActualizarBitacoraRequest,
 ): Promise<ActionResult<HoraResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => updateProcesoHoraBitacora(idProceso, idAsistencia, request),
     "No pudimos actualizar la bitácora.",
   );
@@ -57,7 +59,7 @@ export async function uploadDocumentoArchivoAction(
   idProcesoDocumento: number,
   formData: FormData,
 ): Promise<ActionResult<unknown>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction([USER_ROLES.ALUMNO],
     () => uploadDocumentoArchivo(idProceso, idProcesoDocumento, formData),
     "No pudimos subir el archivo.",
   );
@@ -73,7 +75,7 @@ export async function downloadDocumentoArchivoAction(
   idProceso: number,
   idProcesoDocumento: number,
 ): Promise<ActionResult<DownloadedFile>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ALUMNO], 
     () => downloadDocumentoArchivoActual(idProceso, idProcesoDocumento),
     "No pudimos descargar el documento.",
   );
@@ -83,7 +85,7 @@ export async function downloadCartaArchivoAction(
   idProceso: number,
   kind: CartaDownloadKind,
 ): Promise<ActionResult<DownloadedFile>> {
-  return runServerAction(
+  return runAuthorizedAction([USER_ROLES.ALUMNO], 
     () =>
       kind === "aceptacion"
         ? downloadCartaAceptacionArchivo(idProceso)

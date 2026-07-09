@@ -88,6 +88,29 @@ export function canAccessPath(user: AuthUser | null, pathname: string) {
   return hasAnyRole(user.roles, requiredRoles);
 }
 
+const SAFE_INTERNAL_EXACT_PATHS = new Set([
+  "/",
+  "/login",
+  "/registro",
+  "/registro/alumno",
+  "/recuperar-contrasena",
+  "/restablecer-contrasena",
+]);
+
+const SAFE_INTERNAL_PREFIXES = ["/panel/", "/vacantes/"] as const;
+
 export function isSafeInternalPath(path: string | null | undefined) {
-  return Boolean(path && path.startsWith("/") && !path.startsWith("//"));
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return false;
+  }
+
+  if (SAFE_INTERNAL_EXACT_PATHS.has(path)) {
+    return true;
+  }
+
+  if (path === "/vacantes") {
+    return true;
+  }
+
+  return SAFE_INTERNAL_PREFIXES.some((prefix) => path.startsWith(prefix));
 }

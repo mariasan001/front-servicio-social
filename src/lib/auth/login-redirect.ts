@@ -2,18 +2,17 @@ import { apiRequest } from "@/lib/api/client";
 import type { AuthUser } from "@/lib/api/types";
 import { USER_ROLES } from "@/lib/auth/constants";
 import {
+  buildAlumnoCvPostulacionUrl,
+  isAlumnoPostulacionEntryPath,
+} from "@/lib/auth/postulacion-entry";
+import {
   canAccessPath,
   hasAnyRole,
   isSafeInternalPath,
   normalizeAuthUser,
   resolveHomePath,
 } from "@/lib/auth/roles";
-import { isCvComplete } from "@/features/alumno/components/cv/cv-labels";
-import {
-  buildAlumnoCvPostulacionUrl,
-  isAlumnoPostulacionEntryPath,
-} from "@/features/alumno/lib/alumno-postulacion-entry";
-import type { CvResponse } from "@/features/alumno/types/alumno.types";
+import { isCvComplete, type CvCompletionSnapshot } from "@/lib/domain/cv";
 
 export async function resolveLoginRedirect(
   user: AuthUser,
@@ -37,7 +36,7 @@ export async function resolveLoginRedirect(
     isAlumnoPostulacionEntryPath(safeNextPath)
   ) {
     try {
-      const response = await apiRequest<CvResponse>("/api/alumno/cv", {
+      const response = await apiRequest<CvCompletionSnapshot>("/api/alumno/cv", {
         method: "GET",
       });
 

@@ -4,7 +4,7 @@ import { AUTH_PATHS } from "@/lib/auth/constants";
 import {
   buildAlumnoPostulacionLoginHref,
   buildAlumnoPostulacionRegisterHref,
-} from "@/features/alumno/lib/alumno-postulacion-entry";
+} from "@/lib/auth/postulacion-entry";
 import { Button } from "@/shared/components/Button";
 import {
   ArrowLeft,

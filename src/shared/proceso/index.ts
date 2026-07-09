@@ -8,3 +8,15 @@ export {
   resolveFileTypeLabel,
   resolveHorasRegistradas,
 } from "./presentacion.utils";
+export {
+  HorasCalendar,
+  type HorasCalendarLayout,
+  type HorasCalendarView,
+  type HoraCalendarEntry,
+  horasEnFecha,
+  isDateKeyToday,
+  parseDateKey,
+  formatDiaCompleto,
+  formatHorasDia,
+  resolveHoraFechaKey,
+} from "./horas";
