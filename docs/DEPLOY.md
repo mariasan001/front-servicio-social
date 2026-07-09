@@ -26,6 +26,7 @@ Copiar `.env.example` y ajustar por entorno:
 | `API_PROXY_TARGET` | **Sí** | URL interna del backend Java (ej. `https://api-interna.edomex.gob.mx`). El build **falla** si falta con `NODE_ENV=production`. |
 | `NEXT_PUBLIC_API_URL` | Recomendada | Base del navegador hacia el proxy (default `/api/backend`). |
 | `NEXT_PUBLIC_SITE_URL` | Recomendada | URL pública del sitio (SEO, `sitemap.xml`, enlaces de invitación escuela). Default en código: `https://serviciosocial.edomex.gob.mx`. |
+| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Si está definida, `error.tsx` / `global-error.tsx` reportan a Sentry. Sin DSN solo hay `console.error`. |
 
 **Ejemplo producción:**
 
@@ -70,9 +71,9 @@ Workflow: `.github/workflows/ci.yml`
 | Job | Pasos |
 |-----|-------|
 | **quality** | `typecheck` → `lint` → `test:coverage` → `npm audit --audit-level=high` → `build` |
-| **e2e** | `build` → Playwright Chromium → `test:e2e` (rutas públicas y auth) |
+| **e2e** | `build` → Playwright Chromium → `test:e2e` (públicas, auth, a11y) |
 
-Los smoke tests del panel por rol (Fase 0) siguen siendo **manuales** o con credenciales de prueba; el E2E de CI no sustituye los 15 flujos críticos del baseline.
+Los smoke tests del panel por rol se automatizan con `npm run test:e2e:panel` cuando existen variables `E2E_<ROL>_USER` / `E2E_<ROL>_PASSWORD`. Los 15 flujos críticos del baseline siguen siendo checklist manual.
 
 ---
 
@@ -88,6 +89,24 @@ Los smoke tests del panel por rol (Fase 0) siguen siendo **manuales** o con cred
 
 ---
 
+## Health check
+
+`GET /api/health` devuelve `{ status: "ok" }` para probes de load balancer.
+
+## Docker
+
+```bash
+docker build \
+  --build-arg API_PROXY_TARGET=https://api-interno \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://serviciosocial.edomex.gob.mx \
+  -t front-servicio-social .
+
+docker run -p 3000:3000 \
+  -e API_PROXY_TARGET=https://api-interno \
+  -e NEXT_PUBLIC_SITE_URL=https://serviciosocial.edomex.gob.mx \
+  front-servicio-social
+```
+
 ## Rollback
 
 1. Conservar el artefacto de build anterior (commit + `node_modules` lockfile).
@@ -101,10 +120,29 @@ Los smoke tests del panel por rol (Fase 0) siguen siendo **manuales** o con cred
 
 | Área | Sugerencia |
 |------|------------|
-| Errores de cliente | Sentry u otro APM en `error.tsx` / `global-error.tsx` |
-| Disponibilidad | Health check del backend + uptime en `/` |
+| Errores de cliente | `NEXT_PUBLIC_SENTRY_DSN` → `reportClientError` en `error.tsx` / `global-error.tsx` |
+| Disponibilidad | Health check del frontend (`/api/health`) + backend |
+| Bundles | `npm run analyze` (abre el reporte de `@next/bundle-analyzer`) |
 | Logs | Agregar request-id en proxy si el hosting lo permite |
 | Seguridad | Rate limit en `/auth/*` en backend o WAF |
+
+### Smoke E2E por rol (opcional)
+
+En `.env.local` o secrets de CI:
+
+```env
+E2E_ADMIN_USER=...
+E2E_ADMIN_PASSWORD=...
+E2E_ALUMNO_USER=...
+E2E_ALUMNO_PASSWORD=...
+# igual para DELEGACION, TITULAR, ENLACE
+```
+
+```bash
+npm run test:e2e:panel
+```
+
+Sin credenciales, Playwright **omite** esos tests (no fallan el CI público).
 
 ---
 
@@ -124,4 +162,4 @@ Los smoke tests del panel por rol (Fase 0) siguen siendo **manuales** o con cred
 - Smoke tests: [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)
 - Convenciones panel: [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)
 
-*Última actualización: línea base `57523d8` — tests, E2E en CI, hardening de release.*
+*Última actualización: P3 — Sentry opcional, E2E panel por rol, bundle analyzer.*

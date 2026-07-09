@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportClientError } from "@/lib/monitoring/report-error";
 import { StatusPage } from "@/shared/components/StatusPage/StatusPage";
 import styles from "@/shared/components/StatusPage/StatusPage.module.css";
 
@@ -11,7 +12,7 @@ type ErrorPageProps = {
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
-    console.error(error);
+    reportClientError(error);
   }, [error]);
 
   return (

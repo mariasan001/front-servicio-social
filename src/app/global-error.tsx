@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { gotham } from "@/lib/fonts";
+import { reportClientError } from "@/lib/monitoring/report-error";
 import "./globals.css";
 
 type GlobalErrorProps = {
@@ -8,7 +10,11 @@ type GlobalErrorProps = {
   reset: () => void;
 };
 
-export default function GlobalError({ reset }: GlobalErrorProps) {
+export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  useEffect(() => {
+    reportClientError(error);
+  }, [error]);
+
   return (
     <html lang="es" className={gotham.variable}>
       <body className={gotham.variable}>

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const isProduction = process.env.NODE_ENV === "production";
+const analyzeBundles = process.env.ANALYZE === "true";
+const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN?.trim());
 
 if (isProduction && !process.env.API_PROXY_TARGET) {
   throw new Error("API_PROXY_TARGET must be set when NODE_ENV=production");
@@ -9,6 +12,13 @@ if (isProduction && !process.env.API_PROXY_TARGET) {
 const scriptSrc = isProduction
   ? "script-src 'self' 'unsafe-inline'"
   : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
+const connectSrc = [
+  "connect-src 'self'",
+  ...(sentryEnabled
+    ? ["https://*.ingest.sentry.io", "https://*.ingest.us.sentry.io"]
+    : []),
+].join(" ");
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -26,7 +36,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      connectSrc,
       "object-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -76,4 +86,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer({
+  enabled: analyzeBundles,
+})(nextConfig);

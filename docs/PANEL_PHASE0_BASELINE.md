@@ -37,12 +37,14 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 | `npm run check` | typecheck + lint |
 | `npm run test` | Vitest — reglas de dominio y auth |
 | `npm run test:coverage` | Vitest + umbrales de cobertura |
-| `npm run test:e2e` | Playwright — rutas públicas y auth (8 tests) |
+| `npm run test:e2e` | Playwright — rutas públicas, auth, a11y y health |
+| `npm run test:e2e:panel` | Playwright — smoke por rol (requiere `E2E_*` en env) |
+| `npm run analyze` | Build + reporte de bundles (`@next/bundle-analyzer`) |
 | `npm run build` | Build de producción |
 
 Workflow: `.github/workflows/ci.yml` — jobs **quality** (typecheck, lint, coverage, audit, build) y **e2e** (Playwright).
 
-**Nota:** el E2E de CI **no** cubre los 15 smoke del panel; esos siguen siendo manuales en esta fase.
+**Nota:** el E2E de CI cubre rutas públicas/auth/a11y. Los smokes del panel por rol (`npm run test:e2e:panel`) se ejecutan cuando hay credenciales `E2E_*` en el entorno; los 15 flujos críticos del inventario siguen siendo checklist manual.
 
 ### Cambios estructurales desde la línea base anterior
 
