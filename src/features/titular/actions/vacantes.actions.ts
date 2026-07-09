@@ -24,8 +24,6 @@ type CrearVacanteActionRequest = Omit<CrearVacanteRequest, "areaId" | "modalidad
   modalidadId?: string;
 };
 
-const DEFAULT_MODALIDAD_ID = "SERVICIO_SOCIAL";
-
 const AREA_RESOLUTION_ERROR =
   "No se pudo determinar el área asignada a tu cuenta. Contacta a administración para verificar tu asignación como titular.";
 
@@ -71,15 +69,18 @@ export async function createVacanteAction(
     const vacantes = await listVacantes();
 
     let areaId = normalizeOptionalNumber(request.areaId);
-    let modalidadId = normalizeOptionalString(request.modalidadId);
+    const modalidadId = normalizeOptionalString(request.modalidadId);
 
-    if (!areaId || !modalidadId) {
-      const areaContext = await resolveTitularAreaContext(vacantes, session.idUsuario);
-      areaId = areaId ?? areaContext?.areaId;
-      modalidadId = modalidadId ?? areaContext?.modalidadId;
+    if (!modalidadId) {
+      throw new Error(
+        "Selecciona el tipo de vacante: servicio social, prácticas profesionales o residencias.",
+      );
     }
 
-    modalidadId = modalidadId ?? DEFAULT_MODALIDAD_ID;
+    if (!areaId) {
+      const areaContext = await resolveTitularAreaContext(vacantes, session.idUsuario);
+      areaId = areaContext?.areaId;
+    }
 
     if (areaId) {
       return createVacante(buildCreateVacantePayload(request, areaId, modalidadId));

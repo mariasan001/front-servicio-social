@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
+import { getModalidadCatalogoLabel } from "@/lib/domain/modalidad";
 import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
@@ -145,6 +146,14 @@ export function AlumnoVacanteDetailModal({
             <div className={detailStyles.metaRow}>
               <dt>Dependencia</dt>
               <dd>{dependenciaNombre || "Sin dependencia asignada"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Tipo</dt>
+              <dd>
+                {detail.modalidadId
+                  ? getModalidadCatalogoLabel(detail.modalidadId)
+                  : "Sin tipo registrado"}
+              </dd>
             </div>
             <div className={detailStyles.metaRow}>
               <dt>Modalidad de trabajo</dt>

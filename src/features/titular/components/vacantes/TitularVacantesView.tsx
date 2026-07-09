@@ -11,6 +11,7 @@ import { normalizeText } from "@/lib/utils/search";
 import { Button } from "@/shared/components/Button";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
+import { buildVacanteTipoColumn, getVacanteTipoLabel } from "@/shared/components/vacante";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import tableStyles from "@/shared/components/DataTable/DataTable.module.css";
@@ -46,7 +47,7 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         return false;
       }
       if (!query) return true;
-      const haystack = [vacante.nombre, vacante.folio, vacante.estatus, vacante.areaNombre]
+      const haystack = [vacante.nombre, vacante.folio, vacante.estatus, vacante.areaNombre, getVacanteTipoLabel(vacante.modalidadId)]
         .filter(Boolean)
         .join(" ");
       return normalizeText(haystack).includes(query);
@@ -57,7 +58,7 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
     {
       id: "nombre",
       header: "Vacante",
-      width: "36%",
+      width: "30%",
       cell: (vacante) => (
         <div className={styles.nameCell}>
           <strong>{vacante.nombre?.trim() || "Sin nombre"}</strong>
@@ -65,6 +66,7 @@ export function TitularVacantesView({ vacantes, areaContext }: TitularVacantesVi
         </div>
       ),
     },
+    buildVacanteTipoColumn<VacanteResponse>(),
     {
       id: "estatus",
       header: "Estatus",

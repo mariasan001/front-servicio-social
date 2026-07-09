@@ -9,6 +9,7 @@ import type {
 export type VacanteResponse = VacanteBase & {
   areaNombre?: string;
   dependenciaNombre?: string;
+  modalidadId?: string;
   modalidadTrabajo?: string;
   cupoTotal?: number;
   cupoDisponible?: number;

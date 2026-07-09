@@ -7,6 +7,7 @@ import type { TitularAreaContext } from "../../lib/area-context";
 import { MODALIDAD_TRABAJO_OPTIONS } from "../../constants/vacante-form";
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
+import { MODALIDAD_CATALOGO_OPTIONS } from "@/lib/domain/modalidad";
 import type { VacanteDetalleResponse, VacanteResponse } from "../../types/titular.types";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
@@ -19,6 +20,7 @@ type FormValues = {
   nombre: string;
   descripcion: string;
   perfilRequerido: string;
+  modalidadId: string;
   modalidadTrabajo: string;
   cupoTotal: string;
   requiereExamen: boolean;
@@ -36,6 +38,7 @@ const EMPTY_VALUES: FormValues = {
   nombre: "",
   descripcion: "",
   perfilRequerido: "",
+  modalidadId: "",
   modalidadTrabajo: "PRESENCIAL",
   cupoTotal: "1",
   requiereExamen: false,
@@ -51,6 +54,7 @@ function buildInitialValues(
       nombre: vacante.nombre ?? "",
       descripcion: detalle.descripcion ?? "",
       perfilRequerido: detalle.perfilRequerido ?? "",
+      modalidadId: vacante.modalidadId ?? "",
       modalidadTrabajo: detalle.modalidadTrabajo ?? "PRESENCIAL",
       cupoTotal: String(vacante.cupoTotal ?? ""),
       requiereExamen: detalle.requiereExamen ?? false,
@@ -116,12 +120,16 @@ function VacanteFormModalContent({
 
     const nombre = values.nombre.trim();
     const descripcion = values.descripcion.trim();
+    const modalidadId = values.modalidadId.trim();
     const modalidadTrabajo = values.modalidadTrabajo.trim();
     const cupoTotal = Number(values.cupoTotal);
     const errors: Partial<Record<keyof FormValues, string>> = {};
 
     if (!nombre) errors.nombre = "Escribe el nombre de la vacante.";
     if (!descripcion) errors.descripcion = "Escribe la descripción de la vacante.";
+    if (!modalidadId) {
+      errors.modalidadId = "Selecciona el tipo de vacante.";
+    }
     if (!modalidadTrabajo) errors.modalidadTrabajo = "Selecciona la modalidad de trabajo.";
     if (!cupoTotal || cupoTotal < 1) errors.cupoTotal = "Indica un cupo válido (mínimo 1).";
 
@@ -136,6 +144,7 @@ function VacanteFormModalContent({
       nombre,
       descripcion,
       perfilRequerido: values.perfilRequerido.trim() || undefined,
+      modalidadId,
       modalidadTrabajo,
       cupoTotal,
       requiereExamen: values.requiereExamen,
@@ -148,7 +157,6 @@ function VacanteFormModalContent({
               ? {
                   ...payload,
                   areaId: areaContext.areaId,
-                  modalidadId: areaContext.modalidadId,
                 }
               : payload,
           )
@@ -257,6 +265,25 @@ function VacanteFormModalContent({
         <section className={styles.formPanel} aria-label="Condiciones de la vacante">
           <h3 className={styles.formPanelTitle}>Condiciones</h3>
           <div className={styles.formGrid}>
+            <div className={styles.formGridFull}>
+              <SelectInput
+                id="vacante-tipo"
+                label="Tipo de vacante"
+                required
+                placeholder="Selecciona el tipo"
+                hint="Servicio social, prácticas profesionales o residencias profesionales."
+                value={values.modalidadId}
+                error={fieldErrors.modalidadId}
+                onChange={(event) => updateField("modalidadId", event.target.value)}
+              >
+                {MODALIDAD_CATALOGO_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </SelectInput>
+            </div>
+
             <div className={styles.formGridFull}>
               <SelectInput
                 id="vacante-modalidad-trabajo"

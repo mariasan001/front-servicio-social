@@ -8,6 +8,7 @@ import {
   getVacanteDetailAction,
   sendVacanteToReviewAction,
 } from "../../actions/vacantes.actions";
+import { getModalidadCatalogoLabel } from "@/lib/domain/modalidad";
 import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import type { VacanteResponse } from "../../types/titular.types";
 import {
@@ -159,6 +160,14 @@ export function TitularVacanteDetailModal({
             <div className={detailStyles.metaRow}>
               <dt>Área</dt>
               <dd>{areaNombre || "Sin área asignada"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Tipo</dt>
+              <dd>
+                {detail.modalidadId
+                  ? getModalidadCatalogoLabel(detail.modalidadId)
+                  : "Sin tipo registrado"}
+              </dd>
             </div>
             <div className={detailStyles.metaRow}>
               <dt>Modalidad de trabajo</dt>

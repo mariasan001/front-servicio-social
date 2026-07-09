@@ -7,6 +7,7 @@ import type { VacanteResponse, ProcesoDetalleResponse } from "../../types/alumno
 import { AlumnoVacanteDetailModal } from "./AlumnoVacanteDetailModal";
 import { normalizeText } from "@/lib/utils/search";
 import { puedePostularVacantes } from "@/lib/domain";
+import { buildVacanteTipoColumn, getVacanteTipoLabel } from "@/shared/components/vacante";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { CupoMeter } from "@/shared/components/CupoMeter";
 import { DataTable, DataTableActions, DataTableIconAction, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
@@ -39,6 +40,7 @@ export function AlumnoVacantesView({
         vacante.estatus,
         vacante.areaNombre,
         vacante.dependenciaNombre,
+        vacante.modalidadId ? getVacanteTipoLabel(vacante.modalidadId) : "",
       ]
         .filter(Boolean)
         .join(" ");
@@ -50,7 +52,7 @@ export function AlumnoVacantesView({
     {
       id: "vacante",
       header: "Vacante",
-      width: "34%",
+      width: "28%",
       cell: (vacante) => (
         <div className={styles.nameCell}>
           <strong>{vacante.nombre?.trim() || "Sin nombre"}</strong>
@@ -61,7 +63,7 @@ export function AlumnoVacantesView({
     {
       id: "area",
       header: "Área",
-      width: "24%",
+      width: "20%",
       cell: (vacante) => {
         const area = vacante.areaNombre?.trim();
         return area ? (
@@ -73,6 +75,7 @@ export function AlumnoVacantesView({
         );
       },
     },
+    buildVacanteTipoColumn<VacanteResponse>(),
     {
       id: "cupo",
       header: "Cupo",

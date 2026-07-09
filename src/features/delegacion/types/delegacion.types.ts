@@ -23,6 +23,7 @@ export type DashboardResponse = {
 export type VacanteResponse = VacanteBase & {
   areaId?: number;
   areaNombre?: string;
+  modalidadId?: string;
   modalidadTrabajo?: string;
   cupoTotal?: number;
   cupoDisponible?: number;

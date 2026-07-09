@@ -3,6 +3,7 @@
 import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
+import { getModalidadCatalogoLabel } from "@/lib/domain/modalidad";
 import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import {
   closeVacanteAction,
@@ -183,6 +184,14 @@ export function DelegacionVacanteDetailModal({
             <div className={detailStyles.metaRow}>
               <dt>Área</dt>
               <dd>{areaNombre || "Sin área asignada"}</dd>
+            </div>
+            <div className={detailStyles.metaRow}>
+              <dt>Tipo</dt>
+              <dd>
+                {detail.modalidadId
+                  ? getModalidadCatalogoLabel(detail.modalidadId)
+                  : "Sin tipo registrado"}
+              </dd>
             </div>
             <div className={detailStyles.metaRow}>
               <dt>Modalidad de trabajo</dt>
