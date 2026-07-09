@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil, Settings2, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import {
-  formatPreguntaTipo,
   getPreguntasActivas,
   isExamenActivo,
   preguntaTieneRespuestaValida,
@@ -31,20 +30,15 @@ import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
-import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { Alert } from "@/shared/components/Alert";
 import {
-  ExamenBuilder,
   ExamenBuilderAddButton,
   ExamenBuilderEmpty,
   ExamenBuilderEmptyItem,
   ExamenBuilderItem,
-  ExamenBuilderMain,
-  ExamenBuilderPanelTitle,
-  ExamenBuilderSettingsButton,
-  ExamenBuilderSidebar,
+  ExamenDetailLayout,
   ExamenPreguntaPreview,
-  ExamenStatChips,
+  ExamenSettingsPanel,
   examenBuilderStyles,
 } from "@/shared/components/examen";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
@@ -200,12 +194,10 @@ export function TitularExamenManageModal({
   };
 
   const renderSettingsPanel = (exam: ExamenDiagnosticoDetalleResponse) => (
-    <>
-      <div className={detailStyles.panelHeader}>
-        <ExamenBuilderPanelTitle>
-          <Settings2 size={16} aria-hidden="true" />
-          Datos del examen
-        </ExamenBuilderPanelTitle>
+    <ExamenSettingsPanel
+      exam={exam}
+      totalPreguntas={preguntas.length}
+      headerActions={
         <Button
           type="button"
           variant="outline"
@@ -215,47 +207,20 @@ export function TitularExamenManageModal({
           <Pencil size={15} aria-hidden="true" />
           Editar datos
         </Button>
-      </div>
-
-      {!activo && !canActivate ? (
-        <Alert tone="info">
-          Para activar el examen necesitas al menos una pregunta con dos o más
-          opciones y exactamente una respuesta correcta.
-        </Alert>
-      ) : null}
-
-      <ExamenStatChips
-        totalPreguntas={preguntas.length}
-        puntajeMinimoAprobatorio={exam.puntajeMinimoAprobatorio}
-        tiempoLimiteMinutos={exam.tiempoLimiteMinutos}
-        estatus={exam.estatus}
-      />
-
-      {exam.descripcion ? (
-        <section className={detailStyles.contentPanel}>
-          <div className={detailStyles.panelHeader}>
-            <h3 className={detailStyles.panelTitle}>Descripción</h3>
-          </div>
-          <p className={detailStyles.panelDescription}>{exam.descripcion}</p>
-        </section>
-      ) : null}
-
-      {exam.instrucciones ? (
-        <section className={detailStyles.contentPanel}>
-          <div className={detailStyles.panelHeader}>
-            <h3 className={detailStyles.panelTitle}>Instrucciones</h3>
-          </div>
-          <p className={detailStyles.panelDescription}>{exam.instrucciones}</p>
-        </section>
-      ) : null}
-    </>
+      }
+      beforeChips={
+        !activo && !canActivate ? (
+          <Alert tone="info">
+            Para activar el examen necesitas al menos una pregunta con dos o más opciones y
+            exactamente una respuesta correcta.
+          </Alert>
+        ) : null
+      }
+    />
   );
 
   const renderPreguntaPreview = (pregunta: ExamenPreguntaResponse, index: number) => (
     <>
-      <div className={detailStyles.panelHeader}>
-        <ExamenBuilderPanelTitle>Pregunta {index + 1}</ExamenBuilderPanelTitle>
-      </div>
       <ExamenPreguntaPreview pregunta={pregunta} index={index} />
       <p className={examenBuilderStyles.lockedHint}>
         Desactiva el examen para editar sus preguntas.
@@ -352,64 +317,41 @@ export function TitularExamenManageModal({
         ) : error ? (
           <Alert tone="error">{error}</Alert>
         ) : detail ? (
-          <ExamenBuilder>
-            <ExamenBuilderSidebar
-              title={`Preguntas (${preguntas.length})`}
-              action={
-                <ExamenBuilderAddButton
-                  label="Agregar pregunta"
-                  disabled={isSubmitting || activo}
-                  onClick={() => setSelected({ type: "new" })}
-                />
-              }
-              footer={
-                <ExamenBuilderSettingsButton
-                  onClick={() => setSelected({ type: "settings" })}
-                />
-              }
-            >
-              {preguntas.length === 0 && selected?.type !== "new" ? (
-                <ExamenBuilderEmptyItem>
-                  Aún no hay preguntas.
-                </ExamenBuilderEmptyItem>
-              ) : null}
-
-              {selected?.type === "new" ? (
-                <ExamenBuilderItem
-                  number={preguntas.length + 1}
-                  text="Nueva pregunta…"
-                  active
-                />
-              ) : null}
-
-              {preguntas.map((pregunta, index) => (
-                <ExamenBuilderItem
-                  key={pregunta.idPregunta}
-                  number={index + 1}
-                  text={pregunta.texto || "Sin texto"}
-                  meta={
-                    <>
-                      {formatPreguntaTipo(pregunta.tipo)}
-                      {" · "}
-                      {pregunta.puntaje ?? 1} pts
-                    </>
-                  }
-                  warn={!preguntaTieneRespuestaValida(pregunta)}
-                  active={
-                    selected?.type === "pregunta" &&
-                    selected.id === pregunta.idPregunta
-                  }
-                  onClick={() =>
-                    setSelected({ type: "pregunta", id: pregunta.idPregunta })
-                  }
-                />
-              ))}
-            </ExamenBuilderSidebar>
-
-            <ExamenBuilderMain>
-              <EstatusBadge estatus={detail.estatus} />
-              {renderMain()}
-              {!activo && selectedPregunta && selected?.type === "pregunta" ? (
+          <ExamenDetailLayout
+            detail={detail}
+            preguntas={preguntas}
+            selected={
+              selected?.type === "pregunta" || selected?.type === "settings"
+                ? selected
+                : null
+            }
+            onSelectSettings={() => setSelected({ type: "settings" })}
+            onSelectPregunta={(id) => setSelected({ type: "pregunta", id })}
+            sidebarAction={
+              <ExamenBuilderAddButton
+                label="Agregar pregunta"
+                disabled={isSubmitting || activo}
+                onClick={() => setSelected({ type: "new" })}
+              />
+            }
+            sidebarExtraItems={
+              <>
+                {preguntas.length === 0 && selected?.type !== "new" ? (
+                  <ExamenBuilderEmptyItem>Aún no hay preguntas.</ExamenBuilderEmptyItem>
+                ) : null}
+                {selected?.type === "new" ? (
+                  <ExamenBuilderItem
+                    number={preguntas.length + 1}
+                    text="Nueva pregunta…"
+                    active
+                  />
+                ) : null}
+              </>
+            }
+            emptyQuestionsLabel="Aún no hay preguntas."
+            isPreguntaWarn={(pregunta) => !preguntaTieneRespuestaValida(pregunta)}
+            footer={
+              !activo && selectedPregunta && selected?.type === "pregunta" ? (
                 <div className={detailStyles.footerActions}>
                   <Button
                     type="button"
@@ -422,9 +364,11 @@ export function TitularExamenManageModal({
                     Eliminar pregunta
                   </Button>
                 </div>
-              ) : null}
-            </ExamenBuilderMain>
-          </ExamenBuilder>
+              ) : undefined
+            }
+          >
+            {renderMain()}
+          </ExamenDetailLayout>
         ) : null}
       </Modal>
 

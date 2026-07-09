@@ -95,7 +95,19 @@ export function canContestarExamen(
     return false;
   }
 
+  if (isPostulacionResuelta(estatus)) {
+    return false;
+  }
+
   return normalizeEstatus(estatus) === "EN_EXAMEN";
+}
+
+export function tieneExamenPorContestar(
+  estatus?: string,
+  requiereExamen?: boolean,
+  examenEstado?: string,
+) {
+  return canContestarExamen(estatus, requiereExamen, examenEstado);
 }
 
 export function getCancelPostulacionConfirmMessage(postulacion: {

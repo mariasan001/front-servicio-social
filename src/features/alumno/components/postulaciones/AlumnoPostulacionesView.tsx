@@ -1,20 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useDeferredValue, useMemo, useState } from "react";
 import { CircleX, Eye, FileQuestion, Search } from "lucide-react";
 import { cancelPostulacionAction } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
-  canContestarExamen,
   formatFecha,
   getCancelPostulacionConfirmMessage,
+  tieneExamenPorContestar,
 } from "@/lib/domain";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import type { PostulacionResponse } from "../../types/alumno.types";
 import { AlumnoPostulacionDetailModal } from "./AlumnoPostulacionDetailModal";
 import { normalizeText } from "@/lib/utils/search";
 import { notify } from "@/shared/notifications";
+import { Alert } from "@/shared/components/Alert";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import {
   DataTable,
@@ -27,6 +29,14 @@ import { PageHeader } from "@/shared/components/PageHeader";
 import { EstatusBadge } from "@/shared/components/StatusBadge";
 import styles from "@/shared/styles/PanelSectionView.module.css";
 
+function getPostulacionLabel(postulacion: PostulacionResponse) {
+  return (
+    postulacion.vacanteNombre?.trim() ||
+    postulacion.folio?.trim() ||
+    `#${postulacion.idPostulacion}`
+  );
+}
+
 export function AlumnoPostulacionesView({
   postulaciones,
 }: {
@@ -38,6 +48,18 @@ export function AlumnoPostulacionesView({
   const [cancelTarget, setCancelTarget] = useState<PostulacionResponse | null>(null);
   const [cancelingId, setCancelingId] = useState<number | null>(null);
   const deferredSearch = useDeferredValue(search);
+
+  const examenesPendientes = useMemo(
+    () =>
+      postulaciones.filter((postulacion) =>
+        tieneExamenPorContestar(
+          postulacion.estatus,
+          postulacion.requiereExamen,
+          postulacion.examenEstado,
+        ),
+      ),
+    [postulaciones],
+  );
 
   const filtered = useMemo(() => {
     const query = normalizeText(deferredSearch);
@@ -129,7 +151,7 @@ export function AlumnoPostulacionesView({
       variant: "actions",
       cell: (postulacion) => (
         <DataTableActions>
-          {canContestarExamen(
+          {tieneExamenPorContestar(
             postulacion.estatus,
             postulacion.requiereExamen,
             postulacion.examenEstado,
@@ -159,6 +181,8 @@ export function AlumnoPostulacionesView({
     },
   ];
 
+  const primerExamenPendiente = examenesPendientes[0];
+
   return (
     <section className={styles.page} aria-labelledby="alumno-postulaciones-title">
       <PageHeader
@@ -167,6 +191,28 @@ export function AlumnoPostulacionesView({
         description="Consulta el estatus de tus postulaciones a vacantes."
       />
 
+      {examenesPendientes.length > 0 ? (
+        <Alert tone="warning" title="Examen de ingreso pendiente">
+          {examenesPendientes.length === 1 && primerExamenPendiente ? (
+            <>
+              Tu postulación a{" "}
+              <strong>{getPostulacionLabel(primerExamenPendiente)}</strong> requiere que contestes
+              el examen de ingreso para continuar con tu proceso.{" "}
+              <Link
+                href={`${PANEL_PATHS.alumno}/postulaciones/${primerExamenPendiente.idPostulacion}/examen`}
+              >
+                Contestar examen
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              Tienes {examenesPendientes.length} postulaciones con examen pendiente. Usa el icono de
+              examen en la columna Acciones para continuar con cada proceso.
+            </>
+          )}
+        </Alert>
+      ) : null}
 
       <DataTable
         toolbar={

@@ -4,9 +4,9 @@ import {
   canAccessPath,
   isGuestOnlyPath,
   isProtectedPath,
-  isSafeInternalPath,
   resolveHomePath,
 } from "@/lib/auth";
+import { resolveGuestAuthRedirect } from "@/features/alumno/lib/resolve-guest-auth-redirect";
 import { getSessionFromRequest } from "@/lib/auth/session.middleware";
 
 function redirectTo(request: NextRequest, destination: string) {
@@ -25,12 +25,7 @@ export async function middleware(request: NextRequest) {
 
   if (isGuestOnlyPath(pathname) && session) {
     const nextParam = request.nextUrl.searchParams.get("next");
-    const homePath = resolveHomePath(session.roles);
-
-    const destination =
-      isSafeInternalPath(nextParam) && canAccessPath(session, nextParam!)
-        ? nextParam!
-        : homePath;
+    const destination = await resolveGuestAuthRedirect(session, nextParam, request);
 
     return redirectTo(request, destination);
   }

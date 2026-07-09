@@ -6,6 +6,7 @@ export type ReportRow = Record<string, unknown>;
 export type ReportColumnDef = {
   id: string;
   header: string;
+  kind?: "status";
   cell: (row: ReportRow) => string;
 };
 
@@ -44,15 +45,15 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
     { id: "nombre", header: "Vacante", cell: (row) => text(row.nombre) },
     { id: "area", header: "Área", cell: (row) => text(row.area) },
     { id: "titular", header: "Titular", cell: (row) => text(row.titular) },
-    { id: "modalidad", header: "Modalidad", cell: (row) => formatLabel(row.modalidad) },
-    { id: "estatus", header: "Estatus", cell: (row) => formatLabel(row.estatus) },
+    { id: "modalidad", header: "Tipo", cell: (row) => formatLabel(row.modalidad) },
+    { id: "estatus", header: "Estatus", kind: "status", cell: (row) => formatLabel(row.estatus) },
   ],
   postulaciones: [
     { id: "folioPostulacion", header: "Folio", cell: (row) => text(row.folioPostulacion) },
     { id: "alumno", header: "Alumno", cell: (row) => text(row.alumno) },
     { id: "vacante", header: "Vacante", cell: (row) => text(row.vacante) },
     { id: "escuela", header: "Escuela", cell: (row) => text(row.escuela) },
-    { id: "estatus", header: "Estatus", cell: (row) => formatLabel(row.estatus) },
+    { id: "estatus", header: "Estatus", kind: "status", cell: (row) => formatLabel(row.estatus) },
     {
       id: "fechaPostulacion",
       header: "Fecha postulación",
@@ -65,7 +66,12 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
     { id: "escuela", header: "Escuela", cell: (row) => text(row.escuela) },
     { id: "area", header: "Área", cell: (row) => text(row.area) },
     { id: "titular", header: "Titular", cell: (row) => text(row.titular) },
-    { id: "estatusProceso", header: "Estatus", cell: (row) => formatLabel(row.estatusProceso) },
+    {
+      id: "estatusProceso",
+      header: "Estatus",
+      kind: "status",
+      cell: (row) => formatLabel(row.estatusProceso),
+    },
     {
       id: "horasAcumuladas",
       header: "Horas",
@@ -77,7 +83,12 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
     { id: "alumno", header: "Alumno", cell: (row) => text(row.alumno) },
     { id: "escuela", header: "Escuela", cell: (row) => text(row.escuela) },
     { id: "area", header: "Área", cell: (row) => text(row.area) },
-    { id: "estatusProceso", header: "Estatus", cell: (row) => formatLabel(row.estatusProceso) },
+    {
+      id: "estatusProceso",
+      header: "Estatus",
+      kind: "status",
+      cell: (row) => formatLabel(row.estatusProceso),
+    },
     {
       id: "evaluacionFinal",
       header: "Evaluación final",
@@ -95,7 +106,7 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
     { id: "area", header: "Área", cell: (row) => text(row.area) },
     { id: "tipo", header: "Tipo", cell: (row) => formatLabel(row.tipo) },
     { id: "severidad", header: "Severidad", cell: (row) => formatLabel(row.severidad) },
-    { id: "estatus", header: "Estatus", cell: (row) => formatLabel(row.estatus) },
+    { id: "estatus", header: "Estatus", kind: "status", cell: (row) => formatLabel(row.estatus) },
     {
       id: "fechaIncidencia",
       header: "Fecha",
@@ -116,7 +127,7 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
       header: "Horas",
       cell: (row) => text(row.horasRegistradas, "0"),
     },
-    { id: "estatus", header: "Estatus", cell: (row) => formatLabel(row.estatus) },
+    { id: "estatus", header: "Estatus", kind: "status", cell: (row) => formatLabel(row.estatus) },
     { id: "fuente", header: "Fuente", cell: (row) => formatLabel(row.fuente) },
   ],
   documentos: [
@@ -128,7 +139,7 @@ const REPORT_COLUMN_DEFINITIONS: Record<DelegacionReportId, ReportColumnDef[]> =
       header: "Tipo",
       cell: (row) => formatLabel(row.tipoDocumento),
     },
-    { id: "estatus", header: "Estatus", cell: (row) => formatLabel(row.estatus) },
+    { id: "estatus", header: "Estatus", kind: "status", cell: (row) => formatLabel(row.estatus) },
     {
       id: "fechaUltimoMovimiento",
       header: "Último movimiento",

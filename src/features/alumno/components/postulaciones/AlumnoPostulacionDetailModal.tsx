@@ -9,9 +9,9 @@ import {
 } from "../../actions/postulaciones.actions";
 import {
   canCancelPostulacion,
-  canContestarExamen,
   formatFecha,
   getCancelPostulacionConfirmMessage,
+  tieneExamenPorContestar,
 } from "@/lib/domain";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { Alert } from "@/shared/components/Alert";
@@ -57,7 +57,7 @@ export function AlumnoPostulacionDetailModal({
 
   const cancelVisible = detail ? canCancelPostulacion(detail.estatus) : false;
   const examVisible = detail
-    ? canContestarExamen(
+    ? tieneExamenPorContestar(
         detail.estatus,
         detail.requiereExamen,
         detail.examenEstado,
@@ -137,6 +137,13 @@ export function AlumnoPostulacionDetailModal({
               subtitle={folio || "Sin folio registrado"}
               badges={<EstatusBadge estatus={detail.estatus} />}
             />
+
+            {examVisible ? (
+              <Alert tone="warning" title="Examen de ingreso pendiente">
+                Debes contestar el examen de ingreso para continuar con la revisión de tu
+                postulación. Usa el botón <strong>Contestar examen</strong> para iniciarlo.
+              </Alert>
+            ) : null}
 
             <dl className={detailStyles.metaList}>
               <div className={detailStyles.metaRow}>

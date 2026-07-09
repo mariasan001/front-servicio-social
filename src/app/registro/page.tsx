@@ -15,11 +15,11 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; next?: string }>;
 };
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  return <RegisterPage token={params.token} />;
+  return <RegisterPage token={params.token} nextPath={params.next} />;
 }

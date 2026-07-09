@@ -91,6 +91,7 @@ export function ExamenBuilderItem({
           .join(" ")}
         onClick={onClick}
       >
+        {active ? <span className={styles.builderItemAccent} aria-hidden="true" /> : null}
         <span className={styles.builderItemNumber}>{number}</span>
         <span className={styles.builderItemBody}>
           <span className={styles.builderItemText}>{text}</span>
@@ -128,17 +129,21 @@ type ExamenBuilderSettingsButtonProps = {
   onClick: () => void;
   title?: string;
   hint?: string;
+  active?: boolean;
 };
 
 export function ExamenBuilderSettingsButton({
   onClick,
   title = "Datos del examen",
   hint = "Título, puntaje y tiempo",
+  active = false,
 }: ExamenBuilderSettingsButtonProps) {
   return (
     <button
       type="button"
-      className={styles.builderSettingsButton}
+      className={[styles.builderSettingsButton, active ? styles.builderSettingsButtonActive : ""]
+        .filter(Boolean)
+        .join(" ")}
       onClick={onClick}
     >
       <span className={styles.builderSettingsIcon}>

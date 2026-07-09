@@ -1,10 +1,16 @@
 "use client";
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
+import { useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { updateCvAction } from "../../actions/cv.actions";
+import {
+  ALUMNO_POSTULACION_ENTRY_PATH,
+  hasAlumnoCvPostulacionMotivo,
+} from "../../lib/alumno-postulacion-entry";
 import type { CvResponse } from "../../types/alumno.types";
 import { notify } from "@/shared/notifications";
+import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { FormField, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -46,6 +52,8 @@ function buildInitialForm(cv: CvResponse): CvFormState {
 
 export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
   const router = usePanelRouter();
+  const searchParams = useSearchParams();
+  const motivoPostulacion = hasAlumnoCvPostulacionMotivo(searchParams.get("motivo"));
   const firstName =
     nombreCompleto.trim().split(/\s+/)[0]?.trim() || nombreCompleto.trim() || "alumno";
   const [form, setForm] = useState(() => buildInitialForm(cv));
@@ -147,6 +155,16 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
       return;
     }
 
+    const savedComplete = countCvProgress(effectiveForm).requiredComplete;
+
+    if (savedComplete && motivoPostulacion) {
+      notify.success("Tu CV se guardó con éxito.", {
+        description: "Ya puedes postularte a vacantes.",
+      });
+      router.push(ALUMNO_POSTULACION_ENTRY_PATH);
+      return;
+    }
+
     notify.success("Tu CV se actualizó correctamente.");
     router.refresh();
   };
@@ -161,6 +179,13 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
 
   return (
     <section className={pageStyles.page} aria-labelledby="alumno-cv-title">
+      {motivoPostulacion ? (
+        <Alert tone="warning" title="Completa tu CV para postularte">
+          Antes de iniciar una postulación necesitas llenar y guardar tu CV con tu perfil
+          profesional, experiencia y habilidades.
+        </Alert>
+      ) : null}
+
       <header className={styles.cvHeader}>
         <div className={styles.cvHeaderMain}>
           <div className={styles.cvHeaderCopy}>
@@ -168,9 +193,11 @@ export function AlumnoCvView({ cv, nombreCompleto }: AlumnoCvViewProps) {
               <PageGreeting name={firstName} />
             </h1>
             <p className={styles.cvDescription}>
-              {isComplete
-                ? "Actualiza tu perfil profesional. Las áreas lo consultan al revisar tus postulaciones."
-                : "Para empezar, completa y guarda tu CV. El resto del panel se activará cuando esté listo."}
+              {motivoPostulacion
+                ? "Completa y guarda tu CV para desbloquear vacantes y poder postularte."
+                : isComplete
+                  ? "Actualiza tu perfil profesional. Las áreas lo consultan al revisar tus postulaciones."
+                  : "Para empezar, completa y guarda tu CV. El resto del panel se activará cuando esté listo."}
             </p>
           </div>
 

@@ -4,6 +4,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLayoutEffect, type ReactNode } from "react";
 import { PANEL_PATHS } from "@/lib/auth/constants";
 import { PanelSectionSkeleton } from "@/features/panel/components/PanelSectionSkeleton/PanelSectionSkeleton";
+import {
+  buildAlumnoCvPostulacionUrl,
+  isAlumnoPostulacionEntryPath,
+} from "@/features/alumno/lib/alumno-postulacion-entry";
 
 const CV_PATH = `${PANEL_PATHS.alumno}/cv`;
 
@@ -26,8 +30,12 @@ export function AlumnoCvRouteGuard({ cvComplete, children }: AlumnoCvRouteGuardP
       return;
     }
 
-    router.replace(CV_PATH);
-  }, [cvComplete, onCvRoute, router]);
+    const destination = isAlumnoPostulacionEntryPath(pathname)
+      ? buildAlumnoCvPostulacionUrl()
+      : CV_PATH;
+
+    router.replace(destination);
+  }, [cvComplete, onCvRoute, pathname, router]);
 
   if (!cvComplete && !onCvRoute) {
     return <PanelSectionSkeleton />;

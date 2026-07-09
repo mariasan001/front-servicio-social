@@ -77,6 +77,7 @@ export {
   getCancelPostulacionConfirmMessage,
   isExamenFinalizado,
   isPostulacionResuelta,
+  tieneExamenPorContestar,
 } from "./postulacion";
 export {
   canCancelVacanteTitular,

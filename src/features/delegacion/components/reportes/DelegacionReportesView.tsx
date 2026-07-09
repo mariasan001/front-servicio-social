@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 import { useDeferredValue, useCallback, useMemo, useState } from "react";
 import type { ReportPageResponse } from "@/lib/api/types";
+import { estatusTone } from "@/lib/domain";
 import { exportClientReportPdf } from "@/lib/export/client-report-pdf";
 import { normalizeText } from "@/lib/utils/search";
 import {
@@ -10,12 +11,13 @@ import {
   resolveDelegacionReportRowKey,
   type ReportRow,
 } from "../../lib/delegacion-reportes-columns";
+import { buildDelegacionReportTableColumns } from "../../lib/delegacion-reportes-table-columns";
 import {
   buildDelegacionReportExportUrl,
   DELEGACION_REPORTS,
   type DelegacionReportId,
 } from "../../lib/reportes.config";
-import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
+import { DataTable, DataTableToolbar } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { PanelReportExportActions } from "@/shared/components/PanelReportExportActions";
 import { PanelSubNav } from "@/shared/components/PanelSubNav";
@@ -48,6 +50,7 @@ export function DelegacionReportesView({
   const rows = (report?.content ?? []) as ReportRow[];
   const totalElements = report?.totalElements ?? rows.length;
   const searchQuery = normalizeText(deferredSearch);
+  const isPreview = totalElements > rows.length;
 
   const filteredRows = useMemo(
     () => rows.filter((row) => matchesReportRow(row, searchQuery)),
@@ -64,45 +67,60 @@ export function DelegacionReportesView({
     [active, rows],
   );
 
-  const columns: DataTableColumn<ReportRow>[] = useMemo(
+  const columns = useMemo(
     () =>
-      columnDefinitions.map((definition) => ({
-        id: definition.id,
-        header: definition.header,
-        cell: (row) => definition.cell(row),
-      })),
-    [columnDefinitions],
+      buildDelegacionReportTableColumns(active, columnDefinitions, {
+        nameCell: styles.nameCell,
+        nameHint: styles.nameHint,
+      }),
+    [active, columnDefinitions],
   );
 
   const handlePdfExport = useCallback(() => {
-    if (!activeReport || columns.length === 0 || filteredRows.length === 0) {
+    if (!activeReport || columnDefinitions.length === 0 || filteredRows.length === 0) {
       return;
     }
 
-    const headers = columns.map((column) => String(column.header));
+    const headers = columnDefinitions.map((definition) => definition.header);
     const matrix = filteredRows.map((row) =>
-      columnDefinitions.map((definition) => definition.cell(row)),
-    );
-    const subtitleParts = [
-      `Generado desde la vista de ${activeReport.label.toLowerCase()}.`,
-      searchQuery ? "Incluye solo los registros visibles con tu búsqueda." : null,
-      totalElements > rows.length
-        ? `Vista previa de ${filteredRows.length} registros. Para el archivo completo usa Excel.`
-        : `${filteredRows.length} registros.`,
-    ].filter(Boolean);
+      columnDefinitions.map((definition) => {
+        const text = definition.cell(row);
 
-    exportClientReportPdf({
+        if (definition.kind === "status") {
+          const raw = row[definition.id] ? String(row[definition.id]) : undefined;
+          return {
+            text,
+            tone: raw ? estatusTone(raw) : "neutral",
+          };
+        }
+
+        return text;
+      }),
+    );
+
+    const summaryLine = [
+      `${filteredRows.length} ${activeReport.label.toLowerCase()}`,
+      searchQuery ? `Búsqueda: ${deferredSearch.trim()}` : null,
+      isPreview ? `${totalElements} en total` : null,
+    ]
+      .filter(Boolean)
+      .join("  ·  ");
+
+    void exportClientReportPdf({
       title: `Reporte de ${activeReport.label}`,
-      subtitle: subtitleParts.join(" "),
+      summaryLine,
+      filename: `reporte-delegacion-${active}.pdf`,
       headers,
       rows: matrix,
+      footerNote: "Plataforma de Servicio Social · Panel de delegación",
     });
   }, [
+    active,
     activeReport,
     columnDefinitions,
-    columns,
+    deferredSearch,
     filteredRows,
-    rows.length,
+    isPreview,
     searchQuery,
     totalElements,
   ]);
@@ -115,49 +133,50 @@ export function DelegacionReportesView({
         description="Consulta indicadores operativos y descarga reportes del programa."
       />
 
-      <article className={reportStyles.panel} aria-labelledby="delegacion-reportes-panel-title">
-        <PanelSubNav
-          ariaLabel="Tipos de reporte"
-          tabs={DELEGACION_REPORTS}
-          activeId={active}
-          onTabChange={handleTabChange}
-        />
-
-        <div className={reportStyles.actionsRow}>
-          <div className={styles.searchField}>
-            <div className={styles.searchControl}>
-              <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-              <input
-                id="delegacion-reportes-search"
-                type="search"
-                className={styles.searchInput}
-                placeholder={`Buscar en ${activeReport?.label.toLowerCase() ?? "reporte"}...`}
-                aria-label={`Buscar en ${activeReport?.label.toLowerCase() ?? "reporte"}`}
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          {activeReport ? (
-            <PanelReportExportActions
-              excelHref={buildDelegacionReportExportUrl(active)}
-              onPdfExport={handlePdfExport}
-              pdfDisabled={filteredRows.length === 0}
-            />
-          ) : null}
+      <div className={reportStyles.shell}>
+        <div className={reportStyles.navSection}>
+          <PanelSubNav
+            ariaLabel="Tipos de reporte"
+            tabs={DELEGACION_REPORTS}
+            activeId={active}
+            onTabChange={handleTabChange}
+          />
         </div>
 
-        {totalElements > rows.length ? (
-          <p className={reportStyles.previewNote}>
-            Vista previa de <strong>{rows.length}</strong> registros. El reporte completo contiene{" "}
-            <strong>{totalElements}</strong>. Usa <strong>Excel</strong> para descargar todos los
-            datos; <strong>PDF</strong> exporta la tabla visible (con búsqueda aplicada).
-          </p>
-        ) : null}
-
         <DataTable
+          className={reportStyles.table}
+          toolbar={
+            <DataTableToolbar
+              actions={
+                activeReport ? (
+                  <PanelReportExportActions
+                    excelHref={buildDelegacionReportExportUrl(active)}
+                    onPdfExport={handlePdfExport}
+                    pdfDisabled={filteredRows.length === 0}
+                  />
+                ) : null
+              }
+            >
+              <label className={styles.searchField}>
+                <span className={styles.searchLabel}>
+                  Buscar en {activeReport?.label.toLowerCase() ?? "reporte"}
+                </span>
+                <span className={styles.searchControl}>
+                  <Search size={18} aria-hidden="true" className={styles.searchIcon} />
+                  <input
+                    id="delegacion-reportes-search"
+                    type="search"
+                    className={styles.searchInput}
+                    placeholder="Folio, nombre, estatus..."
+                    aria-label={`Buscar en ${activeReport?.label.toLowerCase() ?? "reporte"}`}
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    autoComplete="off"
+                  />
+                </span>
+              </label>
+            </DataTableToolbar>
+          }
           columns={columns}
           rows={filteredRows}
           rowKey={resolveDelegacionReportRowKey}
@@ -169,7 +188,7 @@ export function DelegacionReportesView({
               : "Prueba otro tipo de reporte o descarga el archivo completo."
           }
         />
-      </article>
+      </div>
     </section>
   );
 }

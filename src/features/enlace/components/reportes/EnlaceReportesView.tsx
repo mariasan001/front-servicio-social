@@ -4,7 +4,7 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ReporteAlumnoResponse } from "../../types/enlace.types";
 import { buildEnlaceReporteAlumnosExportUrl } from "../../lib/reportes.config";
-import { formatEtiqueta } from "@/lib/domain";
+import { estatusTone, formatEtiqueta } from "@/lib/domain";
 import { exportClientReportPdf } from "@/lib/export/client-report-pdf";
 import { normalizeText } from "@/lib/utils/search";
 import { DataTable, DataTableToolbar, type DataTableColumn } from "@/shared/components/DataTable";
@@ -42,11 +42,12 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
 
     const searchQuery = normalizeText(deferredSearch);
 
-    exportClientReportPdf({
+    void exportClientReportPdf({
       title: "Reporte de alumnos",
-      subtitle: searchQuery
-        ? "Incluye solo los registros visibles con tu búsqueda."
-        : `${filtered.length} registros.`,
+      summaryLine: searchQuery
+        ? `${filtered.length} alumnos  ·  Búsqueda: ${deferredSearch.trim()}`
+        : `${filtered.length} alumnos`,
+      filename: "reporte-enlace-alumnos.pdf",
       headers: ["Alumno", "Correo", "Proceso", "Vacante", "Horas", "Estatus"],
       rows: filtered.map((row) => [
         row.nombreCompleto?.trim() || "Sin nombre",
@@ -54,8 +55,12 @@ export function EnlaceReportesView({ reporte }: { reporte: ReporteAlumnoResponse
         row.folioProceso?.trim() || "Sin proceso",
         row.vacante?.trim() || "—",
         `${row.horasAcumuladas ?? 0} / ${row.horasRequeridas ?? "—"}`,
-        formatEtiqueta(row.estatusProceso, "Sin estatus"),
+        {
+          text: formatEtiqueta(row.estatusProceso, "Sin estatus"),
+          tone: estatusTone(row.estatusProceso),
+        },
       ]),
+      footerNote: "Plataforma de Servicio Social · Panel de enlace",
     });
   }, [deferredSearch, filtered]);
 

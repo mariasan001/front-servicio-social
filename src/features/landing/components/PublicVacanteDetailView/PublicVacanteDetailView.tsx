@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AUTH_PATHS, PANEL_PATHS } from "@/lib/auth/constants";
+import { AUTH_PATHS } from "@/lib/auth/constants";
+import {
+  buildAlumnoPostulacionLoginHref,
+  buildAlumnoPostulacionRegisterHref,
+} from "@/features/alumno/lib/alumno-postulacion-entry";
 import { Button } from "@/shared/components/Button";
 import {
   ArrowLeft,
@@ -9,6 +13,7 @@ import {
   ClipboardList,
   FileCheck,
   LogIn,
+  UserPlus,
   Users,
 } from "@/shared/icons";
 import { PUBLIC_VACANTES_ROUTES } from "../../constants/routes";
@@ -17,8 +22,8 @@ import { PublicVacanteSummary } from "../PublicVacanteSummary/PublicVacanteSumma
 import cardStyles from "../LandingVacancies/LandingVacancyPreviewCard.module.css";
 import styles from "./PublicVacanteDetailView.module.css";
 
-const ALUMNO_VACANTES_PATH = `${PANEL_PATHS.alumno}/vacantes`;
-const LOGIN_POSTULAR_HREF = `${AUTH_PATHS.login}?next=${encodeURIComponent(ALUMNO_VACANTES_PATH)}`;
+const LOGIN_POSTULAR_HREF = buildAlumnoPostulacionLoginHref(AUTH_PATHS.login);
+const REGISTER_POSTULAR_HREF = buildAlumnoPostulacionRegisterHref(AUTH_PATHS.register);
 
 type PublicVacanteDetailViewProps = {
   vacante: PublicVacanteDetalleResponse;
@@ -142,6 +147,14 @@ export function PublicVacanteDetailView({ vacante }: PublicVacanteDetailViewProp
               <Button href={LOGIN_POSTULAR_HREF} variant="primary" className={styles.postularBtn}>
                 <LogIn size={18} strokeWidth={2} />
                 Iniciar sesión para postularme
+              </Button>
+              <Button
+                href={REGISTER_POSTULAR_HREF}
+                variant="outline"
+                className={styles.postularBtn}
+              >
+                <UserPlus size={18} strokeWidth={2} />
+                Crear cuenta
               </Button>
             </div>
           </div>

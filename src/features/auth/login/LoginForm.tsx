@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { resolveLoginRedirect } from "../lib/resolve-login-redirect";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { isSafeInternalPath, resolveHomePath } from "@/lib/auth/roles";
+import { isSafeInternalPath } from "@/lib/auth/roles";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
 import { login } from "../services/auth.service";
 import {
@@ -59,9 +60,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         password: values.password,
       });
 
-      const destination = isSafeInternalPath(nextPath)
-        ? nextPath!
-        : resolveHomePath(user.roles);
+      const destination = await resolveLoginRedirect(user, nextPath);
 
       router.push(destination);
       router.refresh();
@@ -123,7 +122,14 @@ export function LoginForm({ nextPath }: LoginFormProps) {
 
         <p className={formStyles.ctaInline}>
           ¿Aún no tienes cuenta?{" "}
-          <Link href={AUTH_ROUTES.register} className={formStyles.footerLink}>
+          <Link
+            href={
+              isSafeInternalPath(nextPath)
+                ? `${AUTH_ROUTES.register}?next=${encodeURIComponent(nextPath!)}`
+                : AUTH_ROUTES.register
+            }
+            className={formStyles.footerLink}
+          >
             Regístrate ahora
           </Link>
           , es gratis.

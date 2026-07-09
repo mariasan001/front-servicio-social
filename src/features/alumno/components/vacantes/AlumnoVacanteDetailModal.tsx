@@ -84,9 +84,21 @@ export function AlumnoVacanteDetailModal({
       notify.error(result.error);
       return;
     }
-    notify.success("Tu postulación se registró correctamente.");
-    router.refresh();
+
+    const postulacionesPath = `${PANEL_PATHS.alumno}/postulaciones`;
+
+    if (detail.requiereExamen) {
+      notify.success("Postulación registrada", {
+        description:
+          "Debes contestar el examen de ingreso para continuar con tu proceso.",
+      });
+    } else {
+      notify.success("Tu postulación se registró correctamente.");
+    }
+
     onClose();
+    router.refresh();
+    router.push(postulacionesPath);
   };
 
   const folio = detail?.folio?.trim();
@@ -204,10 +216,18 @@ export function AlumnoVacanteDetailModal({
           </div>
 
           {postularVisible ? (
-            <section
-              className={detailStyles.contentPanel}
-              aria-labelledby="alumno-postulacion-title"
-            >
+            <>
+              {detail.requiereExamen ? (
+                <Alert tone="warning" title="Examen de ingreso requerido">
+                  Esta vacante incluye un examen en línea. Al postularte deberás contestarlo para
+                  que el titular pueda continuar con la revisión de tu candidatura.
+                </Alert>
+              ) : null}
+
+              <section
+                className={detailStyles.contentPanel}
+                aria-labelledby="alumno-postulacion-title"
+              >
               <div className={detailStyles.panelHeader}>
                 <h3 id="alumno-postulacion-title" className={detailStyles.panelTitle}>
                   {firstName ? `${firstName}, ¿quieres postularte?` : "Tu postulación"}
@@ -229,6 +249,7 @@ export function AlumnoVacanteDetailModal({
                 onChange={(event) => setComentario(event.target.value)}
               />
             </section>
+            </>
           ) : !alumnoPuedePostular ? (
             <Alert tone="warning" title="Postulaciones bloqueadas">
               Tienes un proceso de servicio social en curso

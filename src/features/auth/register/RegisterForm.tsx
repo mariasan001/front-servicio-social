@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
+import { isSafeInternalPath } from "@/lib/auth/roles";
 import {
   MODALIDAD_INTERES_OPTIONS,
   PASSWORD_MIN_LENGTH,
@@ -47,9 +49,11 @@ const INITIAL_VALUES: RegisterFormValues = {
 
 type RegisterFormProps = {
   token?: string;
+  nextPath?: string;
 };
 
-export function RegisterForm({ token }: RegisterFormProps) {
+export function RegisterForm({ token, nextPath }: RegisterFormProps) {
+  const router = useRouter();
   const withToken = Boolean(token?.trim());
   const [values, setValues] = useState(INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState<
@@ -165,6 +169,10 @@ export function RegisterForm({ token }: RegisterFormProps) {
               : "Tu cuenta fue creada correctamente. Ya puedes iniciar sesión."),
       );
       setValues(INITIAL_VALUES);
+
+      if (isSafeInternalPath(nextPath)) {
+        router.push(`${AUTH_ROUTES.login}?next=${encodeURIComponent(nextPath!)}`);
+      }
     } catch (error) {
       notify.error(
         getApiErrorMessage(
