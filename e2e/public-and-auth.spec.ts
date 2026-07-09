@@ -32,6 +32,12 @@ test.describe("Autenticación pública", () => {
     await expect(page.getByText(/enlace no válido|no es válido/i)).toBeVisible();
   });
 
+  test("restablecer con token en path muestra formulario", async ({ page }) => {
+    await page.goto("/restablecer-contrasena/enlace-de-prueba");
+    await expect(page.getByRole("textbox", { name: "Nueva contraseña" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /restablecer contraseña/i })).toBeVisible();
+  });
+
   test("registro muestra formulario de cuenta", async ({ page }) => {
     await page.goto("/registro");
     await expect(page.getByRole("heading", { name: /crear cuenta/i })).toBeVisible();

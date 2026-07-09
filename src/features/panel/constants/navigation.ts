@@ -12,7 +12,6 @@ import {
   Layers,
   MessageSquare,
   School,
-  Shield,
   UserCircle,
   Users,
 } from "lucide-react";

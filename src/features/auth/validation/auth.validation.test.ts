@@ -18,7 +18,7 @@ const validRegister = (): RegisterFormValues => ({
   carrera: "Informática",
   semestreCuatrimestre: "8",
   numeroSeguroEstudiantil: "",
-  modalidadInteres: "PRESENCIAL",
+  modalidadInteres: "SERVICIO_SOCIAL",
   aceptaAvisoPrivacidad: true,
 });
 

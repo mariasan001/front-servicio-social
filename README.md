@@ -29,8 +29,9 @@ El frontend proxifica el API con `API_PROXY_TARGET`. El navegador llama a `/api/
 
 | Variable | Descripción |
 |----------|-------------|
-| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor (default `http://localhost:8080`) |
+| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor (obligatorio en producción) |
 | `NEXT_PUBLIC_API_URL` | Base para `apiRequest` en cliente (default `/api/backend`) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (SEO, sitemap, enlaces de invitación) |
 
 ---
 
@@ -97,7 +98,7 @@ npm run test:coverage
 npm run test:e2e    # E2E Playwright
 ```
 
-CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `test` → `build` en cada PR.
+CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `test:coverage` → `audit` → `build` → job E2E Playwright.
 
 ---
 

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ResetPasswordTokenPage } from "@/features/auth";
 
@@ -16,16 +15,11 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ token?: string }>;
+  params: Promise<{ token: string }>;
 };
 
-export default async function Page({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const token = params.token?.trim();
+export default async function Page({ params }: PageProps) {
+  const { token } = await params;
 
-  if (token) {
-    redirect(`/restablecer-contrasena/${encodeURIComponent(token)}`);
-  }
-
-  return <ResetPasswordTokenPage token={undefined} />;
+  return <ResetPasswordTokenPage token={decodeURIComponent(token)} />;
 }

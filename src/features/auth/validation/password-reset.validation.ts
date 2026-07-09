@@ -1,7 +1,6 @@
-import { PASSWORD_MIN_LENGTH } from "../constants/register";
+import { getPasswordComplexityError } from "./password-strength";
 
 const USERNAME_OR_EMAIL_MAX_LENGTH = 150;
-const PASSWORD_MAX_LENGTH = 100;
 
 export type ResetEmailFormValues = {
   usernameOrEmail: string;
@@ -44,10 +43,11 @@ export function validateResetPasswordForm(
 
   if (!password) {
     errors.password = "Ingresa una contraseña nueva.";
-  } else if (password.length < PASSWORD_MIN_LENGTH) {
-    errors.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`;
-  } else if (password.length > PASSWORD_MAX_LENGTH) {
-    errors.password = `Máximo ${PASSWORD_MAX_LENGTH} caracteres.`;
+  } else {
+    const complexityError = getPasswordComplexityError(password);
+    if (complexityError) {
+      errors.password = complexityError;
+    }
   }
 
   if (!confirmPassword) {

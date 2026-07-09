@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { getApiErrorMessage } from "@/lib/api/errors";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
 import { requestPasswordReset } from "../services/password-reset.service";
 import {
@@ -41,13 +40,8 @@ export function ResetPasswordFlow() {
     try {
       await requestPasswordReset({ usernameOrEmail: values.usernameOrEmail.trim() });
       setRequestSent(true);
-    } catch (error) {
-      notify.error(
-        getApiErrorMessage(
-          error,
-          "No fue posible procesar tu solicitud. Intenta de nuevo.",
-        ),
-      );
+    } catch {
+      notify.error("No fue posible procesar tu solicitud. Intenta de nuevo.");
     } finally {
       setIsSubmitting(false);
     }

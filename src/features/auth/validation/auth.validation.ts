@@ -4,10 +4,10 @@ import {
   CURP_MAX_LENGTH,
   ESCUELA_MAX_LENGTH,
   NOMBRE_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
   TELEFONO_MAX_LENGTH,
   USERNAME_MAX_LENGTH,
 } from "../constants/register";
+import { getPasswordComplexityError } from "./password-strength";
 
 export type LoginFormValues = {
   username: string;
@@ -82,8 +82,11 @@ export function validateRegisterForm(
 
   if (!password) {
     errors.password = "Ingresa una contraseña.";
-  } else if (password.length < PASSWORD_MIN_LENGTH) {
-    errors.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  } else {
+    const complexityError = getPasswordComplexityError(password);
+    if (complexityError) {
+      errors.password = complexityError;
+    }
   }
 
   if (!confirmPassword) {

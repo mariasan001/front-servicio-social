@@ -1,0 +1,105 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--color-crema) 0%, var(--color-white) 42%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.logoLink {
+  display: inline-flex;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-10) var(--space-4) var(--space-12);
+}
+
+.card {
+  width: min(100%, 32rem);
+  padding: var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: 0 12px 32px rgb(45 45 45 / 8%);
+  text-align: center;
+}
+
+.code {
+  margin: 0 0 var(--space-2);
+  color: var(--color-vino);
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+}
+
+.message {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.primaryAction {
+  border: none;
+  background: var(--color-vino);
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.primaryAction:hover {
+  background: var(--color-vino-dark);
+}
+
+.secondaryAction {
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-primary);
+}
+
+.secondaryAction:hover {
+  background: var(--color-surface);
+}
+
+.footer {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}

@@ -20,7 +20,6 @@ function joinClassNames(...classes: (string | false | undefined)[]) {
 
 export function AuthLayout({
   children,
-  variant,
   wide = false,
   backHref,
   backLabel,
@@ -28,7 +27,7 @@ export function AuthLayout({
   return (
     <div className={styles.shell}>
       <aside className={styles.heroColumn} aria-hidden="true">
-        <AuthHeroPanel variant={variant} />
+        <AuthHeroPanel />
       </aside>
 
       <div className={styles.formColumn}>

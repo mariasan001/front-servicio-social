@@ -47,7 +47,10 @@ export function DelegacionReportesView({
   const deferredSearch = useDeferredValue(search);
   const activeReport = DELEGACION_REPORTS.find((report) => report.id === active);
   const report = initialReports[active];
-  const rows = (report?.content ?? []) as ReportRow[];
+  const rows = useMemo(
+    () => (report?.content ?? []) as ReportRow[],
+    [report?.content],
+  );
   const totalElements = report?.totalElements ?? rows.length;
   const searchQuery = normalizeText(deferredSearch);
   const isPreview = totalElements > rows.length;

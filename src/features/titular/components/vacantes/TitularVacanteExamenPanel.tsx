@@ -133,13 +133,7 @@ export function TitularVacanteExamenPanel({
     return () => {
       cancelled = true;
     };
-  }, [
-    vacante.areaId,
-    vacante.examenTitulo,
-    vacante.idExamen,
-    vacante.idVacante,
-    vacante.requiereExamen,
-  ]);
+  }, [vacante]);
 
   const opcionesActivas = useMemo(
     () => filterExamenesActivos(examenes, vacante.areaId),

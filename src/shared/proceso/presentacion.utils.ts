@@ -16,7 +16,8 @@ export function resolveDocumentoNombre(documento: DocumentoLike, fallback = "Doc
   );
 }
 
-export function resolveFileTypeLabel(_documento?: DocumentoLike) {
+export function resolveFileTypeLabel(documento?: DocumentoLike) {
+  void documento;
   return "PDF";
 }
 

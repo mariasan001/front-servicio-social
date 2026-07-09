@@ -1,11 +1,6 @@
-import type { AuthVariant } from "../../constants/hero";
 import styles from "./AuthHeroPanel.module.css";
 
-type AuthHeroPanelProps = {
-  variant?: AuthVariant;
-};
-
-export function AuthHeroPanel(_props: AuthHeroPanelProps) {
+export function AuthHeroPanel() {
   return (
     <div className={styles.panel}>
       <svg

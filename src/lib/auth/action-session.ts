@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { AuthUser } from "@/lib/api/types";
 import type { UserRole } from "@/lib/auth/constants";
 import { hasAnyRole, normalizeAuthUser } from "@/lib/auth/roles";
@@ -9,7 +9,7 @@ export async function requireActionSession(requiredRoles?: UserRole[]): Promise<
   const user = normalizeAuthUser(session);
 
   if (requiredRoles?.length && !hasAnyRole(user.roles, requiredRoles)) {
-    redirect("/login");
+    notFound();
   }
 
   return user;

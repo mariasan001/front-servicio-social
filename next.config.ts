@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
 
+if (isProduction && !process.env.API_PROXY_TARGET) {
+  throw new Error("API_PROXY_TARGET must be set when NODE_ENV=production");
+}
+
+const scriptSrc = isProduction
+  ? "script-src 'self' 'unsafe-inline'"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -14,14 +22,16 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
       "connect-src 'self'",
+      "object-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      ...(isProduction ? ["upgrade-insecure-requests"] : []),
     ].join("; "),
   },
   ...(isProduction
@@ -42,12 +52,16 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        source: "/restablecer-contrasena/:path*",
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
     ];
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "2mb",
     },
   },
   async rewrites() {

@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { getApiErrorMessage } from "@/lib/api/errors";
 import { AUTH_ROUTES } from "../../constants/routes";
 import { logout } from "../../services/auth.service";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -26,8 +25,7 @@ export function LogoutButton({
       await logout();
       router.push(AUTH_ROUTES.login);
       router.refresh();
-    } catch (error) {
-      console.error(getApiErrorMessage(error, "No fue posible cerrar sesión."));
+    } catch {
       router.push(AUTH_ROUTES.login);
       router.refresh();
     } finally {
