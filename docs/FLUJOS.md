@@ -90,7 +90,8 @@ sequenceDiagram
   U->>F: /recuperar-contrasena (usuario o correo)
   F->>API: POST /auth/password/forgot
   API-->>U: Correo con enlace + token
-  U->>F: /restablecer-contrasena?token=…
+  U->>F: /restablecer-contrasena/{token}
+  Note over F: ?token= redirige al path
   F->>API: POST /auth/password/reset
   API-->>F: OK
   F-->>U: Redirect a login
@@ -265,13 +266,21 @@ flowchart TB
 ## 9. Comandos de calidad
 
 ```bash
-npm run typecheck   # tsc --noEmit
-npm run lint        # ESLint
-npm run check       # typecheck + lint
-npm run build       # Build producción
+npm run typecheck      # tsc --noEmit
+npm run lint           # ESLint
+npm run check          # typecheck + lint
+npm run test           # Vitest (unit)
+npm run test:coverage  # Vitest + umbrales
+npm run test:e2e       # Playwright (requiere build)
+npm run build          # Build producción
 ```
 
-CI: `.github/workflows/ci.yml` ejecuta los tres en cada PR.
+CI (`.github/workflows/ci.yml`):
+
+1. **Job quality:** typecheck → lint → test:coverage → npm audit (high) → build
+2. **Job e2e:** build → Playwright → rutas públicas y auth
+
+Despliegue: [DEPLOY.md](./DEPLOY.md).
 
 ---
 

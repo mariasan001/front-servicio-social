@@ -7,6 +7,7 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 | [ARQUITECTURA.md](./ARQUITECTURA.md) | Mapa de capas, rutas y APIs |
 | [FLUJOS.md](./FLUJOS.md) | Diagramas de sesión, postulación, proceso y exámenes |
 | [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md) | Convenciones de desarrollo del panel |
+| [DEPLOY.md](./DEPLOY.md) | Despliegue a producción |
 
 ---
 
@@ -14,7 +15,7 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 
 | Campo | Valor |
 |-------|--------|
-| **Commit** | `feb2b85` — `feat(front): harden security, clean lint, and consolidate architecture` |
+| **Commit** | `57523d8` — `feat(release): harden production readiness to 10/10` |
 | **Rama** | `feature/setup-inicial` |
 | **Frontend** | `http://localhost:3000` (`npm run dev`) |
 | **Backend** | `http://localhost:8080` (`API_PROXY_TARGET` en `.env.local`) |
@@ -32,11 +33,16 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 | Comando | Qué valida |
 |---------|------------|
 | `npm run typecheck` | TypeScript sin emit |
-| `npm run lint` | ESLint (0 errores en `feb2b85`) |
+| `npm run lint` | ESLint (0 errores) |
 | `npm run check` | typecheck + lint |
+| `npm run test` | Vitest — reglas de dominio y auth |
+| `npm run test:coverage` | Vitest + umbrales de cobertura |
+| `npm run test:e2e` | Playwright — rutas públicas y auth (8 tests) |
 | `npm run build` | Build de producción |
 
-Workflow: `.github/workflows/ci.yml` (push/PR a `main` o `develop`).
+Workflow: `.github/workflows/ci.yml` — jobs **quality** (typecheck, lint, coverage, audit, build) y **e2e** (Playwright).
+
+**Nota:** el E2E de CI **no** cubre los 15 smoke del panel; esos siguen siendo manuales en esta fase.
 
 ### Cambios estructurales desde la línea base anterior
 
@@ -57,7 +63,7 @@ En las tablas de abajo, actualiza la columna **Estado**:
 | ✅ | Probado end-to-end; resultado correcto en UI y backend |
 | ⚠️ | Probado parcialmente o con workaround conocido |
 | ❌ | Falla confirmada (anotar error en Notas) |
-| ⬜ | No probado aún en esta línea base (`feb2b85`) |
+| ⬜ | No probado aún en esta línea base (`57523d8`) |
 
 > Los estados heredados de sesiones anteriores se resetean a ⬜ salvo donde el código o CI dan evidencia directa.
 
@@ -171,7 +177,7 @@ Payloads de mutación alineados con `src/lib/domain/requests.ts` y helpers en `s
 | Ver postulaciones | `/panel/alumno/postulaciones` | ⬜ | |
 | Cancelar postulación | Modal postulaciones | ⬜ | |
 | Contestar examen en línea | `…/postulaciones/{id}/examen` | ⬜ | Refactor: `useAlumnoExamenPostulacion` + paneles |
-| Subir documentos | `/panel/alumno/proceso` | ⬜ | `bodySizeLimit` 10mb en `next.config.ts` |
+| Subir documentos | `/panel/alumno/proceso` | ⬜ | `bodySizeLimit` 2mb en `next.config.ts` |
 | Registrar horas | `/panel/alumno/proceso` | ⬜ | Calendario en `shared/proceso/horas`; máx. 12 h/día |
 | Actualizar bitácora observada | Modal día (proceso) | ⬜ | Solo descripción si estatus lo permite |
 | Encuesta de satisfacción | Modal en resumen proceso | ⬜ | `lib/services/public-encuestas.service.ts` |
@@ -244,7 +250,7 @@ Payloads de mutación alineados con `src/lib/domain/requests.ts` y helpers en `s
 | Registro alumno (manual) | `/registro` | ⬜ | `RegisterForm` + `useRegisterToken` |
 | Registro con token escuela | `/registro/alumno?token=…` | ⬜ | |
 | Recuperar contraseña | `/recuperar-contrasena` | ⬜ | `POST /auth/password/forgot` — envía enlace al correo |
-| Restablecer contraseña | `/restablecer-contrasena?token=` | ⬜ | `POST /auth/password/reset` — token del correo |
+| Restablecer contraseña | `/restablecer-contrasena/{token}` | ⬜ | `POST /auth/password/reset` — path preferido; `?token=` redirige |
 
 ---
 

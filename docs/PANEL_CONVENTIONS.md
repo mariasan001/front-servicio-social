@@ -23,7 +23,7 @@ app/panel/{rol}/[[...section]]/page.tsx   →  SectionPage (server)
 | **Section page** | `src/features/{rol}/` | Carga datos en server, renderiza la vista |
 | **View** | `components/{seccion}/*View.tsx` | Listado, filtros, abre modales |
 | **Modal** | `components/{seccion}/*DetailModal.tsx` | Detalle, formularios, mutaciones |
-| **Actions** | `actions/*.actions.ts` | `"use server"`, `runServerAction`, revalidate |
+| **Actions** | `actions/*.actions.ts` | `"use server"`, `runAuthorizedAction`, revalidate |
 | **Services** | `services/*.service.ts` | HTTP al proxy `/api/{rol}/...` |
 | **Types** | `types/{rol}.types.ts` | Request/response alineados con DTOs Java |
 | **Utils** | `lib/*.utils.ts` | Reglas de negocio reutilizables (gates UI) |
@@ -200,7 +200,8 @@ Opcional: `entityName?: string` para título provisional mientras carga.
 ```ts
 "use server";
 
-import { runServerAction, type ActionResult } from "@/lib/actions";
+import { runAuthorizedAction, type ActionResult } from "@/lib/actions";
+import { USER_ROLES } from "@/lib/auth/constants";
 import { revalidateDelegacionSection } from "../lib/revalidate-delegacion";
 import { doSomething } from "../services/ejemplo.service";
 import type { EjemploRequest, EjemploResponse } from "../types/delegacion.types";
@@ -209,14 +210,14 @@ export async function doSomethingAction(
   id: number,
   request: EjemploRequest,
 ): Promise<ActionResult<EjemploResponse>> {
-  const result = await runServerAction(
+  const result = await runAuthorizedAction(
+    [USER_ROLES.ROLE_DELEGACION],
     () => doSomething(id, request),
     "No pudimos completar la acción.",
   );
 
   if (result.success) {
     revalidateDelegacionSection("procesos");
-    // revalidar secciones relacionadas si el listado cambia en otro lado
   }
 
   return result;
@@ -231,7 +232,7 @@ export async function doSomethingAction(
 
 ### Mensajes de error
 
-- `runServerAction` captura `ApiError` y expone `result.error` legible
+- `runAuthorizedAction` valida rol con `requireActionSession` y delega en `runServerAction` para capturar `ApiError` y exponer `result.error` legible
 - Mensaje fallback en español, orientado al usuario: *"No pudimos cargar…"*, *"No pudimos rechazar…"*
 - Errores de validación del backend: revisar `result.fieldErrors` si aplica
 
@@ -408,7 +409,7 @@ export async function getVacante(idVacante: number) {
 - Rutas: `/api/{rol}/...` (proxy en Next hacia `API_PROXY_TARGET`)
 - Listados con filtros: `buildQuery(filters)`
 - Mutaciones: `method: "PATCH"` o `"POST"` según el backend
-- Subida de archivos: respetar `experimental.serverActions.bodySizeLimit` en `next.config.ts`
+- Subida de archivos: respetar `experimental.serverActions.bodySizeLimit: "2mb"` en `next.config.ts`
 
 ---
 

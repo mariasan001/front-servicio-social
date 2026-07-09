@@ -55,10 +55,10 @@ El frontend proxifica el API con `API_PROXY_TARGET`. El navegador llama a `/api/
 | `/login` | Inicio de sesión (`?next=` para volver al panel) |
 | `/registro` | Registro de alumno (con o sin token de escuela) |
 | `/recuperar-contrasena` | Solicitar enlace de recuperación por correo |
-| `/restablecer-contrasena?token=…` | Definir nueva contraseña con token del correo |
+| `/restablecer-contrasena/{token}` | Definir nueva contraseña (token en path; `?token=` redirige al path) |
 | `/vacantes` | Directorio público de vacantes |
 
-Flujo de recuperación: usuario o correo → correo con enlace → token en URL → nueva contraseña → login.
+Flujo de recuperación: usuario o correo → correo con enlace → `/restablecer-contrasena/{token}` → nueva contraseña → login. Los enlaces legacy con `?token=` redirigen al path.
 
 Implementación: `src/features/auth/reset-password/` · API `POST /auth/password/forgot` y `POST /auth/password/reset`.
 
@@ -112,6 +112,7 @@ CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `test:coverage` → 
 | [FLUJOS.md](./docs/FLUJOS.md) | Diagramas: sesión, postulación, proceso, exámenes |
 | [PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Cómo desarrollar pantallas del panel |
 | [PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke tests E2E por rol |
+| [DEPLOY.md](./docs/DEPLOY.md) | Despliegue, variables, CI y rollback |
 
 ---
 

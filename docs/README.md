@@ -12,8 +12,9 @@ Guías del repositorio `front-servicio-social`. Empieza por [ARQUITECTURA.md](./
 | **[FLUJOS.md](./FLUJOS.md)** | Producto / QA / dev | Diagramas Mermaid: sesión, registro, postulación, proceso, exámenes |
 | **[PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)** | Desarrollo panel | Modales, actions, servicios, dominio, exámenes |
 | **[PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)** | QA / release | Inventario E2E por rol, 15 smoke tests, criterio de salida |
+| **[DEPLOY.md](./DEPLOY.md)** | Ops / release | Variables, build, CI, checklist y rollback |
 
-**Tests:** `npm run test` (Vitest, reglas de negocio) · `npm run test:e2e` (Playwright)
+**Tests:** `npm run test` (Vitest, reglas de negocio) · `npm run test:e2e` (Playwright, rutas públicas/auth)
 
 ---
 
@@ -31,9 +32,11 @@ Verificación antes de PR:
 
 ```bash
 npm run check        # typecheck + lint
-npm run test         # unit tests
 npm run test:coverage
+npm run test:e2e     # opcional local; corre en CI tras build
 ```
+
+Despliegue: ver [DEPLOY.md](./DEPLOY.md).
 
 ---
 
@@ -78,7 +81,7 @@ npm run test:coverage
 | `/login` | `LoginForm` |
 | `/registro` | `RegisterForm` (+ token escuela opcional) |
 | `/recuperar-contrasena` | `ResetPasswordFlow` — envía enlace al correo |
-| `/restablecer-contrasena?token=` | `ResetPasswordTokenForm` — nueva contraseña |
+| `/restablecer-contrasena/{token}` | `ResetPasswordTokenForm` — nueva contraseña (`?token=` redirige al path) |
 
 Enlace desde login: “¿Olvidaste tu contraseña?” → `/recuperar-contrasena`.
 

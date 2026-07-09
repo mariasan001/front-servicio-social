@@ -71,7 +71,7 @@ front-servicio-social/
 │   │   ├── api/                # HTTP cliente/servidor/público
 │   │   ├── auth/               # Roles, sesión, rutas
 │   │   ├── domain/             # Reglas de negocio y tipos base
-│   │   ├── actions/            # runServerAction, ActionResult
+│   │   ├── actions/            # runAuthorizedAction, runServerAction, ActionResult
 │   │   └── cache/              # revalidate-panel
 │   ├── shared/                 # UI reutilizable (DataTable, Modal, Form…)
 │   ├── middleware.ts           # Guard de auth/roles
@@ -117,7 +117,7 @@ flowchart TB
 | Autenticación | No (excepto forms auth) | Cookie de sesión |
 | Fetch servidor | `publicApiGet` (`lib/api/public-request.ts`) | `serverApiRequest` (`lib/api/server-request.ts`) |
 | Fetch cliente | `apiRequest` → proxy `/api/backend` | No llamar API directo desde cliente |
-| Mutaciones | Formularios auth en cliente | Server Actions + `runServerAction` |
+| Mutaciones | Formularios auth en cliente | Server Actions + `runAuthorizedAction` |
 | Caché | ISR `revalidate: 120s` | `revalidatePanelSection` tras mutación |
 | Errores | `loadError` + `LandingPublicLoadAlert` | `Alert` en Section / modal |
 
@@ -153,9 +153,10 @@ flowchart TB
 | `/registro` | `src/app/registro/page.tsx` | Sí — soporta `?token=` |
 | `/registro/alumno` | redirect → `/registro` | Sí |
 | `/recuperar-contrasena` | `src/app/recuperar-contrasena/page.tsx` | Sí |
-| `/restablecer-contrasena` | `src/app/restablecer-contrasena/page.tsx` | Sí — requiere `?token=` del correo |
+| `/restablecer-contrasena` | `src/app/restablecer-contrasena/page.tsx` | Sí — sin token muestra error; `?token=` redirige al path |
+| `/restablecer-contrasena/[token]` | `src/app/restablecer-contrasena/[token]/page.tsx` | Sí — forma preferida del enlace del correo |
 
-**Recuperación de contraseña:** `ResetPasswordFlow` solicita usuario/correo → `POST /auth/password/forgot` → el usuario abre el enlace del correo → `ResetPasswordTokenForm` con `POST /auth/password/reset`.
+**Recuperación de contraseña:** `ResetPasswordFlow` solicita usuario/correo → `POST /auth/password/forgot` → el usuario abre el enlace del correo (`/restablecer-contrasena/{token}`) → `ResetPasswordTokenForm` con `POST /auth/password/reset`. Los enlaces legacy `?token=` redirigen al path.
 
 **Post-registro:** tras crear cuenta, el formulario redirige a login. Opcionalmente se puede prellenar con `?registered=1` según flujo de registro.
 
@@ -264,7 +265,7 @@ flowchart TD
 | **Section** | `src/features/{rol}/sections/` | `serverApiRequest`, manejo error con `Alert`, pasa props a View |
 | **View** | `src/features/{rol}/components/{seccion}/` | `"use client"`, `DataTable`, abre modales |
 | **Modal** | `*DetailModal.tsx` | Detalle, formularios, llama actions |
-| **Actions** | `src/features/{rol}/actions/` | `runServerAction`, `revalidate{Rol}Section` |
+| **Actions** | `src/features/{rol}/actions/` | `runAuthorizedAction`, `revalidate{Rol}Section` |
 | **Services** | `src/features/{rol}/services/` | HTTP tipado al backend |
 | **Types** | `src/features/{rol}/types/` | DTOs alineados con Java |
 | **Lib (gates)** | `src/features/{rol}/lib/` o `lib/domain/` | Reglas UI (mostrar/ocultar botones) |
@@ -284,11 +285,13 @@ flowchart TD
   LP --> E[getLandingInstitutionStats]
   LP --> T[getLandingTestimonials]
 
-  V --> S1[public-vacantes.service.ts]
-  E --> S2[public-escuelas.service.ts]
-  T --> S3[public-testimonios.service.ts]
+  V --> S1[features/landing/services/public-vacantes.service.ts]
+  E --> S2[features/landing/services/public-escuelas.service.ts]
+  T --> S3[features/landing/lib/public-testimonios.ts]
 
-  S1 & S2 & S3 --> PR[publicApiGet]
+  S1 & S2 --> PR[publicApiGet]
+  S3 --> ENC[features/landing/services/public-encuestas.service.ts]
+  ENC --> PR
   PR --> BE["Backend /api/public/*"]
 
   V --> LV[LandingVacancies]
@@ -303,9 +306,10 @@ flowchart TD
 
 | Archivo | Endpoint | Uso |
 |---------|----------|-----|
-| `services/public-vacantes.service.ts` | `GET /api/public/vacantes`, `GET /api/public/vacantes/{id}` | Landing + directorio |
-| `services/public-escuelas.service.ts` | `GET /api/public/escuelas/estadisticas` | Tarjetas instituciones |
-| `services/public-testimonios.service.ts` | `GET /api/public/testimonios` | Testimonios |
+| `features/landing/services/public-vacantes.service.ts` | `GET /api/public/vacantes`, `GET /api/public/vacantes/{id}` | Landing + directorio |
+| `features/landing/services/public-escuelas.service.ts` | `GET /api/public/escuelas/estadisticas` | Tarjetas instituciones |
+| `features/landing/lib/public-testimonios.ts` | Encuestas de satisfacción vía `public-encuestas.service.ts` | Testimonios en landing |
+| `features/landing/lib/public-data.ts` | — | Mapeo `{ data, loadError? }` para secciones públicas |
 
 ### Cliente HTTP público
 
@@ -319,7 +323,7 @@ publicApiGet<T>(path) →
 
 - Sin cookies
 - ISR: `revalidate: 120` segundos
-- Resultado mapeado en `lib/public-data.ts` → `{ data, loadError? }`
+- Resultado mapeado en `features/landing/lib/public-data.ts` → `{ data, loadError? }`
 
 ### Estados de UI pública
 
@@ -385,7 +389,7 @@ sequenceDiagram
 | `ROLE_ENLACE_ESCOLAR` | `/panel/enlace` |
 | `ROLE_ALUMNO` | `/panel/alumno` |
 
-**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/recuperar-contrasena`, `/restablecer-contrasena`
+**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/recuperar-contrasena`, `/restablecer-contrasena/:path*`
 
 ---
 
@@ -419,16 +423,17 @@ flowchart LR
 
 | Variable | Uso |
 |----------|-----|
-| `API_PROXY_TARGET` | URL backend Java (default `http://localhost:8080`) |
+| `API_PROXY_TARGET` | URL backend Java (obligatoria en producción; default dev `http://localhost:8080`) |
 | `NEXT_PUBLIC_API_URL` | Base browser (default `/api/backend`) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (SEO, sitemap, enlaces de invitación) |
+
+**Límite uploads:** `serverActions.bodySizeLimit: "2mb"`.
 
 **Proxy** (`next.config.ts`):
 
 ```
 /api/backend/:path*  →  ${API_PROXY_TARGET}/:path*
 ```
-
-**Límite uploads:** `serverActions.bodySizeLimit: "10mb"`.
 
 ---
 
@@ -642,10 +647,13 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 
 ## 16. Despliegue a producción
 
+Guía completa: **[DEPLOY.md](./DEPLOY.md)** (variables, build, CI, rollback).
+
 ### Checklist mínimo
 
-- [ ] `.env.local` / variables en hosting: `API_PROXY_TARGET`, `NEXT_PUBLIC_API_URL`
-- [ ] `npm run build` sin errores
+- [ ] Variables en hosting: `API_PROXY_TARGET`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`
+- [ ] Node.js >= 22
+- [ ] `npm run build` sin errores (con las mismas env que prod)
 - [ ] Backend accesible desde el servidor Next (misma red/VPN)
 - [ ] Rutas públicas del backend abiertas (`/api/public/vacantes`, health)
 - [ ] HTTPS para cookies de sesión
@@ -666,6 +674,7 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 |------------|------|
 | Crear pantalla panel | [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md) |
 | Probar antes de prod | [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md) |
+| Desplegar | [DEPLOY.md](./DEPLOY.md) |
 | DTOs del backend | `../Back_end/.../dto/` |
 | Navegación panel | `src/features/panel/constants/navigation.ts` |
 | Reglas Next.js 16 | `node_modules/next/dist/docs/` + `AGENTS.md` |
@@ -673,4 +682,4 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 
 ---
 
-*Última actualización: alineación post-módulo de exámenes (builder compartido, resultado en postulación, encuestas delegación, auth post-registro, modal `wide`).*
+*Última actualización: línea base `57523d8` — tests, E2E en CI, `runAuthorizedAction`, reset token en path, `bodySizeLimit` 2mb, [DEPLOY.md](./DEPLOY.md).*
