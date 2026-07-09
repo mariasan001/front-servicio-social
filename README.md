@@ -92,9 +92,12 @@ npm run start       # Servir build
 npm run typecheck   # TypeScript
 npm run lint        # ESLint
 npm run check       # typecheck + lint
+npm run test        # Unit tests (Vitest, 100+ casos)
+npm run test:coverage
+npm run test:e2e    # E2E Playwright
 ```
 
-CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `build` en cada PR.
+CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `test` → `build` en cada PR.
 
 ---
 

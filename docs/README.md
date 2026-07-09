@@ -13,6 +13,8 @@ Guías del repositorio `front-servicio-social`. Empieza por [ARQUITECTURA.md](./
 | **[PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)** | Desarrollo panel | Modales, actions, servicios, dominio, exámenes |
 | **[PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)** | QA / release | Inventario E2E por rol, 15 smoke tests, criterio de salida |
 
+**Tests:** `npm run test` (Vitest, reglas de negocio) · `npm run test:e2e` (Playwright)
+
 ---
 
 ## Arranque local
@@ -29,7 +31,8 @@ Verificación antes de PR:
 
 ```bash
 npm run check        # typecheck + lint
-npm run build
+npm run test         # unit tests
+npm run test:coverage
 ```
 
 ---
