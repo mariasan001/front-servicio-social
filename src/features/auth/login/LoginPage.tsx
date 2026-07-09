@@ -3,13 +3,12 @@ import { LoginForm } from "./LoginForm";
 
 type LoginPageProps = {
   nextPath?: string;
-  justRegistered?: boolean;
 };
 
-export function LoginPage({ nextPath, justRegistered }: LoginPageProps) {
+export function LoginPage({ nextPath }: LoginPageProps) {
   return (
     <AuthLayout variant="login">
-      <LoginForm nextPath={nextPath} justRegistered={justRegistered} />
+      <LoginForm nextPath={nextPath} />
     </AuthLayout>
   );
 }

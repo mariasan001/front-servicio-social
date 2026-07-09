@@ -10,8 +10,7 @@ type ModalProps = {
   children: ReactNode;
   onClose: () => void;
   footer?: ReactNode;
-  size?: "md" | "lg" | "wide" | "xl";
-  className?: string;
+  size?: "md" | "lg" | "xl";
 };
 
 function joinClassNames(...classes: (string | false | undefined)[]) {
@@ -25,7 +24,6 @@ export function Modal({
   onClose,
   footer,
   size = "md",
-  className,
 }: ModalProps) {
   const titleId = useId();
 
@@ -58,7 +56,7 @@ export function Modal({
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div
-        className={joinClassNames(styles.dialog, styles[size], className)}
+        className={joinClassNames(styles.dialog, styles[size])}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

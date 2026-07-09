@@ -12,8 +12,6 @@ export const AUTH_COPY = {
   loginTitle: "¡Bienvenido de nuevo!",
   loginSubtitle:
     "Ingresa tus credenciales institucionales para acceder a tu panel.",
-  loginAfterRegisterBanner:
-    "Tu cuenta fue creada. Revisa tus datos e inicia sesión para continuar.",
   registerTitle: "Crear cuenta",
   registerSubtitle:
     "Regístrate como estudiante para consultar vacantes y dar seguimiento a tu participación.",

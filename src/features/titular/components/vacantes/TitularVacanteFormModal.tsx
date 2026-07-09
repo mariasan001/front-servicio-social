@@ -2,25 +2,13 @@
 
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { Building2 } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { TitularAreaContext } from "../../lib/area-context";
 import { MODALIDAD_TRABAJO_OPTIONS } from "../../constants/vacante-form";
 import { createVacanteAction, updateVacanteAction } from "../../actions/vacantes.actions";
-import {
-  asociarExamenVacanteAction,
-  listExamenesAction,
-  quitarExamenVacanteAction,
-} from "../../actions/examenes.actions";
-import { setVacanteExamenCache } from "../../lib/vacante-examen-cache";
 import { mapActionFieldErrors } from "@/lib/actions/form-errors";
-import { isExamenActivo } from "@/lib/domain";
-import type {
-  ExamenDiagnosticoResumenResponse,
-  VacanteDetalleResponse,
-  VacanteResponse,
-} from "../../types/titular.types";
+import type { VacanteDetalleResponse, VacanteResponse } from "../../types/titular.types";
 import { notify } from "@/shared/notifications";
-import { Alert } from "@/shared/components/Alert";
 import { Button } from "@/shared/components/Button";
 import { CheckboxField, FormField, SelectInput, TextInput } from "@/shared/components/Form";
 import formStyles from "@/shared/components/Form/Form.module.css";
@@ -34,7 +22,6 @@ type FormValues = {
   modalidadTrabajo: string;
   cupoTotal: string;
   requiereExamen: boolean;
-  idExamen: string;
 };
 
 type VacanteFormModalProps = {
@@ -52,7 +39,6 @@ const EMPTY_VALUES: FormValues = {
   modalidadTrabajo: "PRESENCIAL",
   cupoTotal: "1",
   requiereExamen: false,
-  idExamen: "",
 };
 
 function buildInitialValues(
@@ -68,7 +54,6 @@ function buildInitialValues(
       modalidadTrabajo: detalle.modalidadTrabajo ?? "PRESENCIAL",
       cupoTotal: String(vacante.cupoTotal ?? ""),
       requiereExamen: detalle.requiereExamen ?? false,
-      idExamen: "",
     };
   }
 
@@ -106,45 +91,6 @@ function VacanteFormModalContent({
   const [values, setValues] = useState(() => buildInitialValues(mode, vacante));
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [examenes, setExamenes] = useState<ExamenDiagnosticoResumenResponse[]>([]);
-  const [isLoadingExamenes, setIsLoadingExamenes] = useState(false);
-
-  const resolvedAreaId =
-    mode === "edit" ? vacante?.areaId : areaContext?.areaId;
-
-  useEffect(() => {
-    if (!values.requiereExamen) {
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadExamenes() {
-      setIsLoadingExamenes(true);
-      const result = await listExamenesAction();
-      if (cancelled) return;
-
-      if (result.success) {
-        setExamenes(result.data);
-      }
-
-      setIsLoadingExamenes(false);
-    }
-
-    void loadExamenes();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [values.requiereExamen]);
-
-  const examenesActivos = useMemo(() => {
-    return examenes.filter(
-      (examen) =>
-        isExamenActivo(examen.estatus) &&
-        (!resolvedAreaId || examen.areaId === resolvedAreaId),
-    );
-  }, [examenes, resolvedAreaId]);
 
   const selectedModalidad = MODALIDAD_TRABAJO_OPTIONS.find(
     (option) => option.value === values.modalidadTrabajo,
@@ -161,25 +107,8 @@ function VacanteFormModalContent({
         : null;
 
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
-    setValues((current) => {
-      const next = { ...current, [field]: value };
-      if (field === "requiereExamen" && value === false) {
-        next.idExamen = "";
-      }
-      return next;
-    });
+    setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-  };
-
-  const associateExamen = async (idVacante: number, idExamen: number, yaTeniaExamen: boolean) => {
-    if (yaTeniaExamen) {
-      const quitarResult = await quitarExamenVacanteAction(idVacante);
-      if (!quitarResult.success) {
-        return quitarResult;
-      }
-    }
-
-    return asociarExamenVacanteAction(idVacante, idExamen);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -195,14 +124,6 @@ function VacanteFormModalContent({
     if (!descripcion) errors.descripcion = "Escribe la descripción de la vacante.";
     if (!modalidadTrabajo) errors.modalidadTrabajo = "Selecciona la modalidad de trabajo.";
     if (!cupoTotal || cupoTotal < 1) errors.cupoTotal = "Indica un cupo válido (mínimo 1).";
-    if (values.requiereExamen) {
-      if (!isLoadingExamenes && examenesActivos.length === 0) {
-        errors.idExamen =
-          "No hay exámenes activos en tu área. Crea y activa uno en Exámenes.";
-      } else if (!values.idExamen) {
-        errors.idExamen = "Selecciona un examen activo de tu área.";
-      }
-    }
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -235,63 +156,15 @@ function VacanteFormModalContent({
           ? await updateVacanteAction(vacante.idVacante, payload)
           : { success: false as const, error: "No se pudo completar la operación." };
 
+    setIsSubmitting(false);
+
     if (!result.success) {
-      setIsSubmitting(false);
       notify.error(result.error);
       if ("fieldErrors" in result && result.fieldErrors) {
         setFieldErrors(mapActionFieldErrors(result.fieldErrors));
       }
       return;
     }
-
-    const idExamen = values.requiereExamen ? Number(values.idExamen) : null;
-    const yaTeniaExamen =
-      mode === "edit" && vacante
-        ? Boolean((vacante as VacanteDetalleResponse).requiereExamen)
-        : false;
-
-    if (idExamen) {
-      const associateResult = await associateExamen(
-        result.data.idVacante,
-        idExamen,
-        yaTeniaExamen,
-      );
-
-      setIsSubmitting(false);
-
-      if (!associateResult.success) {
-        notify.error(
-          mode === "create"
-            ? `La vacante se creó, pero no se pudo asociar el examen: ${associateResult.error}`
-            : `Los datos se guardaron, pero no se pudo asociar el examen: ${associateResult.error}`,
-        );
-        router.refresh();
-        onClose();
-        return;
-      }
-
-      const tituloAsociado =
-        associateResult.data.titulo?.trim() ||
-        examenesActivos.find((examen) => examen.idExamen === idExamen)?.titulo ||
-        "Examen asociado";
-
-      setVacanteExamenCache(result.data.idVacante, {
-        idExamen,
-        titulo: tituloAsociado,
-      });
-    } else {
-      setIsSubmitting(false);
-    }
-
-    notify.success(
-      mode === "create"
-        ? idExamen
-          ? "Vacante registrada y examen asociado."
-          : "Vacante registrada."
-        : idExamen
-          ? "Vacante actualizada y examen asociado."
-          : "Vacante actualizada.",
-    );
 
     router.refresh();
     onClose();
@@ -429,38 +302,6 @@ function VacanteFormModalContent({
               />
             </div>
           </div>
-
-          {values.requiereExamen ? (
-            <div className={styles.examenSelectBlock}>
-              {isLoadingExamenes ? (
-                <p className={styles.examenSelectHint}>Cargando exámenes activos…</p>
-              ) : examenesActivos.length === 0 ? (
-                <Alert tone="info">
-                  No tienes exámenes activos en tu área. Crea uno en la sección
-                  <strong> Exámenes</strong>, agrégale preguntas y actívalo para
-                  poder asociarlo aquí.
-                </Alert>
-              ) : (
-                <SelectInput
-                  id="vacante-examen-id"
-                  label="Examen de ingreso"
-                  required
-                  placeholder="Selecciona un examen activo"
-                  value={values.idExamen}
-                  error={fieldErrors.idExamen}
-                  hint="Los postulantes contestarán este examen en línea."
-                  disabled={isSubmitting}
-                  onChange={(event) => updateField("idExamen", event.target.value)}
-                >
-                  {examenesActivos.map((examen) => (
-                    <option key={examen.idExamen} value={examen.idExamen}>
-                      {examen.titulo}
-                    </option>
-                  ))}
-                </SelectInput>
-              )}
-            </div>
-          ) : null}
         </section>
       </form>
     </Modal>

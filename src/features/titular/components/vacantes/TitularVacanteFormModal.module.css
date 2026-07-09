@@ -114,18 +114,6 @@
   color: var(--color-gris-500);
 }
 
-.examenSelectBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.examenSelectHint {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-gris-500);
-}
-
 .modalFooter {
   display: flex;
   flex-wrap: wrap;

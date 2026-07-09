@@ -12,7 +12,6 @@ import {
   deleteExamenPregunta,
   desactivarExamen,
   getExamen,
-  getExamenVacante,
   getResultadoExamenPostulacion,
   listExamenes,
   quitarExamenVacante,

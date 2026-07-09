@@ -31,6 +31,7 @@ import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { EntityDetailModalSkeleton } from "@/shared/components/EntityDetailModalSkeleton";
 import { Modal } from "@/shared/components/Modal";
+import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { Alert } from "@/shared/components/Alert";
 import {
   ExamenBuilder,
@@ -41,10 +42,9 @@ import {
   ExamenBuilderMain,
   ExamenBuilderPanelTitle,
   ExamenBuilderSettingsButton,
-  ExamenBuilderShell,
   ExamenBuilderSidebar,
-  ExamenOverview,
   ExamenPreguntaPreview,
+  ExamenStatChips,
   examenBuilderStyles,
 } from "@/shared/components/examen";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
@@ -83,12 +83,6 @@ export function TitularExamenManageModal({
   const preguntas = getPreguntasActivas(detail?.preguntas);
   const activo = isExamenActivo(detail?.estatus);
   const canActivate = detail ? puedeActivarExamen(detail) : false;
-  const puntajeTotal = preguntas.reduce(
-    (sum, pregunta) => sum + (pregunta.puntaje ?? 1),
-    0,
-  );
-  const isSettingsSelected =
-    selected?.type === "settings" || selected === null;
 
   useEffect(() => {
     if (!open) {
@@ -207,6 +201,22 @@ export function TitularExamenManageModal({
 
   const renderSettingsPanel = (exam: ExamenDiagnosticoDetalleResponse) => (
     <>
+      <div className={detailStyles.panelHeader}>
+        <ExamenBuilderPanelTitle>
+          <Settings2 size={16} aria-hidden="true" />
+          Datos del examen
+        </ExamenBuilderPanelTitle>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setEditGeneralOpen(true)}
+          disabled={isSubmitting}
+        >
+          <Pencil size={15} aria-hidden="true" />
+          Editar datos
+        </Button>
+      </div>
+
       {!activo && !canActivate ? (
         <Alert tone="info">
           Para activar el examen necesitas al menos una pregunta con dos o más
@@ -214,75 +224,38 @@ export function TitularExamenManageModal({
         </Alert>
       ) : null}
 
+      <ExamenStatChips
+        totalPreguntas={preguntas.length}
+        puntajeMinimoAprobatorio={exam.puntajeMinimoAprobatorio}
+        tiempoLimiteMinutos={exam.tiempoLimiteMinutos}
+        estatus={exam.estatus}
+      />
+
       {exam.descripcion ? (
-        <section className={detailStyles.narrativeSection}>
-          <p className={detailStyles.narrativeLabel}>Descripción</p>
-          <p className={detailStyles.narrativeValue}>{exam.descripcion}</p>
+        <section className={detailStyles.contentPanel}>
+          <div className={detailStyles.panelHeader}>
+            <h3 className={detailStyles.panelTitle}>Descripción</h3>
+          </div>
+          <p className={detailStyles.panelDescription}>{exam.descripcion}</p>
         </section>
       ) : null}
 
       {exam.instrucciones ? (
-        <section className={detailStyles.narrativeSection}>
-          <p className={detailStyles.narrativeLabel}>Instrucciones</p>
-          <p className={detailStyles.narrativeValue}>{exam.instrucciones}</p>
+        <section className={detailStyles.contentPanel}>
+          <div className={detailStyles.panelHeader}>
+            <h3 className={detailStyles.panelTitle}>Instrucciones</h3>
+          </div>
+          <p className={detailStyles.panelDescription}>{exam.instrucciones}</p>
         </section>
-      ) : null}
-
-      {!exam.descripcion && !exam.instrucciones ? (
-        <p className={examenBuilderStyles.lockedHint}>
-          Edita los datos del examen para agregar descripción o instrucciones.
-        </p>
       ) : null}
     </>
   );
 
-  const renderToolbar = () => {
-    if (!detail) return null;
-
-    if (isSettingsSelected) {
-      return (
-        <>
-          <ExamenBuilderPanelTitle>
-            <Settings2 size={16} aria-hidden="true" />
-            Datos del examen
-          </ExamenBuilderPanelTitle>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setEditGeneralOpen(true)}
-            disabled={isSubmitting}
-          >
-            <Pencil size={15} aria-hidden="true" />
-            Editar datos
-          </Button>
-        </>
-      );
-    }
-
-    if (selected?.type === "new") {
-      return (
-        <ExamenBuilderPanelTitle>
-          Nueva pregunta
-        </ExamenBuilderPanelTitle>
-      );
-    }
-
-    if (selectedPregunta) {
-      const index = preguntas.findIndex(
-        (pregunta) => pregunta.idPregunta === selectedPregunta.idPregunta,
-      );
-      return (
-        <ExamenBuilderPanelTitle>
-          Pregunta {index + 1}
-        </ExamenBuilderPanelTitle>
-      );
-    }
-
-    return null;
-  };
-
   const renderPreguntaPreview = (pregunta: ExamenPreguntaResponse, index: number) => (
     <>
+      <div className={detailStyles.panelHeader}>
+        <ExamenBuilderPanelTitle>Pregunta {index + 1}</ExamenBuilderPanelTitle>
+      </div>
       <ExamenPreguntaPreview pregunta={pregunta} index={index} />
       <p className={examenBuilderStyles.lockedHint}>
         Desactiva el examen para editar sus preguntas.
@@ -379,32 +352,22 @@ export function TitularExamenManageModal({
         ) : error ? (
           <Alert tone="error">{error}</Alert>
         ) : detail ? (
-          <ExamenBuilderShell
-            overview={
-              <ExamenOverview
-                examen={detail}
-                totalPreguntas={preguntas.length}
-                puntajeTotal={puntajeTotal}
-              />
-            }
-          >
-            <ExamenBuilder>
-              <ExamenBuilderSidebar
-                title={`Preguntas (${preguntas.length})`}
-                action={
-                  <ExamenBuilderAddButton
-                    label="Agregar pregunta"
-                    disabled={isSubmitting || activo}
-                    onClick={() => setSelected({ type: "new" })}
-                  />
-                }
-                footer={
-                  <ExamenBuilderSettingsButton
-                    active={isSettingsSelected}
-                    onClick={() => setSelected({ type: "settings" })}
-                  />
-                }
-              >
+          <ExamenBuilder>
+            <ExamenBuilderSidebar
+              title={`Preguntas (${preguntas.length})`}
+              action={
+                <ExamenBuilderAddButton
+                  label="Agregar pregunta"
+                  disabled={isSubmitting || activo}
+                  onClick={() => setSelected({ type: "new" })}
+                />
+              }
+              footer={
+                <ExamenBuilderSettingsButton
+                  onClick={() => setSelected({ type: "settings" })}
+                />
+              }
+            >
               {preguntas.length === 0 && selected?.type !== "new" ? (
                 <ExamenBuilderEmptyItem>
                   Aún no hay preguntas.
@@ -443,7 +406,8 @@ export function TitularExamenManageModal({
               ))}
             </ExamenBuilderSidebar>
 
-            <ExamenBuilderMain toolbar={renderToolbar()}>
+            <ExamenBuilderMain>
+              <EstatusBadge estatus={detail.estatus} />
               {renderMain()}
               {!activo && selectedPregunta && selected?.type === "pregunta" ? (
                 <div className={detailStyles.footerActions}>
@@ -461,7 +425,6 @@ export function TitularExamenManageModal({
               ) : null}
             </ExamenBuilderMain>
           </ExamenBuilder>
-          </ExamenBuilderShell>
         ) : null}
       </Modal>
 

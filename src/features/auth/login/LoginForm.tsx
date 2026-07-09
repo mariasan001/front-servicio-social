@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { isSafeInternalPath, resolveHomePath } from "@/lib/auth/roles";
 import { AUTH_COPY, AUTH_ROUTES } from "../constants/routes";
-import { consumePostRegisterCredentials } from "../constants/storage";
 import { login } from "../services/auth.service";
 import {
   hasFormErrors,
@@ -25,26 +24,15 @@ const INITIAL_VALUES: LoginFormValues = {
 
 type LoginFormProps = {
   nextPath?: string;
-  justRegistered?: boolean;
 };
 
-export function LoginForm({ nextPath, justRegistered }: LoginFormProps) {
+export function LoginForm({ nextPath }: LoginFormProps) {
   const router = useRouter();
   const [values, setValues] = useState(INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof LoginFormValues, string>>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const credentials = consumePostRegisterCredentials();
-    if (credentials) {
-      setValues({
-        username: credentials.username,
-        password: credentials.password,
-      });
-    }
-  }, []);
 
   const updateField = <K extends keyof LoginFormValues>(
     field: K,
@@ -91,12 +79,6 @@ export function LoginForm({ nextPath, justRegistered }: LoginFormProps) {
 
   return (
     <AuthCard title={AUTH_COPY.loginTitle} subtitle={AUTH_COPY.loginSubtitle}>
-      {justRegistered ? (
-        <p className={formStyles.infoBanner} role="status">
-          {AUTH_COPY.loginAfterRegisterBanner}
-        </p>
-      ) : null}
-
       <form
         className={`${formStyles.formBody} ${formStyles.formRoot}`}
         onSubmit={handleSubmit}

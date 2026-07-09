@@ -35,11 +35,6 @@
   width: min(100%, 40rem);
 }
 
-.wide {
-  width: min(100%, 52rem);
-  max-height: min(94vh, 52rem);
-}
-
 .xl {
   width: min(100%, 68rem);
 }
