@@ -79,6 +79,25 @@ sequenceDiagram
 4. **Redirects seguros** — `isSafeInternalPath` evita open redirects en `?next=`.
 5. **El backend es la autoridad** — el front solo oculta UI; toda mutación debe rechazarse en API si el rol no aplica.
 
+### Recuperación de contraseña
+
+```mermaid
+sequenceDiagram
+  participant U as Usuario
+  participant F as Frontend
+  participant API as Backend
+
+  U->>F: /recuperar-contrasena (usuario o correo)
+  F->>API: POST /auth/password/forgot
+  API-->>U: Correo con enlace + token
+  U->>F: /restablecer-contrasena?token=…
+  F->>API: POST /auth/password/reset
+  API-->>F: OK
+  F-->>U: Redirect a login
+```
+
+Archivos: `src/features/auth/reset-password/`, `password-reset.service.ts`.
+
 Archivos clave:
 
 - `src/middleware.ts`

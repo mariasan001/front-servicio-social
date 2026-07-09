@@ -1,82 +1,129 @@
 # Servicio Social Edomex — Frontend
 
-Aplicación Next.js para el programa de servicio social y residencia del Estado de México.
+Plataforma web del **Gobierno del Estado de México** para que estudiantes realicen servicio social, prácticas profesionales o residencias en dependencias estatales.
 
-## Requisitos
+Stack: **Next.js 16** (App Router) · **React 19** · **TypeScript** · CSS Modules.
 
-- Node.js 20+
-- Backend en `http://localhost:8080` (o la URL configurada en `.env`)
+---
 
-## Configuración
+## Inicio rápido
 
 ```bash
+git clone <repo>
+cd front-servicio-social
 cp .env.example .env.local
 npm install
 npm run dev
 ```
 
-Variables:
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:3000 |
+| Backend (Java) | http://localhost:8080 |
+
+El frontend proxifica el API con `API_PROXY_TARGET`. El navegador llama a `/api/backend/*`.
+
+---
+
+## Variables de entorno
 
 | Variable | Descripción |
 |----------|-------------|
-| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor |
-| `NEXT_PUBLIC_API_URL` | Base URL para `apiRequest` en el cliente (`/api/backend`) |
+| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor (default `http://localhost:8080`) |
+| `NEXT_PUBLIC_API_URL` | Base para `apiRequest` en cliente (default `/api/backend`) |
+
+---
+
+## ¿Qué hace cada rol?
+
+| Rol | Ruta | Función principal |
+|-----|------|-------------------|
+| Público | `/`, `/vacantes` | Landing y directorio de vacantes |
+| Alumno | `/panel/alumno` | CV, postulación, proceso, horas, documentos |
+| Titular | `/panel/titular` | Vacantes, postulaciones, exámenes, seguimiento |
+| Delegación | `/panel/delegacion` | Publicación, validaciones, procesos, reportes |
+| Admin | `/panel/admin` | Catálogos: dependencias, escuelas, áreas, usuarios |
+| Enlace escolar | `/panel/enlace` | Consulta read-only de alumnos de su escuela |
+
+---
+
+## Rutas públicas de acceso
+
+| Ruta | Descripción |
+|------|-------------|
+| `/login` | Inicio de sesión (`?next=` para volver al panel) |
+| `/registro` | Registro de alumno (con o sin token de escuela) |
+| `/recuperar-contrasena` | Solicitar enlace de recuperación por correo |
+| `/restablecer-contrasena?token=…` | Definir nueva contraseña con token del correo |
+| `/vacantes` | Directorio público de vacantes |
+
+Flujo de recuperación: usuario o correo → correo con enlace → token en URL → nueva contraseña → login.
+
+Implementación: `src/features/auth/reset-password/` · API `POST /auth/password/forgot` y `POST /auth/password/reset`.
+
+---
+
+## Estructura del código
+
+```
+src/
+├── app/                 # Rutas Next.js (delgadas)
+├── features/            # Lógica por dominio (auth, alumno, titular, delegacion…)
+├── shared/              # UI reutilizable (Form, DataTable, Modal, examen, horas…)
+└── lib/                 # Infraestructura: api, auth, domain, actions, services
+```
+
+Patrón del panel:
+
+```
+Section (server) → *View (client) → *DetailModal → actions/*.ts → services → backend
+```
+
+Las mutaciones del panel usan **server actions** con `runAuthorizedAction` (validación de rol en servidor).
+
+---
+
+## Scripts
+
+```bash
+npm run dev         # Desarrollo (:3000)
+npm run build       # Build producción
+npm run start       # Servir build
+npm run typecheck   # TypeScript
+npm run lint        # ESLint
+npm run check       # typecheck + lint
+```
+
+CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `build` en cada PR.
+
+---
 
 ## Documentación
 
 Índice completo en **[docs/README.md](./docs/README.md)**.
 
-| Documento | Contenido |
-|-----------|-----------|
-| [ARQUITECTURA.md](./docs/ARQUITECTURA.md) | Capas, rutas, roles, APIs, flujos de negocio |
-| [PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Patrones del panel (modales, actions, colores) |
-| [PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke tests E2E |
+| Documento | Para qué sirve |
+|-----------|----------------|
+| [ARQUITECTURA.md](./docs/ARQUITECTURA.md) | Capas, rutas, APIs, módulos transversales |
+| [FLUJOS.md](./docs/FLUJOS.md) | Diagramas: sesión, postulación, proceso, exámenes |
+| [PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Cómo desarrollar pantallas del panel |
+| [PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke tests E2E por rol |
 
-## Arquitectura
+---
 
-```
-src/app/              Rutas delgadas (App Router)
-src/features/{rol}/   Lógica por rol: servicios, secciones, acciones
-src/shared/           UI reutilizable (Form, DataTable, Modal, examen, proceso…)
-src/lib/              API, auth, domain, server actions helpers
-```
+## Backend relacionado
 
-Cada rol del panel (`admin`, `delegacion`, `titular`, `enlace`, `alumno`) consume su prefijo de API (`/api/delegacion/*`, `/api/alumno/*`, etc.).
+Repositorio Java: `../Back_end/dgp-servicio-social-service` (puerto `8080`).
 
-## Panel
+El frontend es la capa de presentación; **toda autorización definitiva vive en el backend**. Los guards del front (`middleware`, `runAuthorizedAction`) son defensa en profundidad.
 
-- Rutas: `/panel/{rol}/[[...section]]`
-- Navegación: `src/features/panel/constants/navigation.ts`
-- Patrón por sección: `Section` (server) → `*View` (client) → modales → `actions/*.ts` → `services` → `revalidate-{rol}.ts`
+---
 
-Secciones recientes alineadas con el código:
+## Seguridad (resumen)
 
-| Rol | Secciones adicionales |
-|-----|------------------------|
-| Titular | `examenes` — CRUD y activación de exámenes diagnóstico |
-| Delegación / Admin | `examenes` — consulta (delegación reutilizada en admin) |
-| Delegación | `encuestas` — moderación de comentarios públicos |
-| Alumno | `/panel/alumno/postulaciones/[id]/examen` — examen en línea |
+- Cookie de sesión httpOnly
+- Middleware de roles en `/panel/*`
+- Headers: CSP, X-Frame-Options, HSTS (producción)
+- Redirects seguros con `isSafeInternalPath`
 
-## Mutaciones (Server Actions)
-
-```ts
-"use server";
-
-import { runServerAction } from "@/lib/actions";
-import { miServicio } from "../services/mi-servicio.service";
-
-export async function miAccionAction(input: MiInput) {
-  return runServerAction(() => miServicio(input), "Mensaje de error por defecto.");
-}
-```
-
-Ejemplo de referencia: `src/features/alumno/actions/cv.actions.ts`.
-
-## Scripts
-
-```bash
-npm run dev      # desarrollo
-npm run build    # producción
-npm run lint     # ESLint
-```
+Detalle en [FLUJOS.md §8](./docs/FLUJOS.md#8-seguridad-en-el-front).

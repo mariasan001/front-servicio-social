@@ -243,8 +243,8 @@ Payloads de mutación alineados con `src/lib/domain/requests.ts` y helpers en `s
 | Login | `/login` | ⬜ | Redirect seguro con `isSafeInternalPath` |
 | Registro alumno (manual) | `/registro` | ⬜ | `RegisterForm` + `useRegisterToken` |
 | Registro con token escuela | `/registro/alumno?token=…` | ⬜ | |
-| Recuperar contraseña | `/recuperar-contrasena` | ❌ | Endpoints no confirmados en backend |
-| Restablecer contraseña | `/restablecer-contrasena` | ❌ | Idem |
+| Recuperar contraseña | `/recuperar-contrasena` | ⬜ | `POST /auth/password/forgot` — envía enlace al correo |
+| Restablecer contraseña | `/restablecer-contrasena?token=` | ⬜ | `POST /auth/password/reset` — token del correo |
 
 ---
 
@@ -295,4 +295,4 @@ Fase 0 está **completa** cuando:
 2. Ejecutar los 15 smoke tests y actualizar estados en este archivo.
 3. Registrar bloqueos de API en la columna **Notas** (con código HTTP o mensaje del backend).
 
-Excepciones conocidas fuera del panel: rediseño visual de `/login`; recuperación de contraseña pendiente de backend.
+Excepción conocida fuera del panel: rediseño visual de `/login`.

@@ -153,8 +153,11 @@ flowchart TB
 | `/registro` | `src/app/registro/page.tsx` | Sí — soporta `?token=` |
 | `/registro/alumno` | redirect → `/registro` | Sí |
 | `/recuperar-contrasena` | `src/app/recuperar-contrasena/page.tsx` | Sí |
+| `/restablecer-contrasena` | `src/app/restablecer-contrasena/page.tsx` | Sí — requiere `?token=` del correo |
 
-**Post-registro:** tras crear cuenta, `RegisterForm` guarda credenciales en `sessionStorage` (`POST_REGISTER_CREDENTIALS_KEY`) y redirige a `/login?registered=1`. `LoginForm` las consume una sola vez para prellenar usuario/contraseña.
+**Recuperación de contraseña:** `ResetPasswordFlow` solicita usuario/correo → `POST /auth/password/forgot` → el usuario abre el enlace del correo → `ResetPasswordTokenForm` con `POST /auth/password/reset`.
+
+**Post-registro:** tras crear cuenta, el formulario redirige a login. Opcionalmente se puede prellenar con `?registered=1` según flujo de registro.
 
 **Fuente única de rutas auth:** `src/lib/auth/constants.ts` → `AUTH_PATHS`  
 **Reexport en features:** `src/features/auth/constants/routes.ts` → `AUTH_ROUTES`  
@@ -334,7 +337,7 @@ publicApiGet<T>(path) →
 |---------|-----------|
 | `auth/services/auth.service.ts` | `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
 | `auth/services/register.service.ts` | `GET /api/public/registro/tokens/{token}`, `POST /api/public/alumnos/registro-*` |
-| `auth/services/password-reset.service.ts` | `POST /api/public/auth/recuperacion-contrasena/*` |
+| `auth/services/password-reset.service.ts` | `POST /auth/password/forgot`, `POST /auth/password/reset` |
 
 Auth usa `apiRequest` (cliente) → `/api/backend` (proxy). **No** usa server actions (patrón distinto al panel, válido para forms de login).
 
@@ -382,7 +385,7 @@ sequenceDiagram
 | `ROLE_ENLACE_ESCOLAR` | `/panel/enlace` |
 | `ROLE_ALUMNO` | `/panel/alumno` |
 
-**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/recuperar-contrasena`
+**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/recuperar-contrasena`, `/restablecer-contrasena`
 
 ---
 
