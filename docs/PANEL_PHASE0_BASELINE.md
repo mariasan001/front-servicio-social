@@ -1,12 +1,20 @@
 # Fase 0 — Línea base del panel
 
-Documento de referencia para smoke tests end-to-end. Ver también [ARQUITECTURA.md](./ARQUITECTURA.md) para el mapa completo del sistema.
+Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
+
+| Documento relacionado | Contenido |
+|-----------------------|-----------|
+| [ARQUITECTURA.md](./ARQUITECTURA.md) | Mapa de capas, rutas y APIs |
+| [FLUJOS.md](./FLUJOS.md) | Diagramas de sesión, postulación, proceso y exámenes |
+| [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md) | Convenciones de desarrollo del panel |
+
+---
 
 ## Punto de partida
 
 | Campo | Valor |
 |-------|--------|
-| **Commit** | `3c87a1f` — `fix(panel): corregir avisos de React y lint en modales delegacion.` |
+| **Commit** | `feb2b85` — `feat(front): harden security, clean lint, and consolidate architecture` |
 | **Rama** | `feature/setup-inicial` |
 | **Frontend** | `http://localhost:3000` (`npm run dev`) |
 | **Backend** | `http://localhost:8080` (`API_PROXY_TARGET` en `.env.local`) |
@@ -19,17 +27,119 @@ Documento de referencia para smoke tests end-to-end. Ver también [ARQUITECTURA.
 3. Reiniciar `npm run dev` tras cambios en `next.config.ts`.
 4. Usuarios de prueba por rol (admin, delegación, titular, enlace, alumno).
 
+### Calidad automatizada (local / CI)
+
+| Comando | Qué valida |
+|---------|------------|
+| `npm run typecheck` | TypeScript sin emit |
+| `npm run lint` | ESLint (0 errores en `feb2b85`) |
+| `npm run check` | typecheck + lint |
+| `npm run build` | Build de producción |
+
+Workflow: `.github/workflows/ci.yml` (push/PR a `main` o `develop`).
+
+### Cambios estructurales desde la línea base anterior
+
+- **Auth centralizado** en `src/lib/auth/` (login, guest, postulación, CV).
+- **Guards en server actions** con `runAuthorizedAction` (`src/lib/actions/run-authorized-action.ts`).
+- **Servicios compartidos** en `src/lib/services/` (exámenes monitor, encuestas públicas).
+- **Horas compartidas** en `src/shared/proceso/horas/` (calendario + modales alumno/titular).
+- **Exámenes monitor** en `src/shared/components/examen/ExamenesMonitorView.tsx` (delegación + admin).
+- **Modales grandes refactorizados** con hooks y secciones (`useDelegacionProcesoDetailModal`, `useTitularProcesoDetailModal`, examen alumno, vacante titular).
+- **Headers de seguridad** en `next.config.ts` (CSP, HSTS en producción).
+
 ### Cómo marcar pruebas
 
-En la tabla de abajo, actualiza la columna **Estado**:
+En las tablas de abajo, actualiza la columna **Estado**:
 
 | Símbolo | Significado |
 |---------|-------------|
 | ✅ | Probado end-to-end; resultado correcto en UI y backend |
 | ⚠️ | Probado parcialmente o con workaround conocido |
 | ❌ | Falla confirmada (anotar error en Notas) |
-| ⬜ | No probado aún |
-| 🔧 | Desalineación API sospechada — validar E2E (código ya usa `motivo`/`comentario`) |
+| ⬜ | No probado aún en esta línea base (`feb2b85`) |
+
+> Los estados heredados de sesiones anteriores se resetean a ⬜ salvo donde el código o CI dan evidencia directa.
+
+---
+
+## Mapa de navegación por rol
+
+Fuente: `src/features/panel/constants/navigation.ts`.
+
+### Alumno — `/panel/alumno`
+
+| Sección | Ruta |
+|---------|------|
+| Inicio | `/panel/alumno` |
+| Vacantes | `/panel/alumno/vacantes` |
+| Postulaciones | `/panel/alumno/postulaciones` |
+| Mi proceso | `/panel/alumno/proceso` |
+| Mi CV | `/panel/alumno/cv` |
+
+Rutas auxiliares:
+
+- Examen en línea: `/panel/alumno/postulaciones/{idPostulacion}/examen`
+- Deep link horas: `/panel/alumno/proceso?fecha=YYYY-MM-DD&entrada=…&salida=…`
+
+Las **notificaciones** viven en la bandeja del **Inicio** (`AlumnoNotificacionesTray`), no hay sección `/notificaciones`.
+
+### Titular — `/panel/titular`
+
+| Sección | Ruta |
+|---------|------|
+| Inicio | `/panel/titular` |
+| Vacantes | `/panel/titular/vacantes` |
+| Postulaciones | `/panel/titular/postulaciones` |
+| Exámenes | `/panel/titular/examenes` |
+| Alumnos (seguimiento) | `/panel/titular/procesos` |
+| Incidencias (pestaña) | `/panel/titular/procesos/incidencias` |
+
+Redirect legacy: `/panel/titular/incidencias` → `/panel/titular/procesos/incidencias`.
+
+### Delegación — `/panel/delegacion`
+
+| Sección | Ruta |
+|---------|------|
+| Inicio | `/panel/delegacion` |
+| Vacantes | `/panel/delegacion/vacantes` |
+| Postulaciones | `/panel/delegacion/postulaciones` |
+| Alumnos (procesos) | `/panel/delegacion/procesos` |
+| Validaciones | `/panel/delegacion/validacion/{sub}` |
+| Vinculaciones | `/panel/delegacion/alumnos` |
+| Encuestas | `/panel/delegacion/encuestas` |
+| Exámenes (monitor) | `/panel/delegacion/examenes` |
+| Reportes | `/panel/delegacion/reportes` |
+
+Sub-secciones de **Validaciones** (`DelegacionValidacionLayout`):
+
+| Sub-sección | Ruta |
+|-------------|------|
+| Documentos | `/panel/delegacion/validacion/documentos` |
+| Horas | `/panel/delegacion/validacion/horas` |
+| Incidencias | `/panel/delegacion/validacion/incidencias` |
+
+Redirects legacy: `/panel/delegacion/documentos|horas|incidencias` → `/panel/delegacion/validacion/…`.
+
+### Admin — `/panel/admin`
+
+| Sección | Ruta |
+|---------|------|
+| Inicio | `/panel/admin` |
+| Dependencias | `/panel/admin/dependencias` |
+| Escuelas | `/panel/admin/escuelas` |
+| Áreas | `/panel/admin/areas` |
+| Exámenes (monitor) | `/panel/admin/examenes` |
+| Usuarios internos | `/panel/admin/usuarios` |
+
+### Enlace — `/panel/enlace`
+
+| Sección | Ruta |
+|---------|------|
+| Inicio | `/panel/enlace` |
+| Alumnos | `/panel/enlace/alumnos` |
+| Procesos | `/panel/enlace/procesos` |
+| Reportes | `/panel/enlace/reportes` |
 
 ---
 
@@ -37,71 +147,74 @@ En la tabla de abajo, actualiza la columna **Estado**:
 
 ```
 Postulación (titular) → Proceso creado → Alumno sube docs
-→ Delegación aprueba docs → LISTO_PARA_ACTIVACION
-→ Delegación: horas requeridas + carta de aceptación → ACTIVO
-→ Alumno registra horas → Titular/Delegación validan
-→ Liberación técnica + evaluación → Carta liberación
+→ Delegación aprueba docs (validacion/documentos) → LISTO_PARA_ACTIVACION
+→ Delegación: horas requeridas + carta de aceptación (procesos) → ACTIVO
+→ Alumno registra horas → Titular/Delegación validan (validacion/horas)
+→ Liberación técnica + evaluación (titular/procesos) → Carta liberación
 ```
+
+Diagrama ampliado: [FLUJOS.md §5](./FLUJOS.md#5-ciclo-de-vida-del-proceso).
 
 ---
 
-## Inventario: probado en sesión vs pendiente
+## Inventario por rol
 
-Lo marcado ✅ en esta tabla refleja lo ejercitado durante el desarrollo reciente.  
-Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; quedan ⬜ hasta smoke test con backend.
+Payloads de mutación alineados con `src/lib/domain/requests.ts` y helpers en `src/lib/domain/`.
 
 ### Alumno
 
-| Flujo | Ruta | Estado | Notas |
-|-------|------|--------|-------|
-| Ver inicio / vacantes | `/panel/alumno` | ⬜ | |
-| Postularse a vacante | `/panel/alumno/vacantes` | ⬜ | |
+| Flujo | Ruta / ubicación | Estado | Notas |
+|-------|------------------|--------|-------|
+| Ver inicio / resumen | `/panel/alumno` | ⬜ | Incluye bandeja de notificaciones |
+| Marcar notificación leída | Inicio → bandeja | ⬜ | `notificaciones.actions` + `runAuthorizedAction` |
+| Postularse a vacante | `/panel/alumno/vacantes` | ⬜ | Requiere CV completo (`lib/domain/cv.ts`) |
 | Ver postulaciones | `/panel/alumno/postulaciones` | ⬜ | |
-| Cancelar postulación | postulaciones modal | ⬜ | |
-| Contestar examen en línea | `/panel/alumno/postulaciones/{id}/examen` | ⬜ | Timer, intro modal, finalizar |
-| Subir documentos | `/panel/alumno/proceso` | ⚠️ | Fix `bodySizeLimit` 10mb; requiere dev server reiniciado |
-| Registrar horas | `/panel/alumno/proceso` | ✅ | Requiere descripción + máx. 12 h/día |
-| Actualizar bitácora observada | `/panel/alumno/proceso` | ⬜ | |
+| Cancelar postulación | Modal postulaciones | ⬜ | |
+| Contestar examen en línea | `…/postulaciones/{id}/examen` | ⬜ | Refactor: `useAlumnoExamenPostulacion` + paneles |
+| Subir documentos | `/panel/alumno/proceso` | ⬜ | `bodySizeLimit` 10mb en `next.config.ts` |
+| Registrar horas | `/panel/alumno/proceso` | ⬜ | Calendario en `shared/proceso/horas`; máx. 12 h/día |
+| Actualizar bitácora observada | Modal día (proceso) | ⬜ | Solo descripción si estatus lo permite |
+| Encuesta de satisfacción | Modal en resumen proceso | ⬜ | `lib/services/public-encuestas.service.ts` |
 | Descargar carta / documento | `/panel/alumno/proceso` | ⬜ | |
-| Editar CV | `/panel/alumno/cv` | ⬜ | |
-| Notificaciones leer | `/panel/alumno/notificaciones` | ⬜ | |
+| Editar CV | `/panel/alumno/cv` | ⬜ | Redirect si `?motivo=postulacion` sin CV |
 
 ### Titular
 
-| Flujo | Ruta | Estado | Notas |
-|-------|------|--------|-------|
+| Flujo | Ruta / ubicación | Estado | Notas |
+|-------|------------------|--------|-------|
 | Dashboard inicio | `/panel/titular` | ⬜ | |
-| CRUD vacante / enviar a revisión | `/panel/titular/vacantes` | ⬜ | |
-| Registrar examen finalizado (manual) | `/panel/titular/postulaciones` | ⚠️ | Flujo legacy numérico; convive con examen en línea |
-| Ver resultado examen automático | `/panel/titular/postulaciones` detalle | ⬜ | `TitularPostulacionExamenResultado` tras examen FINALIZADO |
-| CRUD examen diagnóstico | `/panel/titular/examenes` | ⬜ | Crear, preguntas, activar/desactivar |
-| Asociar examen a vacante | `/panel/titular/vacantes` | ⬜ | `requiereExamen` + selector; cache local |
-| Aceptar postulación | `/panel/titular/postulaciones` | ⬜ | payload `comentario` vía `AceptarPostulacionRequest` |
-| Rechazar postulación | `/panel/titular/postulaciones` | ⬜ | payload `motivo` vía `RechazarPostulacionRequest` |
-| Registrar horas manual | `/panel/titular/procesos` | ⬜ | |
-| Validar / observar / rechazar hora | `/panel/titular/procesos` | ⬜ | `comentario` vía requests de dominio |
-| Liberación técnica | `/panel/titular/procesos` | ⬜ | |
-| Evaluación final | `/panel/titular/procesos` | ⬜ | incluye `estatus` en `CrearEvaluacionFinalRequest` |
-| Ver incidencias | `/panel/titular/incidencias` | ⬜ | solo lectura |
+| CRUD vacante / enviar a revisión | `/panel/titular/vacantes` | ⬜ | Form: `useTitularVacanteForm` |
+| Asociar examen a vacante | `/panel/titular/vacantes` | ⬜ | `requiereExamen` + selector |
+| CRUD examen diagnóstico | `/panel/titular/examenes` | ⬜ | `TitularExamenManageModal` |
+| Ver postulaciones | `/panel/titular/postulaciones` | ⬜ | |
+| Registrar examen manual (legacy) | Modal postulación | ⚠️ | Convive con examen en línea |
+| Ver resultado examen automático | Detalle postulación | ⬜ | `TitularPostulacionExamenResultado` |
+| Aceptar / rechazar postulación | Modal postulación | ⬜ | `comentario` / `motivo` vía dominio |
+| Seguimiento alumnos | `/panel/titular/procesos` | ⬜ | Modal: `useTitularProcesoDetailModal` |
+| Registrar horas manual | Modal proceso → horas | ⬜ | `TitularHoraDiaDetailModal` |
+| Validar / observar / rechazar hora | Modal proceso → horas | ⬜ | |
+| Liberación técnica | Modal proceso | ⬜ | Sección dedicada |
+| Evaluación final | Modal proceso | ⬜ | `CrearEvaluacionFinalRequest` |
+| Bandeja incidencias | `/panel/titular/procesos/incidencias` | ⬜ | Pestaña en seguimiento |
 
 ### Delegación
 
-| Flujo | Ruta | Estado | Notas |
-|-------|------|--------|-------|
+| Flujo | Ruta / ubicación | Estado | Notas |
+|-------|------------------|--------|-------|
 | Dashboard inicio | `/panel/delegacion` | ⬜ | |
 | Publicar / cerrar vacante | `/panel/delegacion/vacantes` | ⬜ | |
-| Rechazar vacante | `/panel/delegacion/vacantes` | ⬜ | `motivo` vía `RechazarVacanteRequest` |
-| Ver postulación | `/panel/delegacion/postulaciones` | ⬜ | solo lectura |
-| Aprobar / observar / rechazar documento | `/panel/delegacion/documentos` | ✅ | observar/rechazar usan `comentario` |
-| Capturar horas requeridas | `/panel/delegacion/procesos` | ✅ | no activa solo; guarda horas |
-| Activar proceso (carta aceptación) | `/panel/delegacion/procesos` | ✅ | emisión carta → ACTIVO |
-| Cancelar proceso | `/panel/delegacion/procesos` | ⬜ | `motivo` vía `CancelarProcesoRequest` |
-| Validar / observar / rechazar hora | `/panel/delegacion/horas` | ⬜ | requests de dominio |
-| Resolver / cancelar incidencia | `/panel/delegacion/incidencias` | ⬜ | `ResolverIncidenciaRequest` |
+| Rechazar vacante | Modal vacante | ⬜ | `motivo` vía `RechazarVacanteRequest` |
+| Ver postulación | `/panel/delegacion/postulaciones` | ⬜ | Solo lectura |
+| Aprobar / observar / rechazar documento | `…/validacion/documentos` | ⬜ | |
+| Validar / observar / rechazar hora | `…/validacion/horas` | ⬜ | |
+| Resolver / cancelar incidencia | `…/validacion/incidencias` | ⬜ | |
+| Capturar horas requeridas | `/panel/delegacion/procesos` | ⬜ | `horasRequeridasDraft` en modal |
+| Activar proceso (carta aceptación) | `/panel/delegacion/procesos` | ⬜ | Emisión carta → ACTIVO |
+| Cancelar proceso | Modal proceso | ⬜ | `motivo` vía `CancelarProcesoRequest` |
 | Normalizar alumno escuela | `/panel/delegacion/alumnos` | ⬜ | |
 | Moderar encuesta/testimonio | `/panel/delegacion/encuestas` | ⬜ | |
-| Consultar examen diagnóstico | `/panel/delegacion/examenes` | ⬜ | Solo lectura |
-| Exportar reporte | `/panel/delegacion/reportes` | ⬜ | |
+| Consultar examen diagnóstico | `/panel/delegacion/examenes` | ⬜ | `ExamenesMonitorView` (solo lectura) |
+| Exportar reporte PDF | `/panel/delegacion/reportes` | ⬜ | jsPDF |
 
 ### Enlace
 
@@ -118,18 +231,20 @@ Los flujos antes marcados 🔧 por payloads usan ya `lib/domain/requests.ts`; qu
 |-------|------|--------|-------|
 | Dashboard | `/panel/admin` | ⬜ | |
 | Dependencias CRUD + activar | `/panel/admin/dependencias` | ⬜ | |
-| Escuelas + tokens invitación | `/panel/admin/escuelas` | ⬜ | |
+| Escuelas + tokens invitación | `/panel/admin/escuelas` | ⬜ | Modal: `EscuelaDetailInfo` + `EscuelaInvitacionesPanel` |
 | Áreas + titulares | `/panel/admin/areas` | ⬜ | |
-| Consultar exámenes (monitor) | `/panel/admin/examenes` | ⬜ | Reutiliza vista delegación |
+| Consultar exámenes (monitor) | `/panel/admin/examenes` | ⬜ | `ExamenesMonitorView` + `getExamenMonitorAction` (ADMIN) |
 | Usuarios internos | `/panel/admin/usuarios` | ⬜ | |
 
 ### Auth (fuera del panel)
 
 | Flujo | Ruta | Estado | Notas |
 |-------|------|--------|-------|
-| Login | `/login` | ⬜ | Soporta prellenado tras registro (`?registered=1`) |
-| Registro alumno con token | `/registro` | ⬜ | Redirige a login con credenciales en sessionStorage |
-| Recuperar contraseña | auth público | ❌ | endpoints no existen en backend |
+| Login | `/login` | ⬜ | Redirect seguro con `isSafeInternalPath` |
+| Registro alumno (manual) | `/registro` | ⬜ | `RegisterForm` + `useRegisterToken` |
+| Registro con token escuela | `/registro/alumno?token=…` | ⬜ | |
+| Recuperar contraseña | `/recuperar-contrasena` | ❌ | Endpoints no confirmados en backend |
+| Restablecer contraseña | `/restablecer-contrasena` | ❌ | Idem |
 
 ---
 
@@ -144,15 +259,15 @@ Ejecutar en orden cuando sea posible (un flujo completo de punta a punta).
 | 3 | Alumno | Registrarse con token | Cuenta creada, login OK | ⬜ | |
 | 4 | Titular | Crear vacante y enviar a revisión | Estatus pendiente revisión | ⬜ | |
 | 5 | Delegación | Publicar vacante | Visible para alumno | ⬜ | |
-| 6 | Alumno | Postularse | Postulación creada | ⬜ | |
+| 6 | Alumno | Postularse | Postulación creada | ⬜ | CV completo |
 | 6b | Titular | Crear y activar examen + asociar a vacante | Vacante con examen requerido | ⬜ | |
 | 6c | Alumno | Contestar examen en línea | Estatus examen FINALIZADO | ⬜ | |
 | 7 | Titular | Ver resultado + aceptar postulación | Postulación aceptada | ⬜ | |
 | 8 | Alumno | Subir docs obligatorios | Archivos en revisión | ⬜ | |
-| 9 | Delegación | Aprobar todos los docs | Proceso LISTO_PARA_ACTIVACION | ⬜ | |
-| 10 | Delegación | Horas + activar (carta) | Proceso ACTIVO | ⬜ | |
-| 11 | Alumno | Registrar horas (≤12h, con descripción) | Registro REGISTRADO/PENDIENTE | ⬜ | |
-| 12 | Delegación | Validar hora | Hora validada, acumuladas suben | ⬜ | |
+| 9 | Delegación | Aprobar todos los docs | Proceso LISTO_PARA_ACTIVACION | ⬜ | `validacion/documentos` |
+| 10 | Delegación | Horas + activar (carta) | Proceso ACTIVO | ⬜ | `procesos` modal |
+| 11 | Alumno | Registrar horas (≤12h, con descripción) | Registro pendiente/validado | ⬜ | |
+| 12 | Delegación | Validar hora | Hora validada, acumuladas suben | ⬜ | `validacion/horas` |
 | 13 | Titular | Liberación técnica | Registro emitido | ⬜ | |
 | 14 | Titular | Evaluación final | Evaluación registrada | ⬜ | |
 | 15 | Delegación | Carta liberación (si aplica) | Carta emitida, proceso avanza | ⬜ | |
@@ -163,12 +278,21 @@ Ejecutar en orden cuando sea posible (un flujo completo de punta a punta).
 
 Fase 0 está **completa** cuando:
 
-1. Este documento tiene la columna **Estado** actualizada para los 15 casos smoke (aunque algunos sean ❌ o ⬜).
-2. Cada ❌ tiene **Notas** con mensaje de error o código API (`VALIDATION_ERROR`, etc.).
-3. El panel usa un único shell de modales (`DetailModal.module.css`) y catálogos compartidos en `lib/services/*-catalog.service.ts`.
+1. **`npm run check` y `npm run build`** pasan en local (y en CI).
+2. Este documento tiene la columna **Estado** actualizada para los 15 casos smoke.
+3. Cada ❌ tiene **Notas** con mensaje de error o código API (`VALIDATION_ERROR`, etc.).
+4. El panel cumple convenciones de [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md):
+   - Shell de modales (`DetailModal.module.css`)
+   - Server actions con `runAuthorizedAction`
+   - Servicios cross-rol en `lib/services/` (no imports `features/A → features/B`)
+   - Reglas de negocio en `lib/domain/`
 
 ---
 
 ## Siguiente paso
 
-Ejecutar los 15 smoke tests con backend en `:8080` y actualizar estados. Excepción conocida: rediseño visual de `/login`.
+1. Levantar backend en `:8080` y frontend con `npm run dev`.
+2. Ejecutar los 15 smoke tests y actualizar estados en este archivo.
+3. Registrar bloqueos de API en la columna **Notas** (con código HTTP o mensaje del backend).
+
+Excepciones conocidas fuera del panel: rediseño visual de `/login`; recuperación de contraseña pendiente de backend.
