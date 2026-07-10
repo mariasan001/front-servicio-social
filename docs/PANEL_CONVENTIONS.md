@@ -28,7 +28,11 @@ app/panel/{rol}/[[...section]]/page.tsx   →  SectionPage (server)
 | **Types** | `types/{rol}.types.ts` | Request/response alineados con DTOs Java |
 | **Utils** | `lib/*.utils.ts` | Reglas de negocio reutilizables (gates UI) |
 
-**Regla:** los componentes cliente **nunca** llaman `serverApiRequest` directamente. Siempre pasan por una server action.
+**Regla:** los componentes cliente **nunca** llaman `serverApiRequest` ni `apiRequest` directamente para mutaciones del panel. Siempre pasan por una server action con `runAuthorizedAction`.
+
+Excepción pública legítima: formularios de auth (`login`/`registro`/`reset`) usan `apiRequest` en cliente porque aún no hay sesión de panel.
+
+Checklist de seguridad al mutar: [SEGURIDAD.md](./SEGURIDAD.md) §3.B.
 
 ---
 
@@ -266,17 +270,18 @@ Next serializa `undefined` como `"$undefined"` en server actions.
 // ❌ Mal
 await action(id, { comentario: texto.trim() || undefined });
 
-// ✅ Bien — omitir el campo
+// ✅ Bien — compactPayload omite undefined
+await action(id, compactPayload({ comentario: texto.trim() || undefined }));
+
+// ✅ Bien — omitir el campo a mano
 const payload: AceptarPostulacionRequest = {};
 if (texto.trim()) payload.comentario = texto.trim();
 await action(id, payload);
-
-// ✅ Bien — campo obligatorio con fallback validado en cliente
-await observeAction(id, { comentario: texto.trim() || "Observación registrada." });
 ```
 
-Para argumentos opcionales en la firma de la action, usar `normalizeOptionalString` / `normalizeOptionalNumber` (`src/lib/actions/normalize-server-args.ts`).
+Helpers: `compactPayload`, `normalizeOptionalString`, `normalizeOptionalNumber` en `@/lib/actions`.
 
+**Ejemplo alumno:** encuesta de satisfacción → `registerEncuestaSatisfaccionAction` (no `apiRequest` desde el modal).
 ### Response vs request
 
 Los campos de **respuesta** pueden conservar nombres del backend aunque el request use otro (`motivoRechazo`, `comentarioTitular` en detalle de postulación). Solo alinear los **bodies de mutación**.
@@ -422,9 +427,11 @@ export async function getVacante(idVacante: number) {
 - [ ] `usePanelRouter().refresh()` tras mutación exitosa
 - [ ] `isReloading` + `layoutBusy` durante recarga
 - [ ] Payloads alineados con tipos `*Request` en `lib/domain/requests.ts`
-- [ ] Sin `undefined` en bodies
+- [ ] Sin `undefined` en bodies (`compactPayload`)
+- [ ] Mutación vía `runAuthorizedAction` (no `apiRequest` en el modal)
 - [ ] Botones destructivos con `detailStyles.dangerButton`
 - [ ] Gates en `lib/domain/*.ts`; labels de proceso en `@/shared/proceso/presentacion.utils`
+- [ ] Revisar [SEGURIDAD.md](./SEGURIDAD.md) §3.B si tocas auth o tokens
 
 ### Estado de migración por rol (referencia)
 

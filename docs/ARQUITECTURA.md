@@ -149,20 +149,24 @@ flowchart TB
 
 | URL | Archivo | Guest-only |
 |-----|---------|------------|
-| `/login` | `src/app/login/page.tsx` | Sí — soporta `?next=` |
-| `/registro` | `src/app/registro/page.tsx` | Sí — soporta `?token=` |
-| `/registro/alumno` | redirect → `/registro` | Sí |
+| `/login` | `src/app/login/page.tsx` | Sí — `?next=` sanitizado con `isSafeInternalPath` |
+| `/registro` | `src/app/registro/page.tsx` | Sí — sin token; `?token=` redirige al path |
+| `/registro/[token]` | `src/app/registro/[token]/page.tsx` | Sí — invitación de escuela (forma preferida) |
+| `/registro/alumno` | redirect → `/registro` o `/registro/{token}` | Sí |
 | `/recuperar-contrasena` | `src/app/recuperar-contrasena/page.tsx` | Sí |
 | `/restablecer-contrasena` | `src/app/restablecer-contrasena/page.tsx` | Sí — sin token muestra error; `?token=` redirige al path |
 | `/restablecer-contrasena/[token]` | `src/app/restablecer-contrasena/[token]/page.tsx` | Sí — forma preferida del enlace del correo |
 
-**Recuperación de contraseña:** `ResetPasswordFlow` solicita usuario/correo → `POST /auth/password/forgot` → el usuario abre el enlace del correo (`/restablecer-contrasena/{token}`) → `ResetPasswordTokenForm` con `POST /auth/password/reset`. Los enlaces legacy `?token=` redirigen al path.
+**Registro con escuela:** invitaciones generan `/registro/{token}` (`invitation-link.ts`). Legacy `?token=` redirige al path. `Referrer-Policy: no-referrer` en `/registro/:path*`.
 
-**Post-registro:** tras crear cuenta, el formulario redirige a login. Opcionalmente se puede prellenar con `?registered=1` según flujo de registro.
+**Recuperación de contraseña:** `ResetPasswordFlow` → `POST /auth/password/forgot` → correo con `/restablecer-contrasena/{token}` → `ResetPasswordTokenForm` → `POST /auth/password/reset`. Legacy `?token=` redirige al path. `Referrer-Policy: no-referrer` en esas rutas.
+
+**Post-registro:** el formulario redirige a login.
 
 **Fuente única de rutas auth:** `src/lib/auth/constants.ts` → `AUTH_PATHS`  
 **Reexport en features:** `src/features/auth/constants/routes.ts` → `AUTH_ROUTES`  
-**Storage post-registro:** `src/features/auth/constants/storage.ts`
+**Storage post-registro:** `src/features/auth/constants/storage.ts`  
+**Checklist de seguridad:** [SEGURIDAD.md](./SEGURIDAD.md)
 
 ### 5.3 Rutas del panel
 
@@ -389,7 +393,9 @@ sequenceDiagram
 | `ROLE_ENLACE_ESCOLAR` | `/panel/enlace` |
 | `ROLE_ALUMNO` | `/panel/alumno` |
 
-**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/recuperar-contrasena`, `/restablecer-contrasena/:path*`
+**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/registro/:path*`, `/recuperar-contrasena`, `/restablecer-contrasena/:path*`
+
+Detalle de controles: [SEGURIDAD.md](./SEGURIDAD.md).
 
 ---
 
@@ -426,8 +432,12 @@ flowchart LR
 | `API_PROXY_TARGET` | URL backend Java (obligatoria en producción; default dev `http://localhost:8080`) |
 | `NEXT_PUBLIC_API_URL` | Base browser (default `/api/backend`) |
 | `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (SEO, sitemap, enlaces de invitación) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Opcional — Sentry server (`instrumentation.ts`) + boundaries |
+| `SENTRY_TRACES_SAMPLE_RATE` | Opcional — sampling server (default `0.1`) |
 
 **Límite uploads:** `serverActions.bodySizeLimit: "2mb"`.
+
+**Health:** `GET /api/health` → `{ status, backend: "up"|"down" }` (liveness siempre 200).
 
 **Proxy** (`next.config.ts`):
 
@@ -435,6 +445,7 @@ flowchart LR
 /api/backend/:path*  →  ${API_PROXY_TARGET}/:path*
 ```
 
+**Importante:** el proxy no autoriza. El backend debe validar cada request. Ver [SEGURIDAD.md](./SEGURIDAD.md) §5.
 ---
 
 ## 11. Dominio compartido (`lib/domain`)
@@ -516,10 +527,11 @@ API: `/api/titular/*`
 | vacantes | `.../vacantes` | Postulación |
 | postulaciones | `.../postulaciones` | Estado; enlace a examen si aplica |
 | examen en línea | `.../postulaciones/{id}/examen` | Página `AlumnoExamenPostulacionView` |
-| proceso | `.../proceso/{sub}` | Horas, docs, cartas |
+| proceso | `.../proceso/{sub}` | Horas, docs, cartas; encuesta satisfacción vía `registerEncuestaSatisfaccionAction` |
 | cv | `.../cv` | **Gate:** nav bloqueada hasta CV completo |
 
-API: `/api/alumno/*`, `/api/notificaciones/*`
+API: `/api/alumno/*`, `/api/notificaciones/*`  
+Mutaciones: siempre `runAuthorizedAction` + `compactPayload` (ver [SEGURIDAD.md](./SEGURIDAD.md) §3.B).
 
 ### Enlace — `src/features/enlace`
 
@@ -647,17 +659,17 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 
 ## 16. Despliegue a producción
 
-Guía completa: **[DEPLOY.md](./DEPLOY.md)** (variables, build, CI, rollback).
+Guía completa: **[DEPLOY.md](./DEPLOY.md)**. Seguridad: **[SEGURIDAD.md](./SEGURIDAD.md)**.
 
 ### Checklist mínimo
 
-- [ ] Variables en hosting: `API_PROXY_TARGET`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`
+- [ ] `API_PROXY_TARGET`, `NEXT_PUBLIC_SITE_URL` (y opcional Sentry) en hosting
 - [ ] Node.js >= 22
-- [ ] `npm run build` sin errores (con las mismas env que prod)
-- [ ] Backend accesible desde el servidor Next (misma red/VPN)
-- [ ] Rutas públicas del backend abiertas (`/api/public/vacantes`, health)
-- [ ] HTTPS para cookies de sesión
-- [ ] Smoke test por rol (ver [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md))
+- [ ] `npm run build` con las mismas env que prod
+- [ ] Backend accesible; `/api/health` → `backend: "up"`
+- [ ] HTTPS + cookies `HttpOnly`/`Secure`/`SameSite`
+- [ ] Smoke por rol ([PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md))
+- [ ] Checklist seguridad §3.A ([SEGURIDAD.md](./SEGURIDAD.md))
 
 ### APIs públicas pendientes en backend (no bloquean prod)
 
@@ -672,9 +684,10 @@ Guía completa: **[DEPLOY.md](./DEPLOY.md)** (variables, build, CI, rollback).
 
 | Necesitas… | Lee… |
 |------------|------|
+| Controles y checklists de seguridad | [SEGURIDAD.md](./SEGURIDAD.md) |
 | Crear pantalla panel | [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md) |
 | Probar antes de prod | [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md) |
-| Desplegar | [DEPLOY.md](./DEPLOY.md) |
+| Desplegar / Docker | [DEPLOY.md](./DEPLOY.md) |
 | DTOs del backend | `../Back_end/.../dto/` |
 | Navegación panel | `src/features/panel/constants/navigation.ts` |
 | Reglas Next.js 16 | `node_modules/next/dist/docs/` + `AGENTS.md` |
@@ -682,4 +695,4 @@ Guía completa: **[DEPLOY.md](./DEPLOY.md)** (variables, build, CI, rollback).
 
 ---
 
-*Última actualización: línea base `57523d8` — tests, E2E en CI, `runAuthorizedAction`, reset token en path, `bodySizeLimit` 2mb, [DEPLOY.md](./DEPLOY.md).*
+*Última actualización: `c44d148` — token registro en path, health con backend, Docker standalone, Sentry instrumentation, [SEGURIDAD.md](./SEGURIDAD.md).*

@@ -111,8 +111,10 @@ Archivos clave:
 
 ```mermaid
 flowchart TD
-  A[Usuario abre /registro] --> B{¿Token de escuela?}
-  B -->|Sí| C[Validar token]
+  A[Usuario abre /registro o /registro/token] --> B{¿Token de escuela?}
+  B -->|Path /registro/token| C[Validar token]
+  B -->|Query ?token=| R[Redirect a /registro/token]
+  R --> C
   C -->|Válido| D[Formulario con escuela vinculada]
   C -->|Inválido| E[Banner de error]
   B -->|No| F[Captura manual de escuela]
@@ -125,9 +127,10 @@ flowchart TD
 
 **Reglas de negocio:**
 
-- Con token: la escuela queda vinculada automáticamente.
+- Con token: la escuela queda vinculada automáticamente. URL canónica: `/registro/{token}`.
 - Sin token: `escuelaTextoCapturada` requiere normalización por delegación antes de postularse.
 - Aviso de privacidad obligatorio.
+- Invitaciones: `invitation-link.ts` → siempre path (no query).
 
 ---
 
@@ -251,36 +254,43 @@ flowchart TB
 
 ## 8. Seguridad en el front
 
+Documento completo con checklists: **[SEGURIDAD.md](./SEGURIDAD.md)**.
+
 | Control | Ubicación |
 |---------|-----------|
-| Headers (CSP, HSTS prod, X-Frame-Options) | `next.config.ts` |
-| Middleware de roles | `src/middleware.ts` |
+| Headers (CSP, HSTS prod, X-Frame-Options, script-src-attr) | `next.config.ts` |
+| Middleware de roles + guest-only | `src/middleware.ts` |
 | Guards en actions | `runAuthorizedAction` |
+| Payloads sin `undefined` | `compactPayload` |
+| Tokens en path (registro / reset) | `registro/[token]`, `restablecer-contrasena/[token]` |
 | Paths internos seguros | `isSafeInternalPath` |
+| Health + backend probe | `/api/health` |
 | Sin `poweredBy` | `next.config.ts` |
 
-**Limitación conocida:** el proxy `/api/backend` expone el API al navegador para llamadas cliente; el backend debe autorizar cada endpoint.
+**Limitación conocida:** el proxy `/api/backend` expone el API al navegador; el backend debe autorizar cada endpoint.
 
 ---
 
 ## 9. Comandos de calidad
 
 ```bash
-npm run typecheck      # tsc --noEmit
-npm run lint           # ESLint
-npm run check          # typecheck + lint
-npm run test           # Vitest (unit)
-npm run test:coverage  # Vitest + umbrales
-npm run test:e2e       # Playwright (requiere build)
-npm run build          # Build producción
+npm run typecheck
+npm run lint
+npm run check
+npm run test
+npm run test:coverage
+npm run test:e2e          # públicas, auth, a11y, health, registro token path
+npm run test:e2e:panel    # smokes por rol (requiere E2E_*)
+npm run analyze
+npm run build
 ```
 
 CI (`.github/workflows/ci.yml`):
 
-1. **Job quality:** typecheck → lint → test:coverage → npm audit (high) → build
-2. **Job e2e:** build → Playwright → rutas públicas y auth
+1. **quality:** typecheck → lint → coverage → audit high → build
+2. **e2e:** build → Playwright (públicas / auth / a11y / health)
 
-Despliegue: [DEPLOY.md](./DEPLOY.md).
+Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad: [SEGURIDAD.md](./SEGURIDAD.md).
 
 ---
 
@@ -295,4 +305,5 @@ Despliegue: [DEPLOY.md](./DEPLOY.md).
 | Examen | `src/lib/domain/examen.ts` |
 | Etiquetas / fechas | `src/lib/domain/labels.ts` |
 
+*Última actualización: `c44d148`.*
 Export central: `src/lib/domain/index.ts`.

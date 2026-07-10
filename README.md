@@ -1,134 +1,116 @@
 # Servicio Social Edomex — Frontend
 
-Plataforma web del **Gobierno del Estado de México** para que estudiantes realicen servicio social, prácticas profesionales o residencias en dependencias estatales.
+Plataforma web del **Gobierno del Estado de México** para servicio social, prácticas y residencias en dependencias estatales.
 
-Stack: **Next.js 16** (App Router) · **React 19** · **TypeScript** · CSS Modules.
+Stack: **Next.js 16** · **React 19** · **TypeScript** · CSS Modules · Node **≥ 22**.
 
 ---
 
-## Inicio rápido
+## Inicio rápido (pasos)
 
-```bash
-git clone <repo>
-cd front-servicio-social
-cp .env.example .env.local
-npm install
-npm run dev
-```
+1. Clonar el repo y entrar a la carpeta.
+2. `cp .env.example .env.local`
+3. Dejar `API_PROXY_TARGET=http://localhost:8080` (o la URL de tu API).
+4. Arrancar el backend Java en `:8080`.
+5. `npm install` → `npm run dev` → http://localhost:3000
 
 | Servicio | URL |
 |----------|-----|
 | Frontend | http://localhost:3000 |
-| Backend (Java) | http://localhost:8080 |
+| Backend | http://localhost:8080 |
+| Health front | http://localhost:3000/api/health |
 
-El frontend proxifica el API con `API_PROXY_TARGET`. El navegador llama a `/api/backend/*`.
+El navegador llama a `/api/backend/*`; Next reescribe hacia `API_PROXY_TARGET`.
 
 ---
 
 ## Variables de entorno
 
-| Variable | Descripción |
-|----------|-------------|
-| `API_PROXY_TARGET` | Origen del backend para rewrites de servidor (obligatorio en producción) |
-| `NEXT_PUBLIC_API_URL` | Base para `apiRequest` en cliente (default `/api/backend`) |
-| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (SEO, sitemap, enlaces de invitación) |
+| Variable | Obligatoria prod | Descripción |
+|----------|------------------|-------------|
+| `API_PROXY_TARGET` | **Sí** | Origen del backend (build falla si falta en prod) |
+| `NEXT_PUBLIC_API_URL` | Recomendada | Base del browser (default `/api/backend`) |
+| `NEXT_PUBLIC_SITE_URL` | Recomendada | URL pública (SEO, sitemap, invitaciones) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Activa Sentry (server + boundaries) |
+| `E2E_*_USER` / `E2E_*_PASSWORD` | Opcional | Smokes de panel por rol |
+
+Detalle: [docs/DEPLOY.md](./docs/DEPLOY.md) · seguridad: [docs/SEGURIDAD.md](./docs/SEGURIDAD.md).
 
 ---
 
-## ¿Qué hace cada rol?
+## Roles
 
-| Rol | Ruta | Función principal |
-|-----|------|-------------------|
-| Público | `/`, `/vacantes` | Landing y directorio de vacantes |
-| Alumno | `/panel/alumno` | CV, postulación, proceso, horas, documentos |
-| Titular | `/panel/titular` | Vacantes, postulaciones, exámenes, seguimiento |
-| Delegación | `/panel/delegacion` | Publicación, validaciones, procesos, reportes |
-| Admin | `/panel/admin` | Catálogos: dependencias, escuelas, áreas, usuarios |
-| Enlace escolar | `/panel/enlace` | Consulta read-only de alumnos de su escuela |
+| Rol | Ruta | Función |
+|-----|------|---------|
+| Público | `/`, `/vacantes` | Landing y vacantes |
+| Alumno | `/panel/alumno` | CV, postulación, proceso, horas |
+| Titular | `/panel/titular` | Vacantes, postulaciones, exámenes |
+| Delegación | `/panel/delegacion` | Publicación, validaciones, procesos |
+| Admin | `/panel/admin` | Catálogos y usuarios |
+| Enlace | `/panel/enlace` | Consulta alumnos de su escuela |
 
 ---
 
-## Rutas públicas de acceso
+## Auth pública
 
 | Ruta | Descripción |
 |------|-------------|
-| `/login` | Inicio de sesión (`?next=` para volver al panel) |
-| `/registro` | Registro de alumno (con o sin token de escuela) |
-| `/recuperar-contrasena` | Solicitar enlace de recuperación por correo |
-| `/restablecer-contrasena/{token}` | Definir nueva contraseña (token en path; `?token=` redirige al path) |
-| `/vacantes` | Directorio público de vacantes |
-
-Flujo de recuperación: usuario o correo → correo con enlace → `/restablecer-contrasena/{token}` → nueva contraseña → login. Los enlaces legacy con `?token=` redirigen al path.
-
-Implementación: `src/features/auth/reset-password/` · API `POST /auth/password/forgot` y `POST /auth/password/reset`.
+| `/login` | Sesión (`?next=` sanitizado) |
+| `/registro` | Alta sin token |
+| `/registro/{token}` | Alta con invitación (`?token=` → redirect al path) |
+| `/recuperar-contrasena` | Solicitar enlace |
+| `/restablecer-contrasena/{token}` | Nueva contraseña (`?token=` → redirect) |
 
 ---
 
-## Estructura del código
+## Arquitectura (una línea)
 
 ```
-src/
-├── app/                 # Rutas Next.js (delgadas)
-├── features/            # Lógica por dominio (auth, alumno, titular, delegacion…)
-├── shared/              # UI reutilizable (Form, DataTable, Modal, examen, horas…)
-└── lib/                 # Infraestructura: api, auth, domain, actions, services
+Section (server) → View (client) → Modal → action + runAuthorizedAction → service → backend
 ```
 
-Patrón del panel:
-
-```
-Section (server) → *View (client) → *DetailModal → actions/*.ts → services → backend
-```
-
-Las mutaciones del panel usan **server actions** con `runAuthorizedAction` (validación de rol en servidor).
+- Mutaciones del panel: **solo** server actions (no `apiRequest` desde el modal).
+- Payloads: `compactPayload()` — nunca `undefined`.
+- Reglas UI: `src/lib/domain/`. Autorización final: **backend**.
 
 ---
 
 ## Scripts
 
 ```bash
-npm run dev         # Desarrollo (:3000)
-npm run build       # Build producción
-npm run start       # Servir build
-npm run typecheck   # TypeScript
-npm run lint        # ESLint
-npm run check       # typecheck + lint
-npm run test        # Unit tests (Vitest, 100+ casos)
-npm run test:coverage
-npm run test:e2e    # E2E Playwright
+npm run check           # typecheck + lint
+npm run test            # Vitest
+npm run test:coverage   # umbrales CI
+npm run test:e2e        # públicas, auth, a11y, health
+npm run test:e2e:panel  # smokes por rol (requiere E2E_*)
+npm run analyze         # bundle analyzer
+npm run build && npm run start
 ```
 
-CI (`.github/workflows/ci.yml`): `typecheck` → `lint` → `test:coverage` → `audit` → `build` → job E2E Playwright.
+CI: quality (check + coverage + audit + build) → e2e Playwright.
 
 ---
 
 ## Documentación
 
-Índice completo en **[docs/README.md](./docs/README.md)**.
-
-| Documento | Para qué sirve |
-|-----------|----------------|
-| [ARQUITECTURA.md](./docs/ARQUITECTURA.md) | Capas, rutas, APIs, módulos transversales |
-| [FLUJOS.md](./docs/FLUJOS.md) | Diagramas: sesión, postulación, proceso, exámenes |
-| [PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Cómo desarrollar pantallas del panel |
-| [PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke tests E2E por rol |
-| [DEPLOY.md](./docs/DEPLOY.md) | Despliegue, variables, CI y rollback |
-
----
-
-## Backend relacionado
-
-Repositorio Java: `../Back_end/dgp-servicio-social-service` (puerto `8080`).
-
-El frontend es la capa de presentación; **toda autorización definitiva vive en el backend**. Los guards del front (`middleware`, `runAuthorizedAction`) son defensa en profundidad.
+| Documento | Para qué |
+|-----------|----------|
+| [docs/README.md](./docs/README.md) | Índice |
+| [docs/SEGURIDAD.md](./docs/SEGURIDAD.md) | Controles y checklists de seguridad |
+| [docs/ARQUITECTURA.md](./docs/ARQUITECTURA.md) | Mapa del sistema |
+| [docs/FLUJOS.md](./docs/FLUJOS.md) | Diagramas de negocio |
+| [docs/PANEL_CONVENTIONS.md](./docs/PANEL_CONVENTIONS.md) | Cómo desarrollar el panel |
+| [docs/PANEL_PHASE0_BASELINE.md](./docs/PANEL_PHASE0_BASELINE.md) | Smoke QA |
+| [docs/DEPLOY.md](./docs/DEPLOY.md) | Deploy, Docker, health |
 
 ---
 
 ## Seguridad (resumen)
 
-- Cookie de sesión httpOnly
-- Middleware de roles en `/panel/*`
-- Headers: CSP, X-Frame-Options, HSTS (producción)
-- Redirects seguros con `isSafeInternalPath`
+1. Cookie de sesión (backend) + middleware de roles.
+2. `runAuthorizedAction` en mutaciones del panel.
+3. Tokens de registro/reset en **path**, no en query.
+4. Headers: CSP, HSTS (prod), `X-Frame-Options`, `nosniff`.
+5. El proxy `/api/backend` no sustituye la auth del API.
 
-Detalle en [FLUJOS.md §8](./docs/FLUJOS.md#8-seguridad-en-el-front).
+Pasos detallados: **[docs/SEGURIDAD.md](./docs/SEGURIDAD.md)**.

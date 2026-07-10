@@ -1,35 +1,34 @@
 # Despliegue a producción
 
-Guía operativa para publicar `front-servicio-social` en staging o producción.
+Pasos objetivos para publicar `front-servicio-social`.
 
-Complementa [ARQUITECTURA.md](./ARQUITECTURA.md) §16 y el checklist de [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md).
-
----
-
-## Requisitos
-
-| Requisito | Detalle |
-|-----------|---------|
-| **Node.js** | `>= 22` (`package.json` → `engines`) |
-| **npm** | `npm ci` en CI; localmente `npm install` |
-| **Backend Java** | Accesible desde el servidor Next (misma red/VPN) |
-| **HTTPS** | Obligatorio en producción (cookies de sesión + HSTS) |
+Complementa [SEGURIDAD.md](./SEGURIDAD.md) y [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md).
 
 ---
 
-## Variables de entorno
+## 1. Requisitos
 
-Copiar `.env.example` y ajustar por entorno:
+| Requisito | Valor |
+|-----------|--------|
+| Node.js | `>= 22` |
+| Backend Java | Alcanzable desde el servidor Next |
+| HTTPS | Obligatorio en producción |
+| Build | `output: "standalone"` (Docker) |
 
-| Variable | Obligatoria prod | Descripción |
-|----------|------------------|-------------|
-| `API_PROXY_TARGET` | **Sí** | URL interna del backend Java (ej. `https://api-interna.edomex.gob.mx`). El build **falla** si falta con `NODE_ENV=production`. |
-| `NEXT_PUBLIC_API_URL` | Recomendada | Base del navegador hacia el proxy (default `/api/backend`). |
-| `NEXT_PUBLIC_SITE_URL` | Recomendada | URL pública del sitio (SEO, `sitemap.xml`, enlaces de invitación escuela). Default en código: `https://serviciosocial.edomex.gob.mx`. |
-| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Si está definida, `error.tsx` / `global-error.tsx` y `instrumentation.ts` reportan a Sentry. Sin DSN solo hay `console.error`. |
-| `SENTRY_TRACES_SAMPLE_RATE` | Opcional | Sampling server (default `0.1`). |
+---
 
-**Ejemplo producción:**
+## 2. Variables de entorno
+
+| Variable | Prod | Descripción |
+|----------|------|-------------|
+| `API_PROXY_TARGET` | **Obligatoria** | URL interna del backend. Sin ella el build de prod falla. |
+| `NEXT_PUBLIC_API_URL` | Recomendada | Default `/api/backend` |
+| `NEXT_PUBLIC_SITE_URL` | Recomendada | Dominio público real |
+| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Activa Sentry |
+| `SENTRY_TRACES_SAMPLE_RATE` | Opcional | Default `0.1` |
+| `E2E_*` | Opcional | Solo para smokes de panel |
+
+**Producción:**
 
 ```env
 API_PROXY_TARGET=https://api-servicio-social.interno
@@ -37,27 +36,19 @@ NEXT_PUBLIC_API_URL=/api/backend
 NEXT_PUBLIC_SITE_URL=https://serviciosocial.edomex.gob.mx
 ```
 
-**Ejemplo staging:**
-
-```env
-API_PROXY_TARGET=https://api-staging.interno
-NEXT_PUBLIC_API_URL=/api/backend
-NEXT_PUBLIC_SITE_URL=https://staging-serviciosocial.edomex.gob.mx
-```
-
 ---
 
-## Build y arranque
+## 3. Pasos de build y arranque
 
 ```bash
 npm ci
-npm run check          # typecheck + lint
-npm run test:coverage  # unit tests + umbrales
+npm run check
+npm run test:coverage
 npm run build          # requiere API_PROXY_TARGET en prod
-npm run start          # escucha en :3000
+npm run start          # :3000
 ```
 
-El proxy de Next reescribe:
+Proxy:
 
 ```
 /api/backend/:path*  →  ${API_PROXY_TARGET}/:path*
@@ -65,43 +56,7 @@ El proxy de Next reescribe:
 
 ---
 
-## CI (GitHub Actions)
-
-Workflow: `.github/workflows/ci.yml`
-
-| Job | Pasos |
-|-----|-------|
-| **quality** | `typecheck` → `lint` → `test:coverage` → `npm audit --audit-level=high` → `build` |
-| **e2e** | `build` → Playwright Chromium → `test:e2e` (públicas, auth, a11y) |
-
-Los smoke tests del panel por rol se automatizan con `npm run test:e2e:panel` cuando existen variables `E2E_<ROL>_USER` / `E2E_<ROL>_PASSWORD`. Los 15 flujos críticos del baseline siguen siendo checklist manual.
-
----
-
-## Checklist pre-deploy
-
-- [ ] Variables de entorno configuradas en el hosting
-- [ ] `npm run build` exitoso con las mismas variables que producción
-- [ ] Backend responde en rutas públicas (`/api/public/vacantes`, health)
-- [ ] HTTPS activo; cookies de sesión con `Secure` y `HttpOnly` (backend)
-- [ ] `NEXT_PUBLIC_SITE_URL` apunta al dominio real (no al default de prod si es staging)
-- [ ] Smoke manual: login por cada rol + 2–3 flujos críticos ([PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md))
-- [ ] Revisar `robots.txt` y metadata `noindex` en panel/auth
-
----
-
-## Health check
-
-`GET /api/health` siempre responde **200** (liveness) con:
-
-```json
-{ "status": "ok|degraded", "service": "front-servicio-social", "backend": "up|down", "timestamp": "..." }
-```
-
-- `status: ok` + `backend: up` → frontend y backend alcanzables
-- `status: degraded` + `backend: down` → el proceso Next vive, pero el API no respondió a tiempo
-
-## Docker
+## 4. Docker (recomendado)
 
 ```bash
 docker build \
@@ -116,60 +71,84 @@ docker run -p 3000:3000 \
   front-servicio-social
 ```
 
-La imagen usa `output: "standalone"`, usuario no-root y `HEALTHCHECK` contra `/api/health`.
-## Rollback
-
-1. Conservar el artefacto de build anterior (commit + `node_modules` lockfile).
-2. Redesplegar la versión anterior con `npm run start` o el mecanismo del hosting.
-3. Verificar login y una ruta pública (`/`, `/vacantes`).
-4. Si hubo migración de API incompatible, coordinar rollback con el backend.
+La imagen usa **standalone**, usuario **no-root** y `HEALTHCHECK` → `/api/health`.
 
 ---
 
-## Monitoreo (recomendado)
+## 5. Health check
 
-| Área | Sugerencia |
-|------|------------|
-| Errores de cliente | `NEXT_PUBLIC_SENTRY_DSN` → `instrumentation.ts` (server) + `reportClientError` en boundaries |
-| Disponibilidad | `GET /api/health` con `backend: up|down` |
-| Bundles | `npm run analyze` (abre el reporte de `@next/bundle-analyzer`) |
-| Logs | Agregar request-id en proxy si el hosting lo permite |
-| Seguridad | Rate limit en `/auth/*` en backend o WAF |
+`GET /api/health` → siempre **200** (liveness):
 
-### Smoke E2E por rol (opcional)
-
-En `.env.local` o secrets de CI:
-
-```env
-E2E_ADMIN_USER=...
-E2E_ADMIN_PASSWORD=...
-E2E_ALUMNO_USER=...
-E2E_ALUMNO_PASSWORD=...
-# igual para DELEGACION, TITULAR, ENLACE
+```json
+{
+  "status": "ok|degraded",
+  "service": "front-servicio-social",
+  "backend": "up|down",
+  "timestamp": "..."
+}
 ```
 
-```bash
-npm run test:e2e:panel
-```
-
-Sin credenciales, Playwright **omite** esos tests (no fallan el CI público).
-
----
-
-## Límites conocidos
-
-| Tema | Valor / nota |
-|------|----------------|
-| Upload server actions | `bodySizeLimit: "2mb"` en `next.config.ts` |
-| ISR landing/vacantes | `revalidate: 120` s en `publicApiGet` |
-| APIs públicas vacías | Estadísticas escuelas y testimonios pueden devolver empty state si el backend aún no expone datos |
+| Combinación | Significado |
+|-------------|-------------|
+| `ok` + `up` | Front y backend OK |
+| `degraded` + `down` | Front vivo; API no respondió a tiempo |
 
 ---
 
-## Referencias
+## 6. CI
 
-- Arquitectura: [ARQUITECTURA.md](./ARQUITECTURA.md)
-- Smoke tests: [PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)
-- Convenciones panel: [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)
+`.github/workflows/ci.yml`
 
-*Última actualización: P3 — Sentry opcional, E2E panel por rol, bundle analyzer.*
+| Job | Pasos |
+|-----|-------|
+| **quality** | typecheck → lint → coverage → audit high → build |
+| **e2e** | build → Playwright (públicas, auth, a11y, health, registro token path) |
+
+Panel smoke: `npm run test:e2e:panel` con secrets `E2E_<ROL>_USER` / `PASSWORD` (si faltan, se omiten).
+
+---
+
+## 7. Checklist pre-deploy (objetivo)
+
+1. [ ] Env de hosting = las mismas que usaste en `build`
+2. [ ] `API_PROXY_TARGET` y `NEXT_PUBLIC_SITE_URL` correctos
+3. [ ] HTTPS + cookies backend `HttpOnly`/`Secure`/`SameSite`
+4. [ ] `GET /api/health` → `backend: "up"`
+5. [ ] Login por cada rol
+6. [ ] 2–3 flujos críticos del [baseline](./PANEL_PHASE0_BASELINE.md)
+7. [ ] Revisar [SEGURIDAD.md](./SEGURIDAD.md) §3.A
+8. [ ] (Opcional) Sentry DSN configurado
+
+---
+
+## 8. Rollback
+
+1. Conservar artefacto/commit anterior.
+2. Redesplegar versión previa.
+3. Verificar `/`, `/login`, `/api/health`.
+4. Si el API cambió de contrato, coordinar rollback con backend.
+
+---
+
+## 9. Monitoreo
+
+| Área | Cómo |
+|------|------|
+| Errores | `NEXT_PUBLIC_SENTRY_DSN` → `instrumentation.ts` + boundaries |
+| Disponibilidad | `/api/health` (`backend` up/down) |
+| Bundles | `npm run analyze` |
+| Auth abuse | Rate limit/WAF en backend sobre `/auth/*` |
+
+---
+
+## 10. Límites
+
+| Tema | Valor |
+|------|--------|
+| Upload actions | `bodySizeLimit: "2mb"` |
+| ISR público | `revalidate: 120` s |
+| CSP scripts | `'unsafe-inline'` requerido por Next sin nonces (ver SEGURIDAD) |
+
+---
+
+*Línea base: `c44d148`.*

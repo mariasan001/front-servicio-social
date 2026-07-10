@@ -5,6 +5,7 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 | Documento relacionado | Contenido |
 |-----------------------|-----------|
 | [ARQUITECTURA.md](./ARQUITECTURA.md) | Mapa de capas, rutas y APIs |
+| [SEGURIDAD.md](./SEGURIDAD.md) | Controles y checklists de seguridad |
 | [FLUJOS.md](./FLUJOS.md) | Diagramas de sesión, postulación, proceso y exámenes |
 | [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md) | Convenciones de desarrollo del panel |
 | [DEPLOY.md](./DEPLOY.md) | Despliegue a producción |
@@ -15,11 +16,12 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 
 | Campo | Valor |
 |-------|--------|
-| **Commit** | `57523d8` — `feat(release): harden production readiness to 10/10` |
+| **Commit** | `c44d148` — `feat(release): close coverage, security, and ops gaps` |
 | **Rama** | `feature/setup-inicial` |
 | **Frontend** | `http://localhost:3000` (`npm run dev`) |
 | **Backend** | `http://localhost:8080` (`API_PROXY_TARGET` en `.env.local`) |
 | **Repo backend** | `../Back_end/dgp-servicio-social-service` |
+| **Seguridad** | [SEGURIDAD.md](./SEGURIDAD.md) |
 
 ### Entorno mínimo
 
@@ -49,12 +51,13 @@ Workflow: `.github/workflows/ci.yml` — jobs **quality** (typecheck, lint, cove
 ### Cambios estructurales desde la línea base anterior
 
 - **Auth centralizado** en `src/lib/auth/` (login, guest, postulación, CV).
-- **Guards en server actions** con `runAuthorizedAction` (`src/lib/actions/run-authorized-action.ts`).
-- **Servicios compartidos** en `src/lib/services/` (exámenes monitor, encuestas públicas).
-- **Horas compartidas** en `src/shared/proceso/horas/` (calendario + modales alumno/titular).
-- **Exámenes monitor** en `src/shared/components/examen/ExamenesMonitorView.tsx` (delegación + admin).
-- **Modales grandes refactorizados** con hooks y secciones (`useDelegacionProcesoDetailModal`, `useTitularProcesoDetailModal`, examen alumno, vacante titular).
-- **Headers de seguridad** en `next.config.ts` (CSP, HSTS en producción).
+- **Guards en server actions** con `runAuthorizedAction`.
+- **Tokens en path:** `/registro/{token}` y `/restablecer-contrasena/{token}`.
+- **Payloads:** `compactPayload` / `normalizeOptional*`.
+- **Encuesta alumno** vía server action (no `apiRequest` en modal).
+- **Health** con probe de backend; **Docker standalone**; **Sentry** opcional (`instrumentation.ts`).
+- **Headers** CSP/HSTS; E2E a11y + panel smoke opcional.
+- Guía objetiva: [SEGURIDAD.md](./SEGURIDAD.md).
 
 ### Cómo marcar pruebas
 
@@ -65,7 +68,7 @@ En las tablas de abajo, actualiza la columna **Estado**:
 | ✅ | Probado end-to-end; resultado correcto en UI y backend |
 | ⚠️ | Probado parcialmente o con workaround conocido |
 | ❌ | Falla confirmada (anotar error en Notas) |
-| ⬜ | No probado aún en esta línea base (`57523d8`) |
+| ⬜ | No probado aún en esta línea base (`c44d148`) |
 
 > Los estados heredados de sesiones anteriores se resetean a ⬜ salvo donde el código o CI dan evidencia directa.
 
@@ -291,9 +294,10 @@ Fase 0 está **completa** cuando:
 3. Cada ❌ tiene **Notas** con mensaje de error o código API (`VALIDATION_ERROR`, etc.).
 4. El panel cumple convenciones de [PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md):
    - Shell de modales (`DetailModal.module.css`)
-   - Server actions con `runAuthorizedAction`
+   - Server actions con `runAuthorizedAction` + `compactPayload`
    - Servicios cross-rol en `lib/services/` (no imports `features/A → features/B`)
    - Reglas de negocio en `lib/domain/`
+5. Checklist de seguridad §3.A en [SEGURIDAD.md](./SEGURIDAD.md) revisado.
 
 ---
 
