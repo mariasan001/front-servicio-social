@@ -6,6 +6,7 @@ import {
   canEmitirLiberacionTecnica,
   canRegistrarEvaluacionFinal,
   canRegistrarHoraProceso,
+  canRegistrarIncidenciaProceso,
   canSetHorasRequeridas,
   formatHorasProceso,
   isListoParaActivacion,
@@ -15,6 +16,7 @@ import {
   puedePostularVacantes,
   procesoEfectivamenteHorasCompletas,
   procesoHorasNumericamenteCompletas,
+  procesoPendienteEstatusHorasCompletas,
   tieneHorasRequeridas,
 } from "@/lib/domain/proceso";
 import { describeCases } from "@/test/helpers/table";
@@ -57,12 +59,25 @@ describe("horas del proceso", () => {
     expect(procesoEfectivamenteHorasCompletas("ACTIVO", 480, 480)).toBe(true);
     expect(procesoEfectivamenteHorasCompletas("ACTIVO", 10, 480)).toBe(false);
   });
+
+  it("procesoPendienteEstatusHorasCompletas solo en ACTIVO con cupo numérico", () => {
+    expect(procesoPendienteEstatusHorasCompletas("ACTIVO", 480, 480)).toBe(true);
+    expect(procesoPendienteEstatusHorasCompletas("ACTIVO", 10, 480)).toBe(false);
+    expect(procesoPendienteEstatusHorasCompletas("HORAS_COMPLETAS", 480, 480)).toBe(false);
+  });
 });
 
 describe("gates operativos", () => {
   it("canRegistrarHoraProceso solo en ACTIVO", () => {
     expect(canRegistrarHoraProceso("ACTIVO")).toBe(true);
     expect(canRegistrarHoraProceso("LISTO_PARA_ACTIVACION")).toBe(false);
+  });
+
+  it("canRegistrarIncidenciaProceso bloquea terminales", () => {
+    expect(canRegistrarIncidenciaProceso("ACTIVO")).toBe(true);
+    expect(canRegistrarIncidenciaProceso("LIBERADO")).toBe(false);
+    expect(canRegistrarIncidenciaProceso("BAJA")).toBe(false);
+    expect(canRegistrarIncidenciaProceso("CANCELADA")).toBe(false);
   });
 
   describeCases(
@@ -125,6 +140,15 @@ describe("evaluación y liberación técnica", () => {
         horasOk.requeridas,
       ),
     ).toBe(false);
+    expect(
+      canEmitirLiberacionTecnica(
+        "ACTIVO",
+        { estatus: "APROBADA" },
+        undefined,
+        10,
+        480,
+      ),
+    ).toBe(false);
   });
 });
 
@@ -139,7 +163,10 @@ describe("postulación y formato", () => {
     expect(formatHorasProceso(120, 480, "tabla")).toBe("120 / 480");
     expect(formatHorasProceso(120, 480, "detalle")).toBe("120 de 480 h");
     expect(formatHorasProceso(0, undefined, "tabla")).toBe("—");
+    expect(formatHorasProceso(undefined, undefined, "detalle")).toBe("Sin dato");
+    expect(formatHorasProceso(5, undefined, "tabla")).toBe("5 h");
     expect(formatHorasProceso(5, undefined, "detalle")).toBe("5 h registradas");
+    expect(formatHorasProceso(undefined, 480, "tabla")).toBe("0 / 480");
   });
 
   it("estatus derivados", () => {

@@ -9,6 +9,7 @@ import {
 } from "../../actions/encuestas.actions";
 import type { EncuestaSatisfaccionResponse } from "../../types/delegacion.types";
 import { formatEtiqueta, formatFecha } from "@/lib/domain/labels";
+import { canOcultarEncuesta, canPublicarEncuesta } from "@/lib/domain/encuesta";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { DetailModalHero } from "@/shared/components/DetailModal";
@@ -22,10 +23,6 @@ type DelegacionEncuestaDetailModalProps = {
   onClose: () => void;
 };
 
-function normalizeEstatus(value?: string) {
-  return value?.trim().toUpperCase() ?? "";
-}
-
 export function DelegacionEncuestaDetailModal({
   encuesta,
   open,
@@ -38,10 +35,8 @@ export function DelegacionEncuestaDetailModal({
     return null;
   }
 
-  const estatus = normalizeEstatus(encuesta.estatus);
-  const canOcultar = estatus === "PUBLICADA";
-  const canPublicar =
-    estatus === "OCULTA" || estatus === "PENDIENTE" || estatus === "";
+  const canOcultar = canOcultarEncuesta(encuesta.estatus);
+  const canPublicar = canPublicarEncuesta(encuesta.estatus);
 
   const refresh = () => {
     router.refresh();

@@ -92,6 +92,7 @@ export {
   tieneExamenPorContestar,
 } from "./postulacion";
 export {
+  canAlumnoPostularVacante,
   canCancelVacanteTitular,
   canCloseVacanteDelegacion,
   canEditVacanteTitular,
@@ -103,6 +104,7 @@ export {
   MODALIDAD_TRABAJO_OPTIONS,
   type ModalidadTrabajoValue,
 } from "./vacante";
+export { canOcultarEncuesta, canPublicarEncuesta } from "./encuesta";
 export {
   getModalidadCatalogoLabel,
   isValidModalidadCatalogo,

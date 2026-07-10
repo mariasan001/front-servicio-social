@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AuthUser } from "@/lib/api/types";
-import { LogoutButton } from "@/features/auth/components/LogoutButton/LogoutButton";
+import { LogoutButton } from "../LogoutButton/LogoutButton";
 import { notify } from "@/shared/notifications";
 import type { PanelNavGroup } from "../../constants/navigation";
 import styles from "./PanelSidebar.module.css";

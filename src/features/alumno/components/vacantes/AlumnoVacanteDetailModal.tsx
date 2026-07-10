@@ -5,7 +5,7 @@ import { Briefcase } from "lucide-react";
 import { usePanelRouter } from "@/features/panel/hooks/usePanelRouter";
 import { useState } from "react";
 import { getModalidadCatalogoLabel } from "@/lib/domain/modalidad";
-import { getModalidadTrabajoLabel } from "@/lib/domain/vacante";
+import { canAlumnoPostularVacante, getModalidadTrabajoLabel } from "@/lib/domain/vacante";
 import { createPostulacionAction } from "../../actions/postulaciones.actions";
 import { getVacanteDetailAction } from "../../actions/vacantes.actions";
 import type { ProcesoDetalleResponse } from "../../types/alumno.types";
@@ -23,12 +23,6 @@ import { EstatusBadge } from "@/shared/components/StatusBadge";
 import { useDetailModalLoader } from "@/shared/hooks/useDetailModalLoader";
 import detailStyles from "@/shared/styles/DetailModal.module.css";
 import alumnoStyles from "./AlumnoVacanteDetailModal.module.css";
-
-function canPostular(estatus?: string, activa?: boolean) {
-  const normalized = estatus?.trim().toUpperCase() ?? "";
-  if (activa === false) return false;
-  return normalized === "PUBLICADA" || normalized === "ACTIVA" || normalized === "VIGENTE";
-}
 
 export function AlumnoVacanteDetailModal({
   vacanteId,
@@ -60,7 +54,9 @@ export function AlumnoVacanteDetailModal({
   );
 
   const alumnoPuedePostular = puedePostularVacantes(procesoActual);
-  const vacanteDisponible = detail ? canPostular(detail.estatus, detail.activa) : false;
+  const vacanteDisponible = detail
+    ? canAlumnoPostularVacante(detail.estatus, detail.activa)
+    : false;
   const postularVisible = Boolean(detail && alumnoPuedePostular && vacanteDisponible);
   const firstName =
     nombreCompleto?.trim().split(/\s+/)[0]?.trim() || nombreCompleto?.trim() || "";

@@ -45,39 +45,76 @@ flowchart TB
 
 ---
 
-## 2. Sesión y autenticación
+## 2. Sesión, autenticación y seguridad
+
+> Detalle ampliado (capas, headers, checklists): **[SEGURIDAD.md](./SEGURIDAD.md)**.
+
+### 2.1 Capas de defensa
+
+```mermaid
+flowchart TB
+  U[Usuario] --> PX[proxy.ts rutas]
+  PX -->|panel OK| RSC[RSC / panel]
+  PX -->|sin sesión| L[/login]
+  RSC -->|mutación| SA[runAuthorizedAction]
+  SA --> API[Backend Java authz]
+  U --> HDR[Headers CSP HSTS]
+```
+
+### 2.2 Secuencia de sesión
 
 ```mermaid
 sequenceDiagram
   participant U as Usuario
-  participant MW as middleware.ts
-  participant App as App / Server Actions
+  participant App as App / login
   participant API as Backend Java
+  participant P as proxy.ts
 
-  U->>App: POST /login (credenciales)
-  App->>API: /api/auth/login
-  API-->>App: JWT + perfil
-  App-->>U: Cookie de sesión (httpOnly)
+  U->>App: POST credenciales
+  App->>API: /auth/login vía /api/backend
+  API-->>App: Cookie HttpOnly + perfil
+  App-->>U: Redirect home del rol o ?next seguro
 
-  U->>MW: GET /panel/alumno/...
-  MW->>MW: Lee cookie, valida rol
+  U->>P: GET /panel/alumno/...
+  P->>API: GET /auth/me cookie
   alt rol permitido
-    MW-->>App: Continúa
-    App->>API: serverApiRequest (Bearer)
+    P-->>App: Continúa
+    App->>API: serverApiRequest
     API-->>App: Datos
     App-->>U: HTML / RSC
   else sin sesión o rol incorrecto
-    MW-->>U: Redirect /login?next=...
+    P-->>U: Redirect /login?next=... o home del rol
   end
+```
+
+### 2.3 Mutación autorizada
+
+```mermaid
+sequenceDiagram
+  participant M as Modal cliente
+  participant A as Server Action
+  participant R as runAuthorizedAction
+  participant S as Service
+  participant J as Java
+
+  M->>A: acción
+  A->>R: roles + fn
+  R->>R: sesión + rol
+  R->>S: serverApiRequest
+  S->>J: /api/{rol}/...
+  J-->>S: resultado
+  A->>A: revalidate sección
+  A-->>M: ActionResult
 ```
 
 ### Reglas de sesión (frontend)
 
 1. **Cookie httpOnly** — el token no se expone al JavaScript del navegador.
-2. **`middleware.ts`** — primera línea de defensa: rutas `/panel/*` exigen sesión y rol.
-3. **Server Actions** — segunda línea: `runAuthorizedAction` valida rol antes de llamar al API.
+2. **`proxy.ts`** — primera línea: `/panel/*` exige sesión y rol; guest-only si ya hay sesión.
+3. **Server Actions** — segunda línea: `runAuthorizedAction` valida rol antes del API.
 4. **Redirects seguros** — `isSafeInternalPath` evita open redirects en `?next=`.
-5. **El backend es la autoridad** — el front solo oculta UI; toda mutación debe rechazarse en API si el rol no aplica.
+5. **El backend es la autoridad** — el front oculta UI; toda mutación debe rechazarse en API si no aplica.
+6. **Dos “proxies”** — `proxy.ts` = guard de rutas; rewrite `/api/backend` = reenvío HTTP al Java (`API_PROXY_TARGET`).
 
 ### Recuperación de contraseña
 
@@ -99,11 +136,13 @@ sequenceDiagram
 
 Archivos: `src/features/auth/reset-password/`, `password-reset.service.ts`.
 
-Archivos clave:
+Archivos clave de seguridad:
 
-- `src/middleware.ts`
-- `src/lib/auth/` — roles, redirects, postulación, CV
+- `src/proxy.ts`
+- `src/lib/auth/` — roles, redirects, sesión
 - `src/lib/actions/run-authorized-action.ts`
+- `next.config.ts` — CSP / HSTS / rewrite
+- [SEGURIDAD.md](./SEGURIDAD.md) — flujos Mermaid completos
 
 ---
 
@@ -254,20 +293,22 @@ flowchart TB
 
 ## 8. Seguridad en el front
 
-Documento completo con checklists: **[SEGURIDAD.md](./SEGURIDAD.md)**.
+Documento completo con capas y flujos Mermaid: **[SEGURIDAD.md](./SEGURIDAD.md)**.
 
 | Control | Ubicación |
 |---------|-----------|
 | Headers (CSP, HSTS prod, X-Frame-Options, script-src-attr) | `next.config.ts` |
-| Middleware de roles + guest-only | `src/middleware.ts` |
+| Guard de rutas (Next 16) | `src/proxy.ts` |
+| Rewrite HTTP al Java | `/api/backend` → `API_PROXY_TARGET` |
 | Guards en actions | `runAuthorizedAction` |
 | Payloads sin `undefined` | `compactPayload` |
 | Tokens en path (registro / reset) | `registro/[token]`, `restablecer-contrasena/[token]` |
 | Paths internos seguros | `isSafeInternalPath` |
+| Fronteras de features | `eslint.config.mjs` |
 | Health + backend probe | `/api/health` |
 | Sin `poweredBy` | `next.config.ts` |
 
-**Limitación conocida:** el proxy `/api/backend` expone el API al navegador; el backend debe autorizar cada endpoint.
+**Limitación conocida:** el rewrite `/api/backend` expone el API al navegador; el backend debe autorizar cada endpoint. No confundir con `proxy.ts` (guard de rutas).
 
 ---
 
@@ -280,7 +321,7 @@ npm run check
 npm run test
 npm run test:coverage
 npm run test:e2e          # públicas, auth, a11y, health, registro token path
-npm run test:e2e:panel    # smokes por rol (requiere E2E_*)
+npm run test:e2e:panel    # smoke + axe por rol (requiere E2E_*)
 npm run analyze
 npm run build
 ```

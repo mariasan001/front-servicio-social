@@ -35,6 +35,15 @@ export function canCancelVacanteTitular(estatus?: string) {
   return value !== "CANCELADA" && value !== "CERRADA";
 }
 
+/** Alumno puede postular a vacantes publicadas/activas. */
+export function canAlumnoPostularVacante(estatus?: string, activa?: boolean) {
+  if (activa === false) {
+    return false;
+  }
+
+  return matchesDomainCode(estatus, "PUBLICADA", "ACTIVA", "VIGENTE");
+}
+
 export const MODALIDAD_TRABAJO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial", hint: "Actividades en las instalaciones del área." },
   { value: "HIBRIDO", label: "Híbrido", hint: "Combinación de trabajo presencial y remoto." },

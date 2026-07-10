@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
-import { AUTH_ROUTES } from "@/features/auth/constants/routes";
+import { AUTH_PATHS } from "@/lib/auth/constants";
 import { MODALIDAD_CATALOGO_OPTIONS } from "@/lib/domain/modalidad";
 import { MODALIDAD_TRABAJO_OPTIONS } from "@/lib/domain/vacante";
 import { Button } from "@/shared/components/Button";
@@ -79,7 +79,7 @@ export function PublicVacantesDirectory({
       <div className={styles.page}>
         <header className={styles.header}>
           <div className={styles.topRow}>
-            <Link href={AUTH_ROUTES.home} className={styles.backLink}>
+            <Link href={AUTH_PATHS.home} className={styles.backLink}>
               <ArrowLeft size={16} strokeWidth={2} />
               Volver al inicio
             </Link>
@@ -203,7 +203,7 @@ export function PublicVacantesDirectory({
               <Briefcase size={28} strokeWidth={1.75} />
             </span>
             <p>No hay vacantes publicadas en este momento.</p>
-            <Button href={AUTH_ROUTES.register} variant="primary">
+            <Button href={AUTH_PATHS.register} variant="primary">
               Crear cuenta
             </Button>
           </div>

@@ -19,7 +19,7 @@ function redirectTo(request: NextRequest, destination: string) {
   return NextResponse.redirect(new URL(destination, request.url));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = await getSessionFromRequest(request);
 

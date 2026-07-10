@@ -43,6 +43,18 @@ describe("mensajes de bloqueo proceso", () => {
     ).toContain("ya fue capturada");
   });
 
+  it("mensaje cuando aún faltan horas para evaluación", () => {
+    expect(
+      mensajeBloqueoEvaluacionFinal("ACTIVO", undefined, 10, 480),
+    ).toContain("horas validadas");
+  });
+
+  it("mensaje genérico si puede registrar pero se consulta el bloqueo", () => {
+    expect(
+      mensajeBloqueoEvaluacionFinal("ACTIVO", undefined, horasOk.acumuladas, horasOk.requeridas),
+    ).toContain("No se puede registrar");
+  });
+
   it("mensaje liberación técnica sin evaluación aprobada", () => {
     expect(
       mensajeBloqueoLiberacionTecnica("ACTIVO", undefined, undefined, horasOk.acumuladas, horasOk.requeridas),
@@ -68,5 +80,23 @@ describe("mensajes de bloqueo proceso", () => {
         horasOk.requeridas,
       ),
     ).toContain("Ya existe");
+  });
+
+  it("mensaje liberación cuando faltan horas", () => {
+    expect(
+      mensajeBloqueoLiberacionTecnica("ACTIVO", undefined, undefined, 10, 480),
+    ).toContain("horas validadas");
+  });
+
+  it("mensaje genérico de liberación técnica", () => {
+    expect(
+      mensajeBloqueoLiberacionTecnica(
+        "ACTIVO",
+        { estatus: "APROBADA" },
+        undefined,
+        horasOk.acumuladas,
+        horasOk.requeridas,
+      ),
+    ).toContain("No se puede emitir");
   });
 });

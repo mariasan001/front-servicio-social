@@ -6,7 +6,13 @@ const nodeArgs = existsSync(envFile) ? [`--env-file=${envFile}`] : [];
 
 const result = spawnSync(
   process.execPath,
-  [...nodeArgs, "./node_modules/@playwright/test/cli.js", "test", "e2e/panel-smoke.spec.ts"],
+  [
+    ...nodeArgs,
+    "./node_modules/@playwright/test/cli.js",
+    "test",
+    "e2e/panel-smoke.spec.ts",
+    "e2e/accessibility-panel.spec.ts",
+  ],
   {
     stdio: "inherit",
     env: process.env,

@@ -11,13 +11,13 @@ Guías del repositorio `front-servicio-social`.
 | Documento | Audiencia | Contenido |
 |-----------|-----------|-----------|
 | **[ARQUITECTURA.md](./ARQUITECTURA.md)** | Todos | Capas, rutas, roles, APIs, módulos compartidos |
-| **[SEGURIDAD.md](./SEGURIDAD.md)** | Dev / ops / QA | Controles, checklists objetivos, flujos sensibles |
-| **[FLUJOS.md](./FLUJOS.md)** | Producto / QA / dev | Diagramas Mermaid: sesión, registro, postulación, proceso |
-| **[PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)** | Desarrollo panel | Modales, actions, payloads, UI |
+| **[SEGURIDAD.md](./SEGURIDAD.md)** | Dev / ops / QA | Capas de defensa, **flujos Mermaid de seguridad**, checklists |
+| **[FLUJOS.md](./FLUJOS.md)** | Producto / QA / dev | Sesión, registro, postulación, proceso + resumen de seguridad |
+| **[PANEL_CONVENTIONS.md](./PANEL_CONVENTIONS.md)** | Desarrollo panel | Modales, actions, payloads, UI, fronteras ESLint |
 | **[PANEL_PHASE0_BASELINE.md](./PANEL_PHASE0_BASELINE.md)** | QA / release | Smoke E2E por rol + criterio de salida |
 | **[DEPLOY.md](./DEPLOY.md)** | Ops / release | Env, Docker, CI, health, rollback |
 
-**Tests:** `npm run test` · `npm run test:coverage` · `npm run test:e2e` (públicas/auth/a11y/health) · `npm run test:e2e:panel` (roles, requiere `E2E_*`)
+**Tests:** `npm run test` · `npm run test:coverage` · `npm run test:e2e` (públicas/auth/a11y/health) · `npm run test:e2e:panel` (smoke + axe por rol, requiere `E2E_*`)
 
 ---
 
@@ -36,7 +36,7 @@ npm run test:coverage
 npm run test:e2e
 ```
 
-Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad: [SEGURIDAD.md](./SEGURIDAD.md).
+Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad (cómo funciona): [SEGURIDAD.md](./SEGURIDAD.md).
 
 ---
 
@@ -52,12 +52,25 @@ Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad: [SEGURIDAD.md](./SEGURIDAD.md).
 ┌──────────────────────────▼──────────────────────────────┐
 │  Panel /panel/{rol}/{seccion}                           │
 │  alumno · titular · delegacion · admin · enlace         │
+│  Guard: src/proxy.ts (Next 16)                          │
 └──────────────────────────┬──────────────────────────────┘
                            │ server actions + services
 ┌──────────────────────────▼──────────────────────────────┐
-│  Backend Java  ←  proxy /api/backend                    │
+│  Backend Java  ←  rewrite /api/backend → API_PROXY_TARGET │
 └─────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Seguridad en 30 segundos
+
+1. **`proxy.ts`** — ¿puede este usuario ver esta ruta de panel?
+2. **`runAuthorizedAction`** — ¿puede mutar con este rol?
+3. **Backend Java** — autorización definitiva en cada endpoint.
+4. **Headers** — CSP, HSTS, anti-clickjacking.
+5. **Tokens** — registro/reset en path, no en query.
+
+Flujos Mermaid paso a paso: [SEGURIDAD.md §4](./SEGURIDAD.md#4-cómo-funciona--flujos-de-seguridad).
 
 ---
 
@@ -65,9 +78,10 @@ Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad: [SEGURIDAD.md](./SEGURIDAD.md).
 
 | Módulo | Ubicación | Uso |
 |--------|-----------|-----|
-| Auth / sesión | `src/lib/auth/` | Middleware, redirects, roles |
+| Auth / sesión | `src/lib/auth/` + `src/proxy.ts` | Guard de rutas, redirects, roles |
 | Dominio | `src/lib/domain/` | Gates UI y reglas |
 | Actions | `src/lib/actions/` | `runAuthorizedAction`, `compactPayload` |
+| Cache panel | `src/lib/cache/` | `revalidate-panel` + `revalidate-roles` |
 | Exámenes | `shared/components/examen/` | Titular / alumno / monitor |
 | Horas | `shared/proceso/horas/` | Alumno y titular |
 | Encuestas | `lib/services/public-encuestas.service.ts` + action alumno | Landing + satisfacción |
@@ -98,7 +112,7 @@ Despliegue: [DEPLOY.md](./DEPLOY.md). Seguridad: [SEGURIDAD.md](./SEGURIDAD.md).
 | UI compartida | `shared/components/` |
 | Mutación | `features/{rol}/actions/` + `runAuthorizedAction` + `compactPayload` |
 
-**Prohibido:** imports entre features de roles distintos.
+**Prohibido:** imports entre features de roles distintos (`eslint.config.mjs`).
 
 ---
 

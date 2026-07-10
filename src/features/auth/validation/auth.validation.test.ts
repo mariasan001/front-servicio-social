@@ -75,6 +75,33 @@ describe("validateRegisterForm", () => {
     const noModalidad = { ...validRegister(), modalidadInteres: "" };
     expect(validateRegisterForm(noModalidad, { withToken: true }).modalidadInteres).toBeDefined();
   });
+
+  it("valida longitudes máximas opcionales y requeridas", () => {
+    const longFields = {
+      ...validRegister(),
+      nombreCompleto: "N".repeat(251),
+      correo: `${"a".repeat(140)}@test.edu.mx`,
+      telefono: "1".repeat(31),
+      curp: "C".repeat(19),
+      carrera: "X".repeat(181),
+      escuelaTextoCapturada: "E".repeat(256),
+      numeroSeguroEstudiantil: "S".repeat(51),
+    };
+
+    const errors = validateRegisterForm(longFields, { withToken: false });
+    expect(errors.nombreCompleto).toBeDefined();
+    expect(errors.correo).toBeDefined();
+    expect(errors.telefono).toBeDefined();
+    expect(errors.curp).toBeDefined();
+    expect(errors.carrera).toBeDefined();
+    expect(errors.escuelaTextoCapturada).toBeDefined();
+    expect(errors.numeroSeguroEstudiantil).toBeDefined();
+  });
+
+  it("exige confirmación de contraseña", () => {
+    const values = { ...validRegister(), confirmPassword: "" };
+    expect(validateRegisterForm(values, { withToken: true }).confirmPassword).toBeDefined();
+  });
 });
 
 describe("hasFormErrors", () => {

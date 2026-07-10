@@ -74,7 +74,7 @@ front-servicio-social/
 │   │   ├── actions/            # runAuthorizedAction, runServerAction, ActionResult
 │   │   └── cache/              # revalidate-panel
 │   ├── shared/                 # UI reutilizable (DataTable, Modal, Form…)
-│   ├── middleware.ts           # Guard de auth/roles
+│   ├── proxy.ts                # Guard de auth/roles (Next 16)
 │   └── styles/                 # reset, variables, accessibility
 ├── docs/                       # Esta documentación
 ├── public/                     # Assets estáticos
@@ -351,24 +351,24 @@ Auth usa `apiRequest` (cliente) → `/api/backend` (proxy). **No** usa server ac
 
 ---
 
-## 9. Autenticación y middleware
+## 9. Autenticación y proxy
 
 ```mermaid
 sequenceDiagram
   participant B as Browser
-  participant M as middleware.ts
+  participant P as proxy.ts
   participant N as Next.js
   participant J as Backend Java
 
   B->>N: GET /panel/alumno
-  N->>M: intercepta (matcher)
-  M->>J: GET /auth/me (cookie)
+  N->>P: intercepta (matcher)
+  P->>J: GET /auth/me (cookie)
   alt sin sesión
-    M-->>B: redirect /login?next=/panel/alumno
+    P-->>B: redirect /login?next=/panel/alumno
   else sesión + rol incorrecto
-    M-->>B: redirect home del rol
+    P-->>B: redirect home del rol
   else OK
-    M-->>N: continúa
+    P-->>N: continúa
     N-->>B: página panel
   end
 ```
@@ -377,7 +377,7 @@ sequenceDiagram
 
 | Archivo | Función |
 |---------|---------|
-| `src/middleware.ts` | Guard guest-only y panel |
+| `src/proxy.ts` | Guard guest-only y panel (convención Next 16) |
 | `src/lib/auth/session.middleware.ts` | `getSessionFromRequest` |
 | `src/lib/auth/session.server.ts` | `getServerSession` en RSC |
 | `src/lib/auth/roles.ts` | `canAccessPath`, `resolveHomePath` |
@@ -393,7 +393,7 @@ sequenceDiagram
 | `ROLE_ENLACE_ESCOLAR` | `/panel/enlace` |
 | `ROLE_ALUMNO` | `/panel/alumno` |
 
-**Matcher del middleware:** `/panel/:path*`, `/login`, `/registro`, `/registro/:path*`, `/recuperar-contrasena`, `/restablecer-contrasena/:path*`
+**Matcher del proxy:** `/panel/:path*`, `/login`, `/registro`, `/registro/:path*`, `/recuperar-contrasena`, `/restablecer-contrasena/:path*`
 
 Detalle de controles: [SEGURIDAD.md](./SEGURIDAD.md).
 
@@ -486,7 +486,7 @@ Reglas de negocio y tipos **independientes del rol**. Todo el panel y la web pú
 | dependencias | `/panel/admin/dependencias` | `dependencias.service.ts` |
 | escuelas | `/panel/admin/escuelas` | `escuelas.service.ts` |
 | areas | `/panel/admin/areas` | `areas.service.ts` |
-| examenes | `/panel/admin/examenes` | Reutiliza `DelegacionExamenesView` (solo lectura) |
+| examenes | `/panel/admin/examenes` | `ExamenesMonitorView` (shared, solo lectura) |
 | usuarios | `/panel/admin/usuarios` | `usuarios.service.ts` |
 
 API: `/api/dependencias`, `/api/escuelas`, `/api/areas`, `/api/admin/usuarios-internos`
@@ -526,7 +526,7 @@ API: `/api/titular/*`
 | inicio | `/panel/alumno` | Notificaciones |
 | vacantes | `.../vacantes` | Postulación |
 | postulaciones | `.../postulaciones` | Estado; enlace a examen si aplica |
-| examen en línea | `.../postulaciones/{id}/examen` | Página `AlumnoExamenPostulacionView` |
+| examen en línea | `.../postulaciones/{id}/examen` | `AlumnoExamenSection` → `AlumnoExamenPostulacionView` |
 | proceso | `.../proceso/{sub}` | Horas, docs, cartas; encuesta satisfacción vía `registerEncuestaSatisfaccionAction` |
 | cv | `.../cv` | **Gate:** nav bloqueada hasta CV completo |
 
@@ -577,7 +577,7 @@ flowchart LR
 | Titular | `features/titular/components/examenes/` | `TitularExamenesView`, `TitularExamenManageModal`, `TitularExamenPreguntaEditor` |
 | Titular vacantes | `TitularVacanteFormModal`, `TitularVacanteExamenPanel` | Selector al marcar `requiereExamen`; cache local `lib/vacante-examen-cache.ts` |
 | Titular postulación | `TitularPostulacionExamenResultado` | Resumen + tabla de respuestas en modal `size="wide"` |
-| Delegación/Admin | `DelegacionExamenesView`, `DelegacionExamenDetailModal` | Solo lectura (admin reutiliza vista delegación) |
+| Delegación/Admin | `ExamenesMonitorView` + detail modal shared | Solo lectura |
 | Alumno | `features/alumno/components/examen/` | Contestar examen con timer e intro modal |
 
 **API titular:** `/api/titular/examenes/*`, `/api/titular/vacantes/{id}/examen` (POST/DELETE asociar).  
@@ -652,7 +652,7 @@ Estatus de proceso (backend): `PENDIENTE_DOCUMENTACION` → … → `ACTIVO` →
 | Contexto | Mecanismo |
 |----------|-----------|
 | Landing público | `next: { revalidate: 120 }` en `publicApiGet` |
-| Panel tras mutación | `revalidate{Rol}Section()` → `src/lib/cache/revalidate-panel.ts` |
+| Panel tras mutación | `revalidate{Rol}Section()` → wrappers en `features/*/lib` → `src/lib/cache/revalidate-panel.ts` + `revalidate-roles.ts` |
 | Modal tras mutación | `router.refresh()` + `reloadKey` en `useDetailModalLoader` |
 
 ---

@@ -104,7 +104,7 @@ La imagen usa **standalone**, usuario **no-root** y `HEALTHCHECK` → `/api/heal
 | **quality** | typecheck → lint → coverage → audit high → build |
 | **e2e** | build → Playwright (públicas, auth, a11y, health, registro token path) |
 
-Panel smoke: `npm run test:e2e:panel` con secrets `E2E_<ROL>_USER` / `PASSWORD` (si faltan, se omiten).
+Panel smoke + axe: `npm run test:e2e:panel` con secrets `E2E_<ROL>_USER` / `PASSWORD` (si faltan, se omiten).
 
 ---
 

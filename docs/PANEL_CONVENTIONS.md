@@ -30,6 +30,8 @@ app/panel/{rol}/[[...section]]/page.tsx   →  SectionPage (server)
 
 **Regla:** los componentes cliente **nunca** llaman `serverApiRequest` ni `apiRequest` directamente para mutaciones del panel. Siempre pasan por una server action con `runAuthorizedAction`.
 
+**Fronteras:** un feature de rol no importa otro (`eslint.config.mjs`). Usar `shared/`, `lib/`, o `panel`/`auth` según el caso.
+
 Excepción pública legítima: formularios de auth (`login`/`registro`/`reset`) usan `apiRequest` en cliente porque aún no hay sesión de panel.
 
 Checklist de seguridad al mutar: [SEGURIDAD.md](./SEGURIDAD.md) §3.B.
@@ -56,7 +58,9 @@ src/features/delegacion/
     └── delegacion.types.ts
 ```
 
-Cada rol expone `revalidate{Role}Section(section?)` que delega en `revalidatePanelSection` (`src/lib/cache/revalidate-panel.ts`).
+Cada rol expone `revalidate{Role}Section(section?)` en `features/{rol}/lib/` que delega en `src/lib/cache/revalidate-roles.ts` / `revalidate-panel.ts`.
+
+**Servicios multi-rol** (catálogos, examenes monitor, encuestas públicas) viven en `src/lib/services/`. APIs exclusivas de un rol viven en `features/{rol}/services/`.
 
 ---
 
@@ -377,7 +381,7 @@ Con examen **ACTIVO** solo vista previa; editar tras desactivar.
 
 ### Delegación / Admin — consulta
 
-`DelegacionExamenesView` → `DelegacionExamenDetailModal`. Admin reutiliza la misma vista.
+`ExamenesMonitorView` (shared) → detail modal. Admin y delegación consumen la misma vista.
 
 ### Postulación — resultado automático
 
@@ -390,7 +394,7 @@ Habilitado cuando `requiereExamen && isExamenFinalizado(examenEstado)`.
 
 ### Alumno
 
-`/panel/alumno/postulaciones/{id}/examen` → `AlumnoExamenPostulacionView`. Gate: `canContestarExamen`.
+`/panel/alumno/postulaciones/{id}/examen` → `AlumnoExamenSection` → `AlumnoExamenPostulacionView`. Gate: `canContestarExamen`.
 
 ---
 

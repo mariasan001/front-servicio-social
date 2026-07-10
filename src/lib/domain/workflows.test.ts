@@ -4,9 +4,12 @@ import {
   canAlumnoDescargarDocumento,
   canAlumnoSubirDocumento,
   canApproveDocumento,
+  canObserveDocumento,
+  canRejectDocumento,
   canReviewDocumento,
 } from "@/lib/domain/documento";
 import {
+  canAlumnoPostularVacante,
   canCancelVacanteTitular,
   canCloseVacanteDelegacion,
   canEditVacanteTitular,
@@ -21,6 +24,9 @@ describe("documento gates", () => {
     expect(canReviewDocumento("EN_REVISION")).toBe(true);
     expect(canReviewDocumento("SUBIDO")).toBe(true);
     expect(canApproveDocumento("APROBADO")).toBe(false);
+    expect(canObserveDocumento("SUBIDO")).toBe(true);
+    expect(canRejectDocumento("EN_REVISION")).toBe(true);
+    expect(canRejectDocumento("APROBADO")).toBe(false);
   });
 
   it("alumno sube en pendiente, observado o rechazado", () => {
@@ -60,6 +66,13 @@ describe("vacante gates", () => {
     expect(canCloseVacanteDelegacion("BORRADOR")).toBe(false);
     expect(canCancelVacanteTitular("PUBLICADA")).toBe(true);
     expect(canCancelVacanteTitular("CERRADA")).toBe(false);
+  });
+
+  it("alumno postula solo publicadas/activas", () => {
+    expect(canAlumnoPostularVacante("PUBLICADA", true)).toBe(true);
+    expect(canAlumnoPostularVacante("ACTIVA")).toBe(true);
+    expect(canAlumnoPostularVacante("PUBLICADA", false)).toBe(false);
+    expect(canAlumnoPostularVacante("BORRADOR")).toBe(false);
   });
 
   it("getModalidadTrabajoLabel", () => {

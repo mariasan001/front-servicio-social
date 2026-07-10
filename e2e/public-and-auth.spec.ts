@@ -73,8 +73,73 @@ test.describe("Operación", () => {
 });
 
 test.describe("Protección del panel", () => {
-  test("panel alumno redirige a login sin sesión", async ({ page }) => {
-    await page.goto("/panel/alumno");
-    await expect(page).toHaveURL(/\/login/);
+  for (const path of [
+    "/panel/alumno",
+    "/panel/admin",
+    "/panel/delegacion",
+    "/panel/titular",
+    "/panel/enlace",
+  ]) {
+    test(`${path} redirige a login sin sesión`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveURL(/\/login/);
+    });
+  }
+});
+
+test.describe("SEO y a11y básica", () => {
+  test("landing expone skip link al contenido", async ({ page }) => {
+    await page.goto("/");
+    const skip = page.getByRole("link", { name: /saltar al contenido principal/i });
+    await expect(skip).toHaveAttribute("href", "#main");
+  });
+
+  test("robots.txt permite vacantes y bloquea panel", async ({ request }) => {
+    const response = await request.get("/robots.txt");
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    expect(body).toMatch(/Allow:\s*\/vacantes/i);
+    expect(body).toMatch(/Disallow:\s*\/panel/i);
+  });
+
+  test("sitemap.xml responde", async ({ request }) => {
+    const response = await request.get("/sitemap.xml");
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    expect(body).toContain("<urlset");
+  });
+
+  test("login vacío muestra validación", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: /iniciar sesión/i }).click();
+    await expect(page.getByText(/usuario|contraseña|obligator|ingresa/i).first()).toBeVisible();
+  });
+
+  test("recuperar vacío muestra validación", async ({ page }) => {
+    await page.goto("/recuperar-contrasena");
+    await page.getByRole("button", { name: /enviar enlace/i }).click();
+    await expect(page.getByText(/usuario|correo|ingresa/i).first()).toBeVisible();
+  });
+
+  test("registro vacío muestra validación", async ({ page }) => {
+    await page.goto("/registro");
+    await page.getByRole("button", { name: /crear cuenta/i }).click();
+    await expect(page.getByText(/usuario|contraseña|ingresa|acept/i).first()).toBeVisible();
+  });
+
+  test("og image por defecto está disponible", async ({ request }) => {
+    const response = await request.get("/images/og-default.png");
+    expect(response.ok()).toBeTruthy();
+    expect(response.headers()["content-type"]).toMatch(/image\/png/i);
+  });
+
+  test("manifest web responde", async ({ request }) => {
+    const response = await request.get("/manifest.webmanifest");
+    if (response.status() === 404) {
+      const alt = await request.get("/manifest.json");
+      expect(alt.status()).toBeLessThan(500);
+      return;
+    }
+    expect(response.ok()).toBeTruthy();
   });
 });

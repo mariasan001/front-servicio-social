@@ -9,9 +9,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | Documento | Cuándo leerlo |
 |-----------|----------------|
 | [`docs/README.md`](./docs/README.md) | Índice |
-| [`docs/SEGURIDAD.md`](./docs/SEGURIDAD.md) | Controles y checklists de seguridad (prioridad) |
+| [`docs/SEGURIDAD.md`](./docs/SEGURIDAD.md) | Controles, flujos Mermaid de seguridad, checklists |
 | [`docs/ARQUITECTURA.md`](./docs/ARQUITECTURA.md) | Mapa del sistema, roles, rutas, APIs |
-| [`docs/FLUJOS.md`](./docs/FLUJOS.md) | Diagramas de sesión, registro y proceso |
+| [`docs/FLUJOS.md`](./docs/FLUJOS.md) | Diagramas de sesión, registro, proceso y seguridad |
 | [`docs/PANEL_CONVENTIONS.md`](./docs/PANEL_CONVENTIONS.md) | Convenciones del panel |
 | [`docs/PANEL_PHASE0_BASELINE.md`](./docs/PANEL_PHASE0_BASELINE.md) | Smoke E2E por rol |
 | [`docs/DEPLOY.md`](./docs/DEPLOY.md) | Deploy, Docker, health, CI |

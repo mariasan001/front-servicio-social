@@ -30,7 +30,13 @@ test.describe("Accesibilidad pública ampliada", () => {
   });
 });
 
-const PANEL_A11Y_ROLES: E2ERole[] = ["admin", "alumno"];
+const PANEL_A11Y_ROLES: E2ERole[] = [
+  "admin",
+  "alumno",
+  "delegacion",
+  "titular",
+  "enlace",
+];
 
 for (const role of PANEL_A11Y_ROLES) {
   const credentials = getRoleCredentials(role);

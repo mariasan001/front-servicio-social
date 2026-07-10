@@ -40,7 +40,7 @@ Documento de referencia para smoke tests end-to-end del panel (`/panel/*`).
 | `npm run test` | Vitest — reglas de dominio y auth |
 | `npm run test:coverage` | Vitest + umbrales de cobertura |
 | `npm run test:e2e` | Playwright — rutas públicas, auth, a11y y health |
-| `npm run test:e2e:panel` | Playwright — smoke por rol (requiere `E2E_*` en env) |
+| `npm run test:e2e:panel` | Playwright — smoke + axe por rol (requiere `E2E_*` en env) |
 | `npm run analyze` | Build + reporte de bundles (`@next/bundle-analyzer`) |
 | `npm run build` | Build de producción |
 

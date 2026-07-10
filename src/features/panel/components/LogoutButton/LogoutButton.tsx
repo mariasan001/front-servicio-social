@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AUTH_ROUTES } from "../../constants/routes";
-import { logout } from "../../services/auth.service";
+import { AUTH_PATHS } from "@/lib/auth/constants";
+import { logout } from "@/features/auth/services/auth.service";
 import formStyles from "@/shared/components/Form/Form.module.css";
 
 type LogoutButtonProps = {
@@ -23,10 +23,10 @@ export function LogoutButton({
 
     try {
       await logout();
-      router.push(AUTH_ROUTES.login);
+      router.push(AUTH_PATHS.login);
       router.refresh();
     } catch {
-      router.push(AUTH_ROUTES.login);
+      router.push(AUTH_PATHS.login);
       router.refresh();
     } finally {
       setIsSubmitting(false);
