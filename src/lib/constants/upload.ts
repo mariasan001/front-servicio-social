@@ -1,4 +1,4 @@
-export const MAX_UPLOAD_SIZE_MB = 10;
+export const MAX_UPLOAD_SIZE_MB = 2;
 export const MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
 export const ACCEPTED_UPLOAD_MIME =
   "application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.jpg,.jpeg,.png,.doc,.docx";

@@ -52,7 +52,7 @@ function DetailBlock({
         <span className={styles.detailIcon} aria-hidden>
           {icon}
         </span>
-        <h2 className={styles.detailLabel}>{label}</h2>
+        <p className={styles.detailLabel}>{label}</p>
       </div>
       <p className={styles.detailValue}>{value.trim()}</p>
     </article>

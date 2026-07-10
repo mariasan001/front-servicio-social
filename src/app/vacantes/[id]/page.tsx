@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicVacanteDetailPage } from "@/features/landing/pages/PublicVacanteDetailPage";
 import { getPublicVacanteDetail } from "@/features/landing/services/public-vacantes.service";
+import { OG_IMAGE } from "@/lib/seo/og";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 type PageProps = {
@@ -56,20 +57,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: SITE_NAME,
       title,
       description,
-      images: [
-        {
-          url: "/images/logo.webp",
-          width: 180,
-          height: 48,
-          alt: SITE_NAME,
-        },
-      ],
+      images: [OG_IMAGE],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: ["/images/logo.webp"],
+      images: [OG_IMAGE.url],
     },
   };
 }

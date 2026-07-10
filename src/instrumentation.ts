@@ -1,19 +1,36 @@
 export async function register() {
-  if (process.env.NEXT_RUNTIME !== "nodejs") {
-    return;
-  }
-
   const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN?.trim();
   if (!dsn) {
     return;
   }
 
-  const Sentry = await import("@sentry/nextjs");
-  const sampleRate = Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? "0.1");
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("../sentry.server.config");
+    return;
+  }
 
-  Sentry.init({
-    dsn,
-    environment: process.env.NODE_ENV,
-    tracesSampleRate: Number.isFinite(sampleRate) ? sampleRate : 0.1,
-  });
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("../sentry.edge.config");
+  }
+}
+
+export async function onRequestError(
+  error: unknown,
+  request: {
+    path: string;
+    method: string;
+    headers: Record<string, string | string[] | undefined>;
+  },
+  errorContext: {
+    routerKind: string;
+    routePath: string;
+    routeType: string;
+  },
+) {
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN?.trim()) {
+    return;
+  }
+
+  const Sentry = await import("@sentry/nextjs");
+  Sentry.captureRequestError(error, request, errorContext);
 }

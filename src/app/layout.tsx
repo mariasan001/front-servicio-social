@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { gotham } from "@/lib/fonts";
+import { OG_IMAGE } from "@/lib/seo/og";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SkipLink } from "@/shared/components/SkipLink";
 import { AppToaster } from "@/shared/notifications";
@@ -38,20 +39,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [
-      {
-        url: "/images/logo.webp",
-        width: 180,
-        height: 48,
-        alt: SITE_NAME,
-      },
-    ],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: ["/images/logo.webp"],
+    images: [OG_IMAGE.url],
   },
   icons: {
     icon: "/images/logo.webp",

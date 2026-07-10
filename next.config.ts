@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 import withBundleAnalyzer from "@next/bundle-analyzer";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const isProduction = process.env.NODE_ENV === "production";
 const analyzeBundles = process.env.ANALYZE === "true";
-const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN?.trim());
+const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN?.trim() || "";
+const sentryEnabled = Boolean(sentryDsn);
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN?.trim() || "";
 
 if (isProduction && !process.env.API_PROXY_TARGET) {
   throw new Error("API_PROXY_TARGET must be set when NODE_ENV=production");
@@ -93,6 +96,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer({
+const analyzedConfig = withBundleAnalyzer({
   enabled: analyzeBundles,
 })(nextConfig);
+
+const exportedConfig = sentryEnabled
+  ? withSentryConfig(analyzedConfig, {
+      silent: true,
+      sourcemaps: {
+        disable: !sentryAuthToken,
+      },
+      telemetry: false,
+    })
+  : analyzedConfig;
+
+export default exportedConfig;

@@ -5,7 +5,7 @@
 }
 
 .label {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--color-text-secondary);
@@ -45,16 +45,17 @@
 
 .input::placeholder,
 .textarea::placeholder {
-  color: var(--color-gris-500);
+  color: var(--color-gris-600);
   font-weight: 300;
 }
 
 .input:focus-visible,
 .select:focus-visible,
 .textarea:focus-visible {
-  outline: none;
-  border-color: rgb(184 149 106 / 45%);
-  box-shadow: 0 0 0 3px rgb(184 149 106 / 12%);
+  outline: 2px solid var(--color-dorado);
+  outline-offset: 2px;
+  border-color: rgb(184 149 106 / 55%);
+  box-shadow: 0 0 0 3px rgb(184 149 106 / 28%);
 }
 
 .input[aria-invalid="true"],
@@ -65,10 +66,10 @@
 }
 
 .hint {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 300;
   line-height: 1.4;
-  color: var(--color-gris-500);
+  color: var(--color-gris-600);
 }
 
 .error {
@@ -335,14 +336,15 @@
 }
 
 .searchableInput::placeholder {
-  color: var(--color-gris-500);
+  color: var(--color-gris-600);
   font-weight: 300;
 }
 
 .searchableInput:focus-visible {
-  outline: none;
-  border-color: rgb(184 149 106 / 45%);
-  box-shadow: 0 0 0 3px rgb(184 149 106 / 12%);
+  outline: 2px solid var(--color-dorado);
+  outline-offset: 2px;
+  border-color: rgb(184 149 106 / 55%);
+  box-shadow: 0 0 0 3px rgb(184 149 106 / 28%);
 }
 
 .searchableInput[aria-invalid="true"] {

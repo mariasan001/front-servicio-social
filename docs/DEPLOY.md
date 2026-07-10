@@ -145,7 +145,7 @@ Panel smoke: `npm run test:e2e:panel` con secrets `E2E_<ROL>_USER` / `PASSWORD` 
 
 | Tema | Valor |
 |------|--------|
-| Upload actions | `bodySizeLimit: "2mb"` |
+| Upload actions | `bodySizeLimit: "2mb"` — UI alineada (`MAX_UPLOAD_SIZE_MB = 2`) |
 | ISR público | `revalidate: 120` s |
 | CSP scripts | `'unsafe-inline'` requerido por Next sin nonces (ver SEGURIDAD) |
 

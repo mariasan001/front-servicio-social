@@ -65,6 +65,13 @@ export function Modal({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        const openCombobox = dialogRef.current?.querySelector(
+          '[role="combobox"][aria-expanded="true"]',
+        );
+        if (openCombobox) {
+          return;
+        }
+
         onClose();
         return;
       }

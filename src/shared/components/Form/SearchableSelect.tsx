@@ -201,6 +201,7 @@ function SearchableSelectControl({
 
     if (event.key === "Escape") {
       event.preventDefault();
+      event.stopPropagation();
       closeList();
     }
   };
@@ -217,6 +218,11 @@ function SearchableSelectControl({
         : selectedOption
           ? `${options.length} opciones · Seleccionada: ${selectedOption.label}`
           : `${options.length} opción${options.length === 1 ? "" : "es"} disponible${options.length === 1 ? "" : "s"}`;
+
+  const activeOptionId =
+    isOpen && filteredOptions[highlightedIndex]
+      ? `${listboxId}-option-${filteredOptions[highlightedIndex].value}`
+      : undefined;
 
   return (
     <div
@@ -241,6 +247,8 @@ function SearchableSelectControl({
         aria-expanded={isOpen}
         aria-controls={listboxId}
         aria-autocomplete="list"
+        aria-haspopup="listbox"
+        aria-activedescendant={activeOptionId}
         onFocus={openList}
         onChange={(event) => handleInputChange(event.target.value)}
         onKeyDown={handleKeyDown}
@@ -280,11 +288,13 @@ function SearchableSelectControl({
               filteredOptions.map((option, index) => {
                 const isSelected = option.value === value;
                 const isHighlighted = index === highlightedIndex;
+                const optionId = `${listboxId}-option-${option.value}`;
 
                 return (
                   <li key={option.value} role="presentation">
                     <button
                       type="button"
+                      id={optionId}
                       role="option"
                       aria-selected={isSelected}
                       className={[
