@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CheckCircle2, Copy, Link2 } from "lucide-react";
+import { Check, CheckCircle2, Copy, ExternalLink, Link2 } from "lucide-react";
 import { useState } from "react";
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
 import { Button } from "@/shared/components/Button";
@@ -10,63 +10,6 @@ import { buildRegistrationUrl } from "./invitation-link";
 import styles from "./InvitacionGeneradaCard.module.css";
 
 type InvitationShareData = Pick<TokenGeneradoResponse, "token" | "fechaExpiracion">;
-
-type CopyFieldProps = {
-  label: string;
-  hint?: string;
-  value: string;
-  copyLabel: string;
-  monospace?: boolean;
-};
-
-function CopyField({ label, hint, value, copyLabel, monospace = false }: CopyFieldProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  return (
-    <div className={styles.field}>
-      <span className={styles.fieldLabel}>{label}</span>
-      {hint ? <p className={styles.fieldHint}>{hint}</p> : null}
-      <div className={styles.fieldRow}>
-        <output
-          className={[styles.fieldValue, monospace && styles.fieldValueMono]
-            .filter(Boolean)
-            .join(" ")}
-        >
-          {value}
-        </output>
-        <Button
-          type="button"
-          variant="outline"
-          className={styles.copyButton}
-          onClick={() => void handleCopy()}
-          aria-label={`${copyLabel}: ${label}`}
-        >
-          {copied ? (
-            <>
-              <Check size={14} aria-hidden="true" />
-              Copiado
-            </>
-          ) : (
-            <>
-              <Copy size={14} aria-hidden="true" />
-              {copyLabel}
-            </>
-          )}
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 type InvitacionGeneradaCardProps = {
   invitacion: InvitationShareData;
@@ -80,6 +23,25 @@ export function InvitacionGeneradaCard({
   const token = invitacion.token?.trim();
   const registrationUrl = buildRegistrationUrl(undefined, token);
   const isStored = variant === "stored";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!registrationUrl) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(registrationUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (!registrationUrl) {
+    return null;
+  }
 
   return (
     <article
@@ -99,59 +61,63 @@ export function InvitacionGeneradaCard({
         </span>
         <div className={styles.headerCopy}>
           <p className={styles.title}>
-            {isStored ? "Enlace de esta invitación" : "Invitación generada correctamente"}
+            {isStored ? "Compartir invitación" : "Invitación lista para compartir"}
           </p>
           <p className={styles.subtitle}>
-            {isStored
-              ? "Comparte el QR, el enlace o el código con el alumno."
-              : "Comparte el QR, el enlace o el código con el alumno vinculado a esta escuela."}
+            Escanea el QR o copia el enlace de registro para el alumno.
           </p>
         </div>
       </div>
 
-      {registrationUrl ? (
-        <div className={styles.shareLayout}>
-          <div className={styles.qrColumn}>
-            <span className={styles.fieldLabel}>Código QR</span>
-            <p className={styles.fieldHint}>
-              El alumno puede escanearlo para abrir el registro.
-            </p>
-            <InvitationQrCode value={registrationUrl} />
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <CopyField
-              label="Enlace de registro"
-              hint="Compártelo por correo o mensaje."
-              value={registrationUrl}
-              copyLabel="Copiar enlace"
-            />
-            <Button
-              href={registrationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="secondary"
-              className={styles.openLinkButton}
-            >
-              Abrir página de registro
-            </Button>
-          </div>
+      <div className={styles.shareLayout}>
+        <div className={styles.qrColumn}>
+          <InvitationQrCode value={registrationUrl} />
         </div>
-      ) : null}
 
-      {token ? (
-        <CopyField
-          label="Código de invitación"
-          hint="Mismo valor que usa el enlace. No funciona ingresándolo en otra pantalla."
-          value={token}
-          copyLabel="Copiar código"
-          monospace
-        />
-      ) : null}
+        <div className={styles.linkColumn}>
+          <span className={styles.fieldLabel}>Enlace de registro</span>
+          <div className={styles.linkBox}>
+            <p className={styles.linkValue} title={registrationUrl}>
+              {registrationUrl}
+            </p>
+            <div className={styles.linkActions}>
+              <Button
+                type="button"
+                variant="primary"
+                className={styles.actionButton}
+                onClick={() => void handleCopy()}
+                aria-label="Copiar enlace de registro"
+              >
+                {copied ? (
+                  <>
+                    <Check size={14} aria-hidden="true" />
+                    Copiado
+                  </>
+                ) : (
+                  <>
+                    <Copy size={14} aria-hidden="true" />
+                    Copiar enlace
+                  </>
+                )}
+              </Button>
+              <Button
+                href={registrationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline"
+                className={styles.actionButton}
+              >
+                <ExternalLink size={14} aria-hidden="true" />
+                Abrir
+              </Button>
+            </div>
+          </div>
 
-      {invitacion.fechaExpiracion ? (
-        <p className={styles.expiry}>Vence el {formatFecha(invitacion.fechaExpiracion)}</p>
-      ) : null}
+          {invitacion.fechaExpiracion ? (
+            <p className={styles.expiry}>Vence el {formatFecha(invitacion.fechaExpiracion)}</p>
+          ) : null}
+        </div>
+      </div>
     </article>
   );
 }

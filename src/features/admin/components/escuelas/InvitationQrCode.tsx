@@ -65,7 +65,7 @@ export function InvitationQrCode({
   if (error) {
     return (
       <p className={styles.qrError} role="status">
-        No se pudo generar el código QR. Usa el enlace o el código de invitación.
+        No se pudo generar el código QR. Usa el enlace de registro.
       </p>
     );
   }
