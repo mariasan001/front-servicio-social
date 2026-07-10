@@ -151,3 +151,24 @@ export async function listProcesoIncidencias(idProceso: number) {
 
   return response.data ?? [];
 }
+
+export async function registerEncuestaSatisfaccion(request: {
+  nombre: string;
+  carrera: string;
+  escuela: string;
+  comentario: string;
+}) {
+  const response = await serverApiRequest<{ idEncuesta: number }>(
+    "/api/public/encuestas-satisfaccion",
+    {
+      method: "POST",
+      body: request,
+    },
+  );
+
+  if (!response.data) {
+    throw new Error("No se recibió confirmación del registro de la encuesta.");
+  }
+
+  return response.data;
+}

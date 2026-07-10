@@ -10,6 +10,7 @@ import {
   downloadCartaAceptacionArchivo,
   downloadCartaLiberacionArchivo,
   downloadDocumentoArchivoActual,
+  registerEncuestaSatisfaccion,
   registerProcesoHora,
   updateProcesoHoraBitacora,
   uploadDocumentoArchivo,
@@ -91,5 +92,20 @@ export async function downloadCartaArchivoAction(
         ? downloadCartaAceptacionArchivo(idProceso)
         : downloadCartaLiberacionArchivo(idProceso),
     "No pudimos descargar la carta.",
+  );
+}
+
+export async function registerEncuestaSatisfaccionAction(
+  request: {
+    nombre: string;
+    carrera: string;
+    escuela: string;
+    comentario: string;
+  },
+): Promise<ActionResult<{ idEncuesta: number }>> {
+  return runAuthorizedAction(
+    [USER_ROLES.ALUMNO],
+    () => registerEncuestaSatisfaccion(request),
+    "No pudimos enviar tu encuesta.",
   );
 }

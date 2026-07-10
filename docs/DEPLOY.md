@@ -26,7 +26,8 @@ Copiar `.env.example` y ajustar por entorno:
 | `API_PROXY_TARGET` | **Sí** | URL interna del backend Java (ej. `https://api-interna.edomex.gob.mx`). El build **falla** si falta con `NODE_ENV=production`. |
 | `NEXT_PUBLIC_API_URL` | Recomendada | Base del navegador hacia el proxy (default `/api/backend`). |
 | `NEXT_PUBLIC_SITE_URL` | Recomendada | URL pública del sitio (SEO, `sitemap.xml`, enlaces de invitación escuela). Default en código: `https://serviciosocial.edomex.gob.mx`. |
-| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Si está definida, `error.tsx` / `global-error.tsx` reportan a Sentry. Sin DSN solo hay `console.error`. |
+| `NEXT_PUBLIC_SENTRY_DSN` | Opcional | Si está definida, `error.tsx` / `global-error.tsx` y `instrumentation.ts` reportan a Sentry. Sin DSN solo hay `console.error`. |
+| `SENTRY_TRACES_SAMPLE_RATE` | Opcional | Sampling server (default `0.1`). |
 
 **Ejemplo producción:**
 
@@ -91,7 +92,14 @@ Los smoke tests del panel por rol se automatizan con `npm run test:e2e:panel` cu
 
 ## Health check
 
-`GET /api/health` devuelve `{ status: "ok" }` para probes de load balancer.
+`GET /api/health` siempre responde **200** (liveness) con:
+
+```json
+{ "status": "ok|degraded", "service": "front-servicio-social", "backend": "up|down", "timestamp": "..." }
+```
+
+- `status: ok` + `backend: up` → frontend y backend alcanzables
+- `status: degraded` + `backend: down` → el proceso Next vive, pero el API no respondió a tiempo
 
 ## Docker
 
@@ -99,6 +107,7 @@ Los smoke tests del panel por rol se automatizan con `npm run test:e2e:panel` cu
 docker build \
   --build-arg API_PROXY_TARGET=https://api-interno \
   --build-arg NEXT_PUBLIC_SITE_URL=https://serviciosocial.edomex.gob.mx \
+  --build-arg NEXT_PUBLIC_SENTRY_DSN= \
   -t front-servicio-social .
 
 docker run -p 3000:3000 \
@@ -107,6 +116,7 @@ docker run -p 3000:3000 \
   front-servicio-social
 ```
 
+La imagen usa `output: "standalone"`, usuario no-root y `HEALTHCHECK` contra `/api/health`.
 ## Rollback
 
 1. Conservar el artefacto de build anterior (commit + `node_modules` lockfile).
@@ -120,8 +130,8 @@ docker run -p 3000:3000 \
 
 | Área | Sugerencia |
 |------|------------|
-| Errores de cliente | `NEXT_PUBLIC_SENTRY_DSN` → `reportClientError` en `error.tsx` / `global-error.tsx` |
-| Disponibilidad | Health check del frontend (`/api/health`) + backend |
+| Errores de cliente | `NEXT_PUBLIC_SENTRY_DSN` → `instrumentation.ts` (server) + `reportClientError` en boundaries |
+| Disponibilidad | `GET /api/health` con `backend: up|down` |
 | Bundles | `npm run analyze` (abre el reporte de `@next/bundle-analyzer`) |
 | Logs | Agregar request-id en proxy si el hosting lo permite |
 | Seguridad | Rate limit en `/auth/*` en backend o WAF |

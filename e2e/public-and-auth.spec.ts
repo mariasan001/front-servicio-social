@@ -44,14 +44,31 @@ test.describe("Autenticación pública", () => {
     await expect(page.getByRole("textbox", { name: "Usuario" })).toBeVisible();
     await expect(page.getByRole("button", { name: /crear cuenta/i })).toBeVisible();
   });
+
+  test("registro con token en path muestra formulario", async ({ page }) => {
+    await page.goto("/registro/enlace-de-prueba");
+    await expect(page.getByRole("heading", { name: /crear cuenta/i })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Usuario" })).toBeVisible();
+  });
+
+  test("registro con token en query redirige a path", async ({ page }) => {
+    await page.goto("/registro?token=enlace-de-prueba");
+    await expect(page).toHaveURL(/\/registro\/enlace-de-prueba/);
+  });
 });
 
 test.describe("Operación", () => {
-  test("health check responde ok", async ({ request }) => {
+  test("health check responde ok o degraded", async ({ request }) => {
     const response = await request.get("/api/health");
     expect(response.ok()).toBeTruthy();
-    const body = (await response.json()) as { status: string };
-    expect(body.status).toBe("ok");
+    const body = (await response.json()) as {
+      status: string;
+      service: string;
+      backend: string;
+    };
+    expect(["ok", "degraded"]).toContain(body.status);
+    expect(body.service).toBe("front-servicio-social");
+    expect(["up", "down"]).toContain(body.backend);
   });
 });
 

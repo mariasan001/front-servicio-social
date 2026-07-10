@@ -13,6 +13,11 @@ function getSentryDsn() {
   return process.env.NEXT_PUBLIC_SENTRY_DSN?.trim() || "";
 }
 
+function getTracesSampleRate() {
+  const sampleRate = Number(process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE ?? "0.1");
+  return Number.isFinite(sampleRate) ? sampleRate : 0.1;
+}
+
 async function loadSentry(): Promise<SentryLike | null> {
   const dsn = getSentryDsn();
   if (!dsn) {
@@ -25,7 +30,7 @@ async function loadSentry(): Promise<SentryLike | null> {
         Sentry.init({
           dsn,
           environment: process.env.NODE_ENV,
-          tracesSampleRate: 0,
+          tracesSampleRate: getTracesSampleRate(),
         });
         return Sentry as SentryLike;
       })

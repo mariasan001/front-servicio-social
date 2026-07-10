@@ -6,17 +6,14 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const { token, next } = await searchParams;
-  const params = new URLSearchParams();
+  const cleanToken = token?.trim();
+  const cleanNext = next?.trim();
 
-  if (token?.trim()) {
-    params.set("token", token.trim());
+  if (cleanToken) {
+    const nextQuery = cleanNext ? `?next=${encodeURIComponent(cleanNext)}` : "";
+    redirect(`/registro/${encodeURIComponent(cleanToken)}${nextQuery}`);
   }
 
-  if (next?.trim()) {
-    params.set("next", next.trim());
-  }
-
-  const query = params.size > 0 ? `?${params.toString()}` : "";
-
-  redirect(`/registro${query}`);
+  const nextQuery = cleanNext ? `?next=${encodeURIComponent(cleanNext)}` : "";
+  redirect(`/registro${nextQuery}`);
 }

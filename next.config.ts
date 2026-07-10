@@ -10,8 +10,8 @@ if (isProduction && !process.env.API_PROXY_TARGET) {
 }
 
 const scriptSrc = isProduction
-  ? "script-src 'self' 'unsafe-inline'"
-  : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+  ? "script-src 'self' 'unsafe-inline'; script-src-attr 'none'"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src-attr 'none'";
 
 const connectSrc = [
   "connect-src 'self'",
@@ -37,6 +37,8 @@ const securityHeaders = [
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
       connectSrc,
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
       "object-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -50,6 +52,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -64,6 +67,10 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/restablecer-contrasena/:path*",
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
+      {
+        source: "/registro/:path*",
         headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
       },
     ];

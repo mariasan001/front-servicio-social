@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { registerPublicEncuestaSatisfaccion } from "@/lib/services/public-encuestas.service";
+import { registerEncuestaSatisfaccionAction } from "@/features/alumno/actions/proceso.actions";
 import { notify } from "@/shared/notifications";
 import { Button } from "@/shared/components/Button";
 import { Modal } from "@/shared/components/Modal";
@@ -130,12 +130,17 @@ export function AlumnoEncuestaSatisfaccionModal({
     setIsSubmitting(true);
 
     try {
-      await registerPublicEncuestaSatisfaccion({
+      const result = await registerEncuestaSatisfaccionAction({
         nombre: values.nombre.trim(),
         carrera: values.carrera.trim(),
         escuela: values.escuela.trim(),
         comentario: values.comentario.trim(),
       });
+
+      if (!result.success) {
+        notify.error(result.error);
+        return;
+      }
 
       markCompleted(idProceso);
       setDismissed(true);
