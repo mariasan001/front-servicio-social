@@ -86,12 +86,14 @@ describe("isSafeInternalPath", () => {
   it("acepta rutas internas conocidas", () => {
     expect(isSafeInternalPath("/panel/alumno/vacantes")).toBe(true);
     expect(isSafeInternalPath("/vacantes/123")).toBe(true);
-    expect(isSafeInternalPath("/login")).toBe(true);
-    expect(isSafeInternalPath("/recuperar-contrasena")).toBe(true);
-    expect(isSafeInternalPath("/restablecer-contrasena")).toBe(true);
+    expect(isSafeInternalPath("/")).toBe(true);
+    expect(isSafeInternalPath("/registro/token-abc")).toBe(true);
   });
 
-  it("rechaza externos, vacíos y open-redirect", () => {
+  it("rechaza pantallas guest-only, externos y open-redirect", () => {
+    expect(isSafeInternalPath("/login")).toBe(false);
+    expect(isSafeInternalPath("/recuperar-contrasena")).toBe(false);
+    expect(isSafeInternalPath("/restablecer-contrasena")).toBe(false);
     expect(isSafeInternalPath("https://evil.com")).toBe(false);
     expect(isSafeInternalPath("//evil.com")).toBe(false);
     expect(isSafeInternalPath(null)).toBe(false);

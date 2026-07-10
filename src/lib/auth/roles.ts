@@ -88,16 +88,10 @@ export function canAccessPath(user: AuthUser | null, pathname: string) {
   return hasAnyRole(user.roles, requiredRoles);
 }
 
-const SAFE_INTERNAL_EXACT_PATHS = new Set([
-  "/",
-  "/login",
-  "/registro",
-  "/registro/alumno",
-  "/recuperar-contrasena",
-  "/restablecer-contrasena",
-]);
+/** Rutas válidas para `?next=` post-login. No incluir pantallas guest-only. */
+const SAFE_INTERNAL_EXACT_PATHS = new Set(["/", "/vacantes"]);
 
-const SAFE_INTERNAL_PREFIXES = ["/panel/", "/vacantes/"] as const;
+const SAFE_INTERNAL_PREFIXES = ["/panel/", "/vacantes/", "/registro/"] as const;
 
 export function isSafeInternalPath(path: string | null | undefined) {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {
@@ -105,10 +99,6 @@ export function isSafeInternalPath(path: string | null | undefined) {
   }
 
   if (SAFE_INTERNAL_EXACT_PATHS.has(path)) {
-    return true;
-  }
-
-  if (path === "/vacantes") {
     return true;
   }
 

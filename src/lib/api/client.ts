@@ -1,4 +1,5 @@
 import { ApiError } from "./errors";
+import { isGuestOnlyPath } from "@/lib/auth/routes";
 import { redirectToLogin, isUnauthorizedStatus } from "@/lib/auth/unauthorized";
 import type { ApiResponse } from "./types";
 
@@ -6,6 +7,28 @@ export const API_PROXY_PATH = "/api/backend";
 
 const DEFAULT_API_BASE_URL = API_PROXY_PATH;
 const DEFAULT_BACKEND_ORIGIN = "http://localhost:8080";
+
+function shouldRedirectToLoginOnUnauthorized(requestPath: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  // Credenciales inválidas en login/registro/reset: mostrar error, no recargar.
+  if (
+    requestPath.startsWith("/auth/login") ||
+    requestPath.startsWith("/auth/password") ||
+    requestPath.startsWith("/auth/registro") ||
+    requestPath.startsWith("/auth/register")
+  ) {
+    return false;
+  }
+
+  if (isGuestOnlyPath(window.location.pathname)) {
+    return false;
+  }
+
+  return true;
+}
 
 export function getBackendOrigin() {
   return process.env.API_PROXY_TARGET ?? DEFAULT_BACKEND_ORIGIN;
@@ -68,7 +91,7 @@ export async function apiRequest<T>(
     const status = response.status;
     const code = payload?.code ?? "REQUEST_FAILED";
 
-    if (typeof window !== "undefined" && isUnauthorizedStatus(status)) {
+    if (isUnauthorizedStatus(status) && shouldRedirectToLoginOnUnauthorized(path)) {
       redirectToLogin();
     }
 

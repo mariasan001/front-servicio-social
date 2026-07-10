@@ -47,6 +47,10 @@
   justify-content: flex-end;
 }
 
+.usernameInput {
+  text-transform: uppercase;
+}
+
 @media (max-width: 768px) {
   .formGrid {
     grid-template-columns: 1fr;

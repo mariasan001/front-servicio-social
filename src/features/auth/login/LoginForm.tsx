@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { resolveLoginRedirect } from "@/lib/auth/login-redirect";
 import { getApiErrorMessage } from "@/lib/api/errors";
@@ -28,7 +27,6 @@ type LoginFormProps = {
 };
 
 export function LoginForm({ nextPath }: LoginFormProps) {
-  const router = useRouter();
   const [values, setValues] = useState(INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof LoginFormValues, string>>
@@ -62,8 +60,8 @@ export function LoginForm({ nextPath }: LoginFormProps) {
 
       const destination = await resolveLoginRedirect(user, nextPath);
 
-      router.push(destination);
-      router.refresh();
+      // Navegación completa para que la cookie de sesión viaje con la primera carga del panel.
+      window.location.assign(destination);
     } catch (error) {
       notify.error(
         getApiErrorMessage(
@@ -71,7 +69,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
           "No fue posible iniciar sesión. Verifica tus credenciales.",
         ),
       );
-    } finally {
       setIsSubmitting(false);
     }
   };

@@ -11,21 +11,38 @@ export const HORA_OBSERVAR_SOLO_ACTIVIDADES_DELEGACION =
   "Si observas el registro, el alumno solo podrá corregir las actividades realizadas; no podrá modificar el horario.";
 
 export function calcularHorasEntre(horaEntrada: string, horaSalida: string) {
-  const entrada = /^(\d{2}):(\d{2})$/.exec(horaEntrada);
-  const salida = /^(\d{2}):(\d{2})$/.exec(horaSalida);
+  const entrada = timeToMinutes(horaEntrada);
+  const salida = timeToMinutes(horaSalida);
 
-  if (!entrada || !salida) {
+  if (entrada === null || salida === null) {
     return null;
   }
 
-  const entradaMinutos = Number(entrada[1]) * 60 + Number(entrada[2]);
-  const salidaMinutos = Number(salida[1]) * 60 + Number(salida[2]);
-
-  if (salidaMinutos <= entradaMinutos) {
+  if (salida <= entrada) {
     return null;
   }
 
-  return (salidaMinutos - entradaMinutos) / 60;
+  return (salida - entrada) / 60;
+}
+
+function timeToMinutes(hora: string) {
+  const match = /^(\d{2}):(\d{2})$/.exec(hora.trim());
+  if (!match) {
+    return null;
+  }
+
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function currentTimeMinutes(now = new Date()) {
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+/** Hora local actual en formato HH:mm (para `max` en inputs type="time"). */
+export function formatHoraActual(now = new Date()) {
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
 function parseFechaLocal(fecha: string) {
@@ -38,31 +55,33 @@ function parseFechaLocal(fecha: string) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function isFechaRegistroHoy(fecha?: string) {
+export function isFechaRegistroHoy(fecha?: string, now = new Date()) {
   const parsed = fecha?.trim() ? parseFechaLocal(fecha) : null;
   if (!parsed) {
     return false;
   }
 
-  const today = new Date();
   return (
-    parsed.getFullYear() === today.getFullYear() &&
-    parsed.getMonth() === today.getMonth() &&
-    parsed.getDate() === today.getDate()
+    parsed.getFullYear() === now.getFullYear() &&
+    parsed.getMonth() === now.getMonth() &&
+    parsed.getDate() === now.getDate()
   );
 }
 
-export function validarRegistroHoraAlumno(input: {
-  fecha?: string;
-  horaEntrada?: string;
-  horaSalida?: string;
-  descripcionActividades?: string;
-}) {
+export function validarRegistroHoraAlumno(
+  input: {
+    fecha?: string;
+    horaEntrada?: string;
+    horaSalida?: string;
+    descripcionActividades?: string;
+  },
+  now = new Date(),
+) {
   if (!input.fecha?.trim() || !input.horaEntrada?.trim() || !input.horaSalida?.trim()) {
     return "Completa fecha, hora de entrada y hora de salida.";
   }
 
-  if (!isFechaRegistroHoy(input.fecha)) {
+  if (!isFechaRegistroHoy(input.fecha, now)) {
     return "Solo puedes registrar horas del día de hoy.";
   }
 
@@ -78,6 +97,22 @@ export function validarRegistroHoraAlumno(input: {
 
   if (horas > MAX_HORAS_ALUMNO_POR_DIA) {
     return `No puedes registrar más de ${MAX_HORAS_ALUMNO_POR_DIA} horas en un mismo día.`;
+  }
+
+  const ahoraMinutos = currentTimeMinutes(now);
+  const entradaMinutos = timeToMinutes(input.horaEntrada);
+  const salidaMinutos = timeToMinutes(input.horaSalida);
+
+  if (entradaMinutos === null || salidaMinutos === null) {
+    return "Completa fecha, hora de entrada y hora de salida.";
+  }
+
+  if (entradaMinutos > ahoraMinutos) {
+    return "La hora de entrada no puede ser posterior a la hora actual.";
+  }
+
+  if (salidaMinutos > ahoraMinutos) {
+    return "La hora de salida no puede ser posterior a la hora actual.";
   }
 
   return null;

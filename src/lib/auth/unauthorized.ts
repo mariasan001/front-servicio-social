@@ -1,5 +1,7 @@
 import { ApiError } from "@/lib/api/errors";
 import { AUTH_PATHS } from "./constants";
+import { isGuestOnlyPath } from "./routes";
+import { isSafeInternalPath } from "./roles";
 
 export function isUnauthorizedStatus(status?: number) {
   return status === 401;
@@ -9,12 +11,26 @@ export function isUnauthorizedApiError(error: unknown) {
   return error instanceof ApiError && isUnauthorizedStatus(error.status);
 }
 
-export function buildLoginRedirectUrl(nextPath?: string) {
-  const next =
+function resolveNextPathForLogin(nextPath?: string) {
+  const candidate =
     nextPath ??
     (typeof window !== "undefined" ? window.location.pathname : AUTH_PATHS.home);
+
+  if (!isSafeInternalPath(candidate) || isGuestOnlyPath(candidate)) {
+    return null;
+  }
+
+  return candidate;
+}
+
+export function buildLoginRedirectUrl(nextPath?: string) {
   const loginUrl = new URL(AUTH_PATHS.login, window.location.origin);
-  loginUrl.searchParams.set("next", next);
+  const next = resolveNextPathForLogin(nextPath);
+
+  if (next) {
+    loginUrl.searchParams.set("next", next);
+  }
+
   return loginUrl.toString();
 }
 

@@ -29,15 +29,25 @@ export async function fetchClientSession() {
   }
 }
 
-export async function ensureClientSession() {
-  const session = await fetchClientSession();
+export async function ensureClientSession(options?: { retries?: number }) {
+  const retries = options?.retries ?? 1;
 
-  if (!session) {
-    redirectToLogin();
-    return false;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const session = await fetchClientSession();
+
+    if (session) {
+      return true;
+    }
+
+    if (attempt < retries) {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 400);
+      });
+    }
   }
 
-  return true;
+  redirectToLogin();
+  return false;
 }
 
 export function getSessionCheckIntervalMs() {

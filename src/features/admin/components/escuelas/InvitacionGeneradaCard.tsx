@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { TokenGeneradoResponse } from "../../types/escuela.types";
 import { Button } from "@/shared/components/Button";
 import { formatFecha } from "./escuela-labels";
+import { InvitationQrCode } from "./InvitationQrCode";
 import { buildRegistrationUrl } from "./invitation-link";
 import styles from "./InvitacionGeneradaCard.module.css";
 
@@ -102,29 +103,39 @@ export function InvitacionGeneradaCard({
           </p>
           <p className={styles.subtitle}>
             {isStored
-              ? "Enlace de registro para compartir con el alumno."
-              : "Comparte el enlace o el código con el alumno vinculado a esta escuela."}
+              ? "Comparte el QR, el enlace o el código con el alumno."
+              : "Comparte el QR, el enlace o el código con el alumno vinculado a esta escuela."}
           </p>
         </div>
       </div>
 
       {registrationUrl ? (
-        <div className={styles.fieldGroup}>
-          <CopyField
-            label="Enlace de registro"
-            hint="Compártelo con el alumno por correo, mensaje o código QR."
-            value={registrationUrl}
-            copyLabel="Copiar enlace"
-          />
-          <Button
-            href={registrationUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="secondary"
-            className={styles.openLinkButton}
-          >
-            Abrir página de registro
-          </Button>
+        <div className={styles.shareLayout}>
+          <div className={styles.qrColumn}>
+            <span className={styles.fieldLabel}>Código QR</span>
+            <p className={styles.fieldHint}>
+              El alumno puede escanearlo para abrir el registro.
+            </p>
+            <InvitationQrCode value={registrationUrl} />
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <CopyField
+              label="Enlace de registro"
+              hint="Compártelo por correo o mensaje."
+              value={registrationUrl}
+              copyLabel="Copiar enlace"
+            />
+            <Button
+              href={registrationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="secondary"
+              className={styles.openLinkButton}
+            >
+              Abrir página de registro
+            </Button>
+          </div>
         </div>
       ) : null}
 

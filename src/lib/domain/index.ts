@@ -25,6 +25,7 @@ export {
   MAX_HORAS_ALUMNO_POR_DIA,
   calcularHorasEntre,
   isFechaRegistroHoy,
+  formatHoraActual,
   validarRegistroHoraAlumno,
 } from "./horas";
 export {

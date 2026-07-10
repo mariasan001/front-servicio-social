@@ -50,10 +50,10 @@ describe("validarRegistroHoraAlumno", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 6, 9, 10, 0, 0));
+    vi.setSystemTime(new Date(2026, 6, 9, 18, 0, 0));
   });
 
-  it("acepta registro válido del día", () => {
+  it("acepta registro válido del día sin superar la hora actual", () => {
     expect(
       validarRegistroHoraAlumno({
         fecha: TODAY,
@@ -86,6 +86,16 @@ describe("validarRegistroHoraAlumno", () => {
         input: { fecha: TODAY, horaEntrada: "17:00", horaSalida: "09:00", descripcionActividades: "x" },
         error: "posterior a la hora de entrada",
       },
+      {
+        name: "entrada futura",
+        input: { fecha: TODAY, horaEntrada: "18:30", horaSalida: "19:00", descripcionActividades: "x" },
+        error: "hora de entrada no puede ser posterior",
+      },
+      {
+        name: "salida futura",
+        input: { fecha: TODAY, horaEntrada: "17:00", horaSalida: "18:30", descripcionActividades: "x" },
+        error: "hora de salida no puede ser posterior",
+      },
     ],
     ({ input, error }) => {
       const result = validarRegistroHoraAlumno(input);
@@ -103,13 +113,24 @@ describe("validarRegistroHoraAlumno", () => {
     expect(result).toContain(String(MAX_HORAS_ALUMNO_POR_DIA));
   });
 
-  it("permite exactamente 12 horas", () => {
+  it("permite exactamente 12 horas si no supera la hora actual", () => {
     expect(
       validarRegistroHoraAlumno({
         fecha: TODAY,
         horaEntrada: "06:00",
         horaSalida: "18:00",
         descripcionActividades: "Jornada completa",
+      }),
+    ).toBeNull();
+  });
+
+  it("permite salida igual a la hora actual", () => {
+    expect(
+      validarRegistroHoraAlumno({
+        fecha: TODAY,
+        horaEntrada: "17:00",
+        horaSalida: "18:00",
+        descripcionActividades: "Cierre de jornada",
       }),
     ).toBeNull();
   });

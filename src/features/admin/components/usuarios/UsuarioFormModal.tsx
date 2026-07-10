@@ -191,7 +191,7 @@ function UsuarioFormModalContent({
         ? await createUsuarioInternoAction(
             compactPayload({
               ...sharedPayload,
-              username: values.username.trim(),
+              username: values.username.trim().toUpperCase(),
               password: values.password,
             }),
           )
@@ -240,10 +240,16 @@ function UsuarioFormModalContent({
               <TextInput
                 id="usuario-username"
                 label="Nombre de usuario"
+                hint="Solo se aceptan mayúsculas; se convierten al escribir."
                 value={values.username}
                 required
+                autoCapitalize="characters"
+                spellCheck={false}
                 error={fieldErrors.username}
-                onChange={(event) => updateField("username", event.target.value)}
+                className={styles.usernameInput}
+                onChange={(event) =>
+                  updateField("username", event.target.value.toUpperCase())
+                }
               />
               <PasswordInput
                 id="usuario-password"

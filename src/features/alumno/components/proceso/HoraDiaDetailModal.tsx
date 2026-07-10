@@ -16,6 +16,7 @@ import {
 } from "@/shared/proceso/horas";
 import {
   canAlumnoActualizarBitacora,
+  formatHoraActual,
   HORA_CORRECCION_SOLO_ACTIVIDADES_ALUMNO,
   validarRegistroHoraAlumno,
 } from "@/lib/domain";
@@ -111,6 +112,7 @@ function HoraDiaDetailModalContent({
   const totalHorasLabel = formatHorasDia(horas);
   const isToday = isDateKeyToday(dateKey);
   const showRegisterForm = canRegister && !hasHoras && isToday && Boolean(idProceso);
+  const horaMaxima = formatHoraActual();
 
   const submitRegister = async () => {
     if (!idProceso) {
@@ -243,7 +245,8 @@ function HoraDiaDetailModalContent({
               Registrar jornada
             </h3>
             <p className={sectionStyles.registerPanelDescription}>
-              Indica tu horario y las actividades del día. Máximo 12 horas por jornada.
+              Indica tu horario y las actividades del día. Máximo 12 horas por jornada y sin
+              horarios posteriores a la hora actual.
             </p>
           </div>
 
@@ -253,6 +256,7 @@ function HoraDiaDetailModalContent({
                 id="hora-entrada-modal"
                 type="time"
                 className={formStyles.input}
+                max={horaMaxima}
                 value={registerDraft.horaEntrada}
                 onChange={(event) =>
                   setRegisterDraft((current) => ({
@@ -267,6 +271,7 @@ function HoraDiaDetailModalContent({
                 id="hora-salida-modal"
                 type="time"
                 className={formStyles.input}
+                max={horaMaxima}
                 value={registerDraft.horaSalida}
                 onChange={(event) =>
                   setRegisterDraft((current) => ({
